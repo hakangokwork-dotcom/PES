@@ -38,39 +38,27 @@ export async function getTenantContext(req: NextRequest): Promise<TenantContext 
 
   const sql = getDB()
 
-  if (claimedTenantId) {
-    const rows = await sql`
-      SELECT tu.role, t.type AS tenant_type
-      FROM tenant_user tu
-      JOIN tenant t ON t.id = tu.tenant_id
-      WHERE tu.user_id = ${user.id} AND tu.tenant_id = ${claimedTenantId}
-      LIMIT 1
-    ` as Array<{ role: TenantContext['role']; tenant_type: TenantContext['tenantType'] }>
-    if (rows.length === 0) return null
-    return {
-      tenantId: claimedTenantId,
-      userId: user.id,
-      role: rows[0].role,
-      tenantType: rows[0].tenant_type,
-      isInternalAdmin: rows[0].tenant_type === 'internal' && (rows[0].role === 'owner' || rows[0].role === 'admin'),
-    }
-  }
-
-  // Primary tenant fallback
+  // 019c: bootstrap SECURITY DEFINER fonksiyonu üzerinden.
+  // Doğrudan tenant_user sorgusu artık çalışmaz — uygulama pes_app rolüyle
+  // bağlanıyor, auth.uid() NULL, tenant_user politikaları 0 satır döndürür.
+  // Fonksiyon claimedTenantId verilirse üyeliği doğrular, verilmezse
+  // primary tenant'a düşer; her iki durumda da yalnız bu user'ın üyelikleri.
   const rows = await sql`
-    SELECT tu.tenant_id, tu.role, t.type AS tenant_type
-    FROM tenant_user tu
-    JOIN tenant t ON t.id = tu.tenant_id
-    WHERE tu.user_id = ${user.id}
-    ORDER BY tu.is_primary DESC, tu.created_at ASC
-    LIMIT 1
-  ` as Array<{ tenant_id: string; role: TenantContext['role']; tenant_type: TenantContext['tenantType'] }>
+    SELECT tenant_id, role, tenant_type
+    FROM resolve_tenant_context(${user.id}::uuid, ${claimedTenantId}::uuid)
+  ` as Array<{
+    tenant_id: string
+    role: TenantContext['role']
+    tenant_type: TenantContext['tenantType']
+  }>
   if (rows.length === 0) return null
+
+  const { tenant_id, role, tenant_type } = rows[0]
   return {
-    tenantId: rows[0].tenant_id,
+    tenantId: tenant_id,
     userId: user.id,
-    role: rows[0].role,
-    tenantType: rows[0].tenant_type,
-    isInternalAdmin: rows[0].tenant_type === 'internal' && (rows[0].role === 'owner' || rows[0].role === 'admin'),
+    role,
+    tenantType: tenant_type,
+    isInternalAdmin: tenant_type === 'internal' && (role === 'owner' || role === 'admin'),
   }
 }

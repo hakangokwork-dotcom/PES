@@ -27,12 +27,12 @@ export async function withServerTenant<T>(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
+  // 019c: doğrudan tenant_user sorgusu yerine SECURITY DEFINER bootstrap.
+  // Uygulama pes_app rolüyle bağlandığı için auth.uid() NULL ve
+  // tenant_user politikaları 0 satır döndürür.
   const sql = getDB()
   const tenantRows = await sql`
-    SELECT tenant_id FROM tenant_user
-    WHERE user_id = ${user.id}
-    ORDER BY is_primary DESC, created_at ASC
-    LIMIT 1
+    SELECT tenant_id FROM resolve_tenant_context(${user.id}::uuid)
   ` as Array<{ tenant_id: string }>
   if (tenantRows.length === 0) return null
 

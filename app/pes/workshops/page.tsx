@@ -1,18 +1,28 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { withServerTenant } from '@/lib/supabase/tenant-server'
 
 export const dynamic = 'force-dynamic'
 
-let list: Record<string, unknown>[] = []
-let dbError = ''
-
 export default async function WorkshopsPage() {
-  try {
-    const { getDB } = await import('@/lib/supabase/db')
-    const sql = getDB()
-    list = await sql`SELECT * FROM workshop ORDER BY code`
-  } catch (err) {
+  // Not: list/dbError eskiden modül seviyesindeydi. Sunucu süreci uzun
+  // yaşadığı için eşzamanlı istekler arasında paylaşılıyor ve bir
+  // kullanıcının satırları başkasına görünebiliyordu; dbError bir kez
+  // set olunca kalıcı takılıyordu. Artık istek-yerel.
+  let list: Record<string, unknown>[] = []
+  let dbError = ''
+
+  // getDB() doğrudan kullanımı tenant context'ini atlıyordu (set_config yok).
+  // 019c sonrası bu sayfa 0 satır görürdü; withServerTenant doğru yol.
+  const data = await withServerTenant(async (sql) => {
+    return await sql`SELECT * FROM workshop ORDER BY code` as Record<string, unknown>[]
+  }).catch((err: unknown) => {
     dbError = err instanceof Error ? err.message : 'DB bağlantı hatası'
-  }
+    return [] as Record<string, unknown>[]
+  })
+
+  if (data === null) redirect('/login')
+  list = data
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">

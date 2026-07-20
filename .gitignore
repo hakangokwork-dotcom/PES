@@ -1,0 +1,28 @@
+# bağımlılıklar
+/node_modules
+
+# next.js build çıktıları
+/.next
+/out
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# ortam değişkenleri — ASLA commit etme
+.env
+.env*.local
+.env.local.bak*
+
+# loglar
+*.log
+npm-debug.log*
+
+# araç çıktıları
+/.playwright-mcp
+
+# yedek dosyalar
+*.bak
+*.BACKUP-*
+
+# işletim sistemi
+.DS_Store
+Thumbs.db

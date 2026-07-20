@@ -65,6 +65,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Karşılaştırma',   href: '/pes/compare',       icon: '⇔' },
       { label: 'Benchmark',       href: '/pes/benchmark',     icon: '◈' },
       { label: 'Yetenek Raporu',  href: '/pes/yetenek-rapor', icon: '◇' },
+      { label: 'Veri Kalitesi',   href: '/pes/veri-kalitesi', icon: '✓' },
     ],
   },
   {

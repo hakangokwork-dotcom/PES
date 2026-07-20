@@ -1,0 +1,200 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import type { MetricDefinition } from '@/lib/pes/metrics-ontology'
+
+type Category = { code: string; label: string; count: number }
+
+const THRESHOLD_STYLES: Record<string, string> = {
+  green: 'bg-green-100 text-green-700 border-green-200',
+  amber: 'bg-amber-100 text-amber-700 border-amber-200',
+  red: 'bg-red-100 text-red-700 border-red-200',
+  blue: 'bg-blue-100 text-blue-700 border-blue-200',
+  orange: 'bg-orange-100 text-orange-700 border-orange-200',
+}
+
+export default function GlossaryBrowser({
+  metrics,
+  categories,
+}: {
+  metrics: MetricDefinition[]
+  categories: Category[]
+}) {
+  const [query, setQuery] = useState('')
+  const [active, setActive] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<string | null>(null)
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLocaleLowerCase('tr')
+    return metrics.filter((m) => {
+      if (active && m.category !== active) return false
+      if (!q) return true
+      const haystack = [
+        m.label, m.key, m.formula, m.notes ?? '', m.example ?? '',
+        ...(m.aliases ?? []),
+        ...m.sources.map((s) => `${s.table} ${s.column ?? ''} ${s.label}`),
+      ].join(' ').toLocaleLowerCase('tr')
+      return haystack.includes(q)
+    })
+  }, [metrics, query, active, ])
+
+  return (
+    <div className="space-y-5">
+      {/* Arama + kategori filtresi */}
+      <div className="space-y-3">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Terim, formül veya tablo adı ara…"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#197A56] focus:ring-2 focus:ring-[#197A56]/20"
+        />
+        <div className="flex flex-wrap gap-1.5">
+          <FilterChip active={active === null} onClick={() => setActive(null)}>
+            Tümü ({metrics.length})
+          </FilterChip>
+          {categories.map((c) => (
+            <FilterChip key={c.code} active={active === c.code} onClick={() => setActive(c.code)}>
+              {c.label} ({c.count})
+            </FilterChip>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-400">
+        {filtered.length} terim
+        {query && ` — "${query}" için`}
+      </p>
+
+      {filtered.length === 0 ? (
+        <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+          <p className="text-sm text-gray-500">Eşleşen terim yok.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((m) => {
+            const isOpen = expanded === m.key
+            return (
+              <div key={m.key} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setExpanded(isOpen ? null : m.key)}
+                  className="w-full flex items-baseline gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left"
+                >
+                  <span className="font-medium text-gray-900">{m.label}</span>
+                  <code className="text-xs text-gray-400 font-mono">{m.key}</code>
+                  {m.unit && (
+                    <span className="text-xs text-gray-400">{m.unit}</span>
+                  )}
+                  {m.direction && (
+                    <span className="text-xs text-gray-400">
+                      {m.direction === 'higher_better' ? '↑ yüksek iyi' : '↓ düşük iyi'}
+                    </span>
+                  )}
+                  <span className="ml-auto text-gray-400">{isOpen ? '▾' : '▸'}</span>
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-gray-100 px-5 py-4 space-y-3 bg-gray-50">
+                    {m.aliases && m.aliases.length > 0 && (
+                      <p className="text-xs text-gray-500">
+                        <span className="font-semibold">Literatürde:</span> {m.aliases.join(' · ')}
+                      </p>
+                    )}
+
+                    <Field title="Formül">
+                      <code className="text-xs bg-white border border-gray-200 px-2.5 py-1.5 rounded block font-mono text-gray-800">
+                        {m.formula}
+                      </code>
+                    </Field>
+
+                    <Field title="Nereden geliyor">
+                      <ul className="text-xs space-y-0.5">
+                        {m.sources.map((s, i) => (
+                          <li key={i}>
+                            <code className="font-mono text-emerald-700">
+                              {s.table}{s.column ? `.${s.column}` : ''}
+                            </code>
+                            <span className="text-gray-500"> — {s.label}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </Field>
+
+                    {m.thresholds && m.thresholds.length > 0 && (
+                      <Field title="Eşikler">
+                        <div className="flex flex-wrap gap-1">
+                          {m.thresholds.map((t, i) => {
+                            const range = t.min != null && t.max != null
+                              ? `${t.min}–${t.max}`
+                              : t.min != null ? `≥${t.min}` : t.max != null ? `<${t.max}` : ''
+                            return (
+                              <span
+                                key={i}
+                                className={`text-[11px] px-2 py-0.5 rounded border ${THRESHOLD_STYLES[t.color]}`}
+                              >
+                                <span className="font-mono">{range}</span> {t.label}
+                              </span>
+                            )
+                          })}
+                        </div>
+                      </Field>
+                    )}
+
+                    {m.example && (
+                      <Field title="Örnek">
+                        <p className="text-xs text-gray-600 leading-relaxed">{m.example}</p>
+                      </Field>
+                    )}
+
+                    {m.notes && (
+                      <Field title="Neden böyle">
+                        <p className="text-xs text-gray-600 leading-relaxed">{m.notes}</p>
+                      </Field>
+                    )}
+
+                    {m.literature && (
+                      <p className="text-[10px] text-gray-400 italic pt-1">
+                        Kaynak: {m.literature}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FilterChip({
+  active, onClick, children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+        active
+          ? 'bg-[#197A56] text-white border-[#197A56]'
+          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Field({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
+        {title}
+      </div>
+      {children}
+    </div>
+  )
+}

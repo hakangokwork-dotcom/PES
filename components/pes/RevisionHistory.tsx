@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import TermTip from './TermTip'
 
 type Row = {
   staging_id: number
@@ -82,8 +83,15 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Stat label="Beyan edilen dönem" value={groups.length} />
-        <Stat label="Revize edilmiş" value={revised.length} tone={revised.length > 0 ? 'warn' : 'neutral'} />
-        <Stat label="Toplam sürüm" value={rows.length} />
+        <Stat
+          label={<TermTip termKey="beyan_surumu">Revize edilmiş</TermTip>}
+          value={revised.length}
+          tone={revised.length > 0 ? 'warn' : 'neutral'}
+        />
+        <Stat
+          label={<TermTip termKey="ham_beyan">Toplam sürüm</TermTip>}
+          value={rows.length}
+        />
       </div>
 
       <div className="space-y-3">
@@ -187,7 +195,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
   )
 }
 
-function Stat({ label, value, tone = 'neutral' }: { label: string; value: number; tone?: 'warn' | 'neutral' }) {
+function Stat({ label, value, tone = 'neutral' }: { label: React.ReactNode; value: number; tone?: 'warn' | 'neutral' }) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4">
       <p className="text-xs text-gray-500">{label}</p>

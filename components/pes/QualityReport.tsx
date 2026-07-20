@@ -2,6 +2,7 @@
 
 import { Fragment, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import TermTip from './TermTip'
 
 type Flag = {
   field: string
@@ -108,7 +109,9 @@ export default function QualityReport({
           {/* Özet */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500">Kullanılabilir Veri</p>
+              <p className="text-xs text-gray-500">
+                <TermTip termKey="guven_skoru">Kullanılabilir Veri</TermTip>
+              </p>
               <p className={`text-2xl font-bold ${scoreColor(usableRatio)}`}>
                 %{usableRatio.toFixed(0)}
               </p>
@@ -131,12 +134,24 @@ export default function QualityReport({
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
                     <th className="px-4 py-3 text-left text-gray-500 font-medium">Dönem</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Doluluk</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Tutarlılık</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Makullük</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Çapraz</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Toplam</th>
-                    <th className="px-4 py-3 text-center text-gray-500 font-medium">Durum</th>
+                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                      <TermTip termKey="doluluk_skoru">Doluluk</TermTip>
+                    </th>
+                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                      <TermTip termKey="tutarlilik_skoru">Tutarlılık</TermTip>
+                    </th>
+                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                      <TermTip termKey="makullük_skoru">Makullük</TermTip>
+                    </th>
+                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                      <TermTip termKey="capraz_kontrol_skoru">Çapraz</TermTip>
+                    </th>
+                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                      <TermTip termKey="guven_skoru">Toplam</TermTip>
+                    </th>
+                    <th className="px-4 py-3 text-center text-gray-500 font-medium">
+                      <TermTip termKey="beyan_durumu">Durum</TermTip>
+                    </th>
                     <th className="px-4 py-3 text-center text-gray-500 font-medium">Bayrak</th>
                   </tr>
                 </thead>

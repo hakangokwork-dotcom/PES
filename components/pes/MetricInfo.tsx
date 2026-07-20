@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { getMetric, type MetricDefinition } from '@/lib/pes/metrics-ontology'
+import { getMetric, METRIC_CATEGORIES } from '@/lib/pes/metrics-ontology'
 
 interface MetricInfoProps {
   metricKey: string
@@ -69,7 +69,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
             <div>
               <h4 className="text-sm font-semibold text-gray-900">{metric.label}</h4>
               <p className="text-[10px] text-gray-400 uppercase tracking-wider">
-                {METRIC_CATEGORY_LABELS[metric.category]} · {metric.unit}
+                {METRIC_CATEGORIES[metric.category]} · {metric.unit}
                 {metric.direction && (
                   <span className="ml-1">
                     {metric.direction === 'higher_better' ? ' · ↑ yüksek iyi' : ' · ↓ düşük iyi'}
@@ -156,18 +156,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-const METRIC_CATEGORY_LABELS: Record<MetricDefinition['category'], string> = {
-  production: 'Üretim',
-  effectiveness: 'Etkililik',
-  efficiency: 'Verimlilik',
-  productivity: 'Üretkenlik',
-  cost: 'Maliyet',
-  quality: 'Kalite',
-  oee: 'OEE',
-  vsm: 'VSM',
-  downtime: 'Duruş',
-  workforce: 'İşgücü',
-  score: 'Skorlama',
-  eder: 'Eder Maliyet',
-  delivery: 'Teslimat',
-}
+// Kategori etiketleri metrics-ontology'den gelir — burada kopyası tutulmuyor.
+// (Kopya vardı ve ontolojiye yeni kategori eklenince sessizce tip hatası
+//  verdi; tek kaynak olması bunu yapısal olarak engelliyor.)

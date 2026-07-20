@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import TermTip from './TermTip'
 
 type Series = { code: string; label: string; kind: string; unit: string | null; description: string | null }
 type Value = { id: number; series_code: string; donem: string; value: string; source: string | null; note: string | null }
@@ -68,11 +69,14 @@ export default function IndexManager({
     <div className="space-y-8">
       {/* Giriş */}
       <section className="bg-white border border-gray-200 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-800">Endeks değeri gir</h2>
+        <h2 className="text-sm font-semibold text-gray-800">
+          <TermTip termKey="fiyat_endeksi">Endeks</TermTip> değeri gir
+        </h2>
         <p className="text-sm text-gray-500 mt-1">
           Her ay için ilgili serilerin değerini girin. Bir dönemin endeksi
-          girilmemişse o dönemin reel değeri <strong>hesaplanmaz</strong> —
-          sistem tahmin üretmez.
+          girilmemişse o dönemin{' '}
+          <TermTip termKey="reel_deger">reel değeri</TermTip>{' '}
+          <strong>hesaplanmaz</strong> — sistem tahmin üretmez.
         </p>
         <div className="flex flex-wrap items-end gap-2 mt-3">
           <div>
@@ -162,10 +166,14 @@ export default function IndexManager({
 
       {/* Grup eşleştirmesi */}
       <section>
-        <h2 className="text-sm font-semibold text-gray-800 mb-1">Grup → seri eşleştirmesi</h2>
+        <h2 className="text-sm font-semibold text-gray-800 mb-1">
+          <TermTip termKey="gider_gruplari">Grup</TermTip> →{' '}
+          <TermTip termKey="deflator">deflatör</TermTip> eşleştirmesi
+        </h2>
         <p className="text-sm text-gray-500 mb-3">
           Her gider grubu farklı bir seriyle düzeltilir. Doğalgazı TÜFE ile düzeltmek
-          kur etkisini gerçek maliyet artışı gibi gösterirdi.
+          kur etkisini gerçek maliyet artışı gibi gösterirdi.{' '}
+          <TermTip termKey="baz_donem">Baz dönem</TermTip> her serinin en güncel değeridir.
         </p>
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <table className="w-full text-sm">

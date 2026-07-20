@@ -69,6 +69,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Gider Yükle',     href: '/pes/expenses/import', icon: '↑' },
       { label: 'Beyan Geçmişi',   href: '/pes/expenses/revisions', icon: '⟲' },
       { label: 'Fiyat Endeksleri', href: '/pes/endeks',        icon: '₺' },
+      { label: 'Sözlük',          href: '/pes/sozluk',        icon: '?' },
     ],
   },
   {

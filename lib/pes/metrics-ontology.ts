@@ -42,6 +42,10 @@ export interface MetricDefinition {
     | 'score'
     | 'eder'
     | 'delivery'        // teslimat / buyer metrikleri
+    | 'data_quality'    // beyan güven skoru (migration 022)
+    | 'expense_group'   // kanonik gider grupları G1-G8 (021)
+    | 'inflation'       // enflasyon düzeltmesi / reel değer (022d)
+    | 'revision'        // beyan sürüm yönetimi (022c)
   formula: string
   unit: string
   direction?: Direction
@@ -706,6 +710,252 @@ export const METRICS: Record<string, MetricDefinition> = {
     notes: 'Attainment\'a benzer ama paydası TEORİK kapasite (efficiency × effectiveness bileşkesi). Hedef = planlanan üretim, max = teorik tavanı yansıtır.',
     literature: 'konfeksiyon_kpi_literatur §7.4',
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BEYAN GÜVEN SKORU (migration 022)
+  //  "Bu sayıya ne kadar güvenebilirim?" sorusunun cevabı.
+  //  Verinin kendisi değil, verinin KALİTESİ ölçülür.
+  // ═══════════════════════════════════════════════════════════════
+  guven_skoru: {
+    key: 'guven_skoru',
+    label: 'Güven Skoru',
+    aliases: ['Data Confidence', 'Declaration Quality Score'],
+    category: 'data_quality',
+    formula: '(Doluluk + Tutarlılık + Makullük + Çapraz Kontrol) / 4',
+    unit: '0-100',
+    direction: 'higher_better',
+    sources: [
+      { table: 'declaration_quality', column: 'total_sc', label: 'Toplam güven skoru' },
+    ],
+    thresholds: [
+      { min: 70, color: 'green', label: 'Kabul edilebilir' },
+      { min: 50, max: 70, color: 'amber', label: 'Kırpılmış' },
+      { max: 50, color: 'red', label: 'Düzeltme bekliyor' },
+    ],
+    example: 'Doluluk 44, diğer üçü 100 → (44+100+100+100)/4 = 86 → kabul edilebilir.',
+    notes: 'NEDEN VAR: Beyana dayalı bir sistemde en büyük risk, kötü verinin iyi veriyle aynı ağırlıkta işlem görmesidir. Karşılaştırma havuzuna yalnız skoru eşiği geçen beyanlar girer; böylece "eksik doldurulmuş form" ile "özenle doldurulmuş form" aynı kefeye konmaz. Tek bir kritik hata (error) varsa toplam puan yüksek olsa bile kayıt kabul edilmez.',
+  },
+
+  doluluk_skoru: {
+    key: 'doluluk_skoru',
+    label: 'Doluluk',
+    aliases: ['Completeness'],
+    category: 'data_quality',
+    formula: '(Sıfırdan farklı beyan edilen kalem sayısı / 27) × 100',
+    unit: '%',
+    direction: 'higher_better',
+    sources: [
+      { table: 'declaration_quality', column: 'completeness_sc', label: 'Doluluk skoru' },
+      { table: 'v_expense_groups', column: 'doluluk_orani', label: 'Aynı hesabın SQL karşılığı' },
+    ],
+    example: 'Sadece maaş, SGK ve yemek girilmiş → 3/27 = %11.',
+    notes: 'NEDEN "SIFIRDAN FARKLI": Gider tablosunun ilk 12 kalemi eski şemadan gelen bir alışkanlıkla boş bırakıldığında 0 olarak kaydediliyor. "Boş değil" diye saymak, hiçbir şey doldurmamış bir atölyeye %44 doluluk verirdi. Yan etki: doğalgazı gerçekten olmayan atölye o kalemden puan alamaz — şema bu iki durumu ayırt edemediği için kabul edilen bir ödünleşme.',
+  },
+
+  tutarlilik_skoru: {
+    key: 'tutarlilik_skoru',
+    label: 'Tutarlılık',
+    aliases: ['Consistency'],
+    category: 'data_quality',
+    formula: '100 − (kural ihlali cezaları)',
+    unit: '0-100',
+    direction: 'higher_better',
+    sources: [
+      { table: 'declaration_quality', column: 'consistency_sc', label: 'Tutarlılık skoru' },
+      { table: 'validation_param', label: 'Kural bantları (dönem bazlı)' },
+    ],
+    example: 'SGK/personel oranı %0,002 çıktı → alan doldurulmamış demektir, −35 puan ve kritik hata.',
+    notes: 'NE BAKAR: Kalemlerin kendi içinde çelişip çelişmediği. Negatif gider, imkânsız çalışma günü, SGK\'nın maaşa oranının bandın dışına çıkması, teşvikin toplam giderden büyük olması. Dış veriye bakmaz — sadece formun kendi iç mantığına.',
+  },
+
+  makullük_skoru: {
+    key: 'makullük_skoru',
+    label: 'Makullük',
+    aliases: ['Plausibility'],
+    category: 'data_quality',
+    formula: '100 − (bant dışı değer cezaları)',
+    unit: '0-100',
+    direction: 'higher_better',
+    sources: [
+      { table: 'declaration_quality', column: 'plausibility_sc', label: 'Makullük skoru' },
+      { table: 'workshop', column: 'total_staff', label: 'Kişi başı hesaplar için kadro' },
+    ],
+    example: 'Personel gideri / kadro = 1.136 TL/kişi → asgari ücretin çok altında, kritik hata.',
+    notes: 'NE BAKAR: Değerler gerçek dünyada makul mü. Kişi başı maaş ve yemek gideri bantlara göre kontrol edilir. Kadro bilinmiyorsa bu kontroller yapılamaz ve skor 75\'te sabitlenir — tam puan verilmez, çünkü bilgi eksikliği de bir belirsizliktir.',
+  },
+
+  capraz_kontrol_skoru: {
+    key: 'capraz_kontrol_skoru',
+    label: 'Çapraz Kontrol',
+    aliases: ['Cross-check'],
+    category: 'data_quality',
+    formula: '100 − (PES kayıtlarıyla çelişki cezaları)',
+    unit: '0-100',
+    direction: 'higher_better',
+    sources: [
+      { table: 'declaration_quality', column: 'crosscheck_sc', label: 'Çapraz kontrol skoru' },
+      { table: 'workshop', column: 'total_staff', label: 'Kayıtlı kadro' },
+      { table: 'monthly_production', label: 'Dönemde üretim var mı' },
+    ],
+    example: 'Beyandan türetilen kadro ~5 kişi ama kayıtlı kadro 167 → %97 sapma, uyarı.',
+    notes: 'NE BAKAR: Beyanın, sistemdeki DİĞER kayıtlarla uyuşup uyuşmadığı. Beyan edilen personel giderinden kadro tahmin edilir ve atölye kartındaki sayıyla karşılaştırılır; gider var ama üretim kaydı yoksa işaretlenir. Hiçbir çapraz kontrol yapılamıyorsa skor 60\'ta kalır.',
+  },
+
+  beyan_durumu: {
+    key: 'beyan_durumu',
+    label: 'Beyan Durumu',
+    category: 'data_quality',
+    formula: 'Kritik hata varsa → düzeltme bekliyor; yoksa skora göre eşik',
+    unit: 'durum',
+    sources: [
+      { table: 'declaration_quality', column: 'status', label: 'Durum' },
+      { table: 'validation_param', column: 'accept_threshold', label: 'Kabul eşiği (varsayılan 70)' },
+    ],
+    notes: 'DURUMLAR: "Kabul edildi" karşılaştırma havuzuna girer. "Kırpıldı" aykırı değeri budanarak girer. "Düzeltme bekliyor" atölyeden düzeltme istenir. "Reddedildi" havuza hiç girmez. Kritik hata (error) varsa toplam puan eşiği geçse bile kabul edilmez — tek bir imkânsız değer tüm beyanı şüpheli kılar.',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  //  GİDER GRUPLARI (migration 021)
+  // ═══════════════════════════════════════════════════════════════
+  gider_gruplari: {
+    key: 'gider_gruplari',
+    label: 'Kanonik Gider Grupları (G1–G8)',
+    category: 'expense_group',
+    formula: 'G1 İşçilik · G2 Personel Yan · G3 Enerji · G4 Mekân · G5 Makine · G6 Sarf · G7 Dış Hizmet · G8 Diğer',
+    unit: 'TL',
+    sources: [
+      { table: 'v_expense_groups', label: 'Grup toplamları' },
+      { table: 'monthly_expense', label: '27 ham gider kalemi' },
+    ],
+    example: 'G1 = personel + SGK + fazla mesai + prim + kıdem karşılığı.',
+    notes: 'NEDEN GRUPLAMA: Ham kalem listesi zamanla değişir (yeni gider türü eklenir, form güncellenir) ama oran analizi sabit bir çerçeve ister. Gruplar bir VIEW olarak tanımlı; kalem şeması değişse de rasyo katmanı bozulmaz. DİKKAT: Grup içerikleri şu an geçici — kaynak doküman (ATOLYE-BENCHMARK-SISTEMI.md) ile doğrulanmalı.',
+  },
+
+  toplam_brut: {
+    key: 'toplam_brut',
+    label: 'Toplam Brüt Gider',
+    category: 'expense_group',
+    formula: 'G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8',
+    unit: 'TL',
+    direction: 'lower_better',
+    sources: [{ table: 'v_expense_groups', column: 'toplam_brut', label: 'Brüt toplam' }],
+    notes: 'Teşvik düşülmeden önceki toplam. Atölyenin fiilen katlandığı maliyet budur.',
+  },
+
+  toplam_net: {
+    key: 'toplam_net',
+    label: 'Toplam Net Gider',
+    category: 'expense_group',
+    formula: 'Toplam Brüt − Teşvik',
+    unit: 'TL',
+    direction: 'lower_better',
+    sources: [
+      { table: 'v_expense_groups', column: 'toplam_net', label: 'Net toplam' },
+      { table: 'monthly_expense', column: 'incentive_amount', label: 'Teşvik' },
+    ],
+    notes: 'ÇİFT DEFTER: Brüt ve net ayrı tutulur. Brüt gerçek kaynak tüketimini, net atölyenin cebinden çıkanı gösterir. Teşvik bir gider kalemi DEĞİL, mahsuptur — grup toplamlarına girmez, yalnız nette düşülür. Karşılaştırmalarda hangisinin kullanıldığı açıkça belirtilmelidir.',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  //  ENFLASYON DÜZELTMESİ (migration 022d)
+  // ═══════════════════════════════════════════════════════════════
+  reel_deger: {
+    key: 'reel_deger',
+    label: 'Reel Değer',
+    aliases: ['Real Terms', 'Enflasyondan Arındırılmış Değer', 'Deflated Value'],
+    category: 'inflation',
+    formula: 'Nominal Değer × Deflatör',
+    unit: 'TL (baz dönem parasıyla)',
+    sources: [
+      { table: 'v_expense_groups_real', label: 'Reel grup değerleri' },
+      { table: 'price_index', label: 'Endeks serileri' },
+    ],
+    example: 'Enerji 2025-11\'de 129.502 TL, 2026-01\'de 155.499 TL. Nominal artış %20. Kur 40 → 48 olduğu için deflatör 1,2; reel değer 155.402 → 155.499, yani gerçek artış %0,06. Artışın tamamı kurdan.',
+    notes: 'NEDEN GEREKLİ: Enflasyonda nominal karşılaştırma yanıltır — her şey artmış görünür. Reel değer, geçmiş tutarları bugünün parasına çevirerek "gerçekten pahalılaştı mı" sorusunu cevaplar. ENDEKS YOKSA: Değer hesaplanmaz, NULL döner. Sistem bilerek tahmin üretmez; eksik endeksi 1 saymak "enflasyon yokmuş" demek olurdu.',
+  },
+
+  deflator: {
+    key: 'deflator',
+    label: 'Deflatör',
+    aliases: ['Deflator', 'Düzeltme Katsayısı'],
+    category: 'inflation',
+    formula: 'Baz Dönem Endeksi / İlgili Dönem Endeksi',
+    unit: 'katsayı',
+    sources: [
+      { table: 'price_index', column: 'value', label: 'Endeks değerleri' },
+      { table: 'expense_group_index_map', label: 'Hangi grup hangi seriyle' },
+    ],
+    example: 'USD/TRY 2025-11\'de 40, baz dönem 2026-01\'de 48 → deflatör = 48/40 = 1,2.',
+    notes: 'HER GRUP KENDİ SERİSİYLE: İşçilik asgari ücretle, enerji ve makine kurla, sarf ÜFE ile, gerisi TÜFE ile düzeltilir. Doğalgazı TÜFE ile düzeltmek kur sıçramasını "gerçek maliyet artışı" gibi gösterirdi — bu ayrım sistemin en kritik tasarım kararı. Eşleştirme değiştirilebilir.',
+  },
+
+  fiyat_endeksi: {
+    key: 'fiyat_endeksi',
+    label: 'Fiyat Endeksi',
+    category: 'inflation',
+    formula: 'Seri × Dönem → değer',
+    unit: 'endeks / TL',
+    sources: [
+      { table: 'price_index', label: 'Girilen endeks değerleri' },
+      { table: 'index_series', label: 'Seri kataloğu' },
+    ],
+    notes: 'SERİLER: TÜFE (genel enflasyon), ÜFE (girdi maliyeti), USD/TRY (dövize bağlı kalemler), Asgari Ücret (işçilik). ELLE GİRİLİR: Sistem TÜİK/TCMB verisini kendiliğinden çekmez. Girilmemiş dönem için reel hesap yapılmaz.',
+  },
+
+  baz_donem: {
+    key: 'baz_donem',
+    label: 'Baz Dönem',
+    aliases: ['Base Period'],
+    category: 'inflation',
+    formula: 'İlgili serinin endeks girilmiş en güncel dönemi',
+    unit: 'YYYY-MM',
+    sources: [{ table: 'price_index', column: 'donem', label: 'Endeks dönemleri' }],
+    notes: 'Reel değerler bu dönemin parasıyla ifade edilir, yani "bugünün parasıyla". Baz dönemin kendi deflatörü 1,0\'dır. Yeni endeks girildikçe baz ileri kayar ve tüm reel değerler otomatik güncellenir.',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  //  BEYAN SÜRÜMLERİ (migration 022c)
+  // ═══════════════════════════════════════════════════════════════
+  beyan_surumu: {
+    key: 'beyan_surumu',
+    label: 'Beyan Sürümü (Revizyon)',
+    category: 'revision',
+    formula: 'Aynı atölye + dönem için kaçıncı gönderim',
+    unit: 'sürüm no',
+    sources: [
+      { table: 'expense_declaration_staging', column: 'revision_no', label: 'Sürüm numarası' },
+      { table: 'monthly_expense', column: 'revision_no', label: 'Geçerli sürüm' },
+    ],
+    example: 'Şubat için doğalgaz 45.000 beyan edildi; Nisan\'da fatura revize olunca 78.000 olarak yeniden gönderildi. Sürüm 1 saklanır, sürüm 2 geçerli olur.',
+    notes: 'NEDEN SAKLANIYOR: Enflasyonda re-beyan istisna değil kural. Eski beyan silinseydi "gider mi arttı, yoksa beyan mı düzeltildi" sorusu cevaplanamazdı. Ham gönderim hiç değiştirilmeden saklanır; düzeltme yalnız geçerli değeri değiştirir.',
+  },
+
+  gecerli_surum: {
+    key: 'gecerli_surum',
+    label: 'Geçerli Sürüm',
+    category: 'revision',
+    formula: 'superseded_at IS NULL olan sürüm',
+    unit: 'durum',
+    sources: [
+      { table: 'expense_declaration_staging', column: 'superseded_at', label: 'Geçersiz kılınma zamanı' },
+      { table: 'monthly_expense', column: 'current_staging_id', label: 'Geçerli sürüm bağlantısı' },
+    ],
+    notes: 'AYRIM: Sürüm defteri (staging) tarihtir — hiç değişmez. Gider tablosu bugünkü gerçektir — her revizyonda güncellenir. Hesaplamalar daima geçerli sürümü kullanır; geçmiş sürümler yalnız denetim ve karşılaştırma içindir.',
+  },
+
+  ham_beyan: {
+    key: 'ham_beyan',
+    label: 'Ham Beyan (Staging)',
+    aliases: ['Raw Declaration', 'Staging'],
+    category: 'revision',
+    formula: 'Yüklenen dosya satırının değiştirilmemiş hâli',
+    unit: 'JSON',
+    sources: [
+      { table: 'expense_declaration_staging', column: 'raw', label: 'Ham satır' },
+    ],
+    example: 'Kullanıcı "5.200.000,50" yazdı; sistem 5.200.001 olarak kaydetti ama ham metin olduğu gibi duruyor.',
+    notes: 'İZLENEBİLİRLİK İLKESİ: Yüklenen her satır, yorumlanmadan önce olduğu gibi saklanır. Böylece bir sayı tartışmalı hâle geldiğinde "sistem mi yanlış okudu, kullanıcı mı yanlış girdi" sorusu kesin olarak cevaplanabilir. Ham veri hiçbir zaman güncellenmez veya silinmez.',
+  },
 }
 
 export function getMetric(key: string): MetricDefinition | null {
@@ -731,4 +981,24 @@ export const METRIC_CATEGORIES: Record<MetricDefinition['category'], string> = {
   score: 'Skorlama',
   eder: 'Eder Maliyet',
   delivery: 'Teslimat',
+  data_quality: 'Veri Kalitesi',
+  expense_group: 'Gider Grupları',
+  inflation: 'Enflasyon Düzeltmesi',
+  revision: 'Beyan Sürümleri',
+}
+
+/**
+ * Balon (tooltip) için kısa tanım.
+ * notes alanının ilk cümlesi ya da "NEDEN VAR:" gibi bir etiketten
+ * sonraki ilk cümle döner — tam metin açılır pencerede gösterilir.
+ */
+export function getShortDefinition(key: string): string | null {
+  const m = getMetric(key)
+  if (!m) return null
+  if (!m.notes) return `${m.formula}${m.unit ? ` (${m.unit})` : ''}`
+
+  // "ETİKET: açıklama" kalıbındaki etiketi at
+  const withoutLabel = m.notes.replace(/^[A-ZÇĞİÖŞÜ\s"']{3,40}:\s*/, '')
+  const firstSentence = withoutLabel.split(/(?<=[.!?])\s/)[0]
+  return firstSentence.length > 200 ? firstSentence.slice(0, 197) + '…' : firstSentence
 }

@@ -20,6 +20,28 @@ export type ExpenseColumn =
 /** Gider kalemi olmayan ama formda gelen alanlar. */
 export type MetaColumn = 'work_days' | 'target_revenue' | 'donem' | 'workshop_code' | 'workshop_name'
 
+/**
+ * monthly_expense'te BIGINT olarak tanımlı kalemler (005_pes_schema mirası).
+ * Kuruşlu değer yazılırsa "invalid input syntax for type bigint" hatası verir,
+ * bu yüzden yazmadan önce yuvarlanmalı.
+ *
+ * 021'de eklenen 15 kalem NUMERIC(14,2) — onlar kuruş kabul eder.
+ * Eski kolonları NUMERIC'e genişletmek düşünüldü ama postgres.js numeric'i
+ * string döndürüyor; mevcut sayfalardaki aritmetiği sessizce bozardı.
+ * Aylık milyonluk toplamlarda TL hassasiyeti yeterli.
+ */
+export const INTEGER_EXPENSE_COLUMNS: ReadonlySet<string> = new Set([
+  'personnel', 'sgk', 'food', 'electricity', 'water', 'gas',
+  'transport', 'vehicle', 'cargo', 'machine_maint', 'thread', 'other',
+  'target_revenue',
+])
+
+/** Kolonun şema tipine uygun değeri döndürür (bigint kolonlar için yuvarlar). */
+export function coerceForColumn(column: string, value: number | null): number | null {
+  if (value === null) return null
+  return INTEGER_EXPENSE_COLUMNS.has(column) ? Math.round(value) : value
+}
+
 export const EXPENSE_LABELS: Record<ExpenseColumn, string> = {
   personnel: 'Personel Maaş',
   sgk: 'SGK Primi',

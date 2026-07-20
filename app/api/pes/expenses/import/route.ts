@@ -30,6 +30,11 @@ type RowReport = {
   problem?: string
   score?: QualityScore
   values?: Partial<Record<ExpenseColumn, number | null>>
+  /** Kaçıncı beyan (commit sonrası dolar). 1 = ilk, >1 = revizyon. */
+  revision_no?: number
+  is_revision?: boolean
+  /** Önizlemede: bu dönem daha önce beyan edilmiş mi. */
+  existing_revision?: number
 }
 
 /** 'YYYY-MM' | Excel tarihi | '01.2026' gibi girdileri YYYY-MM'e çevirir. */
@@ -161,23 +166,73 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
     }
 
     report.score = scoreDeclaration(declaration, ctx, resolveParams(paramRows, donem))
+
+    // Bu dönem daha önce beyan edilmiş mi — kullanıcı commit'ten ÖNCE bilmeli
+    const existing = await sql`
+      SELECT revision_no FROM monthly_expense
+      WHERE workshop_id = ${ws2.id} AND year = ${Number(yearStr)} AND month = ${Number(monthStr)}
+    ` as Array<{ revision_no: number | null }>
+    if (existing.length > 0) {
+      report.existing_revision = existing[0].revision_no ?? 1
+    }
+
     reports.push(report)
 
     if (mode === 'commit') {
       const workDays = mapping.meta.work_days ? parseAmount(raw[mapping.meta.work_days]) : null
+      const revisionNote = formData.get('revision_note')
+      const note = typeof revisionNote === 'string' && revisionNote.trim() ? revisionNote.trim() : null
 
-      // 1) Ham satır staging'e — dokunulmadan (izlenebilirlik ilkesi)
+      // 1) Önceki geçerli sürümü bul ve kapat (022c: staging = sürüm defteri)
+      const previous = await sql`
+        SELECT id, revision_no FROM expense_declaration_staging
+        WHERE workshop_id = ${ws2.id} AND donem = ${donem}
+          AND superseded_at IS NULL AND match_status = 'matched'
+        ORDER BY revision_no DESC NULLS LAST
+        LIMIT 1
+      ` as Array<{ id: number; revision_no: number | null }>
+
+      const nextRevision = (previous[0]?.revision_no ?? 0) + 1
+
+      // 2) Önce eski sürümü KAPAT, sonra yenisini ekle.
+      //    idx_expense_staging_current kısmi unique index'i (atölye, dönem)
+      //    başına tek açık sürüme izin veriyor; sıra ters olursa iki açık
+      //    satır oluşur ve INSERT unique ihlaliyle patlar.
+      //    superseded_by henüz bilinmiyor (yeni satırın id'si yok) —
+      //    3. adımda bağlanır.
+      if (previous.length > 0) {
+        await sql`
+          UPDATE expense_declaration_staging
+          SET superseded_at = NOW()
+          WHERE id = ${previous[0].id}
+        `
+      }
+
+      // 3) Ham satır staging'e — dokunulmadan (izlenebilirlik ilkesi)
       const staged = await sql`
         INSERT INTO expense_declaration_staging
-          (tenant_id, source, source_ref, donem, raw, workshop_id, match_status, promoted_at)
+          (tenant_id, source, source_ref, donem, raw, workshop_id, match_status,
+           promoted_at, revision_no, revision_note)
         VALUES (
           ${tenant.tenantId}, 'forms_xlsx', ${file.name}, ${donem},
-          ${sql.json(raw as never)}, ${ws2.id}, 'matched', NOW()
+          ${sql.json(raw as never)}, ${ws2.id}, 'matched',
+          NOW(), ${nextRevision}, ${note}
         )
         RETURNING id
       ` as Array<{ id: number }>
 
-      // 2) Temizlenmiş değerler monthly_expense'e
+      // 4) Kapatılan sürümü yenisine bağla (zincir: rev1 -> rev2 -> rev3)
+      if (previous.length > 0) {
+        await sql`
+          UPDATE expense_declaration_staging
+          SET superseded_by = ${staged[0].id}
+          WHERE id = ${previous[0].id}
+        `
+      }
+
+      // 5) Geçerli değerler monthly_expense'e — upsert
+      //    UNIQUE (workshop_id, year, month) var; re-beyan eskisini günceller,
+      //    tarihsel kayıt staging'de durur.
       const expense = await sql`
         INSERT INTO monthly_expense ${sql({
           workshop_id: ws2.id,
@@ -185,7 +240,21 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
           year: Number(yearStr),
           month: Number(monthStr),
           work_days: workDays === null ? 22 : Math.round(workDays),
+          current_staging_id: staged[0].id,
+          revision_no: nextRevision,
+          revised_at: new Date(),
           // bigint kolonlara kuruşlu değer yazılamaz — şema tipine göre yuvarla
+          ...Object.fromEntries(
+            Object.entries(values)
+              .filter(([, v]) => v !== null)
+              .map(([col, v]) => [col, coerceForColumn(col, v as number)]),
+          ),
+        })}
+        ON CONFLICT (workshop_id, year, month) DO UPDATE SET ${sql({
+          work_days: workDays === null ? 22 : Math.round(workDays),
+          current_staging_id: staged[0].id,
+          revision_no: nextRevision,
+          revised_at: new Date(),
           ...Object.fromEntries(
             Object.entries(values)
               .filter(([, v]) => v !== null)
@@ -195,7 +264,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
         RETURNING id
       ` as Array<{ id: number }>
 
-      // 3) Güven skoru
+      // 6) Güven skoru — yeni sürüme bağlanır
       const s = report.score
       await sql`
         INSERT INTO declaration_quality (
@@ -209,9 +278,17 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
           ${sql.json(s.flags)}, ${s.status}, ${s.rule_version}
         )
         ON CONFLICT (expense_id) DO UPDATE SET
+          staging_id = EXCLUDED.staging_id,
+          completeness_sc = EXCLUDED.completeness_sc,
+          consistency_sc  = EXCLUDED.consistency_sc,
+          plausibility_sc = EXCLUDED.plausibility_sc,
+          crosscheck_sc   = EXCLUDED.crosscheck_sc,
           total_sc = EXCLUDED.total_sc, status = EXCLUDED.status,
           flags = EXCLUDED.flags, computed_at = NOW()
       `
+
+      report.revision_no = nextRevision
+      report.is_revision = nextRevision > 1
     }
   }
 

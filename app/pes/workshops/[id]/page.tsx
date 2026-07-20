@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Workshop, ProductionLine } from '@/types/pes'
 import WorkshopForm from '@/components/pes/WorkshopForm'
 import LineManager from '@/components/pes/LineManager'
+import WorkshopTabs from '@/components/pes/WorkshopTabs'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 
 export const dynamic = 'force-dynamic'
@@ -17,16 +18,49 @@ const TYPE_LABELS: Record<string, string> = {
 export default async function WorkshopDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
+  const wid = parseInt(id)
+
   const data = await withServerTenant(async (sql) => {
-    const workshops = await sql`SELECT * FROM workshop WHERE id = ${parseInt(id)}` as Workshop[]
+    const workshops = await sql`SELECT * FROM workshop WHERE id = ${wid}` as Workshop[]
     if (workshops.length === 0) return null
-    const lineList = await sql`SELECT * FROM production_line WHERE workshop_id = ${parseInt(id)} ORDER BY code` as ProductionLine[]
-    return { w: workshops[0], lineList }
+
+    // Atölye 360 verisi tek turda — sıralı await zinciri yerine paralel.
+    const [lineList, accountRows, contacts, shares, interactions, capabilities] = await Promise.all([
+      sql`SELECT * FROM production_line WHERE workshop_id = ${wid} ORDER BY code`,
+      sql`SELECT * FROM workshop_account WHERE workshop_id = ${wid}`,
+      sql`SELECT * FROM workshop_contact WHERE workshop_id = ${wid} ORDER BY is_primary DESC, name`,
+      sql`SELECT * FROM workshop_customer_share
+          WHERE workshop_id = ${wid} AND valid_to IS NULL
+          ORDER BY share_pct DESC NULLS LAST, customer_label`,
+      sql`SELECT * FROM workshop_interaction
+          WHERE workshop_id = ${wid}
+          ORDER BY occurred_at DESC, id DESC LIMIT 50`,
+      sql`SELECT lc.dimension_code, cd.label AS dimension_label,
+                 lc.value_code, cv.label AS value_label,
+                 count(DISTINCT lc.line_id)::int AS line_count
+          FROM line_capability lc
+          JOIN production_line pl ON pl.id = lc.line_id
+          LEFT JOIN capability_dimension cd ON cd.code = lc.dimension_code
+          LEFT JOIN capability_value cv ON cv.dimension_id = cd.id AND cv.code = lc.value_code
+          WHERE pl.workshop_id = ${wid}
+          GROUP BY lc.dimension_code, cd.label, lc.value_code, cv.label, cd.sort_order, cv.sort_order
+          ORDER BY cd.sort_order NULLS LAST, cv.sort_order NULLS LAST`,
+    ])
+
+    return {
+      w: workshops[0],
+      lineList: lineList as unknown as ProductionLine[],
+      account: accountRows[0] ?? null,
+      contacts,
+      shares,
+      interactions,
+      capabilities,
+    }
   })
 
   if (!data) redirect('/pes/workshops')
 
-  const { w, lineList } = data
+  const { w, lineList, account, contacts, shares, interactions, capabilities } = data
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -66,6 +100,15 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
           <p className="text-xl font-bold text-gray-900">{w.line_count}</p>
         </div>
       </div>
+
+      <WorkshopTabs
+        workshopId={w.id}
+        account={account as never}
+        contacts={contacts as never}
+        shares={shares as never}
+        interactions={interactions as never}
+        capabilities={capabilities as never}
+      />
 
       <LineManager workshop={w} lines={lineList} />
 

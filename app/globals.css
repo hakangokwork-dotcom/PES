@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/* VSIM (Değer Akışı Simülasyonu) — /workshop/vsm ve /pes/uretim-simulasyon sayfaları.
+   Bu iki dosya app/styles altında durmak ZORUNDA: Tailwind 4'ün @import çözümleyicisi
+   üst dizine (`../`) çıkan göreli yolları çözemiyor, alt dizine inenleri çözüyor.
+   vsim-theme.css TÜRETİLMİŞTİR — kaynağı VSIM/src, `npm run sync:vsim` yazar. */
+@import "./styles/vsim-theme.css";
+@import "./styles/vsim-bridge.css";
 
 :root {
   --background: #ffffff;

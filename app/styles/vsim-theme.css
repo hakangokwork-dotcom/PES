@@ -1,0 +1,72 @@
+/* VSIM tema katmanı — TAŞINABİLİR kısım.
+   Bu dosya standalone Vite uygulamasında da, PES'e gömülü sürümde de aynen kullanılır
+   (PES: app/globals.css içinden @import edilir). Bu yüzden burada `body`/`html` gibi
+   global element seçicileri YOKTUR — onlar index.css'te, yalnız standalone'da geçerli.
+
+   Font aileleri `--vsim-font-*` üzerinden dışarıdan ezilebilir: standalone'da tanımsız
+   kalır ve @fontsource ile yüklenen adlara düşer; PES'te next/font değişkenlerine bağlanır. */
+
+@theme {
+  --font-display: var(--vsim-font-display, 'Quicksand Variable'), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--vsim-font-sans, 'Source Sans 3 Variable'), system-ui, sans-serif;
+  --font-mono: var(--vsim-font-mono, 'IBM Plex Mono'), ui-monospace, monospace;
+
+  /* zemin & yüzey */
+  --color-paper: #FAF5EC;        /* uygulama zemini */
+  --color-surface: #FFFFFF;      /* kartlar, modallar */
+  --color-surface-2: #F3EEE6;    /* ikincil dolgu, hover zemin */
+  --color-line: #E7E0D6;         /* hairline sınırlar */
+  --color-line-strong: #D5CCBD;
+
+  /* mürekkep */
+  --color-ink: #1A2B32;          /* birincil metin */
+  --color-ink-soft: #52646C;     /* ikincil metin */
+  --color-ink-faint: #8A98A0;    /* ipucu/disabled */
+
+  /* koyu başlık bandı */
+  --color-header: #1E5B4A;       /* üst bar zemini — koyu marka yeşili */
+  --color-header-ink: #F5F1E8;   /* üst bar metni (krem) */
+
+  /* vurgu — ProMode marka yeşili (tek birincil) */
+  --color-accent: #2F9E68;
+  --color-accent-strong: #268254;   /* hover */
+  --color-accent-tint: #E4F4EB;     /* seçili zemin */
+  --color-accent-ink: #1E5B4A;      /* tint üstü metin */
+  --color-brand-bright: #4FC08A;    /* koyu header üzerinde parlak yeşil */
+
+  /* marka turuncu — logo noktası ve küçük vurgular */
+  --color-brand-orange: #DE7C3B;
+  --color-brand-orange-tint: #FBEDDF;
+
+  /* durum */
+  --color-warn: #B45309;   --color-warn-tint: #F7EDDD;
+  --color-danger: #B3402A; --color-danger-tint: #F8E9E4;
+  --color-info: #3E6B8C;   --color-info-tint: #E9F0F5;
+  --color-ok: #3F7D45;     --color-ok-tint: #E9F2EA;
+
+  --shadow-card: 0 1px 2px rgba(26,43,50,0.06), 0 8px 24px rgba(26,43,50,0.08);
+}
+
+/* Basılabilir rapor (ProcessReport.jsx, #process-report) — ekranda normal akışı etkilemez;
+   yalnız yazdırma/PDF sırasında devreye girer. Kurallar `body.printing-report` altına
+   kapsüllenir: sınıf yalnız ProcessReport mount'ken eklenir (bkz. useEffect), böylece rapor
+   KAPALIYKEN tarayıcının normal Ctrl+P davranışı bozulmaz (aksi halde her yerde boş sayfa
+   basardı — #process-report DOM'da yokken tüm body gizli kalırdı). Rapor açıkken uygulamanın
+   geri kalanı (üst bar, palet, modal arkaplanları) gizlenir; yalnız rapor kökü + içeriği basılır. */
+@media print {
+  body.printing-report .no-print { display: none !important; }
+
+  body.printing-report * { visibility: hidden; }
+  body.printing-report #process-report,
+  body.printing-report #process-report * { visibility: visible; }
+  body.printing-report #process-report {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+  }
+
+  body.printing-report * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

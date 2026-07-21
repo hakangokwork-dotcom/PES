@@ -29,7 +29,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Üretim',           href: '/pes/production',    icon: '⊞' },
       { label: 'Atölye Fiyatlama', href: '/pes/eder-maliyet',  icon: '⊕' },
-      { label: 'Üretim Simülasyon', href: '/pes/uretim-simulasyon', icon: '▶' },
+      { label: 'VSM / Simülasyon', href: '/pes/uretim-simulasyon', icon: '⊿' },
     ],
   },
   {

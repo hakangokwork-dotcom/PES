@@ -1,0 +1,32 @@
+/* VSIM ↔ PES köprüsü. Senkron betiği bu dosyaya DOKUNMAZ (components/pes altında).
+ *
+ * VSIM standalone'da zemin/tipografi `body`ye uygulanır; PES'te bunu yapamayız —
+ * uygulamanın geri kalanı Geist fontu ve beyaz zemin kullanıyor. Bu yüzden aynı
+ * kurallar `.vsim-root` altına kapsüllenir: yalnız VSM sayfasının içi VSIM görünür.
+ *
+ * FONT KAPSAMI — burası kritik. vsim-theme.css'in @theme bloğu `--font-sans` ve
+ * `--font-mono`yu VSIM fontlarına bağlar, ama globals.css'te DAHA SONRA gelen PES'in
+ * bloğu bu ikisini Geist'e geri çevirir; öyle de olmalı — PES sayfaları `font-mono`
+ * sınıfını yoğun kullanıyor, global olarak değişmemeli.
+ *
+ * Değişkeni .vsim-root üzerinde yeniden tanımlamak TEK BAŞINA YETMEZ: PES'in bloğu
+ * `@theme inline` olduğu için Tailwind `font-mono` yardımcısını `var(--font-mono)`
+ * değil, çözülmüş hâliyle `var(--font-geist-mono)` olarak derler — değişken ezmesi
+ * bu yardımcılara ulaşmaz. Bu yüzden iki katman birlikte kullanılıyor:
+ *   1) .vsim-root'ta değişken ezmesi  → miras yoluyla gelen metinler (sınıfsız),
+ *   2) sınıfların doğrudan geri alınması → font-sans/font-mono yazan 109 kullanım.
+ * (`--font-display` çakışmıyor — PES hiç kullanmıyor, tema dosyasındaki değer geçerli.)
+ *
+ * `--vsim-font-*` değişkenleri app/layout.tsx'te next/font ile doldurulur; tanımsız
+ * kalırlarsa @fontsource adlarına düşer (standalone davranışı korunur). */
+
+.vsim-root {
+  --font-sans: var(--vsim-font-sans, 'Source Sans 3 Variable'), system-ui, sans-serif;
+  --font-mono: var(--vsim-font-mono, 'IBM Plex Mono'), ui-monospace, monospace;
+
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.vsim-root .font-sans { font-family: var(--font-sans); }
+.vsim-root .font-mono { font-family: var(--font-mono); }

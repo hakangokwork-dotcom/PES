@@ -4,6 +4,7 @@ import type { Workshop, ProductionLine } from '@/types/pes'
 import WorkshopForm from '@/components/pes/WorkshopForm'
 import LineManager from '@/components/pes/LineManager'
 import WorkshopTabs from '@/components/pes/WorkshopTabs'
+import AtolyeTehlikeliIslemler from '@/components/pes/AtolyeTehlikeliIslemler'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 
 export const dynamic = 'force-dynamic'
@@ -120,6 +121,8 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
           <WorkshopForm workshop={w} />
         </div>
       </details>
+
+      <AtolyeTehlikeliIslemler id={w.id} kod={w.code} aktif={!!w.is_active} />
     </div>
   )
 }

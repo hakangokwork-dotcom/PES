@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 
 /* Bant yetenek profili editörü.
  *
@@ -37,6 +38,8 @@ export default function YetenekEditoru({
   const [kaydediliyor, setKaydediliyor] = useState(false)
   const [mesaj, setMesaj] = useState<{ tip: 'ok' | 'hata'; metin: string } | null>(null)
   const [yeniTerim, setYeniTerim] = useState<Record<string, string>>({})
+  const [, startTransition] = useTransition()
+  const router = useRouter()
 
   const anahtar = (d: string, v: string) => `${d}|${v}`
 
@@ -135,6 +138,9 @@ export default function YetenekEditoru({
       if (!r.ok) { setMesaj({ tip: 'hata', metin: d.error ?? 'Kaydedilemedi' }); return }
       setIlkHal(seriye(secimler))
       setMesaj({ tip: 'ok', metin: `${d.saved} yetenek kaydedildi.` })
+      /* Sunucudan gelen özetler bu kayıtla eskiyor: bant sekmelerindeki yetenek
+         sayaçları ve atölye detayındaki "N bant" özeti. Tazele. */
+      startTransition(() => router.refresh())
     } catch {
       setMesaj({ tip: 'hata', metin: 'Bağlantı hatası' })
     } finally {

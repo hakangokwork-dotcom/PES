@@ -109,6 +109,8 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
         shares={shares as never}
         interactions={interactions as never}
         capabilities={capabilities as never}
+        /* Yetenek sekmesi bant bazında düzenleme yapar; aktif bantlar lazım. */
+        lines={lineList.filter((l) => l.is_active).map((l) => ({ id: l.id, code: l.code, name: l.name }))}
       />
 
       <LineManager workshop={w} lines={lineList} />

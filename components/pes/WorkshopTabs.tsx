@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import YetenekEditoru from '@/components/pes/YetenekEditoru'
 
 type Account = {
   workshop_id: number
@@ -48,7 +49,10 @@ type Capability = {
   line_count: number
 }
 
-const TABS = ['Kimlik', 'Yetkinlik', 'İlişki', 'Zaman Çizgisi'] as const
+/* Yetenek editörü bant bazlı çalışır; sekme atölyenin bantlarını listeler. */
+type Line = { id: number; code: string; name: string }
+
+const TABS = ['Kimlik', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
 type Tab = (typeof TABS)[number]
 
 const KIND_LABELS: Record<string, string> = {
@@ -84,6 +88,7 @@ export default function WorkshopTabs({
   shares,
   interactions,
   capabilities,
+  lines,
 }: {
   workshopId: number
   account: Account | null
@@ -91,6 +96,7 @@ export default function WorkshopTabs({
   shares: Share[]
   interactions: Interaction[]
   capabilities: Capability[]
+  lines: Line[]
 }) {
   const [tab, setTab] = useState<Tab>('Kimlik')
 
@@ -114,7 +120,7 @@ export default function WorkshopTabs({
 
       <div className="pt-6">
         {tab === 'Kimlik' && <KimlikTab workshopId={workshopId} account={account} />}
-        {tab === 'Yetkinlik' && <YetkinlikTab capabilities={capabilities} />}
+        {tab === 'Yetenek' && <YetenekTab capabilities={capabilities} lines={lines} />}
         {tab === 'İlişki' && (
           <IliskiTab workshopId={workshopId} account={account} contacts={contacts} shares={shares} />
         )}
@@ -219,14 +225,11 @@ function KimlikTab({ workshopId, account }: { workshopId: number; account: Accou
 
 /* ------------------------------------------------------------ Yetkinlik */
 
-function YetkinlikTab({ capabilities }: { capabilities: Capability[] }) {
-  if (capabilities.length === 0) {
-    return (
-      <p className="text-sm text-gray-500">
-        Bu atölyenin bantlarında tanımlı yetkinlik kaydı yok.
-      </p>
-    )
-  }
+/* Atölye geneli özet (salt okunur) + seçilen bandın düzenlenebilir profili.
+   İkisi farklı soruya cevap verir: özet "bu atölye ne yapar", editör
+   "bu BANT ne yapar". Yetenek bantta tutulur, özet ondan türetilir. */
+function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines: Line[] }) {
+  const [seciliBant, setSeciliBant] = useState<number | null>(lines[0]?.id ?? null)
 
   const byDimension = capabilities.reduce<Record<string, Capability[]>>((acc, c) => {
     const key = c.dimension_label ?? c.dimension_code
@@ -234,27 +237,71 @@ function YetkinlikTab({ capabilities }: { capabilities: Capability[] }) {
     return acc
   }, {})
 
+  const bant = lines.find((l) => l.id === seciliBant)
+
   return (
-    <div className="space-y-6">
-      <p className="text-sm text-gray-500">
-        Bantlardan türetilmiş yetkinlik matrisi. Seviye (0–3) ve körelme takibi migration 023 ile eklenecek.
-      </p>
-      {Object.entries(byDimension).map(([dimension, values]) => (
-        <div key={dimension}>
-          <h3 className="text-sm font-semibold text-gray-800 mb-2">{dimension}</h3>
-          <div className="flex flex-wrap gap-2">
-            {values.map((v) => (
-              <span
-                key={`${v.dimension_code}-${v.value_code}`}
-                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"
-              >
-                {v.value_label ?? v.value_code}
-                <span className="text-gray-400">{v.line_count} bant</span>
-              </span>
-            ))}
-          </div>
+    <div className="space-y-8">
+      <section className="space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900">Atölye Özeti</h3>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Bantlardan türetilir — bir yetenek kaç bantta varsa o sayıyla görünür.
+          </p>
         </div>
-      ))}
+        {capabilities.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            Bu atölyenin bantlarında henüz yetenek işaretlenmemiş. Aşağıdan başlayabilirsin.
+          </p>
+        ) : (
+          Object.entries(byDimension).map(([dimension, values]) => (
+            <div key={dimension}>
+              <h4 className="text-xs font-semibold text-gray-700 mb-1.5">{dimension}</h4>
+              <div className="flex flex-wrap gap-2">
+                {values.map((v) => (
+                  <span
+                    key={`${v.dimension_code}-${v.value_code}`}
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"
+                  >
+                    {v.value_label ?? v.value_code}
+                    <span className="text-gray-400">{v.line_count} bant</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </section>
+
+      <section className="border-t border-gray-200 pt-6">
+        {lines.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            Bu atölyede aktif bant yok. Yetenek girmek için önce bant eklenmeli.
+          </p>
+        ) : (
+          <>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Bant Bazında Düzenle</h3>
+            <div className="flex flex-wrap gap-2 mb-5">
+              {lines.map((l) => {
+                const aktif = l.id === seciliBant
+                return (
+                  <button
+                    key={l.id}
+                    onClick={() => setSeciliBant(l.id)}
+                    className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
+                      aktif
+                        ? 'bg-[#197A56] text-white border-[#197A56]'
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#197A56]'
+                    }`}
+                  >
+                    {l.name}
+                  </button>
+                )
+              })}
+            </div>
+            {bant && <YetenekEditoru key={bant.id} lineId={bant.id} lineAdi={bant.name} />}
+          </>
+        )}
+      </section>
     </div>
   )
 }

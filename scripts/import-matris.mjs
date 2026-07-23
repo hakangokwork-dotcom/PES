@@ -48,6 +48,9 @@ const norm = (s) => String(s ?? '').split('').map((c) => TR[c] ?? c).join('')
   .toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '')
 const txt = (v) => String(v ?? '').trim()
 const num = (v) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? Math.round(n) : null }
+/* production_line.name VARCHAR(50) — view bağımlılığı yüzünden genişletilemiyor;
+   uzun ticari unvan bant adı olarak gelince kırp. */
+const kes50 = (s) => (s && s.length > 50 ? s.slice(0, 50) : s)
 
 /* Grup başlığı → PES boyut kodu */
 const GRUP_BOYUT = {
@@ -204,15 +207,19 @@ if (!APPLY) {
 }
 
 /* ---------- 7. Yazma ---------- */
+/* Yeni atölye kodları MTR-001, MTR-002… Başlangıç numarasını döngü öncesi
+   BİR kez çek, JS'te artır — döngü içinde MAX sorgusu hem yavaş hem kırılgan
+   (regexp_replace escape tuzağı). split_part güvenli: code LIKE 'MTR-%'. */
+const [{ n: mtrBas }] = await sql`
+  SELECT COALESCE(MAX(split_part(code,'-',2)::int),0) AS n
+  FROM workshop WHERE tenant_id = ${tenant.id} AND code LIKE 'MTR-%'`
+let mtrSira = Number(mtrBas)
+
 await sql.begin(async (tx) => {
   for (const a of [...eslesen, ...yeniAtolye]) {
     let ws = a.pes
     if (!ws) {
-      /* Yeni atölye kodu: MTR-001, MTR-002… mevcut MTR kodlarının sonrasından. */
-      const [{ n }] = await tx`
-        SELECT COALESCE(MAX(NULLIF(regexp_replace(code,'\D','','g'),'')::int),0)+1 AS n
-        FROM workshop WHERE tenant_id = ${tenant.id} AND code LIKE 'MTR-%'`
-      const kod = 'MTR-' + String(n).padStart(3, '0')
+      const kod = 'MTR-' + String(++mtrSira).padStart(3, '0')
       const [row] = await tx`
         INSERT INTO workshop (tenant_id, code, name, type, line_count)
         VALUES (${tenant.id}, ${kod}, ${a.ad}, 'X', ${a.bantlar.length})
@@ -242,7 +249,7 @@ await sql.begin(async (tx) => {
       if (eski) {
         const [row] = await tx`
           UPDATE production_line SET
-            name = ${b.bantAd}, bant_turu = ${b.bantTuru},
+            name = ${kes50(b.bantAd)}, bant_turu = ${b.bantTuru},
             operator_count = COALESCE(${b.calisan}, operator_count),
             daily_target = COALESCE(${b.kapasite}, daily_target),
             makine_sayisi = ${b.makine}, min_siparis_adet = ${b.minSiparis},
@@ -256,7 +263,7 @@ await sql.begin(async (tx) => {
           INSERT INTO production_line (tenant_id, workshop_id, code, name, line_type,
             bant_turu, operator_count, daily_target, makine_sayisi, min_siparis_adet,
             doluluk_pct, gorusulen_kisi, notlar)
-          VALUES (${tenant.id}, ${ws.id}, ${kod}, ${b.bantAd}, 'Normal',
+          VALUES (${tenant.id}, ${ws.id}, ${kod}, ${kes50(b.bantAd)}, 'Normal',
             ${b.bantTuru}, ${b.calisan ?? 0}, ${b.kapasite ?? 0}, ${b.makine},
             ${b.minSiparis}, ${b.doluluk}, ${b.gorusulen}, ${b.notlar})
           ON CONFLICT (code) DO UPDATE SET workshop_id = EXCLUDED.workshop_id, updated_at = NOW()

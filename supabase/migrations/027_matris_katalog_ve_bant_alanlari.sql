@@ -69,6 +69,8 @@ ON CONFLICT (dimension_id, code) DO NOTHING;
 -- ============================================================
 -- Çalışan sayısı → mevcut operator_count, kapasite → mevcut daily_target.
 -- Kalanlar yeni:
+-- Not: production_line.name VARCHAR(50) bir view'da kullanıldığı için
+-- genişletilemiyor. Uzun bant adları betikte 50'ye kırpılır (import-matris.mjs).
 ALTER TABLE production_line ADD COLUMN IF NOT EXISTS bant_turu        VARCHAR(20);
 ALTER TABLE production_line ADD COLUMN IF NOT EXISTS makine_sayisi    INTEGER;
 ALTER TABLE production_line ADD COLUMN IF NOT EXISTS min_siparis_adet INTEGER;

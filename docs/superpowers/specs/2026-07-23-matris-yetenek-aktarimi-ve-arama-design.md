@@ -28,17 +28,28 @@ Bkz. hafıza `pes-atolye-master-veri-kaynagi`.
 Mevcut boyutlara tam oturanlar: Ana Grup 6/6, Kumaş Grubu 3/3, Cinsiyet 6/6,
 Klasman 34/34, Kumaş Türü 31/31, Cep 5/5.
 
-Yeni değer getiren mevcut boyutlar (14 değer):
-- makine_parkuru: Punterez
-- kol_turu: Truvakar Kol
-- yaka_turu: Düğmeli Gömlek Yaka
-- kalip_turu: Loose & Bol, Sigaret, Wideleg, Straight / Düz
+**Düzeltme (ölçüldü, ilk sayım hatalıydı):** norm-label eşleştirme yazım
+farklarını yeni değer sanmıştı. Gerçek durum: 120 değer tam oturuyor, 4 terim
+yalnız yazım farkı (betik ALIAS ile mevcut değere bağlar, migration'a
+GİRMEZ), 21 terim gerçekten yeni.
+
+ALIAS (migration'a girmez, betik eşler):
+- kol_turu: "Truvakar Kol" → TRUVAKAR
+- kalip_turu: "Wideleg" → WIDELEG, "Straight / Düz" → STRAIGHT
+- makine_parkuru: "Punterez" → PUNTERIZ (kullanıcı kararı: aynı bartack makinesi)
+
+Yeni değer getiren mevcut boyutlar (10 değer):
+- yaka_turu: Düğmeli Gömlek Yaka (kullanıcı kararı: Gömlek Yaka'dan ayrı,
+  button-down farklı imalat özelliği)
+- kalip_turu: Loose & Bol, Sigaret
 - siluet: Flare, Jüpiter, Mars, Mercury, Balık Etek, Balon, Fırfırlı
 
-Katalogda hiç olmayan iki yeni boyut:
+Katalogda hiç olmayan iki yeni boyut (11 değer):
 - **kalite** (7): Premium Klasik, Standart Vision, Casual Trendy, Bebek/Çocuk,
   Geleneksel, Modest, Outlet
 - **sezon** (4): Yıl Boyu, Yaz Ağırlıklı, Kış Ağırlıklı, Sezonluk-Esnek
+
+Toplam yeni değer: 10 + 11 = 21.
 
 Yetenek olmayan, bant düzeyi alanlar: BANT TÜRÜ (CMT/UKP/DİKİM/DİKİM-UKP/
 KESİM-DİKİM), ANA TEDARİK, 2. TEDARİK, TIER, ÇALIŞAN_SAYISI, MAKİNE_SAYISI,
@@ -62,7 +73,7 @@ KAPASİTE_ADET_GÜN, MİN_SİPARİŞ_ADET, DOLULUK_%, GÖRÜŞÜLEN_KİŞİ, TAR
 
 - `capability_dimension`'a `kalite` ve `sezon` boyutları + 11 değeri
   (global katalog, `tenant_id = NULL`).
-- Mevcut 5 boyuta 14 yeni değer (yukarıdaki liste).
+- Mevcut boyutlara 10 yeni değer (yaka_turu 1, kalip_turu 2, siluet 7).
 - `production_line`'a bant düzeyi kolonlar: `bant_turu`, `makine_sayisi`,
   `min_siparis_adet`, `doluluk_pct`, `gorusulen_kisi`, `gorusme_tarihi`,
   `notlar`. Çalışan sayısı → mevcut `operator_count`, kapasite → `daily_target`.

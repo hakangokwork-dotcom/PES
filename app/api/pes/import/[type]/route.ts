@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import postgres from 'postgres'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import {
+  enumCoz, enumHata, sayiAraliginda,
+  DURUS_TIPLERI, BANT_TIPLERI, URETIM_TIPLERI,
+} from '@/lib/pes/import-dogrula'
 
 function parseCSV(text: string): Record<string, string>[] {
   const lines = text.split(/\r?\n/).filter(l => l.trim())
@@ -40,11 +44,16 @@ async function importStandard(type: string, rows: Record<string, string>[], sql:
       imported++
     }
   } else if (type === 'downtime') {
-    for (const r of rows) {
+    for (const [i, r] of rows.entries()) {
       const [line] = await sql`SELECT id FROM production_line WHERE code=${r.bant_kodu} AND workshop_id=${wid}`
       if (!line) continue
+      /* Boş bırakılırsa 'Plansız' varsayılır; DOLU ama tanınmayan değer
+         sessizce varsayılana düşmez — kullanıcı ne yazdığını bilmeli.
+         Eskiden buraya ham 'Plansiz' yazılıyordu ve CHECK kısıtı reddediyordu. */
+      const tip = r.tip?.trim() ? enumCoz(r.tip, DURUS_TIPLERI) : 'Plansız'
+      if (!tip) return { error: enumHata('tip', r.tip, DURUS_TIPLERI, i + 2) }
       await sql`INSERT INTO downtime_record (tenant_id,line_id,workshop_id,occurred_at,duration_min,downtime_type,reason,affected_ops)
-        VALUES (${tenantId},${line.id},${wid},${r.tarih||new Date().toISOString()},${Number(r.sure_dk)||0},${r.tip||'Plansiz'},${r.neden||null},${Number(r.etkilenen_operasyon)||0})`
+        VALUES (${tenantId},${line.id},${wid},${r.tarih||new Date().toISOString()},${Number(r.sure_dk)||0},${tip},${r.neden||null},${Number(r.etkilenen_operasyon)||0})`
       imported++
     }
   } else if (type === 'workforce') {
@@ -57,8 +66,15 @@ async function importStandard(type: string, rows: Record<string, string>[], sql:
     for (const r of rows) {
       const [line] = await sql`SELECT id FROM production_line WHERE code=${r.bant_kodu} AND workshop_id=${wid}`
       if (!line) continue
-      await sql`INSERT INTO changeover_record (tenant_id,line_id,occurred_date,total_min,machine_adj_min,balancing_min,first_batch_min,warmup_min)
-        VALUES (${tenantId},${line.id},${r.tarih||new Date().toISOString().split('T')[0]},${Number(r.toplam_dk)||0},${Number(r.makina_ayar_dk)||0},${Number(r.dengeleme_dk)||0},${Number(r.ilk_parti_dk)||0},${Number(r.isinma_dk)||0})`
+      /* Model kodları şablonda isteniyor ama eskiden hiç yazılmıyordu —
+         sessiz veri kaybı. Katalogda yoksa NULL kalır (kolonlar nullable). */
+      const modelIdBul = async (kod?: string) => {
+        if (!kod?.trim()) return null
+        const [m] = await sql`SELECT id FROM model_library WHERE code=${kod.trim()} AND workshop_id=${wid}`
+        return m?.id ?? null
+      }
+      await sql`INSERT INTO changeover_record (tenant_id,line_id,occurred_date,from_model_id,to_model_id,total_min,machine_adj_min,balancing_min,first_batch_min,warmup_min)
+        VALUES (${tenantId},${line.id},${r.tarih||new Date().toISOString().split('T')[0]},${await modelIdBul(r.onceki_model)},${await modelIdBul(r.sonraki_model)},${Number(r.toplam_dk)||0},${Number(r.makina_ayar_dk)||0},${Number(r.dengeleme_dk)||0},${Number(r.ilk_parti_dk)||0},${Number(r.isinma_dk)||0})`
       imported++
     }
   } else if (type === 'eder_operations') {
@@ -115,7 +131,9 @@ export const POST = withTenantRoute<{ type: string }>(async (req, { sql, tenant,
     if (line.startsWith('## BOLUM 1')) { section = 'profil'; continue }
     if (line.startsWith('## BOLUM 2')) { section = 'bantlar'; continue }
     if (line.startsWith('## BOLUM 3')) { section = 'gider'; continue }
-    if (line.startsWith('##') || !section) continue
+    /* Tek '#' ile başlayan satırlar şablondaki açıklamalar (hangi değerler
+       geçerli). Bölüm içinde de gelebildikleri için veri sanılmamalı. */
+    if (line.startsWith('#') || !section) continue
     sections[section].push(line.replace(/^﻿/, '').split(';').map(v => v.trim()))
   }
 
@@ -123,8 +141,30 @@ export const POST = withTenantRoute<{ type: string }>(async (req, { sql, tenant,
     const h = sections.profil[0], v = sections.profil[1]
     const p: Record<string, string> = {}
     h.forEach((k, i) => { p[k] = v[i] ?? '' })
-    await sql`UPDATE workshop SET name=${p.atolye_adi||''},city=${p.sehir||null},district=${p.ilce||null},type=${p.tip||'CMT'},
-      bolge=${Number(p.tesvik_bolgesi)||1},
+
+    /* ŞABLONDAKİ "tip" ÜRETİM TİPİDİR (CMT / Dikim …), atölye sınıfı DEĞİL.
+       Eskiden bu değer workshop.type'a yazılıyordu: o kolon CHAR(1) ve yalnız
+       A/B/C/X kabul ediyor, dolayısıyla şablonu dolduran HERKES
+       "value too long for type character(1)" hatası alıyordu. Doğru hedef
+       production_type (migration 023c bu ayrım için açtı). type'a hiç
+       dokunulmuyor — atölyenin sınıfı bu dosyanın işi değil. */
+    const uretimTipi = p.tip?.trim() ? enumCoz(p.tip, URETIM_TIPLERI) : null
+    if (p.tip?.trim() && !uretimTipi) {
+      return NextResponse.json({ error: enumHata('tip', p.tip, URETIM_TIPLERI) }, { status: 400 })
+    }
+
+    /* Teşvik bölgesi CHECK 1–6; aralık dışı sayı ham kısıt hatası vermesin. */
+    const bolge = p.tesvik_bolgesi?.trim() ? sayiAraliginda(p.tesvik_bolgesi, 1, 6) : 1
+    if (!bolge) {
+      return NextResponse.json(
+        { error: `tesvik_bolgesi "${p.tesvik_bolgesi}" — 1 ile 6 arasında olmalı` },
+        { status: 400 }
+      )
+    }
+
+    await sql`UPDATE workshop SET name=${p.atolye_adi||''},city=${p.sehir||null},district=${p.ilce||null},
+      production_type=COALESCE(${uretimTipi}, production_type),
+      bolge=${bolge},
       total_staff=${Number(p.toplam_personel)||0},sewing_staff=${Number(p.dikim_operatoru)||0},ukp_staff=${Number(p.ukp_personel)||0},
       cutting_staff=${Number(p.kesim_personel)||0},management=${Number(p.yonetim)||0},indirect=${Number(p.endirek)||0},
       line_count=${Number(p.bant_sayisi)||1},daily_target=${Number(p.gunluk_hedef)||0},net_hours_day=${Number(p.net_saat)||9}
@@ -140,8 +180,18 @@ export const POST = withTenantRoute<{ type: string }>(async (req, { sql, tenant,
       const bp: Record<string, string> = {}
       bh.forEach((k, j) => { bp[k] = v[j] ?? '' })
       if (!bp.bant_kodu) continue
+      /* Eskiden yalnız 'Kucuk' string'i tanınıyordu: doğru yazımla "Küçük"
+         yazan kullanıcı sessizce 'Normal'e düşüyordu — hata bile vermeden
+         yanlış veri. Artık her iki yazım da çözülür, tanınmayan değer durdurur. */
+      const bantTipi = bp.bant_tipi?.trim() ? enumCoz(bp.bant_tipi, BANT_TIPLERI) : 'Normal'
+      if (!bantTipi) {
+        return NextResponse.json(
+          { error: enumHata('bant_tipi', bp.bant_tipi, BANT_TIPLERI, i + 1) },
+          { status: 400 }
+        )
+      }
       await sql`INSERT INTO production_line (tenant_id,code,workshop_id,name,line_type,operator_count,daily_target)
-        VALUES (${tenant.tenantId},${bp.bant_kodu},${workshopId},${bp.bant_adi||bp.bant_kodu},${bp.bant_tipi==='Kucuk'?'Küçük':'Normal'},${Number(bp.operator_sayisi)||0},${Number(bp.gunluk_hedef)||0})
+        VALUES (${tenant.tenantId},${bp.bant_kodu},${workshopId},${bp.bant_adi||bp.bant_kodu},${bantTipi},${Number(bp.operator_sayisi)||0},${Number(bp.gunluk_hedef)||0})
         ON CONFLICT (code) DO UPDATE SET name=EXCLUDED.name,line_type=EXCLUDED.line_type,operator_count=EXCLUDED.operator_count,daily_target=EXCLUDED.daily_target`
       imported++
     }

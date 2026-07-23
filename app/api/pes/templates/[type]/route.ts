@@ -28,13 +28,17 @@ const TEMPLATES: Record<string, { filename: string; headers: string[]; examples:
       ['BANT-02', 'DENOM', '3900', '3750', '30', '120', '8', 'Olcu hatasi'],
     ],
   },
+  /* tip değerleri downtime_record CHECK kısıtıyla birebir aynı olmalı —
+     eskiden 'Plansiz'/'Planli' (Türkçe harfsiz) örnek veriliyordu ve şablonu
+     olduğu gibi yükleyen kısıt hatası alıyordu. */
   downtime: {
     filename: 'durus_sablonu.csv',
     headers: ['bant_kodu', 'tarih', 'sure_dk', 'tip', 'neden', 'etkilenen_operasyon'],
     examples: [
-      ['BANT-01', '2026-04-05', '45', 'Plansiz', 'Makine arizasi - Duz dikis', '3'],
-      ['BANT-01', '2026-04-10', '30', 'Planli', 'Bakim', '0'],
-      ['BANT-02', '2026-04-08', '60', 'Tedarik', 'Kumas gecikmesi', '8'],
+      ['BANT-01', '2026-04-05', '45', 'Plansız', 'Makine arızası - Düz dikiş', '3'],
+      ['BANT-01', '2026-04-10', '30', 'Planlı', 'Bakım', '0'],
+      ['BANT-02', '2026-04-08', '60', 'Tedarik', 'Kumaş gecikmesi', '8'],
+      ['BANT-02', '2026-04-12', '25', 'Organizasyonel', 'Vardiya devri', '4'],
     ],
   },
   workforce: {
@@ -73,16 +77,22 @@ const TEMPLATES: Record<string, { filename: string; headers: string[]; examples:
 }
 
 function buildSetupCSV(): string {
+  /* Değerler veritabanı CHECK kısıtlarıyla birebir aynı yazılır; import
+     katmanı yazım farklarını tolere etse de şablonun kendisi doğru örneği
+     göstermeli — kullanıcı çoğu zaman örneği kopyalayarak doldurur. */
   const lines = [
+    '# tip: CMT | CMT+Yıkama | Dikim | Kesim & Dikim   (üretim tipi — atölye sınıfı A/B/C değil)',
+    '# tesvik_bolgesi: 1-6 arası',
     '## BOLUM 1: ATOLYE PROFIL',
     'atolye_adi;sehir;ilce;tip;tesvik_bolgesi;toplam_personel;dikim_operatoru;ukp_personel;kesim_personel;yonetim;endirek;bant_sayisi;gunluk_hedef;net_saat',
-    'Sahinler Denim;Diyarbakir;Merkez;CMT;6;321;185;86;17;17;16;3;6750;9',
+    'Şahinler Denim;Diyarbakır;Merkez;CMT;6;321;185;86;17;17;16;3;6750;9',
     '',
+    '# bant_tipi: Normal | Küçük',
     '## BOLUM 2: BANTLAR',
     'bant_kodu;bant_adi;bant_tipi;operator_sayisi;gunluk_hedef',
     'BANT-01;Ana Bant;Normal;25;2500',
-    'BANT-02;Ikinci Bant;Normal;20;2250',
-    'BANT-03;Ucuncu Bant;Kucuk;15;2000',
+    'BANT-02;İkinci Bant;Normal;20;2250',
+    'BANT-03;Üçüncü Bant;Küçük;15;2000',
     '',
     '## BOLUM 3: AYLIK GIDER',
     'yil;ay;calisma_gunu;personel;sgk;yemek;elektrik;su;dogalgaz;servis;arac;kargo;makina_bakim;iplik;diger;hedef_ciro',

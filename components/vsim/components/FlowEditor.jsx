@@ -1,19 +1,21 @@
 'use client';
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import { ReactFlow, Background, Controls, MiniMap, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { subParent, childNodes } from '../engine/flow.js';
 import { ensureFlowNodes } from '../engine/flowNodes.js';
+import NodeInspector from './NodeInspector.jsx';
 
 // Custom node: input/op/output — n8n benzeri kutu + sol/sağ handle
 function FlowNode({ data }) {
   const { label, kind, sub, rate } = data;
   const tone = kind === 'input' ? '#0F6B5C' : kind === 'output' ? '#B45309' : '#3E6B8C';
+  const kindLabel = kind === 'input' ? '⚡ Tetikleyici' : kind === 'output' ? 'Çıktı' : label;
   return (
     <div style={{ border: `2px solid ${tone}`, borderRadius: 10, background: '#fff',
       padding: '8px 12px', minWidth: 120, fontSize: 12, boxShadow: '0 1px 4px rgba(0,0,0,.1)' }}>
       {kind !== 'input' && <Handle type="target" position={Position.Left} />}
-      <div style={{ fontWeight: 600 }}>{label}</div>
+      <div style={{ fontWeight: 600 }}>{kindLabel}</div>
       {kind === 'op' && <div style={{ color: '#64748b' }}>{sub?.cycleTime ?? 0} sn</div>}
       {rate != null && <div style={{ color: '#64748b', fontFamily: 'monospace' }}>{rate.toFixed(0)} ad/v</div>}
       {kind !== 'output' && <Handle type="source" position={Position.Right} />}
@@ -30,6 +32,8 @@ const nodeTypes = { flow: FlowNode };
    çağırmak (controlled state) sonsuz döngüye yol açar, bu yüzden useEffect ile yalnız
    containerId değiştiğinde bir kez yazılır; efekt güncel `data`'yı okur. */
 export default function FlowEditor({ data, containerId, calc, onChange, onEnter }) {
+  const [selectedId, setSelectedId] = useState(null);
+
   useEffect(() => {
     const withNodes = ensureFlowNodes(data, containerId);
     if (withNodes !== data) onChange(withNodes);
@@ -37,6 +41,9 @@ export default function FlowEditor({ data, containerId, calc, onChange, onEnter 
     // her düzenlemede yeniden tetiklenmesin (render-loop'tan kaçınma).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerId]);
+
+  // Konteyner değişince (içine gir / geri çık) seçili node farklı düzlemde kalır — kapat.
+  useEffect(() => { setSelectedId(null); }, [containerId]);
 
   const kids = useMemo(
     () => (data.subOps || []).filter(s => subParent(s) === containerId),
@@ -76,12 +83,21 @@ export default function FlowEditor({ data, containerId, calc, onChange, onEnter 
   }, [data, onEnter]);
 
   return (
-    <div style={{ height: 520 }}>
+    <div style={{ height: 520, position: 'relative' }}>
       <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes}
         onConnect={onConnect} onNodeDragStop={onNodeDragStop}
-        onNodeDoubleClick={onNodeDoubleClick} fitView>
+        onNodeDoubleClick={onNodeDoubleClick}
+        onNodeClick={(_e, n) => setSelectedId(n.id)}
+        onPaneClick={() => setSelectedId(null)} fitView>
         <Background /><Controls /><MiniMap />
       </ReactFlow>
+      {selectedId && (
+        <NodeInspector
+          node={(data.subOps || []).find(s => s.id === selectedId)}
+          data={data} calc={calc} containerId={containerId}
+          onChange={onChange} onClose={() => setSelectedId(null)}
+        />
+      )}
     </div>
   );
 }

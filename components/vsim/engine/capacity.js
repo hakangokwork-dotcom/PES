@@ -112,10 +112,12 @@ export function computeCapacity(data) {
   const perMain = (data.mainOps || []).map(mo => {
     const subs = (data.subOps || []).filter(s => subParent(s) === mo.id);
     const opSubs = subs.filter(s => !isPassthrough(s));
-    const totalCycle = opSubs.reduce((a, s) => a + (childNodes(data, s.id).length > 0 ? 0 : (s.cycleTime || 0)), 0);
+    const stCount = (s) => Math.max(1, s.stationCount || 1);
+    const totalCycle = opSubs.reduce((a, s) =>
+      a + (childNodes(data, s.id).length > 0 ? 0 : (s.cycleTime || 0) * stCount(s)), 0);
     const totalCycleMin = totalCycle / 60;
     const smv = totalCycleMin * (1 + pfd);
-    const stations = opSubs.length || 1;
+    const stations = opSubs.reduce((a, s) => a + (childNodes(data, s.id).length > 0 ? 0 : stCount(s)), 0) || 1;
     const capacity = cap[mo.id] ?? 0;
     const slowest = opSubs.reduce((max, s) => ((s.cycleTime || 0) > (max?.cycleTime || 0) ? s : max), null);
     // Yamazumi efektif çevrim (sn): kapasiteden türer (computeContainer'da hesaplandı).

@@ -117,6 +117,23 @@ describe('computeCapacity — kapsam ek testleri', () => {
     expect(c.lineCapacity).toBeCloseTo(266.0870, 3);
   });
 
+  it('stationCount perMain toplamlarına yansır (ΣCT, istasyon, SMV)', () => {
+    const d = {
+      mainOps: [{ id: 'a', name: 'A', color: '#000', order: 0, nextIds: [], x: 0, y: 0 }],
+      subOps: [
+        { id: 's1', mainOpId: 'a', cycleTime: 60, stationCount: 2, nextIds: [] }, // 2 istasyon
+        { id: 's2', mainOpId: 'a', cycleTime: 30, nextIds: [] },                   // 1 istasyon
+      ],
+      machines: [], operators: [],
+      settings: { netMinutes: 540, efficiency: 0.85, pfd: 0.15, demand: 480 },
+      scenarios: [], meta: {},
+    };
+    const c = computeCapacity(d);
+    const p = c.perMain[0];
+    expect(p.stations).toBe(3);            // 2 + 1
+    expect(p.totalCycle).toBe(150);        // 60×2 + 30
+  });
+
   it('döngü içeren alt-graf çökmeden sonlu değer döner', () => {
     const cyclic = {
       ...SAMPLE,

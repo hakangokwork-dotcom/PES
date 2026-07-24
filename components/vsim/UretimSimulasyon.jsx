@@ -2129,10 +2129,12 @@ function DashboardView({ data, calc }) {
   });
   const yamazumiFill = { darbogaz: '#B3402A', risk: '#B45309', normal: '#2F9E68' };
 
-  // Hat geneli dengeleme: yaprak istasyonların (çocuksuz alt op) CT'leri üzerinden
+  // Hat geneli dengeleme: yaprak istasyonların (çocuksuz alt op) CT'leri üzerinden.
+  // stationCount kadar tekrarla — her paralel istasyon ΣCT ve N'ye ayrı katkı verir.
   const leafCts = (data.subOps || [])
     .filter(s => childNodes(data, s.id).length === 0)
-    .map(s => s.cycleTime || 0).filter(c => c > 0);
+    .flatMap(s => Array(Math.max(1, s.stationCount || 1)).fill(s.cycleTime || 0))
+    .filter(c => c > 0);
   const totalCt = leafCts.reduce((a, b) => a + b, 0);
   const maxCt = leafCts.length ? Math.max(...leafCts) : 0;
   const be = balancingEfficiencyPct({ totalCtSec: totalCt, stationCount: leafCts.length, maxCtSec: maxCt });

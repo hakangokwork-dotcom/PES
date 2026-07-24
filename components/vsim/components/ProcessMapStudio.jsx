@@ -1385,7 +1385,7 @@ function NodeModal({ map, nodeId, onChange, onClose }) {
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Şekli düzenle"
-      className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onClick={onClose}>
+      className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-surface rounded-[14px] shadow-card p-5 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-display font-semibold text-ink">Şekli Düzenle</h3>
@@ -1558,7 +1558,7 @@ function CardModal({ map, onChange, onClose }) {
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Süreç Kartı"
-      className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onClick={onClose}>
+      className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-surface rounded-[14px] shadow-card p-5 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display font-semibold text-ink flex items-center gap-2">

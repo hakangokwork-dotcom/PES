@@ -1080,7 +1080,7 @@ function ImportPreviewModal({ preview, onApply, onClose }) {
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Excel Önizleme"
-      className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center p-4" onClick={onClose}>
+      className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-surface rounded-[14px] shadow-card w-full max-w-5xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -2351,7 +2351,7 @@ function Modal({ title, onClose, children, width = 'max-w-lg' }) {
   }, [onClose]);
   return (
     <div role="dialog" aria-modal="true" aria-label={title}
-      className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center p-4" onClick={onClose}>
+      className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className={`bg-surface rounded-[14px] shadow-card w-full ${width} max-h-[90vh] overflow-y-auto`} onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-line flex items-center justify-between sticky top-0 bg-surface">
           <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
@@ -2411,7 +2411,7 @@ function HelpDrawer({ open, onClose, tab, onGoTab }) {
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Yardım"
-      className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] flex justify-end" onClick={onClose}>
+      className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] flex justify-end" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="h-full w-full max-w-md bg-surface shadow-card overflow-y-auto flex flex-col"
         onClick={(e) => e.stopPropagation()}>
         {/* Sticky başlık */}

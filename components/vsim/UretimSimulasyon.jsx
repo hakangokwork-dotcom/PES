@@ -27,14 +27,13 @@ import {
   Copy, FolderOpen, Sparkles, Check,
   Play, Pause, RotateCcw, Clock, TrendingUp, Zap, CheckCircle2,
   Download, Upload, FileSpreadsheet, LayoutGrid, Star, Scale,
-  Map as MapIcon, Route, HelpCircle, GitBranch,
+  Map as MapIcon, Route, HelpCircle,
 } from 'lucide-react';
 import { downloadTemplate, parseSimFile, validateRows, buildSimDataFromRows } from './sim-excel';
 import Gallery from './components/Gallery.jsx';
 import { confirmDialog, alertDialog, promptDialog } from './components/dialogs/dialogService.js';
 import VsmView from './components/VsmView.jsx';
 import InfoTip from './components/InfoTip.jsx';
-import FlowEditor from './components/FlowEditor.jsx';
 import { GUIDES } from './help/guides.js';
 import { GLOSSARY } from './help/glossary.js';
 import { CALCULATIONS } from './help/calculations.js';
@@ -107,8 +106,7 @@ export default function AtolyePlatform({ storageKey } = {}) {
   const [data, setData] = useState(DEFAULT_DATA);
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState('flow');
-  // Akış (n8n) sekmesi ile mevcut Akış sekmesinin paylaştığı drill-in konteyner yığını
-  // (aynı süreci iki görünümde de gösterebilmek için FlowView'dan buraya taşındı).
+  // Akış sekmesinin drill-in konteyner yığını (FlowView'dan buraya taşındı).
   const [flowPath, setFlowPath] = useState([]);
   const [view, setView] = useState('work');            // 'gallery' | 'work'
   const [galleryFromWork, setGalleryFromWork] = useState(false); // galeri çalışma alanından mı açıldı? (dönüş butonu)
@@ -880,7 +878,6 @@ export default function AtolyePlatform({ storageKey } = {}) {
                 onu tüketen Operasyonlar'dan ÖNCE gelir (makine tanımlanmadan atanamaz). */}
             <TabBtn active={tab === 'surec'} onClick={() => setTab('surec')} icon={Route}>Süreç</TabBtn>
             <TabBtn active={tab === 'flow'} onClick={() => setTab('flow')} icon={Network}>Akış</TabBtn>
-            <TabBtn active={tab === 'flown8n'} onClick={() => setTab('flown8n')} icon={GitBranch}>Akış (n8n)</TabBtn>
             <TabBtn active={tab === 'resources'} onClick={() => setTab('resources')} icon={Wrench}>Kaynaklar</TabBtn>
             <TabBtn active={tab === 'ops'} onClick={() => setTab('ops')} icon={Layers}>Operasyonlar</TabBtn>
             <TabBtn active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={BarChart3}>Hesaplama</TabBtn>
@@ -957,15 +954,6 @@ export default function AtolyePlatform({ storageKey } = {}) {
             onLoadScenario={loadScenario}
             onDeleteScenario={deleteScenario}
             onDuplicateScenario={duplicateScenario}
-          />
-        )}
-        {tab === 'flown8n' && (
-          <FlowN8nView
-            data={data}
-            calc={calc}
-            onChange={setData}
-            path={flowPath}
-            setPath={setFlowPath}
           />
         )}
         {tab === 'vsm' && (
@@ -1507,8 +1495,8 @@ function FlowView({ data, calc, path, setPath, onUpdatePosition, onUpdateConnect
   const [hoverNode, setHoverNode] = useState(null);     // düğüm üstünde → handle + aksiyon ikonları
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [scenarioName, setScenarioName] = useState('');
-  // path (drill-in konteyner id yığını) artık üst bileşenden geliyor — Akış (n8n) sekmesiyle
-  // aynı aktif konteyneri paylaşmak için (bkz. AtolyePlatform: flowPath/setFlowPath).
+  // path (drill-in konteyner id yığını) artık üst bileşenden geliyor
+  // (bkz. AtolyePlatform: flowPath/setFlowPath).
   const wrapRef = React.useRef(null);                       // viewport (overflow-hidden) kabı
   const svgRef = React.useRef(null);                        // bağlama sürüklemesinde pointer capture
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 }); // pan px + zoom (viewport.js sözleşmesi)
@@ -2074,40 +2062,6 @@ function FlowView({ data, calc, path, setPath, onUpdatePosition, onUpdateConnect
    INPUT → alt-op'lar → OUTPUT; sürükle-bağla ile akış kur. Aynı drill-in
    konteyner yığınını (path/setPath) Akış sekmesiyle paylaşır.
    ============================================================ */
-function FlowN8nView({ data, calc, onChange, path, setPath }) {
-  const current = path.length ? path[path.length - 1] : ROOT_ID;
-  const atRoot = current === ROOT_ID;
-
-  return (
-    <div className="bg-surface rounded-[10px] border border-line shadow-card">
-      {/* Breadcrumb — Akış sekmesiyle aynı aktif konteyneri gösterir */}
-      <div className="px-4 py-2 border-b border-line flex items-center gap-1.5 text-xs flex-wrap">
-        <button onClick={() => setPath([])}
-          className={`px-2.5 py-0.5 rounded-full border flex items-center gap-1 text-[11px] transition ${atRoot ? 'bg-accent-tint text-accent-ink border-accent/40' : 'bg-surface text-ink-soft border-line hover:border-accent/40 hover:text-accent'}`}>
-          <GitBranch className="w-3 h-3" />Ana Akış
-        </button>
-        {path.map((cid, i) => (
-          <React.Fragment key={cid}>
-            <ChevronRight className="w-3 h-3 text-ink-faint" />
-            <button onClick={() => setPath(path.slice(0, i + 1))}
-              className={`px-2.5 py-0.5 rounded-full border text-[11px] transition ${i === path.length - 1 ? 'bg-accent-tint text-accent-ink border-accent/40' : 'bg-surface text-ink-soft border-line hover:border-accent/40 hover:text-accent'}`}>
-              {findNode(data, cid)?.name || '—'}
-            </button>
-          </React.Fragment>
-        ))}
-        <span className="ml-2 text-[11px] text-ink-faint">düğüme çift tıkla → içine gir · sürükle-bağla ile akışı kur</span>
-      </div>
-      <FlowEditor
-        data={data}
-        containerId={current}
-        calc={calc}
-        onChange={onChange}
-        onEnter={(id) => setPath(p => [...p, id])}
-      />
-    </div>
-  );
-}
-
 /* ============================================================
    Sekme 4: HESAPLAMA — dashboard, yamazumi, kapasite tablosu
    ============================================================ */

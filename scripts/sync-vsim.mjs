@@ -29,6 +29,16 @@ const SRC = join(VSIM_DIR, 'src')
 const DEST = join(PES_ROOT, 'components', 'vsim')
 const STYLES = join(PES_ROOT, 'app', 'styles')
 
+// DEVRE DIŞI (2026-07-24 — kullanıcı kararı): Artık PES, VSIM'in KAYNAĞIDIR. Geliştirme
+// doğrudan components/vsim içinde yapılıyor (Akış-n8n vb.). Bu senkron DEST'i siler ve
+// IDEAMD\VSIM'den yeniden yazar → doğrudan yapılan işi EZER. Kazayı önlemek için kapalı.
+// Bilerek çalıştırmak (ör. PES→VSIM backport sonrası tersine kurulumla) için: SYNC_VSIM_FORCE=1
+if (!process.env.SYNC_VSIM_FORCE) {
+  console.error('sync-vsim DEVRE DIŞI: PES artık source-of-truth; bu senkron components/vsim\'i ezerdi.\n' +
+    'Bilerek çalıştıracaksan: SYNC_VSIM_FORCE=1 npm run sync:vsim');
+  process.exit(1)
+}
+
 /* Standalone'a özel dosyalar — kopyalanmaz (yukarıdaki başlıkta gerekçeleri).
    vsim-theme.css burada atlanır çünkü bileşen ağacına değil app/styles'a gider. */
 const SKIP = new Set(['main.jsx', 'index.css', 'vsim-theme.css'])

@@ -256,4 +256,11 @@ describe('computeCapacity — akış modeli (input/output node, bayraksız)', ()
     expect(p2.effectiveCycle).toBeCloseTo(30, 4);
     expect(c.cap['op2']).toBeCloseTo(741.82, 1);
   });
+
+  it('perMain geçirgen node\'ları saymaz (istasyon = gerçek op sayısı)', () => {
+    const c = computeCapacity(build('SPLIT', 'DUP'));
+    const p2 = c.perMain.find(p => p.mainOp.id === 'op2');
+    expect(p2.stations).toBe(2);          // usta + acami (in/out hariç)
+    expect(p2.totalCycle).toBe(45);       // 15 + 30 (in/out cyc 0 zaten katkısız ama sayım net)
+  });
 });

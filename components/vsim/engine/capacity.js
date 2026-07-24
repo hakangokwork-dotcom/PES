@@ -111,14 +111,14 @@ export function computeCapacity(data) {
   // OpsView / DashboardView uyumu için perMain
   const perMain = (data.mainOps || []).map(mo => {
     const subs = (data.subOps || []).filter(s => subParent(s) === mo.id);
-    const totalCycle = subs.reduce((a, s) => a + (childNodes(data, s.id).length > 0 ? 0 : (s.cycleTime || 0)), 0);
+    const opSubs = subs.filter(s => !isPassthrough(s));
+    const totalCycle = opSubs.reduce((a, s) => a + (childNodes(data, s.id).length > 0 ? 0 : (s.cycleTime || 0)), 0);
     const totalCycleMin = totalCycle / 60;
     const smv = totalCycleMin * (1 + pfd);
-    const stations = subs.length || 1;
+    const stations = opSubs.length || 1;
     const capacity = cap[mo.id] ?? 0;
-    const slowest = subs.reduce((max, s) => ((s.cycleTime || 0) > (max?.cycleTime || 0) ? s : max), null);
-    // Yamazumi efektif çevrim (sn): yedek-paralel yaprak op'lar harmonik havuzlanır
-    // (computeContainer'da hesaplandı). Redundant yoksa = totalCycle (davranış aynı).
+    const slowest = opSubs.reduce((max, s) => ((s.cycleTime || 0) > (max?.cycleTime || 0) ? s : max), null);
+    // Yamazumi efektif çevrim (sn): kapasiteden türer (computeContainer'da hesaplandı).
     const effectiveCycle = effectiveCycleOf[mo.id] ?? totalCycle;
     return { mainOp: mo, subs, totalCycle, totalCycleMin, smv, stations, capacity, slowest, effectiveCycle };
   });

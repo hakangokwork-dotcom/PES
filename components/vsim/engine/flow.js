@@ -53,3 +53,6 @@ export const wouldCreateCycle = (nodes, fromId, toId) => {
   }
   return false;
 };
+
+// Akış node türü: input/output geçirgen (kapasite üretmez, akışı taşır); op gerçek istasyon.
+export const isPassthrough = (node) => node?.kind === 'input' || node?.kind === 'output';

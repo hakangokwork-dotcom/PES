@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ROOT_ID, subParent, childNodes, isMainNode, findNode, rootMainId, descendantIds, uid, wouldCreateCycle,
 } from './flow.js';
+import { isPassthrough } from './flow.js';
 
 const DATA = {
   mainOps: [
@@ -90,5 +91,15 @@ describe('wouldCreateCycle', () => {
   it('fromId listede yoksa false döner (henüz kaydedilmemiş düğüm)', () => {
     const nodes = [N('a', ['b']), N('b', [])];
     expect(wouldCreateCycle(nodes, 'pending_x', 'a')).toBe(false);
+  });
+});
+
+describe('isPassthrough', () => {
+  it('input/output kind geçirgendir, op ve tanımsız değildir', () => {
+    expect(isPassthrough({ kind: 'input' })).toBe(true);
+    expect(isPassthrough({ kind: 'output' })).toBe(true);
+    expect(isPassthrough({ kind: 'op' })).toBe(false);
+    expect(isPassthrough({})).toBe(false);
+    expect(isPassthrough(null)).toBe(false);
   });
 });

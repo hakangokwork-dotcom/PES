@@ -10,10 +10,9 @@ import { zoomAt, pan as panView, clampZoom, screenToCanvas, ZOOM_MIN, ZOOM_MAX }
 import { orthoPath, offsetAlongSide, isBackwardEdge, orthoBackwardLaneY } from './engine/processMapGeometry.js';
 import {
   balancingEfficiencyPct, balanceLossPct, requiredOperators,
-  lineEfficiencyPct, lineEfficiencyBand,
+  lineEfficiencyPct, lineEfficiencyBand, yamazumiStatus,
 } from './engine/metrics.js';
 import { analyzeSharedStations } from './engine/sharedStations.js';
-import { yamazumiBars } from './engine/yamazumiBars.js';
 import { NODE_PALETTE as PALETTE } from './engine/palette.js';
 import { getDomain } from './domains/index.js';
 import { DomainContext, useDomain, useLabels, lower } from './domains/DomainContext.jsx';
@@ -2068,9 +2067,13 @@ function FlowView({ data, calc, path, setPath, onUpdatePosition, onUpdateConnect
 function DashboardView({ data, calc }) {
   const L = useLabels();
   const { opTypes, adviceHints } = useDomain();
-  // Standart Yamazumi/OBC: her çubuk bir operatör/istasyon, iş elemanları yığılı (bkz. yamazumiBars.js).
-  const yBars = yamazumiBars(data, calc.taktTimeSec);
-  const chartData = yBars.map(b => ({ name: b.label, total: Number(b.total.toFixed(1)), status: b.status }));
+  // Yamazumi: ANA SÜREÇ (1.Seviye) başına tek çubuk; süre ÇIKTI miktarından türer (efektif
+  // çevrim = netSec/kapasite). Aynı işi paralel yapan/çoğaltılmış alt-süreçler birleşince
+  // kapasite toplanır → efektif süre düşer (ör. 15sn+30sn aynı iş → 10sn). Seri/farklı iş → darboğaz.
+  const chartData = calc.perMain.map(p => {
+    const eff = p.effectiveCycle ?? p.totalCycle;
+    return { name: p.mainOp.name, total: Number(eff.toFixed(2)), status: yamazumiStatus(eff, calc.taktTimeSec), color: p.mainOp.color };
+  });
   const yamazumiFill = { darbogaz: '#B3402A', risk: '#B45309', normal: '#2F9E68' };
 
   // Hat geneli dengeleme: yaprak istasyonların (çocuksuz alt op) CT'leri üzerinden.
@@ -2118,8 +2121,8 @@ function DashboardView({ data, calc }) {
       <div className="bg-surface rounded-[10px] border border-line shadow-card p-5">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="font-display font-semibold text-ink flex items-center gap-2"><BarChart3 className="w-5 h-5 text-accent" />Yamazumi — Operatör/İstasyon Bazında İş Yükü<InfoTip term="yamazumi" /></h3>
-            <p className="text-xs text-ink-soft mt-0.5">Standart Yamazumi — her çubuk bir operatör/istasyon; iş elemanları yığılı; Takt çizgisiyle kıyas. Kesikli çizgi = Takt Time. Kırmızı = Takt aşımı (toplam &gt; Takt), sarı = risk (Takt'ın %80-100'ü), yeşil = normal.</p>
+            <h3 className="font-display font-semibold text-ink flex items-center gap-2"><BarChart3 className="w-5 h-5 text-accent" />Yamazumi — Ana Süreç Bazında İş Yükü<InfoTip term="yamazumi" /></h3>
+            <p className="text-xs text-ink-soft mt-0.5">Her çubuk bir ana süreç; süre çıktı miktarından türeyen efektif çevrim (sn). Aynı işi paralel yapan/çoğaltılmış alt-süreçler birleşince süre düşer (ör. 15+30 sn aynı iş → 10 sn). Kesikli çizgi = Takt. Kırmızı = Takt aşımı, sarı = risk (%80-100), yeşil = normal.</p>
           </div>
         </div>
         <div style={{ height: 340 }}>
@@ -2133,12 +2136,12 @@ function DashboardView({ data, calc }) {
                 contentStyle={{ background: '#FFFFFF', border: '1px solid #E7E0D6', borderRadius: 10, boxShadow: '0 1px 2px rgba(26,43,50,0.06), 0 8px 24px rgba(26,43,50,0.08)', fontSize: 12 }}
                 labelStyle={{ color: '#1A2B32', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 2 }}
                 itemStyle={{ fontFamily: 'var(--font-mono)', color: '#1A2B32' }}
-                formatter={(v) => [Number(v).toFixed(1) + ' sn', 'Toplam İş İçeriği']}
+                formatter={(v) => [Number(v).toFixed(1) + ' sn', 'Efektif Çevrim']}
               />
               <ReferenceLine y={calc.taktTimeSec} stroke="#B3402A" strokeDasharray="5 5" label={{ value: `Takt ${calc.taktTimeSec.toFixed(1)} sn`, fontSize: 11, fill: '#B3402A', position: 'right' }} />
               <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                 {chartData.map((entry, i) => (
-                  <Cell key={i} fill={yamazumiFill[entry.status] || '#2F9E68'} />
+                  <Cell key={i} fill={yamazumiFill[entry.status] || entry.color} />
                 ))}
                 <LabelList dataKey="total" position="top" fontSize={11} fontFamily="var(--font-mono)" fill="#1A2B32" />
               </Bar>
@@ -2202,7 +2205,7 @@ function DashboardView({ data, calc }) {
                 <th className="px-4 py-2 text-right font-semibold">SMV (dk, +PF&D)<InfoTip term="smv" placement="bottom" /></th>
                 <th className="px-4 py-2 text-right font-semibold">İstasyon</th>
                 <th className="px-4 py-2 text-right font-semibold">Kapasite (ad/v)</th>
-                <th className="px-4 py-2 text-right font-semibold">Kapasite Temposu (sn)<InfoTip text="Sürecin sürdürebildiği birim tempo (kapasiteden türer); Yamazumi iş-içeriği DEĞİL." placement="bottom" /></th>
+                <th className="px-4 py-2 text-right font-semibold">Efektif Çevrim (sn)<InfoTip text="Çıktı miktarından türeyen birim tempo (netSec/kapasite) — Yamazumi çubuğuyla aynı." placement="bottom" /></th>
                 <th className="px-4 py-2 text-left font-semibold">En Yavaş Alt Op</th>
                 <th className="px-4 py-2 text-center font-semibold">Durum</th>
               </tr>

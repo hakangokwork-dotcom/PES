@@ -1652,10 +1652,13 @@ function FlowView({ data, calc, onUpdatePosition, onUpdateConnections, onAutoLay
   const nodeRect = (m) => { const x = PX(m), y = PY(m); return { x, y, cx: x + NODE_W / 2, cy: y + NODE_H / 2, right: x + NODE_W, bottom: y + NODE_H }; };
 
   const bottleneckHere = calc.bottleneckByContainer?.[current];
-  // Sol yük şeridi: değer kartın gösterdiği totalCycle, payda görünen seviyenin maksimumu.
+  // Sol yük şeridi: değer kartın gösterdiği EFEKTİF çevrim (yedek-paralel harmonik
+  // birleşir → kapasiteyle tutarlı), payda görünen seviyenin maksimumu.
   // Darboğaz her zaman danger — eşikten bağımsız (spec §4).
   const totalCycleOfNode = (n) =>
-    childNodes(data, n.id).length > 0 ? (calc.totalCycleOf?.[n.id] ?? 0) : (n.cycleTime || 0);
+    childNodes(data, n.id).length > 0
+      ? (calc.effectiveCycleOf?.[n.id] ?? calc.totalCycleOf?.[n.id] ?? 0)
+      : (n.cycleTime || 0);
   const maxCycleHere = Math.max(1, ...nodes.map(totalCycleOfNode));
   const incomingCount = {}; nodes.forEach(n => { incomingCount[n.id] = 0; });
   nodes.forEach(src => (src.nextIds || []).forEach(nid => { if (incomingCount[nid] != null) incomingCount[nid]++; }));
@@ -2054,15 +2057,20 @@ function FlowView({ data, calc, onUpdatePosition, onUpdateConnections, onAutoLay
 function DashboardView({ data, calc }) {
   const L = useLabels();
   const { opTypes, adviceHints } = useDomain();
-  const chartData = calc.perMain.map(p => ({
-    name: p.mainOp.name,
-    CycleSum: Number(p.totalCycle.toFixed(2)),
-    SMV: Number(p.smv.toFixed(2)),
-    color: p.mainOp.color,
-    kapasite: Number(p.capacity.toFixed(0)),
-    isBottleneck: p.mainOp.id === calc.bottleneckId,
-    yamazumi: yamazumiStatus(p.totalCycle, calc.taktTimeSec),
-  }));
+  const chartData = calc.perMain.map(p => {
+    // Yamazumi çubuğu EFEKTİF çevrimi kullanır: yedek-paralel op'lar (aynı işi paylaşan
+    // usta/acami gibi) harmonik birleşir; normal op'larda effectiveCycle === totalCycle.
+    const effCycle = p.effectiveCycle ?? p.totalCycle;
+    return {
+      name: p.mainOp.name,
+      CycleSum: Number(effCycle.toFixed(2)),
+      SMV: Number(p.smv.toFixed(2)),
+      color: p.mainOp.color,
+      kapasite: Number(p.capacity.toFixed(0)),
+      isBottleneck: p.mainOp.id === calc.bottleneckId,
+      yamazumi: yamazumiStatus(effCycle, calc.taktTimeSec),
+    };
+  });
   const yamazumiFill = { darbogaz: '#B3402A', risk: '#B45309', normal: '#2F9E68' };
 
   // Hat geneli dengeleme: yaprak istasyonların (çocuksuz alt op) CT'leri üzerinden
@@ -2109,7 +2117,7 @@ function DashboardView({ data, calc }) {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="font-display font-semibold text-ink flex items-center gap-2"><BarChart3 className="w-5 h-5 text-accent" />Yamazumi — 1.Seviye Süreç Bazında İş Yükü<InfoTip term="yamazumi" /></h3>
-            <p className="text-xs text-ink-soft mt-0.5">Toplam çevrim süresi (saniye). Kesikli çizgi = Takt Time. Kırmızı = Takt aşımı (CT &gt; Takt), sarı = risk (Takt'ın %80-100'ü), yeşil = normal.</p>
+            <p className="text-xs text-ink-soft mt-0.5">Efektif çevrim süresi (saniye). Kesikli çizgi = Takt Time. Kırmızı = Takt aşımı (CT &gt; Takt), sarı = risk (Takt'ın %80-100'ü), yeşil = normal. Yedek-paralel op'lar (aynı işi paylaşan) harmonik birleşir — toplam değil.</p>
           </div>
         </div>
         <div style={{ height: 340 }}>
@@ -2609,6 +2617,21 @@ function SubOpModal({ subOp, data, onSave, onClose }) {
             <option value="DUP">Çoğaltma — toplam</option>
           </select>
         </Field>
+      </div>
+
+      <div className="mb-3 rounded-lg border border-line bg-surface-2 p-2.5">
+        <label className="flex items-center gap-2 text-sm text-ink cursor-pointer">
+          <input type="checkbox" checked={!!form.redundant}
+            onChange={e => up({ redundant: e.target.checked || null })}
+            className="accent-accent w-4 h-4" />
+          <span className="font-semibold">Paralel / Yedek istasyon (aynı iş)</span>
+        </label>
+        <p className="text-[11px] text-ink-faint mt-1 leading-snug">
+          Bu op, aynı 1.Seviye süreçteki başka op'larla <b>aynı işi</b> paralel yapıyorsa işaretle
+          (ör. usta + acami). İşaretli kardeşlerin <b>kapasiteleri toplanır</b> ve çevrim
+          <b> harmonik</b> birleşir — senkron (min) değil. Farklı hızlar için kullanın; aynı hızdaki
+          tek kişiler için yukarıdaki “{`${L.station} / Paralel ${L.person}`}” sayısı yeterli.
+        </p>
       </div>
 
       <Field label="Sonraki Alt Seviye Süreçler (Simülasyon Akışı)" hint={`Bu süreç bitince hangi alt seviye süreçlere ${lower(L.item)} akacak? Birden fazla seçim = FORK. Başkalarının bu süreci seçmesi = MERGE (birleşme).`}>

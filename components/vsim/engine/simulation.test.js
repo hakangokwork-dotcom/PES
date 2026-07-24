@@ -266,6 +266,35 @@ describe('advanceSimStep — alt-op DUP birleşme (§3b)', () => {
   });
 });
 
+describe('yedek-paralel istasyonlar (usta + acami aynı işi) — kapasite ile tutarlı', () => {
+  // Op1(src 5sn) → Op2{usta 15sn, acami 30sn}. usta/acami bağlantısız kardeş,
+  // ikisi de Op2 girişi VE terminali → Op1'in inbox'ından yük paylaşır, ikisi de çıkışa sayar.
+  // Sim ham çevrim kullanır (pfd/eff yok): 28800sn'de usta 1920 + acami 960 ≈ 2880 üst sınır.
+  const d = {
+    mainOps: [
+      { id: 'op1', nextIds: ['op2'] },
+      { id: 'op2', nextIds: [], joinType: 'AND' },
+    ],
+    subOps: [
+      { id: 'src',   mainOpId: 'op1', cycleTime: 5,  nextIds: [] },
+      { id: 'usta',  mainOpId: 'op2', cycleTime: 15, nextIds: [], redundant: true },
+      { id: 'acami', mainOpId: 'op2', cycleTime: 30, nextIds: [], redundant: true },
+    ],
+    settings: { netMinutes: 480 },
+  };
+
+  it('İKİ işçi de üretir: çıkış ~usta+acami (senkron-min 960 DEĞİL)', () => {
+    const end = fastForward(initialSimState(), d);
+    expect(end.completed.usta).toBeGreaterThan(0);
+    expect(end.completed.acami).toBeGreaterThan(0);
+    // İkisi de tam yüklü → toplam çıkış tek (yavaş) işçinin çok üstünde
+    expect(end.exited).toBeGreaterThan(2000);
+    expect(end.exited).toBeLessThanOrEqual(2900);
+    // usta acami'nin ~2 katı üretir (15sn vs 30sn)
+    expect(end.completed.usta).toBeGreaterThan(end.completed.acami);
+  });
+});
+
 describe('advanceSimStep — SPLIT fan-out (§3a)', () => {
   // A böler → B, C. Her tamamlanan parça yalnız BİRİNE gider (en kısa kuyruğa), ikisine değil.
   const d = {

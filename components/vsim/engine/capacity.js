@@ -17,6 +17,7 @@ export function computeCapacity(data) {
   const thru = {};      // düğüm id → bulunduğu konteyner içindeki geçirgenlik
   const bottleneckByContainer = {}; // konteyner id → en yavaş çocuk id
   const totalCycleOf = {};          // konteyner id → doğrudan yaprak çocuk çevrim toplamı (sn)
+  const effectiveCycleOf = {};      // konteyner id → efektif çevrim (yedek-paralel harmonik havuz)
 
   const leafCap = (node) => {
     const cyc = node.cycleTime || 0;
@@ -34,6 +35,17 @@ export function computeCapacity(data) {
     });
     totalCycleOf[cid] = kids.reduce(
       (a, k) => a + (childNodes(data, k.id).length > 0 ? 0 : (k.cycleTime || 0)), 0);
+    // Efektif çevrim: yedek-paralel yaprak çocuklar tek harmonik terime katlanır (birim
+    // tempoları toplanır → 1/Σ(istasyon/CT)); kalan yapraklar seri toplanır. Yedek yoksa
+    // = totalCycleOf (kart/Yamazumi eski davranış). Kart etiketi & Yamazumi bunu kullanır.
+    {
+      const leafKids = kids.filter(k => childNodes(data, k.id).length === 0);
+      const seqCyc = leafKids.filter(k => !k.redundant).reduce((a, k) => a + (k.cycleTime || 0), 0);
+      const poolR = leafKids
+        .filter(k => k.redundant && (k.cycleTime || 0) > 0)
+        .reduce((a, k) => a + (k.stationCount || 1) / k.cycleTime, 0);
+      effectiveCycleOf[cid] = seqCyc + (poolR > 0 ? 1 / poolR : 0);
+    }
     if (kids.length === 0) return 0;
 
     const idset = new Set(kids.map(k => k.id));
@@ -77,9 +89,18 @@ export function computeCapacity(data) {
       t[id] = Math.min(cap[id] || 0, inRate);
       thru[id] = t[id];
     });
-    // Çıkış = sink'lerin (giden kenarı olmayan) min'i (senkron tamamlama)
+    // Çıkış = sink'lerin (giden kenarı olmayan) birleşimi.
+    // Yedek-paralel (redundant) sink'ler AYNI işi paylaşır → kapasiteleri TOPLANIR (havuz);
+    // kalan sink'ler senkron tamamlama olduğundan havuz + normaller MİN ile birleşir.
     const sinks = kids.filter(k => !(k.nextIds || []).some(n => idset.has(n)));
-    const containerThru = sinks.length ? Math.min(...sinks.map(k => t[k.id] || 0)) : 0;
+    let containerThru = 0;
+    if (sinks.length) {
+      const parts = sinks.filter(k => !k.redundant).map(k => t[k.id] || 0);
+      if (sinks.some(k => k.redundant)) {
+        parts.push(sinks.filter(k => k.redundant).reduce((a, k) => a + (t[k.id] || 0), 0));
+      }
+      containerThru = Math.min(...parts);
+    }
     // Darboğaz = en düşük geçirgenlikli çocuk
     let bn = null, bnv = Infinity;
     kids.forEach(k => { const v = t[k.id] ?? 0; if (v < bnv) { bnv = v; bn = k.id; } });
@@ -99,11 +120,14 @@ export function computeCapacity(data) {
     const stations = subs.length || 1;
     const capacity = cap[mo.id] ?? 0;
     const slowest = subs.reduce((max, s) => ((s.cycleTime || 0) > (max?.cycleTime || 0) ? s : max), null);
-    return { mainOp: mo, subs, totalCycle, totalCycleMin, smv, stations, capacity, slowest };
+    // Yamazumi efektif çevrim (sn): yedek-paralel yaprak op'lar harmonik havuzlanır
+    // (computeContainer'da hesaplandı). Redundant yoksa = totalCycle (davranış aynı).
+    const effectiveCycle = effectiveCycleOf[mo.id] ?? totalCycle;
+    return { mainOp: mo, subs, totalCycle, totalCycleMin, smv, stations, capacity, slowest, effectiveCycle };
   });
 
   return {
     perMain, taktTime: taktTimeMin, taktTimeMin, taktTimeSec, lineCapacity, bottleneckId,
-    netMin, eff, demand, cap, thru, bottleneckByContainer, totalCycleOf,
+    netMin, eff, demand, cap, thru, bottleneckByContainer, totalCycleOf, effectiveCycleOf,
   };
 }

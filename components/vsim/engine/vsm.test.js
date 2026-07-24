@@ -100,7 +100,7 @@ describe('buildVsmModel', () => {
     expect(m.totals.waitSec).toBeCloseTo(1826.4706, 3);
     expect(m.totals.leadSec).toBeCloseTo(2021.4706, 3);
     expect(m.totals.pcePct).toBeCloseTo(9.6464, 3);   // 195/2021.4706×100
-    expect(m.totals.pceBand).toBe('zayıf');           // %9.65 < %15 (eskiden %16.15 → 'iyi' idi)
+    expect(m.totals.pceBand).toBe('ortalama');        // %9.65 → %5-15 'ortalama' (doküman §6.3)
     expect(m.totals.taktSec).toBeCloseTo(67.5, 4);
     expect(m.totals.bottleneckId).toBe(CALC.bottleneckId);
   });

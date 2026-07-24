@@ -381,7 +381,7 @@ export default function VsmView({ data, calc, scenarios, onEditMainOp, onUpdateE
         <TotalCard icon={Percent} label="PCE (Değer Katma)" term="pce"
           value={totals.pcePct != null ? `%${totals.pcePct.toFixed(1)}` : '—'}
           sub={totals.pceBand ?? 'envanter girilmedi'}
-          tone={totals.pceBand === 'kritik' ? 'danger' : totals.pceBand === 'zayıf' ? 'warn' : totals.pcePct != null ? 'ok' : 'ink'} />
+          tone={totals.pceBand === 'kritik' ? 'danger' : totals.pceBand === 'ortalama' ? 'warn' : totals.pcePct != null ? 'ok' : 'ink'} />
       </div>
 
       {/* Kaizen Noktaları */}

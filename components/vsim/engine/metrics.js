@@ -83,7 +83,7 @@ export function pcePct(vaMin, leadTimeMinVal) {
 /* §5.2.3 benchmarkları (doc: <%5 kritik, >%15 iyi, >%25 mükemmel) */
 export function pceBand(pct) {
   if (pct < 5) return 'kritik';
-  if (pct < 15) return 'zayıf';
+  if (pct < 15) return 'ortalama';
   if (pct <= 25) return 'iyi';
   return 'mükemmel';
 }

@@ -101,9 +101,13 @@ describe('PCE (§5.2.3)', () => {
 
   it('bant sınıflandırması (doc benchmarkları)', () => {
     expect(pceBand(3)).toBe('kritik');       // < %5
-    expect(pceBand(10)).toBe('zayıf');       // %5-15
+    expect(pceBand(10)).toBe('ortalama');    // %5-15 (doküman §6.3)
     expect(pceBand(20)).toBe('iyi');         // %15-25
     expect(pceBand(30)).toBe('mükemmel');    // > %25
+  });
+
+  it('pceBand %5-15 ortalama (doküman §6.3)', () => {
+    expect(pceBand(10)).toBe('ortalama');
   });
 });
 

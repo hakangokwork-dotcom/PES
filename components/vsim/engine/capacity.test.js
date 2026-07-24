@@ -199,75 +199,61 @@ describe('computeCapacity — kapsam ek testleri', () => {
   });
 });
 
-describe('computeCapacity — yedek-paralel (redundant) istasyonlar', () => {
-  // usta(15sn) + acami(30sn) AYNI işi paralel yapıyor: Op1(5sn) → Op2{usta, acami}.
-  // net 480 · eff 0.85 · pfd 0.10 → tek-op kapasite = 408 / ((ct/60)×1.1)
-  //   src:  408/((5/60)×1.1)  = 4451.3
-  //   usta: 408/((15/60)×1.1) = 1483.6
-  //   acami:408/((30/60)×1.1) =  741.8
-  const REDUNDANT = {
+describe('computeCapacity — akış modeli (input/output node, bayraksız)', () => {
+  // Op1(5) → Op2{ input → usta(15), acami(30) → output }. net 480·eff 0.85·pfd 0.10·demand 100.
+  //   usta cap = 408/((15/60)·1.1) = 1483.6 · acami = 741.8
+  const build = (splitType, joinType) => ({
     mainOps: [
       { id: 'op1', name: 'Op1', color: '#000', order: 0, nextIds: ['op2'], x: 0, y: 0 },
       { id: 'op2', name: 'Op2', color: '#000', order: 1, nextIds: [], x: 100, y: 0 },
     ],
     subOps: [
-      { id: 'src',   mainOpId: 'op1', name: 'Kaynak', cycleTime: 5,  nextIds: [] },
-      { id: 'usta',  mainOpId: 'op2', name: 'usta',   cycleTime: 15, nextIds: [], redundant: true },
-      { id: 'acami', mainOpId: 'op2', name: 'acami',  cycleTime: 30, nextIds: [], redundant: true },
+      { id: 'src', mainOpId: 'op1', cycleTime: 5, nextIds: [] },
+      { id: 'in',  mainOpId: 'op2', kind: 'input',  cycleTime: 0, nextIds: ['usta', 'acami'], splitType },
+      { id: 'usta',  mainOpId: 'op2', kind: 'op', cycleTime: 15, nextIds: ['out'] },
+      { id: 'acami', mainOpId: 'op2', kind: 'op', cycleTime: 30, nextIds: ['out'] },
+      { id: 'out', mainOpId: 'op2', kind: 'output', cycleTime: 0, nextIds: [], joinType },
     ],
     machines: [], operators: [],
     settings: { netMinutes: 480, efficiency: 0.85, pfd: 0.10, demand: 100 },
     scenarios: [], meta: {},
-  };
+  });
 
-  it('yedek sink kapasiteleri TOPLANIR (min DEĞİL)', () => {
-    const c = computeCapacity(REDUNDANT);
-    expect(c.cap['usta']).toBeCloseTo(1483.64, 1);
-    expect(c.cap['acami']).toBeCloseTo(741.82, 1);
-    // Op2 havuz kapasitesi = usta + acami (min 741.8 DEĞİL)
-    expect(c.cap['op2']).toBeCloseTo(2225.45, 1);
-    // hat = min(op1=4451, op2=2225) = 2225
+  it('BÖL girdi + TOPLA çıktı = paralel/yedek: kapasite toplam, çevrim harmonik', () => {
+    const c = computeCapacity(build('SPLIT', 'DUP'));
+    expect(c.cap['op2']).toBeCloseTo(2225.45, 1);        // usta + acami
     expect(c.lineCapacity).toBeCloseTo(2225.45, 1);
+    const p2 = c.perMain.find(p => p.mainOp.id === 'op2');
+    expect(p2.effectiveCycle).toBeCloseTo(10, 4);        // 1/(1/15+1/30) — kapasiteden türer
   });
 
-  it('efektif çevrim harmonik: 1/(1/15+1/30) = 10 sn', () => {
-    const c = computeCapacity(REDUNDANT);
+  it('KOPYALA girdi + SENKRON çıktı = ardışık: kapasite min, çevrim darboğaz', () => {
+    const c = computeCapacity(build('DUP', 'AND'));
+    expect(c.cap['op2']).toBeCloseTo(741.82, 1);         // min(usta, acami)
     const p2 = c.perMain.find(p => p.mainOp.id === 'op2');
-    expect(p2.effectiveCycle).toBeCloseTo(10, 6);
-    // totalCycle (tablo/SMV) değişmeden 45 kalır — yalnız Yamazumi efektif kullanır
-    expect(p2.totalCycle).toBe(45);
+    expect(p2.effectiveCycle).toBeCloseTo(30, 4);        // darboğaz (acami 30) — kapasiteden türer
   });
 
-  it('efektif çevrim: seri + yedek karışımı (seri 20 + havuz 10 = 30)', () => {
-    const mixed = {
-      ...REDUNDANT,
-      subOps: [
-        ...REDUNDANT.subOps,
-        { id: 'seri', mainOpId: 'op2', name: 'seri', cycleTime: 20, nextIds: [] },
-      ],
-    };
-    const c = computeCapacity(mixed);
-    const p2 = c.perMain.find(p => p.mainOp.id === 'op2');
-    expect(p2.effectiveCycle).toBeCloseTo(30, 6);
+  it('geçirgen input/output kapasiteyi sınırlamaz (∞)', () => {
+    const c = computeCapacity(build('SPLIT', 'DUP'));
+    expect(c.cap['in']).toBe(Infinity);
+    expect(c.cap['out']).toBe(Infinity);
   });
 
-  it('stationCount yedek havuzda birim tempoyu ölçekler', () => {
-    // usta stationCount 2 → tempo 2/15; acami 1/30 → havuz CT = 1/(2/15+1/30) = 6 sn
-    const scaled = {
-      ...REDUNDANT,
-      subOps: REDUNDANT.subOps.map(s => s.id === 'usta' ? { ...s, stationCount: 2 } : s),
-    };
-    const c = computeCapacity(scaled);
-    const p2 = c.perMain.find(p => p.mainOp.id === 'op2');
-    expect(p2.effectiveCycle).toBeCloseTo(6, 6);
+  it('bottleneck geçirgen node değil, gerçek op olur', () => {
+    const c = computeCapacity(build('SPLIT', 'DUP'));
+    expect(c.bottleneckByContainer['op2']).toBe('acami'); // en yavaş op (in/out değil)
   });
 
-  it('işaretsiz kardeşler eski senkron (min) davranışında kalır', () => {
-    const sync = { ...REDUNDANT, subOps: REDUNDANT.subOps.map(({ redundant, ...s }) => s) };
-    const c = computeCapacity(sync);
-    expect(c.cap['op2']).toBeCloseTo(741.82, 1);   // min korunur
-    expect(c.lineCapacity).toBeCloseTo(741.82, 1);
+  it('tek op süreç değişmez: efektif çevrim = CT', () => {
+    const single = build('SPLIT', 'DUP');
+    single.subOps = [
+      { id: 'src', mainOpId: 'op1', cycleTime: 5, nextIds: [] },
+      { id: 'solo', mainOpId: 'op2', kind: 'op', cycleTime: 30, nextIds: [] },
+    ];
+    const c = computeCapacity(single);
     const p2 = c.perMain.find(p => p.mainOp.id === 'op2');
-    expect(p2.effectiveCycle).toBe(45);            // havuz yok → efektif = toplam
+    expect(p2.effectiveCycle).toBeCloseTo(30, 4);
+    expect(c.cap['op2']).toBeCloseTo(741.82, 1);
   });
 });

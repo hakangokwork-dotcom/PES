@@ -1,4 +1,4 @@
-import { ROOT_ID, childNodes, subParent } from './flow.js';
+import { ROOT_ID, childNodes, subParent, isPassthrough } from './flow.js';
 
 /* Kapasite / darboğaz / takt hesabı — UI'sız saf fonksiyon.
    Dönüş şekli UretimSimulasyon'daki eski `calc` ile birebir aynıdır. */
@@ -20,6 +20,7 @@ export function computeCapacity(data) {
   const effectiveCycleOf = {};      // konteyner id → efektif çevrim (yedek-paralel harmonik havuz)
 
   const leafCap = (node) => {
+    if (isPassthrough(node)) return Infinity;     // input/output: geçirgen, sınırlamaz
     const cyc = node.cycleTime || 0;
     if (cyc <= 0) return 0;
     const smv = (cyc / 60) * (1 + pfd);
@@ -35,17 +36,6 @@ export function computeCapacity(data) {
     });
     totalCycleOf[cid] = kids.reduce(
       (a, k) => a + (childNodes(data, k.id).length > 0 ? 0 : (k.cycleTime || 0)), 0);
-    // Efektif çevrim: yedek-paralel yaprak çocuklar tek harmonik terime katlanır (birim
-    // tempoları toplanır → 1/Σ(istasyon/CT)); kalan yapraklar seri toplanır. Yedek yoksa
-    // = totalCycleOf (kart/Yamazumi eski davranış). Kart etiketi & Yamazumi bunu kullanır.
-    {
-      const leafKids = kids.filter(k => childNodes(data, k.id).length === 0);
-      const seqCyc = leafKids.filter(k => !k.redundant).reduce((a, k) => a + (k.cycleTime || 0), 0);
-      const poolR = leafKids
-        .filter(k => k.redundant && (k.cycleTime || 0) > 0)
-        .reduce((a, k) => a + (k.stationCount || 1) / k.cycleTime, 0);
-      effectiveCycleOf[cid] = seqCyc + (poolR > 0 ? 1 / poolR : 0);
-    }
     if (kids.length === 0) return 0;
 
     const idset = new Set(kids.map(k => k.id));
@@ -103,8 +93,15 @@ export function computeCapacity(data) {
     }
     // Darboğaz = en düşük geçirgenlikli çocuk
     let bn = null, bnv = Infinity;
-    kids.forEach(k => { const v = t[k.id] ?? 0; if (v < bnv) { bnv = v; bn = k.id; } });
+    kids.forEach(k => {
+      if (isPassthrough(k)) return;               // input/output darboğaz olamaz
+      const v = t[k.id] ?? 0;
+      if (v < bnv) { bnv = v; bn = k.id; }
+    });
     bottleneckByContainer[cid] = bn;
+    // Yamazumi efektif çevrim = sürecin sürdürebildiği tempo (kapasiteden türer):
+    // paralel için harmonik, seri/pipelined için darboğaz CT'si. Özel-durum/pooling gerekmez.
+    effectiveCycleOf[cid] = containerThru > 0 ? (netMin * eff * 60) / (containerThru * (1 + pfd)) : 0;
     return containerThru;
   };
 

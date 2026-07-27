@@ -283,12 +283,14 @@ describe('buildSimDataFromRows — Öncesi grafiği', () => {
     expect(fullLoop).toBe(false)
   })
 
-  it('subOps grup içinde lineer + gruplar arası köprü türetilen nextIds\'i izler', () => {
+  it('subOps grup icinde lineer kalir; gruplar arasi akis mainOps koprusunden tasinir', () => {
     const rows = [R('Ön Bant', 'o1', 10), R('Ön Bant', 'o2', 8), R('Montaj', 'm1', 20, ['Ön Bant'])]
-    const { subOps } = buildSimDataFromRows(rows, { machines: [], operators: [], mainOps: null })
+    const { mainOps, subOps } = buildSimDataFromRows(rows, { machines: [], operators: [], mainOps: null })
     const o1 = subOps.find(s => s.name === 'o1'), o2 = subOps.find(s => s.name === 'o2'), m1 = subOps.find(s => s.name === 'm1')
     expect(o1.nextIds).toEqual([o2.id])          // grup içi lineer
-    expect(o2.nextIds).toContain(m1.id)          // son sub → sonraki grubun ilk sub'u
+    expect(o2.nextIds).toEqual([])               // gruplar arasi dogrudan alt-op link yok
+    expect(mainOps.find(m => m.name === 'Ön Bant').nextIds).toContain(mainOps.find(m => m.name === 'Montaj').id)
+    expect(m1.nextIds).toEqual([])
   })
 })
 
@@ -329,7 +331,7 @@ describe('buildSimDataFromRows — seviye bazlı akış', () => {
     expect(built.mainOps.map(m => m.name)).toEqual(['Hazırlık', 'Ön Bant'])
     expect(built.mainOps[0].nextIds).toEqual([built.mainOps[1].id])
     expect(built.subOps.map(s => s.name)).toEqual(['Kemer Çatım', 'Kemer Çıma', 'Ön Kemer Takma'])
-    expect(built.subOps[1].nextIds).toContain(built.subOps[2].id)
+    expect(built.subOps[1].nextIds).toEqual([])
   })
 
   it('1+2+3.Seviye yüklendiğinde en alt seviyeyi üretim operasyonu yapar', () => {
@@ -340,7 +342,8 @@ describe('buildSimDataFromRows — seviye bazlı akış', () => {
     ])
     expect(built.mainOps.map(m => m.name)).toEqual(['yapma', 'Birleştirme'])
     expect(built.subOps.map(s => s.name)).toEqual(['Kemer Çatım', 'Ön Kemer Takma', 'Etek Dönüp İp'])
-    expect(built.subOps[1].nextIds).toContain(built.subOps[2].id)
+    expect(built.subOps[1].nextIds).toEqual([])
+    expect(built.mainOps[0].nextIds).toEqual([built.mainOps[1].id])
   })
 })
 

@@ -567,17 +567,9 @@ export function buildSimDataFromRows(validRows, existing = { machines: [], opera
       s.order = i
       if (i < list.length - 1) s.nextIds = [list[i + 1].id]
     })
-    // Son sub'dan sonraki ana grubun ilk sub'una bağlantı (ana gruplar arası akış)
-    const mo = mainOps.find(m => m.id === moId)
-    if (!mo) continue
-    const lastSub = list[list.length - 1]
-    const downstreamMainIds = mo.nextIds
-    for (const nextMoId of downstreamMainIds) {
-      const nextList = buckets[nextMoId]
-      if (nextList && nextList.length > 0) {
-        lastSub.nextIds = [...(lastSub.nextIds || []), nextList[0].id]
-      }
-    }
+    // Gruplar arasi akis mainOps.nextIds uzerinden simulasyon motorunun grup
+    // kopruleriyle tasinir. Burada dogrudan alt-op baglantisi eklemek, giris
+    // alt-oplarinda hem pending hem groupInbox kapisi beklenmesine ve kilitlenmeye yol acar.
   }
 
   return { mainOps, subOps, machines, operators, warnings }

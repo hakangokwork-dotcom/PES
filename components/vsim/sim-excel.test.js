@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import * as XLSX from 'xlsx'
 import { validateRows, parseSimFile, buildSimDataFromRows, buildTemplateAOA } from './sim-excel.js'
 import { getDomain } from './domains/index.js'
+import { fastForward, initialSimState } from './engine/simulation.js'
 
 /* validateRows saf bir fonksiyon — xlsx dosyası okumaz, sadece zaten ayrıştırılmış
    satır objelerini (parseSimFile'ın ürettiği kanonik alan adlarıyla) doğrular.
@@ -361,9 +362,36 @@ describe('buildTemplateAOA — Öncesi kolonu', () => {
     expect(last(aoa.find(r => r[1] === 'Birleştirme'))).toBe('Hazırlık')
   })
 
-  it('kullanıcı flowNames verildiğinde Öncesi boş bırakılır', () => {
+  it('kullanici flowNames verildiginde calisir ornek operasyonlar uretir', () => {
     const aoa = buildTemplateAOA([{ name: 'Kesim' }, { name: 'Dikim' }], getDomain('textile'))
     expect(aoa[0][aoa[0].length - 1]).toBe('Öncesi')
-    for (const r of aoa.slice(1)) expect(r[r.length - 1]).toBe('')
+    expect(aoa.slice(1).map(r => r[1])).toEqual(['Kesim', 'Kesim', 'Dikim', 'Dikim'])
+    expect(aoa.slice(1).map(r => r[2])).toEqual(['Ornek operasyon 1', 'Ornek operasyon 2', 'Ornek operasyon 1', 'Ornek operasyon 2'])
+    expect(aoa[3][aoa[0].length - 1]).toBe('Kesim')
+  })
+
+  it('indirilen ornek sablon geri yuklenince simulasyon urun cikarir', () => {
+    const aoa = buildTemplateAOA([{ name: 'Kesim' }, { name: 'Dikim' }, { name: 'Paket' }], getDomain('textile'))
+    const [header, ...dataRows] = aoa
+    const aliases = {
+      'Sıra': 'sira',
+      '1.Seviye Süreç': 'seviye1',
+      '2.Seviye Süreç': 'seviye2',
+      '3.Seviye Süreç': 'seviye3',
+      'Çevrim (sn)': 'cevrim',
+      'Tip': 'tip',
+      'Makine Kodu': 'makineKodu',
+      'Operatör': 'operator',
+      'Öncesi': 'oncesi',
+    }
+    const rows = dataRows.map(values => Object.fromEntries(
+      header.map((key, idx) => [aliases[key] || key, values[idx]]),
+    ))
+    const validated = validateRows(rows, ['Kesim', 'Dikim', 'Paket'], getDomain('textile').opTypes)
+    expect(validated.every(r => r.ok)).toBe(true)
+
+    const built = buildSimDataFromRows(validated, { machines: [], operators: [], mainOps: null })
+    const end = fastForward(initialSimState(), { ...built, settings: { netMinutes: 60 } })
+    expect(end.exited).toBeGreaterThan(0)
   })
 })

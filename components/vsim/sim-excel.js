@@ -52,10 +52,7 @@ export const META_ALAN_HARITASI = {
   'musteri': 'musteri',
 }
 
-// Not: META_ORNEK şu an hiçbir yerde (downloadTemplate dahil) kullanılmıyor — "Bilgi"
-// sheet'i şablon indirmede üretilmiyor. Bu yüzden domain'e göre parametrize edilmedi;
-// tekstil örneği kalıyor. İleride bir "Bilgi" sheet'i şablona eklenirse domain'e göre
-// güncellenmeli.
+// Indirilen sablonda kullanilan, geri yuklenince meta alanlarini da dolduran calisir ornek.
 export const META_ORNEK = {
   'Model Adı':         'Erkek 5 Cep Denim Pantolon',
   'Model No / PLM ID': 'PN-2026-001',
@@ -257,7 +254,14 @@ export function buildTemplateAOA(mainOpsFromFlow, domain) {
   const exampleTip = d.opTypes[0] || ''
 
   const rows = flowNames.length > 0
-    ? useNames.map((name, idx) => [idx + 1, name, '', '', '', exampleTip, '', '', ''])
+    ? useNames.flatMap((name, idx) => {
+        const rowNo = idx * 2 + 1
+        const prev = idx > 0 ? useNames[idx - 1] : ''
+        return [
+          [rowNo, name, 'Ornek operasyon 1', '', 18 + idx * 4, exampleTip, '', '', prev],
+          [rowNo + 1, name, 'Ornek operasyon 2', '', 24 + idx * 4, exampleTip, '', '', ''],
+        ]
+      })
     : [
         [1, 'Hazırlık', 'Kemer Çatım', '', 17.08, exampleTip, '', '', ''],
         [2, 'Hazırlık', 'Kemer Çıma', '', 11.66, exampleTip, '', '', ''],
@@ -276,6 +280,11 @@ export function downloadTemplate(mainOpsFromFlow, domain) {
     { wch: 8 }, { wch: 22 }, { wch: 32 }, { wch: 32 }, { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 22 },
   ]
   XLSX.utils.book_append_sheet(wb, ws, 'Operasyonlar')
+
+  const metaRows = [['Alan', 'Bilgi'], ...Object.entries(META_ORNEK)]
+  const metaWs = XLSX.utils.aoa_to_sheet(metaRows)
+  metaWs['!cols'] = [{ wch: 24 }, { wch: 60 }]
+  XLSX.utils.book_append_sheet(wb, metaWs, 'Bilgi')
 
   const readme = [
     ['ProVSM Excel Şablonu - Kısa Kullanım'],

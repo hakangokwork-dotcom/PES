@@ -32,6 +32,7 @@ import { downloadTemplate, parseSimFile, validateRows, buildSimDataFromRows } fr
 import Gallery from './components/Gallery.jsx';
 import { confirmDialog, alertDialog, promptDialog } from './components/dialogs/dialogService.js';
 import VsmView from './components/VsmView.jsx';
+import FabrikaView from './components/FabrikaView.jsx';
 import InfoTip from './components/InfoTip.jsx';
 import { GUIDES } from './help/guides.js';
 import { GLOSSARY } from './help/glossary.js';
@@ -2828,6 +2829,16 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
   const itemPluralLower = lower(L.itemPlural);
   const [showSaveModelDialog, setShowSaveModelDialog] = useState(false);
   const [saveModelName, setSaveModelName] = useState('');
+  /* Liste | Fabrika görünümü — tercih localStorage'da; SSR uyumsuzluğu olmasın
+     diye mount sonrası okunur (ilk render hep 'liste') */
+  const [hatGorunum, setHatGorunum] = useState('liste');
+  useEffect(() => {
+    try { if (localStorage.getItem('vsim.simViewMode') === 'fabrika') setHatGorunum('fabrika'); } catch { /* gizli mod vb. */ }
+  }, []);
+  const degistirHatGorunum = (m) => {
+    setHatGorunum(m);
+    try { localStorage.setItem('vsim.simViewMode', m); } catch { /* yazamadıysa sorun değil */ }
+  };
   const scenarios = data.scenarios || [];
   const maxSec = (data.settings?.netMinutes || 540) * 60;
   const pctElapsed = Math.min(100, (simState.elapsed / maxSec) * 100);
@@ -3132,9 +3143,10 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
 
       {/* Canlı istasyon tablosu: ana op kolonu × alt op satırları */}
       <div className="bg-surface rounded-[10px] border border-line shadow-card p-4">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-start justify-between mb-3 gap-2">
           <div>
             <h3 className="font-display font-semibold text-ink flex items-center gap-2"><Activity className="w-5 h-5 text-accent" />Canlı Hat Durumu</h3>
+            {hatGorunum === 'liste' && (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-soft mt-1">
               <span className="inline-flex items-center gap-1">
                 <span className="font-mono bg-warn-tint text-warn px-1 rounded-sm">▲ zirve</span>
@@ -3153,8 +3165,23 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
                 <span className="text-ink-soft">istasyondan geçen toplam</span>
               </span>
             </div>
+            )}
+          </div>
+          {/* Liste | Fabrika görünüm anahtarı */}
+          <div className="flex items-center gap-0.5 bg-surface-2 rounded-lg p-0.5 flex-shrink-0">
+            {[['liste', 'Liste'], ['fabrika', 'Fabrika']].map(([m, ad]) => (
+              <button key={m} onClick={() => degistirHatGorunum(m)}
+                className={`text-xs px-3 py-1.5 rounded-md font-medium border transition ${
+                  hatGorunum === m ? 'bg-accent-tint text-accent-ink border-accent' : 'bg-surface text-ink-soft border-line hover:bg-surface-2'
+                }`}>
+                {m === 'fabrika' ? '🏭 ' : ''}{ad}
+              </button>
+            ))}
           </div>
         </div>
+        {hatGorunum === 'fabrika' ? (
+          <FabrikaView data={data} simState={simState} worstStationId={worstStationId} projectedEOD={projectedEOD} />
+        ) : (
         <div className="overflow-x-auto">
           <div className="flex gap-3 min-w-max pb-2">
             {sortedMainOps.map(mo => {
@@ -3265,6 +3292,7 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
             })}
           </div>
         </div>
+        )}
       </div>
 
       {/* Çıktı trendi grafiği */}

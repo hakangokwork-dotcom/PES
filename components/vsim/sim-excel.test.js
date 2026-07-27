@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as XLSX from 'xlsx'
-import { validateRows, parseSimFile, buildSimDataFromRows, buildTemplateAOA } from './sim-excel.js'
+import { validateRows, parseSimFile, buildSimDataFromRows, buildTemplateAOA, buildExampleTemplateAOA } from './sim-excel.js'
 import { getDomain } from './domains/index.js'
 import { fastForward, initialSimState } from './engine/simulation.js'
 
@@ -348,30 +348,28 @@ describe('buildSimDataFromRows — seviye bazlı akış', () => {
   })
 })
 
-describe('buildTemplateAOA — Öncesi kolonu', () => {
-  it('header son kolonu Öncesi ve boş kanvas için lineer örnek öncül içerir', () => {
+describe('buildTemplateAOA — şablon ve örnek sayfaları', () => {
+  it('ana Operasyonlar şablonu boş ve doldurulabilir gelir', () => {
     const aoa = buildTemplateAOA(null, getDomain('textile'))
     const header = aoa[0]
     expect(header[header.length - 1]).toBe('Öncesi')
-    const last = (r) => r[r.length - 1]
     expect(header).toEqual([
       'Sıra', '1.Seviye Süreç', '2.Seviye Süreç', '3.Seviye Süreç',
       'Çevrim (sn)', 'Tip', 'Makine Kodu', 'Operatör', 'Öncesi',
     ])
-    expect(last(aoa.find(r => r[1] === 'Hazırlık'))).toBe('')
-    expect(last(aoa.find(r => r[1] === 'Birleştirme'))).toBe('Hazırlık')
+    expect(aoa.slice(1)).toHaveLength(8)
+    expect(aoa.slice(1).every(r => r[1] === '' && r[2] === '' && r[4] === '')).toBe(true)
   })
 
-  it('kullanici flowNames verildiginde calisir ornek operasyonlar uretir', () => {
+  it('kullanici flowNames verildiginde sadece ana grup adlarini tasir', () => {
     const aoa = buildTemplateAOA([{ name: 'Kesim' }, { name: 'Dikim' }], getDomain('textile'))
     expect(aoa[0][aoa[0].length - 1]).toBe('Öncesi')
-    expect(aoa.slice(1).map(r => r[1])).toEqual(['Kesim', 'Kesim', 'Dikim', 'Dikim'])
-    expect(aoa.slice(1).map(r => r[2])).toEqual(['Ornek operasyon 1', 'Ornek operasyon 2', 'Ornek operasyon 1', 'Ornek operasyon 2'])
-    expect(aoa[3][aoa[0].length - 1]).toBe('Kesim')
+    expect(aoa.slice(1).map(r => r[1])).toEqual(['Kesim', 'Dikim'])
+    expect(aoa.slice(1).every(r => r[2] === '' && r[3] === '' && r[4] === '' && r[8] === '')).toBe(true)
   })
 
-  it('indirilen ornek sablon geri yuklenince simulasyon urun cikarir', () => {
-    const aoa = buildTemplateAOA([{ name: 'Kesim' }, { name: 'Dikim' }, { name: 'Paket' }], getDomain('textile'))
+  it('Ornekler sayfasindaki case geri yuklenince simulasyon urun cikarir', () => {
+    const aoa = buildExampleTemplateAOA(getDomain('textile'))
     const [header, ...dataRows] = aoa
     const aliases = {
       'Sıra': 'sira',
@@ -387,7 +385,7 @@ describe('buildTemplateAOA — Öncesi kolonu', () => {
     const rows = dataRows.map(values => Object.fromEntries(
       header.map((key, idx) => [aliases[key] || key, values[idx]]),
     ))
-    const validated = validateRows(rows, ['Kesim', 'Dikim', 'Paket'], getDomain('textile').opTypes)
+    const validated = validateRows(rows, ['Hazırlık', 'Birleştirme', 'Paket'], getDomain('textile').opTypes)
     expect(validated.every(r => r.ok)).toBe(true)
 
     const built = buildSimDataFromRows(validated, { machines: [], operators: [], mainOps: null })

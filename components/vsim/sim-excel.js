@@ -248,31 +248,35 @@ function parseMetaSheet(ws) {
 export function buildTemplateAOA(mainOpsFromFlow, domain) {
   const d = domain || getDomain('textile')
   const flowNames = (mainOpsFromFlow || []).map(m => m.name).filter(Boolean)
-  const useNames = flowNames.length > 0 ? flowNames : ['Hazırlık', 'Birleştirme']
+  const useNames = flowNames.length > 0 ? flowNames : []
 
   const header = ['Sıra', '1.Seviye Süreç', '2.Seviye Süreç', '3.Seviye Süreç', 'Çevrim (sn)', 'Tip', `${d.labels.resource} Kodu`, d.labels.person, 'Öncesi']
   const exampleTip = d.opTypes[0] || ''
 
   const rows = flowNames.length > 0
-    ? useNames.flatMap((name, idx) => {
-        const rowNo = idx * 2 + 1
-        const prev = idx > 0 ? useNames[idx - 1] : ''
-        return [
-          [rowNo, name, 'Ornek operasyon 1', '', 18 + idx * 4, exampleTip, '', '', prev],
-          [rowNo + 1, name, 'Ornek operasyon 2', '', 24 + idx * 4, exampleTip, '', '', ''],
-        ]
-      })
-    : [
-        [1, 'Hazırlık', 'Kemer Çatım', '', 17.08, exampleTip, '', '', ''],
-        [2, 'Hazırlık', 'Kemer Çıma', '', 11.66, exampleTip, '', '', ''],
-        [3, 'Birleştirme', 'Ön Bant', 'Ön Kemer Takma', 32.15, exampleTip, '', '', 'Hazırlık'],
-        [4, 'Birleştirme', 'Arka Bant', 'Etek Dönüp İp', 12.34, exampleTip, '', '', ''],
-      ]
+    ? useNames.map((name, idx) => [idx + 1, name, '', '', '', exampleTip, '', '', ''])
+    : Array.from({ length: 8 }, (_, idx) => [idx + 1, '', '', '', '', exampleTip, '', '', ''])
   return [header, ...rows]
+}
+
+export function buildExampleTemplateAOA(domain) {
+  const d = domain || getDomain('textile')
+  const exampleTip = d.opTypes[0] || ''
+  const header = ['Sıra', '1.Seviye Süreç', '2.Seviye Süreç', '3.Seviye Süreç', 'Çevrim (sn)', 'Tip', `${d.labels.resource} Kodu`, d.labels.person, 'Öncesi']
+  return [
+    header,
+    [1, 'Hazırlık', 'Kemer Çatım', '', 17.08, exampleTip, '', '', ''],
+    [2, 'Hazırlık', 'Kemer Çıma', '', 11.66, exampleTip, '', '', ''],
+    [3, 'Birleştirme', 'Ön Bant', 'Ön Kemer Takma', 32.15, exampleTip, '', '', 'Hazırlık'],
+    [4, 'Birleştirme', 'Arka Bant', 'Etek Dönüp İp', 12.34, exampleTip, '', '', ''],
+    [5, 'Paket', 'Son kontrol', '', 20, exampleTip, '', '', 'Birleştirme'],
+    [6, 'Paket', 'Katlama ve paket', '', 18, exampleTip, '', '', ''],
+  ]
 }
 
 export function downloadTemplate(mainOpsFromFlow, domain) {
   const aoa = buildTemplateAOA(mainOpsFromFlow, domain)
+  const exampleAoa = buildExampleTemplateAOA(domain)
 
   const wb = XLSX.utils.book_new()
   const ws = XLSX.utils.aoa_to_sheet(aoa)
@@ -281,6 +285,10 @@ export function downloadTemplate(mainOpsFromFlow, domain) {
   ]
   XLSX.utils.book_append_sheet(wb, ws, 'Operasyonlar')
 
+  const exampleWs = XLSX.utils.aoa_to_sheet(exampleAoa)
+  exampleWs['!cols'] = ws['!cols']
+  XLSX.utils.book_append_sheet(wb, exampleWs, 'Ornekler')
+
   const metaRows = [['Alan', 'Bilgi'], ...Object.entries(META_ORNEK)]
   const metaWs = XLSX.utils.aoa_to_sheet(metaRows)
   metaWs['!cols'] = [{ wch: 24 }, { wch: 60 }]
@@ -288,6 +296,11 @@ export function downloadTemplate(mainOpsFromFlow, domain) {
 
   const readme = [
     ['ProVSM Excel Şablonu - Kısa Kullanım'],
+    [],
+    ['Sayfa', 'Açıklama'],
+    ['Operasyonlar', 'Doldurulacak ana form. İçe aktarım bu sayfayı okur.'],
+    ['Ornekler', 'Referans için çalışan mini case. Gerekirse satırları Operasyonlar sayfasına kopyalayın.'],
+    ['Bilgi', 'Model adı, sipariş adedi ve notlar gibi isteğe bağlı meta alanları.'],
     [],
     ['Kolon', 'Açıklama'],
     ['1.Seviye Süreç', 'En üst akış seviyesi. Tek seviye yüklemede her satır bu sırayla ayrı akış adımı olur.'],

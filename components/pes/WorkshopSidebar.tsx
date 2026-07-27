@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import { APP_VERSION } from '@/lib/version'
 
 type NavItem = { label: string; href: string; icon: string }
 type NavGroup = { id: string; title: string; items: NavItem[] }
@@ -31,8 +32,8 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Üretim',      href: '/workshop/production', icon: '⊞' },
       { label: 'Modeller',    href: '/workshop/models',     icon: '◫' },
       { label: 'Yıkama / UKP', href: '/workshop/yikama-ukp', icon: '♨' },
+      { label: 'Yetenek',     href: '/workshop/yetenek',    icon: '◈' },
       { label: 'VSM Analiz',  href: '/workshop/vsm',        icon: '⊿' },
-      { label: 'Üretim Simülasyon', href: '/workshop/uretim-simulasyon', icon: '▶' },
     ],
   },
   {
@@ -214,6 +215,7 @@ export default function WorkshopSidebar() {
           <span>←</span>
           <span>Merkez Paneli</span>
         </Link>
+        <p className="text-[10px] text-gray-400 px-3 pt-1">{APP_VERSION}</p>
       </div>
     </aside>
   )

@@ -25,14 +25,18 @@ export type TenantContext = {
  * Doğrulama:
  *   - User'ın o tenant'a `tenant_user` üzerinden bağlı olması zorunlu
  *   - Aksi halde 403
+ *
+ * `req` OPSİYONELDİR: sayfa/layout gibi server component'lerde NextRequest
+ * yoktur. O durumda header adımı atlanır, cookie ve primary tenant kalır —
+ * zaten x-tenant-id yalnız API istemcileri için.
  */
-export async function getTenantContext(req: NextRequest): Promise<TenantContext | null> {
+export async function getTenantContext(req?: NextRequest | null): Promise<TenantContext | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
   const claimedTenantId =
-    req.headers.get(TENANT_HEADER) ||
+    req?.headers.get(TENANT_HEADER) ||
     (await cookies()).get(TENANT_COOKIE)?.value ||
     null
 

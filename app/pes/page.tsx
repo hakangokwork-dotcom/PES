@@ -119,7 +119,7 @@ export default async function PesDashboard() {
             )}
           </div>
           {effTrend.length > 0
-            ? <EffTrendChart data={effTrend as { year: number; month: number; eff: number }[]} />
+            ? <EffTrendChart data={effTrend as unknown as { year: number; month: number; eff: number }[]} />
             : <EmptyMini text="Üretim verisi bekleniyor" />}
         </div>
 
@@ -127,7 +127,7 @@ export default async function PesDashboard() {
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <h2 className="text-sm font-semibold text-gray-900 mb-3">Tedarikçi Kademeleri</h2>
           {tierDist.length > 0
-            ? <TierDonut data={tierDist as { tier: string; c: number }[]} />
+            ? <TierDonut data={tierDist as unknown as { tier: string; c: number }[]} />
             : <EmptyMini text="Henüz skorlama yok" />}
         </div>
       </div>
@@ -137,7 +137,7 @@ export default async function PesDashboard() {
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <h2 className="text-sm font-semibold text-gray-900 mb-3">Atölye Verimlilik Sıralaması</h2>
           {wsEff.length > 0
-            ? <WorkshopEffBar data={wsEff as { code: string; eff: number }[]} />
+            ? <WorkshopEffBar data={wsEff as unknown as { code: string; eff: number }[]} />
             : <EmptyMini text="Üretim verisi bekleniyor" />}
         </div>
 

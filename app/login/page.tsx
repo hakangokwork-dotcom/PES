@@ -4,34 +4,41 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-// Geçici hızlı giriş — email/şifre kaldırıldı, tek tıkla giriş.
-// Backend Supabase hesapları scripts/_seed_users.mjs ile oluşturuldu.
-const ACCOUNTS = {
-  atolye: { email: 'atolye@pes.local', password: 'Atolye1234!', redirect: '/workshop' },
-  admin: { email: 'admin@pes.local', password: 'Admin1234!', redirect: '/pes' },
-} as const
-
+/* Giriş sonrası kök sayfaya gidilir; hangi panele düşeceğini rol belirler
+   (bkz. app/page.tsx + lib/auth/panel-guard.ts). Yönetim ve atölye
+   hesapları ayrı e-postalardır — burada seçim yapılmaz, rol karar verir. */
 export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState<'atolye' | 'admin' | null>(null)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  async function login(kind: 'atolye' | 'admin') {
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
     setError('')
-    setLoading(kind)
+    setLoading(true)
 
-    const { email, password, redirect } = ACCOUNTS[kind]
     const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
 
     if (authError) {
-      setError(authError.message)
-      setLoading(null)
+      /* Supabase "Invalid login credentials" der; hangi alanın yanlış
+         olduğunu sızdırmamak doğru davranış, mesajı Türkçeleştiriyoruz. */
+      setError(
+        authError.message.includes('Invalid login credentials')
+          ? 'E-posta veya şifre hatalı.'
+          : authError.message
+      )
+      setLoading(false)
       return
     }
 
     router.refresh()
-    router.push(redirect)
+    router.push('/')
   }
 
   return (
@@ -45,33 +52,56 @@ export default function LoginPage() {
           <p className="text-sm text-gray-500 mt-1">Atölye Verimlilik Sistemi</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-3">
+        <form onSubmit={submit} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">
               {error}
             </div>
           )}
 
-          <button
-            onClick={() => login('atolye')}
-            disabled={loading !== null}
-            className="w-full py-3 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors font-medium text-sm disabled:opacity-50"
-          >
-            {loading === 'atolye' ? 'Giriş yapılıyor...' : 'Atölye Girişi'}
-          </button>
+          <div className="space-y-1.5">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              E-posta
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+              autoFocus
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56]"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Şifre
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56]"
+            />
+          </div>
 
           <button
-            onClick={() => login('admin')}
-            disabled={loading !== null}
-            className="w-full py-3 border border-[#197A56] text-[#197A56] rounded-lg hover:bg-[#197A56]/5 transition-colors font-medium text-sm disabled:opacity-50"
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors font-medium text-sm disabled:opacity-50"
           >
-            {loading === 'admin' ? 'Giriş yapılıyor...' : 'Admin Girişi'}
+            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </button>
 
           <p className="text-xs text-gray-400 text-center pt-1">
-            Geçici hızlı giriş — şifre gerekmez
+            Şifreni bilmiyorsan sistem yöneticisine sor.
           </p>
-        </div>
+        </form>
       </div>
     </div>
   )

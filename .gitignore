@@ -26,3 +26,8 @@ npm-debug.log*
 # işletim sistemi
 .DS_Store
 Thumbs.db
+
+# Ekip hesap listesi — şifre içerir, commit edilmez
+ekip.csv
+
+.vercel

@@ -21,7 +21,7 @@ import { withTenant } from './tenant-db'
  *   }
  */
 export async function withServerTenant<T>(
-  fn: (sql: postgres.TransactionSql, tenantId: string) => Promise<T>
+  fn: (sql: postgres.TransactionSql, tenantId: string, userId: string) => Promise<T>
 ): Promise<T | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,5 +37,5 @@ export async function withServerTenant<T>(
   if (tenantRows.length === 0) return null
 
   const tenantId = tenantRows[0].tenant_id
-  return withTenant(tenantId, (txSql) => fn(txSql, tenantId))
+  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id))
 }

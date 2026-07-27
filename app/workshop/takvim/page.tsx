@@ -240,6 +240,11 @@ function TakvimPage() {
   // Drag dinleyici — window seviyesinde kayıtlı
   useEffect(() => {
     if (!drag) return
+    /* Daraltılmış kopya: effect yalnız drag varken kurulur ve dep dizisinde
+       drag olduğu için her değişimde yeniden kurulur — yani closure boyunca
+       sabit ve non-null. TypeScript state değişkeninde bu daralmayı closure'a
+       taşıyamıyor; `drag!` yazmak yerine sabiti kullanıyoruz. */
+    const d = drag
     const colWidth = view === 'ay' ? 32 : view === 'hafta' ? 60 : 32
 
     function onMove(e: PointerEvent) {
@@ -273,12 +278,12 @@ function TakvimPage() {
       setDrag(prev => prev ? { ...prev, curStart: newStart, curEnd: newEnd, curLineId: newLineId, moved } : null)
     }
     function onUp() {
-      if (drag.moved) {
+      if (d.moved) {
         const changed =
-          drag.curStart.getTime() !== drag.origStart.getTime() ||
-          drag.curEnd.getTime()   !== drag.origEnd.getTime()   ||
-          drag.curLineId          !== drag.origLineId
-        if (changed) commitDrag(drag)
+          d.curStart.getTime() !== d.origStart.getTime() ||
+          d.curEnd.getTime()   !== d.origEnd.getTime()   ||
+          d.curLineId          !== d.origLineId
+        if (changed) commitDrag(d)
       }
       setDrag(null)
     }

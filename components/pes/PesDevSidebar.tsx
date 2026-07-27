@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { APP_VERSION } from '@/lib/version'
 
 type NavItem = { label: string; href: string; icon: string }
 type NavGroup = { id: string; title: string; items: NavItem[] }
@@ -182,6 +183,7 @@ export default function PesDevSidebar() {
           <span>Atölye Paneli</span>
         </Link>
         <p className="text-[9px] text-amber-600 font-medium px-3 py-0.5">Dev Mode</p>
+        <p className="text-[10px] text-gray-400 px-3 pt-0.5">{APP_VERSION}</p>
       </div>
     </aside>
   )

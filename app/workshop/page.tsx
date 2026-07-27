@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { Boxes, Wallet, Gauge, BarChart3 } from 'lucide-react'
 import { EffTrendChart } from '@/components/pes/DashboardCharts'
+import AtolyeSecici, { type AtolyeSatiri } from '@/components/pes/AtolyeSecici'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,10 +12,18 @@ interface Props { searchParams: Promise<{ wid?: string }> }
 export default async function WorkshopDashboard({ searchParams }: Props) {
   const { wid } = await searchParams
 
-  const data = await withServerTenant(async (sql) => {
+  const data = await withServerTenant(async (sql, _tenantId, userId) => {
     if (!wid) {
-      const workshops = await sql`SELECT id, code, name, city, type, sewing_staff, total_staff FROM workshop WHERE is_active = true ORDER BY code`
-      return { mode: 'list' as const, workshops }
+      /* "Kim sahiplenmiş" bilgisi. auth şemasına doğrudan JOIN yapılamaz —
+         uygulama pes_app rolüyle bağlanır ve o şemayı göremez; köprü
+         SECURITY DEFINER fonksiyondur (migration 026). */
+      const workshops = await sql`
+        SELECT w.id, w.code, w.name, w.city, w.type, w.sewing_staff, w.total_staff,
+               w.owner_user_id, kullanici_eposta(w.owner_user_id) AS owner_email
+        FROM workshop w
+        WHERE w.is_active = true
+        ORDER BY w.code`
+      return { mode: 'list' as const, workshops, userId }
     }
 
     const workshopId = parseInt(wid)
@@ -95,30 +104,10 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
 
   if (data.mode === 'list') {
     return (
-      <div className="max-w-2xl mx-auto space-y-6 pt-8">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-[#197A56] rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-xl">PES</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Atolye Secin</h1>
-          <p className="text-gray-500 mt-1">Verimlilik paneline erismek icin atolyenizi secin</p>
-        </div>
-        <div className="space-y-3">
-          {data.workshops.map((w) => (
-            <Link key={w.id} href={`/workshop?wid=${w.id}`}
-              className="block bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-[#197A56] transition-all">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[#197A56] font-bold text-lg">{w.code}</span>
-                  <span className="text-gray-900 ml-2 font-medium">{w.name}</span>
-                  <p className="text-sm text-gray-500 mt-0.5">{w.city} - Tip {w.type} - {w.sewing_staff} dikim op. - {w.total_staff} toplam</p>
-                </div>
-                <span className="text-gray-400 text-2xl">→</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <AtolyeSecici
+        atolyeler={data.workshops as unknown as AtolyeSatiri[]}
+        userId={data.userId}
+      />
     )
   }
 
@@ -217,7 +206,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
       {effTrend.length > 1 && (
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Verimlilik Trendi</h2>
-          <EffTrendChart data={effTrend as { year: number; month: number; eff: number }[]} />
+          <EffTrendChart data={effTrend as unknown as { year: number; month: number; eff: number }[]} />
         </div>
       )}
 

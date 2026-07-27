@@ -29,7 +29,7 @@ export function EffTrendChart({ data }: { data: { year: number; month: number; e
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
         <XAxis dataKey="ay" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} unit="%" />
-        <Tooltip {...tooltipStyle} formatter={(v: number) => [`%${v}`, 'Verimlilik']} />
+        <Tooltip {...tooltipStyle} formatter={(v) => [`%${Number(v)}`, 'Verimlilik']} />
         <Area type="monotone" dataKey="verim" stroke={GREEN} strokeWidth={2.5} fill="url(#effGrad)" dot={{ r: 4, fill: GREEN }} activeDot={{ r: 6 }} />
       </AreaChart>
     </ResponsiveContainer>
@@ -44,8 +44,8 @@ export function WorkshopEffBar({ data }: { data: { code: string; eff: number }[]
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
         <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} unit="%" />
         <YAxis type="category" dataKey="code" tick={{ fontSize: 12, fill: '#374151', fontWeight: 600 }} axisLine={false} tickLine={false} width={54} />
-        <Tooltip {...tooltipStyle} cursor={{ fill: '#f9fafb' }} formatter={(v: number) => [`%${v}`, 'Verimlilik']} />
-        <Bar dataKey="verim" radius={[0, 6, 6, 0]} barSize={16} label={{ position: 'right', fontSize: 11, fill: '#6b7280', formatter: (v: number) => `%${v}` }}>
+        <Tooltip {...tooltipStyle} cursor={{ fill: '#f9fafb' }} formatter={(v) => [`%${Number(v)}`, 'Verimlilik']} />
+        <Bar dataKey="verim" radius={[0, 6, 6, 0]} barSize={16} label={{ position: 'right', fontSize: 11, fill: '#6b7280', formatter: (v: unknown) => `%${Number(v)}` }}>
           {rows.map((r, i) => <Cell key={i} fill={effColor(r.verim)} />)}
         </Bar>
       </BarChart>
@@ -67,7 +67,7 @@ export function TierDonut({ data }: { data: { tier: string; c: number }[] }) {
           <Pie data={rows} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={64} paddingAngle={2} stroke="none">
             {rows.map((r, i) => <Cell key={i} fill={r.color} />)}
           </Pie>
-          <Tooltip {...tooltipStyle} formatter={(v: number, n: string) => [`${v} atölye`, n]} />
+          <Tooltip {...tooltipStyle} formatter={(v, n) => [`${Number(v)} atölye`, n]} />
         </PieChart>
       </ResponsiveContainer>
       <div className="space-y-1.5">

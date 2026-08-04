@@ -349,8 +349,7 @@ export default function AtolyeProfilSekmesi({
 
         {!profil && !duzenle && (
           <p className="text-sm text-gray-400 mb-3">
-            Bu atölyenin künyesi henüz doldurulmadı — kaynak Excel&apos;de eşleşme kurulamamış.
-            &quot;Düzenle&quot; ile elle girebilirsiniz.
+            Künye henüz doldurulmadı. &quot;Düzenle&quot; ile girebilirsiniz.
           </p>
         )}
 

@@ -178,7 +178,7 @@ export default function AtolyeProfilTablo({
                 <td className="px-4 py-3 text-gray-900 max-w-[220px]">
                   <div className="truncate">{s.name}</div>
                   {!s.profil_var && (
-                    <div className="text-xs text-gray-400">profil eşleşmedi</div>
+                    <div className="text-xs text-gray-400">künye boş</div>
                   )}
                 </td>
                 <td className="px-4 py-3 text-gray-600 text-xs max-w-[150px] truncate">

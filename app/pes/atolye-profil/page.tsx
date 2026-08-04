@@ -56,16 +56,15 @@ export default async function AtolyeProfilPage({
         </div>
       )}
 
-      {/* Kaynak veri henüz tam eşleşmediyse bunu sayfada söyle — sessizce
-          eksik rapor göstermek, eksik olduğunu bilmemekten kötüdür. */}
+      {/* Boş künye normal bir durum, hata değil: kullanıcılar zamanla
+          doldurur. Bu yüzden uyarı tonunda değil, bilgi tonunda. */}
       {!dbError && (data.ozet?.eslesmeyen_satir ?? 0) > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-          Kaynak Excel&apos;de <strong>{data.ozet?.eslesmeyen_satir}</strong> satır
-          henüz bir atölyeye bağlanmadı (sistemde karşılığı olmayan tüzel kişilikler
-          ve elle onay bekleyen belirsiz eşleşmeler). Bu satırlar
-          <code className="mx-1 px-1 bg-amber-100 rounded">workshop_profil_staging</code>
-          tablosunda duruyor; aşağıdaki rapor yalnız eşleşmiş atölyeleri kapsar.
-        </div>
+        <p className="text-sm text-gray-500">
+          Künyesi boş atölyeler listede yer alır; alanları atölye sayfasındaki
+          &quot;Profil &amp; Denetim&quot; sekmesinden doldurabilirsiniz. Kaynak
+          Excel&apos;in bağlanmamış {data.ozet?.eslesmeyen_satir} satırı
+          silinmedi, staging tablosunda duruyor.
+        </p>
       )}
 
       {!dbError && <AtolyeProfilTablo satirlar={data.satirlar} arsivDahil={arsivDahil} />}

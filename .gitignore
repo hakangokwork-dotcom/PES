@@ -34,3 +34,7 @@ ekip.csv
 
 # brainstorm gorsel companion oturumlari
 .superpowers/
+
+# Eslestirme inceleme dosyasi: her import calismasinda yeniden uretilir,
+# doldurulup eslestirme_uygula.mjs ile tuketilir. Surumlenmesi anlamsiz.
+/atolye_eslestirme_incelemesi.xlsx

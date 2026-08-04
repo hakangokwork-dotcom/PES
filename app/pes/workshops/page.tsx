@@ -58,7 +58,7 @@ export default async function WorkshopsPage({
             {dbError
               ? 'Bağlantı hatası'
               : arsivSayi > 0
-                ? `${aktifSayi} aktif · ${arsivSayi} arşivde`
+                ? `${aktifSayi} aktif · ${arsivSayi} pasif`
                 : `${aktifSayi} atölye kayıtlı`}
           </p>
         </div>
@@ -67,7 +67,7 @@ export default async function WorkshopsPage({
             href={arsivGoster ? '/pes/workshops' : '/pes/workshops?arsiv=1'}
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
           >
-            {arsivGoster ? 'Arşivi gizle' : 'Arşivi göster'}
+            {arsivGoster ? 'Pasifleri gizle' : 'Pasifleri göster'}
           </Link>
           <Link href="/pes/workshops/import" className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
             CSV Import
@@ -142,7 +142,7 @@ export default async function WorkshopsPage({
       {!dbError && list.length === 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
           <p className="text-gray-600">
-            {arsivGoster ? 'Arşivde atölye yok' : 'Henüz atölye eklenmemiş'}
+            {arsivGoster ? 'Pasif atölye yok' : 'Henüz atölye eklenmemiş'}
           </p>
           <Link href="/pes/workshops/import" className="text-[#197A56] hover:underline mt-2 inline-block">
             CSV ile toplu yükleyin →

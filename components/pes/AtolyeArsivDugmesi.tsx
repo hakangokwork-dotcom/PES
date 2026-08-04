@@ -3,7 +3,10 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
-/* Liste satırındaki Arşivle / Geri al.
+/* Liste satırındaki Pasife al / Aktife al.
+   "Aktif = şu anda çalışıyor" kullanıcının tanımı; eskiden "Arşivle"
+   yazıyordu ama alan aynı alan (workshop.is_active) ve iki farklı isim
+   aynı anahtarı iki şeymiş gibi gösteriyordu.
    Onay sormaz: işlem geri alınabilir, onay penceresi yalnız gürültü yapar. */
 export default function AtolyeArsivDugmesi({ id, aktif }: { id: number; aktif: boolean }) {
   const [bekliyor, setBekliyor] = useState(false)
@@ -40,7 +43,7 @@ export default function AtolyeArsivDugmesi({ id, aktif }: { id: number; aktif: b
         disabled={bekliyor}
         className="text-xs font-medium px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40"
       >
-        {bekliyor ? '…' : aktif ? 'Arşivle' : 'Geri al'}
+        {bekliyor ? '…' : aktif ? 'Pasife al' : 'Aktife al'}
       </button>
       {hata && <span className="text-[11px] text-red-600">{hata}</span>}
     </div>

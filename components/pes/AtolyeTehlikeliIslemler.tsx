@@ -72,8 +72,9 @@ export default function AtolyeTehlikeliIslemler({
       <div>
         <h2 className="text-sm font-semibold text-gray-900">Atölye durumu</h2>
         <p className="text-xs text-gray-500 mt-1">
-          Arşivlenen atölye listelerden, dashboard sayacından ve atölye
-          seçicilerden düşer. Verisi silinmez, istediğin zaman geri alırsın.
+          Pasife alınan atölye listelerden, dashboard sayacından ve atölye
+          seçicilerden düşer — raporlar yalnız aktifleri sayar. Verisi
+          silinmez, istediğin zaman geri açarsın.
         </p>
       </div>
 
@@ -89,7 +90,7 @@ export default function AtolyeTehlikeliIslemler({
           disabled={bekliyor}
           className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40"
         >
-          {bekliyor ? '…' : aktif ? 'Arşivle' : 'Geri al'}
+          {bekliyor ? '…' : aktif ? 'Pasife al' : 'Aktife al'}
         </button>
 
         {!onayIstendi ? (

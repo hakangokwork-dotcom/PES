@@ -48,7 +48,7 @@ export const DELETE = withTenantRoute<{ id: string }>(async (_req, { sql, params
   if (!sonuc.silindi) {
     return NextResponse.json(
       {
-        error: `Silinemez — ${engelleriYaz(sonuc.engeller)} bağlı. Bunun yerine arşivleyebilirsin.`,
+        error: `Silinemez — ${engelleriYaz(sonuc.engeller)} bağlı. Bunun yerine pasife alabilirsin.`,
         engeller: sonuc.engeller,
       },
       { status: 409 }

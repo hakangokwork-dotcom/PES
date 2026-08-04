@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import YetenekEditoru from '@/components/pes/YetenekEditoru'
+import AtolyeProfilSekmesi, {
+  type ProfilKaydi, type DenetimKaydi,
+} from '@/components/pes/AtolyeProfilSekmesi'
 
 type Account = {
   workshop_id: number
@@ -52,7 +55,7 @@ type Capability = {
 /* Yetenek editörü bant bazlı çalışır; sekme atölyenin bantlarını listeler. */
 type Line = { id: number; code: string; name: string }
 
-const TABS = ['Kimlik', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
+const TABS = ['Kimlik', 'Profil & Denetim', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
 type Tab = (typeof TABS)[number]
 
 const KIND_LABELS: Record<string, string> = {
@@ -89,6 +92,9 @@ export default function WorkshopTabs({
   interactions,
   capabilities,
   lines,
+  isActive,
+  profil,
+  denetimler,
 }: {
   workshopId: number
   account: Account | null
@@ -97,6 +103,9 @@ export default function WorkshopTabs({
   interactions: Interaction[]
   capabilities: Capability[]
   lines: Line[]
+  isActive: boolean
+  profil: ProfilKaydi
+  denetimler: DenetimKaydi[]
 }) {
   const [tab, setTab] = useState<Tab>('Kimlik')
 
@@ -120,6 +129,14 @@ export default function WorkshopTabs({
 
       <div className="pt-6">
         {tab === 'Kimlik' && <KimlikTab workshopId={workshopId} account={account} />}
+        {tab === 'Profil & Denetim' && (
+          <AtolyeProfilSekmesi
+            workshopId={workshopId}
+            isActive={isActive}
+            profil={profil}
+            denetimler={denetimler}
+          />
+        )}
         {tab === 'Yetenek' && <YetenekTab capabilities={capabilities} lines={lines} />}
         {tab === 'İlişki' && (
           <IliskiTab workshopId={workshopId} account={account} contacts={contacts} shares={shares} />

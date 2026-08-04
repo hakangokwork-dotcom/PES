@@ -26,7 +26,8 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
     if (workshops.length === 0) return null
 
     // Atölye 360 verisi tek turda — sıralı await zinciri yerine paralel.
-    const [lineList, accountRows, contacts, shares, interactions, capabilities] = await Promise.all([
+    const [lineList, accountRows, contacts, shares, interactions, capabilities,
+           profilRows, denetimRows] = await Promise.all([
       sql`SELECT * FROM production_line WHERE workshop_id = ${wid} ORDER BY code`,
       sql`SELECT * FROM workshop_account WHERE workshop_id = ${wid}`,
       sql`SELECT * FROM workshop_contact WHERE workshop_id = ${wid} ORDER BY is_primary DESC, name`,
@@ -46,6 +47,11 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
           WHERE pl.workshop_id = ${wid}
           GROUP BY lc.dimension_code, cd.label, lc.value_code, cv.label, cd.sort_order, cv.sort_order
           ORDER BY cd.sort_order NULLS LAST, cv.sort_order NULLS LAST`,
+      sql`SELECT * FROM workshop_profil WHERE workshop_id = ${wid}`,
+      sql`SELECT id, tip, tarih, puan, sinif, sinif_hesap,
+                 gecerlilik_ay, sonraki_tarih, kaynak
+            FROM workshop_denetim WHERE workshop_id = ${wid}
+           ORDER BY tip, tarih DESC`,
     ])
 
     return {
@@ -56,12 +62,15 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
       shares,
       interactions,
       capabilities,
+      profil: profilRows[0] ?? null,
+      denetimler: denetimRows,
     }
   })
 
   if (!data) redirect('/pes/workshops')
 
-  const { w, lineList, account, contacts, shares, interactions, capabilities } = data
+  const { w, lineList, account, contacts, shares, interactions, capabilities,
+          profil, denetimler } = data
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -109,6 +118,9 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
         shares={shares as never}
         interactions={interactions as never}
         capabilities={capabilities as never}
+        isActive={!!w.is_active}
+        profil={profil as never}
+        denetimler={denetimler as never}
         /* Yetenek sekmesi bant bazında düzenleme yapar; aktif bantlar lazım. */
         lines={lineList.filter((l) => l.is_active).map((l) => ({ id: l.id, code: l.code, name: l.name }))}
       />

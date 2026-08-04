@@ -21,6 +21,7 @@ const NAV_GROUPS: NavGroup[] = [
     title: 'Atölyeler & Plan',
     items: [
       { label: 'Atölyeler',         href: '/pes/workshops', icon: '⚙' },
+      { label: 'Profil & Denetim',  href: '/pes/atolye-profil', icon: '🛡' },
       { label: 'Atölye Takvimleri', href: '/pes/takvim',    icon: '🗓' },
     ],
   },

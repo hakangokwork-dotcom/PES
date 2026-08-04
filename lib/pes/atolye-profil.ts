@@ -75,20 +75,24 @@ export async function atolyeProfilSatirlari(
       p.is_ortakligi_leveli, p.aylik_kapasite, p.bant_sayisi,
       (p.workshop_id IS NOT NULL) AS profil_var,
 
-      wk.son_denetim  AS wkys_tarih,
-      wk.son_puan     AS wkys_puan,
-      wk.son_sinif    AS wkys_sinif,
-      wk.sonraki_tarih AS wkys_sonraki,
-      wk.kalan_gun    AS wkys_kalan,
-      wk.durum        AS wkys_durum,
+      -- ::text ZORUNLU. postgres.js DATE kolonlarini JS Date nesnesine
+      -- cevirir; arayuz bunlari string bekleyip .slice()/.localeCompare()
+      -- cagiriyor ve Date'te bu metodlar yok -> render TypeError ile
+      -- coker. Tip tanimindaki "string" ancak bu cast ile dogru olur.
+      wk.son_denetim::text   AS wkys_tarih,
+      wk.son_puan            AS wkys_puan,
+      wk.son_sinif           AS wkys_sinif,
+      wk.sonraki_tarih::text AS wkys_sonraki,
+      wk.kalan_gun           AS wkys_kalan,
+      wk.durum               AS wkys_durum,
 
-      so.son_denetim  AS sosyal_tarih,
-      so.son_puan     AS sosyal_puan,
-      so.son_sinif    AS sosyal_sinif,
-      so.son_sinif_kaynak AS sosyal_sinif_kaynak,
-      so.sonraki_tarih AS sosyal_sonraki,
-      so.kalan_gun    AS sosyal_kalan,
-      so.durum        AS sosyal_durum
+      so.son_denetim::text   AS sosyal_tarih,
+      so.son_puan            AS sosyal_puan,
+      so.son_sinif           AS sosyal_sinif,
+      so.son_sinif_kaynak    AS sosyal_sinif_kaynak,
+      so.sonraki_tarih::text AS sosyal_sonraki,
+      so.kalan_gun           AS sosyal_kalan,
+      so.durum               AS sosyal_durum
     FROM workshop w
     LEFT JOIN workshop_profil p ON p.workshop_id = w.id
     LEFT JOIN v_atolye_denetim_durum wk

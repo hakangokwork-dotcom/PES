@@ -48,8 +48,10 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
           GROUP BY lc.dimension_code, cd.label, lc.value_code, cv.label, cd.sort_order, cv.sort_order
           ORDER BY cd.sort_order NULLS LAST, cv.sort_order NULLS LAST`,
       sql`SELECT * FROM workshop_profil WHERE workshop_id = ${wid}`,
-      sql`SELECT id, tip, tarih, puan, sinif, sinif_hesap,
-                 gecerlilik_ay, sonraki_tarih, kaynak
+      /* tarih/sonraki_tarih ::text — postgres.js DATE'i Date nesnesine
+         cevirir, sekme bileşeni string bekliyor (.slice/.localeCompare). */
+      sql`SELECT id, tip, tarih::text, puan, sinif, sinif_hesap,
+                 gecerlilik_ay, sonraki_tarih::text, kaynak
             FROM workshop_denetim WHERE workshop_id = ${wid}
            ORDER BY tip, tarih DESC`,
     ])

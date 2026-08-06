@@ -46,6 +46,8 @@ const UCLAR = [
   // 029 ile eklenenler — denetim/künye verisi dışarı açılmamalı
   'workshop_profil', 'workshop_denetim', 'workshop_profil_staging',
   'v_atolye_denetim_durum',
+  // 030 — sipariş yerleştirme
+  'work_order_stage_atama', 'work_order_gunluk_uretim', 'workshop_stage_capacity',
 ]
 
 let sizan = 0

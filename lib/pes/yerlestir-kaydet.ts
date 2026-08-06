@@ -1,0 +1,127 @@
+import type postgres from 'postgres'
+import { bantPaylari, asamaGunu, geriyePlanla, type AsamaGirdi } from './yerlestirme'
+
+export type YerlestirIstek = {
+  siparisNo: string
+  musteri: string
+  modelAdi: string
+  adet: number
+  teslimTarihi: string
+  bugun: string
+  workshopId: number
+  /** Dikim aşamasının paylaştırılacağı bantlar (tasarım K1: tek atölye) */
+  lineIds: number[]
+  /** İşaretlenen zincir, ör. ['KESIM','DIKIM','YIKAMA','UKP','SEVK'] */
+  asamaKodlari: string[]
+}
+
+export type YerlestirSonuc = {
+  workOrderId: number
+  yetisiyor: boolean
+  elleTarihGereken: string[]
+}
+
+/**
+ * Siparişi, zincirini ve bant tahsislerini TEK transaction'da yazar.
+ *
+ * sql bir TRANSACTION handle'ı olmalı (withTenant/withTenantRoute içi).
+ * Yarım kalmış plan diye bir şey olmamalı: aşamalar yazılıp tahsisler
+ * yazılmazsa sipariş sistemde "planlanmış ama hiçbir bantta değil"
+ * olarak kalır ve kimse fark etmez.
+ */
+export async function yerlestir(
+  sql: postgres.TransactionSql,
+  tenantId: string,
+  istek: YerlestirIstek,
+): Promise<YerlestirSonuc> {
+  // 1) Bantların günlük hedefleri — bantın bu atölyeye ait olduğu da burada doğrulanır
+  const bantlar = await sql`
+    SELECT id, COALESCE(daily_target, 0)::int AS daily_target
+    FROM production_line
+    WHERE id = ANY(${istek.lineIds}) AND workshop_id = ${istek.workshopId} AND is_active`
+  if (bantlar.length === 0) throw new Error('Seçilen bantlar bu atölyede bulunamadı')
+
+  const paylar = bantPaylari(istek.adet, bantlar.map(b => ({
+    lineId: b.id as number, gunlukHedef: Number(b.daily_target),
+  })))
+  const dikimGunu = asamaGunu(istek.adet, paylar.reduce((t, p) => t + p.gunlukHedef, 0))
+
+  // 2) Aşama tanımları + bu atölyenin aşama kapasiteleri
+  const stageRows = await sql`
+    SELECT ps.id, ps.code, ps.sira_no, c.gunluk_kapasite
+    FROM production_stage ps
+    LEFT JOIN workshop_stage_capacity c
+           ON c.stage_id = ps.id AND c.workshop_id = ${istek.workshopId}
+    WHERE ps.code = ANY(${istek.asamaKodlari})
+    ORDER BY ps.sira_no`
+  if (stageRows.length !== istek.asamaKodlari.length) {
+    throw new Error('Bilinmeyen aşama kodu var')
+  }
+
+  const girdiler: AsamaGirdi[] = stageRows.map(r => ({
+    stageId: r.id as number,
+    kod: r.code as string,
+    siraNo: Number(r.sira_no),
+    gun: r.code === 'DIKIM'
+      ? dikimGunu
+      : asamaGunu(istek.adet, r.gunluk_kapasite === null ? null : Number(r.gunluk_kapasite)),
+  }))
+
+  const plan = geriyePlanla(istek.teslimTarihi, girdiler, istek.bugun)
+
+  /* 3) Sipariş.
+     work_order'ın NOT NULL kolonları (doğrulandı): is_emri_no,
+     workshop_id, model_adi, siparis_miktari, tenant_id — hepsi burada.
+     durum CHECK listesi: Taslak / Planlandi / Bekleniyor / Devam /
+     Duraklatildi / Tamamlandi / İptal / Sevk Edildi. */
+  const [wo] = await sql`
+    INSERT INTO work_order ${sql({
+      tenant_id: tenantId,
+      is_emri_no: istek.siparisNo,
+      siparis_no: istek.siparisNo,
+      workshop_id: istek.workshopId,
+      musteri: istek.musteri,
+      model_adi: istek.modelAdi,
+      siparis_miktari: istek.adet,
+      teslim_tarihi: istek.teslimTarihi,
+      baslangic_tarihi: plan.pencereler.find(p => p.baslangic)?.baslangic ?? null,
+      bitis_tarihi: istek.teslimTarihi,
+      durum: 'Planlandi',
+    })}
+    RETURNING id`
+  const workOrderId = wo.id as number
+
+  // 4) Zincir + tahsisler
+  for (const p of plan.pencereler) {
+    const [stage] = await sql`
+      INSERT INTO work_order_stage ${sql({
+        work_order_id: workOrderId,
+        /* tenant_id ZORUNLU ve RLS bunu süzüyor. Yazılmazsa insert
+           "new row violates row-level security policy" ile reddedilir —
+           NOT NULL hatası değil, RLS hatası olarak. */
+        tenant_id: tenantId,
+        stage_id: p.stageId,
+        sira_no: p.siraNo,
+        workshop_id: istek.workshopId,
+        plan_baslangic: p.baslangic,
+        plan_bitis: p.bitis,
+        durum: 'Beklemede',
+      })}
+      RETURNING id`
+
+    if (p.kod !== 'DIKIM' || p.baslangic === null || p.bitis === null) continue
+
+    for (const pay of paylar) {
+      await sql`INSERT INTO work_order_stage_atama ${sql({
+        stage_row_id: stage.id as number,
+        tenant_id: tenantId,
+        line_id: pay.lineId,
+        adet: pay.adet,
+        plan_baslangic: p.baslangic,
+        plan_bitis: p.bitis,
+      })}`
+    }
+  }
+
+  return { workOrderId, yetisiyor: plan.yetisiyor, elleTarihGereken: plan.elleTarihGereken }
+}

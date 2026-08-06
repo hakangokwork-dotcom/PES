@@ -137,7 +137,7 @@ function DenetimBlogu({
       {son ? (
         <div className="mt-2">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-            kalan === null ? 'bg-gray-100 text-faint'
+            kalan === null ? 'bg-canvas text-faint'
             : kalan < 0 ? 'bg-red-100 text-red-700'
             : kalan <= 90 ? 'bg-amber-100 text-amber-700'
             : 'bg-green-100 text-green-700'
@@ -199,7 +199,7 @@ function DenetimBlogu({
 
       {sirali.length > 1 && (
         <details className="mt-3">
-          <summary className="text-xs text-faint cursor-pointer hover:text-gray-700">
+          <summary className="text-xs text-faint cursor-pointer hover:text-ink">
             Geçmiş ({sirali.length - 1} önceki kayıt)
           </summary>
           <ul className="mt-2 space-y-1">
@@ -300,7 +300,7 @@ export default function AtolyeProfilSekmesi({
           disabled={aktiflikBekliyor}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 ${
             isActive
-              ? 'border border-line text-gray-700 hover:bg-canvas'
+              ? 'border border-line text-body hover:bg-canvas'
               : 'bg-accent text-white hover:bg-accent-hover'
           }`}
         >
@@ -396,10 +396,10 @@ export default function AtolyeProfilSekmesi({
             {ALANLAR.map((a) => {
               const v = profil ? (profil[a.ad] as string | number | null) : null
               return (
-                <div key={a.ad} className="flex justify-between gap-3 text-sm border-b border-gray-50 py-1">
+                <div key={a.ad} className="flex justify-between gap-3 text-sm border-b border-line-soft py-1">
                   <dt className="text-faint">{a.etiket}</dt>
                   <dd className="text-ink text-right truncate max-w-[55%]">
-                    {v === null || v === undefined || v === '' ? <span className="text-gray-300">—</span> : String(v)}
+                    {v === null || v === undefined || v === '' ? <span className="text-faint">—</span> : String(v)}
                   </dd>
                 </div>
               )

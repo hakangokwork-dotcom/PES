@@ -23,7 +23,7 @@ const LINE_TYPES = [
 ]
 
 function getLineTypeColor(lt: string) {
-  return LINE_TYPES.find(t => t.value === lt)?.color ?? 'bg-gray-100 text-muted'
+  return LINE_TYPES.find(t => t.value === lt)?.color ?? 'bg-canvas text-muted'
 }
 
 export default function ProfileWrapper() {
@@ -219,7 +219,7 @@ function WorkshopProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">Atölye Profili</h1>
         <p className="text-faint">{w.code} — Tüm atölye bilgilerini buradan yönetin</p>
       </div>
@@ -292,7 +292,7 @@ function WorkshopProfilePage() {
               <th className="py-2 text-right text-faint font-medium">Çevrim (sn)</th>
               <th className="py-2 text-center text-faint font-medium">İşlem</th>
             </tr></thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {lines.map(l => (
                 <React.Fragment key={l.id}>
                 <tr className="hover:bg-canvas">
@@ -348,7 +348,7 @@ function WorkshopProfilePage() {
                               const isOn = capSelected.has(key)
                               return (
                                 <button key={v.code} onClick={() => toggleCap(dim.code, v.code)}
-                                  className={`px-2 py-0.5 rounded text-[11px] font-medium ${isOn ? 'bg-emerald-500 text-white' : 'bg-white border border-line text-muted hover:bg-gray-100'}`}>
+                                  className={`px-2 py-0.5 rounded text-[11px] font-medium ${isOn ? 'bg-emerald-500 text-white' : 'bg-white border border-line text-muted hover:bg-line-soft'}`}>
                                   {v.label}
                                 </button>
                               )
@@ -370,9 +370,9 @@ function WorkshopProfilePage() {
               ))}
               {/* Toplam satırı */}
               <tr className="border-t-2 border-line bg-canvas font-semibold">
-                <td className="py-2 text-gray-700" colSpan={3}>Toplam</td>
-                <td className="py-2 text-right text-gray-700">{lines.reduce((s, l) => s + l.operator_count, 0)}</td>
-                <td className="py-2 text-right text-gray-700">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').reduce((s, l) => s + l.daily_target, 0).toLocaleString('tr-TR')}</td>
+                <td className="py-2 text-body" colSpan={3}>Toplam</td>
+                <td className="py-2 text-right text-body">{lines.reduce((s, l) => s + l.operator_count, 0)}</td>
+                <td className="py-2 text-right text-body">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').reduce((s, l) => s + l.daily_target, 0).toLocaleString('tr-TR')}</td>
                 <td className="py-2" colSpan={2}></td>
               </tr>
             </tbody>
@@ -420,11 +420,11 @@ function WorkshopProfilePage() {
         </div>
 
         {/* Hesaplanan özet */}
-        <div className="pt-3 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="pt-3 border-t border-line-soft grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-emerald-50 rounded-lg px-4 py-2"><span className="text-xs text-emerald-600">Verimli Çalışan Oranı</span><p className="text-lg font-bold text-emerald-700">%{verimliOran}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-muted">Üretim Personeli</span><p className="text-lg font-bold text-ink">{productive}</p></div>
-          <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Endirekt</span><p className="text-lg font-bold text-gray-700">{mgmt}</p></div>
-          <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Toplam Çalışan</span><p className="text-lg font-bold text-gray-700">{totalStaff}</p></div>
+          <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Endirekt</span><p className="text-lg font-bold text-body">{mgmt}</p></div>
+          <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Toplam Çalışan</span><p className="text-lg font-bold text-body">{totalStaff}</p></div>
         </div>
       </div>
 
@@ -433,8 +433,8 @@ function WorkshopProfilePage() {
         <h2 className="text-lg font-semibold text-ink mb-1">4. Kapasite Özeti</h2>
         <p className="text-xs text-faint mb-4">Bantlardan ve çalışan profilinden otomatik hesaplanır</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Net Çalışma (dk/gün)</p><p className="text-lg font-bold text-gray-700">{(w.net_hours_day * 60).toFixed(0)} dk</p></div>
-          <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Bant Sayısı</p><p className="text-lg font-bold text-gray-700">{staffFromLines.bantSayisi}</p></div>
+          <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Net Çalışma (dk/gün)</p><p className="text-lg font-bold text-body">{(w.net_hours_day * 60).toFixed(0)} dk</p></div>
+          <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Bant Sayısı</p><p className="text-lg font-bold text-body">{staffFromLines.bantSayisi}</p></div>
           <div className="bg-emerald-50 rounded-lg p-3"><p className="text-xs text-emerald-600">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-emerald-700">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-muted">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-ink">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[11px] text-muted">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
         </div>

@@ -69,7 +69,7 @@ export default function IndexManager({
     <div className="space-y-8">
       {/* Giriş */}
       <section className="bg-white border border-line-soft rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-800">
+        <h2 className="text-sm font-semibold text-ink">
           <TermTip termKey="fiyat_endeksi">Endeks</TermTip> değeri gir
         </h2>
         <p className="text-sm text-faint mt-1">
@@ -123,7 +123,7 @@ export default function IndexManager({
 
       {/* Seri değerleri */}
       <section>
-        <h2 className="text-sm font-semibold text-gray-800 mb-3">Girilmiş değerler</h2>
+        <h2 className="text-sm font-semibold text-ink mb-3">Girilmiş değerler</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {series.map((s) => {
             const rows = bySeries[s.code] ?? []
@@ -166,7 +166,7 @@ export default function IndexManager({
 
       {/* Grup eşleştirmesi */}
       <section>
-        <h2 className="text-sm font-semibold text-gray-800 mb-1">
+        <h2 className="text-sm font-semibold text-ink mb-1">
           <TermTip termKey="gider_gruplari">Grup</TermTip> →{' '}
           <TermTip termKey="deflator">deflatör</TermTip> eşleştirmesi
         </h2>
@@ -184,13 +184,13 @@ export default function IndexManager({
                 <th className="px-4 py-2.5 text-left text-faint font-medium">Gerekçe</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {map.map((m) => (
                 <tr key={m.group_code}>
                   <td className="px-4 py-2.5 font-medium text-ink">
                     {GROUP_LABELS[m.group_code] ?? m.group_code}
                   </td>
-                  <td className="px-4 py-2.5 text-gray-700">{m.series_label}</td>
+                  <td className="px-4 py-2.5 text-body">{m.series_label}</td>
                   <td className="px-4 py-2.5 text-faint text-xs">{m.rationale}</td>
                 </tr>
               ))}

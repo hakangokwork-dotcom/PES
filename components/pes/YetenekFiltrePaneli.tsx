@@ -48,7 +48,7 @@ export default function YetenekFiltrePaneli({
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-ink">Yetenek Filtreleri</h2>
         {seciliSayisi > 0 && (
-          <button onClick={temizle} className="text-xs text-faint hover:text-gray-800 underline">
+          <button onClick={temizle} className="text-xs text-faint hover:text-ink underline">
             Temizle ({seciliSayisi})
           </button>
         )}
@@ -58,7 +58,7 @@ export default function YetenekFiltrePaneli({
         const seciliDegerler = new Set(secili[b.code] ?? [])
         return (
           <div key={b.code} className="border border-line-soft rounded-lg overflow-hidden">
-            <div className="bg-canvas px-3 py-2 text-xs font-semibold text-gray-700 border-b border-line-soft">
+            <div className="bg-canvas px-3 py-2 text-xs font-semibold text-body border-b border-line-soft">
               {b.label}
             </div>
             <div className="max-h-52 overflow-y-auto p-1">
@@ -79,7 +79,7 @@ export default function YetenekFiltrePaneli({
                       onChange={(e) => degistir(b.code, d.code, e.target.checked)}
                       className="accent-accent"
                     />
-                    <span className="flex-1 text-gray-700 truncate">{d.label}</span>
+                    <span className="flex-1 text-body truncate">{d.label}</span>
                     <span className={`text-[11px] tabular-nums ${isaretli ? 'text-emerald-700 font-medium' : 'text-faint'}`}>
                       {d.adet}
                     </span>

@@ -91,7 +91,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{w.name} — Analiz</h1>
         <p className="text-faint">{w.code} · Detaylı performans analizi</p>
       </div>
@@ -109,18 +109,18 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <th className="py-2 text-left text-faint font-medium w-48">Grafik</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {prodTrend.map((p, i) => {
                 const eff = Number(p.eff)
                 const color = eff >= 90 ? 'bg-green-500' : eff >= 70 ? 'bg-amber-500' : 'bg-red-500'
                 return (
                   <tr key={i}>
-                    <td className="py-2 text-gray-700">{String(p.year)}/{String(p.month)}</td>
+                    <td className="py-2 text-body">{String(p.year)}/{String(p.month)}</td>
                     <td className="py-2 text-right">{Number(p.target).toLocaleString('tr-TR')}</td>
                     <td className="py-2 text-right">{Number(p.actual).toLocaleString('tr-TR')}</td>
                     <td className="py-2 text-right font-bold">{eff}%</td>
                     <td className="py-2">
-                      <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="w-full bg-canvas rounded-full h-2">
                         <div className={`h-2 rounded-full ${color}`} style={{ width: `${Math.min(eff, 100)}%` }}></div>
                       </div>
                     </td>
@@ -145,13 +145,13 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <th className="py-2 text-right text-faint font-medium">Marj</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {costTrend.map((c, i) => {
                 const margin = Number(c.target_revenue) - Number(c.total_expense)
                 const marginPct = Number(c.target_revenue) > 0 ? (margin / Number(c.target_revenue) * 100).toFixed(1) : '—'
                 return (
                   <tr key={i}>
-                    <td className="py-2 text-gray-700">{String(c.year)}/{String(c.month)}</td>
+                    <td className="py-2 text-body">{String(c.year)}/{String(c.month)}</td>
                     <td className="py-2 text-right">{(Number(c.total_expense) / 1000).toFixed(0)}K TL</td>
                     <td className="py-2 text-right font-bold text-accent">{String(c.cost_per_min)} TL</td>
                     <td className="py-2 text-right">{Number(c.target_revenue) > 0 ? (Number(c.target_revenue) / 1000).toFixed(0) + 'K' : '—'}</td>
@@ -175,10 +175,10 @@ export default async function AnalysisPage({ searchParams }: Props) {
               return (
                 <div key={i} className="flex items-center gap-3">
                   <span className="text-xs text-muted w-24 text-right">{e.label}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-4">
+                  <div className="flex-1 bg-canvas rounded-full h-4">
                     <div className="h-4 rounded-full bg-accent" style={{ width: `${pct}%`, opacity: 0.4 + (pct / 100) * 0.6 }}></div>
                   </div>
-                  <span className="text-xs text-gray-700 w-20 text-right">{(e.value / 1000).toFixed(0)}K</span>
+                  <span className="text-xs text-body w-20 text-right">{(e.value / 1000).toFixed(0)}K</span>
                   <span className="text-xs text-faint w-12 text-right">%{pct.toFixed(0)}</span>
                 </div>
               )
@@ -199,10 +199,10 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <th className="py-2 text-right text-faint font-medium">Red %</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {qualTrend.map((q, i) => (
                 <tr key={i}>
-                  <td className="py-2 text-gray-700">{String(q.year)}/{String(q.month)}</td>
+                  <td className="py-2 text-body">{String(q.year)}/{String(q.month)}</td>
                   <td className="py-2 text-right">{Number(q.inspected).toLocaleString('tr-TR')}</td>
                   <td className="py-2 text-right"><span className={`font-bold ${Number(q.fpq_rate) >= 95 ? 'text-green-600' : 'text-amber-600'}`}>%{String(q.fpq_rate)}</span></td>
                   <td className="py-2 text-right text-red-600">%{String(q.red_rate)}</td>
@@ -245,10 +245,10 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <th className="py-2 text-right text-faint font-medium">Devir %</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {workforceTrend.map((wf, i) => (
                 <tr key={i}>
-                  <td className="py-2 text-gray-700">{String(wf.year)}/{String(wf.month)}</td>
+                  <td className="py-2 text-body">{String(wf.year)}/{String(wf.month)}</td>
                   <td className="py-2 text-right">{String(wf.total_staff)}</td>
                   <td className="py-2 text-right text-green-600">+{String(wf.joined_count)}</td>
                   <td className="py-2 text-right text-red-600">-{String(wf.left_count)}</td>

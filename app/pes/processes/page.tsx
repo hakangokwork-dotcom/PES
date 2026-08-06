@@ -144,7 +144,7 @@ export default function ProcessesPage() {
               <th className="px-4 py-3 text-center text-faint font-medium">İşlem</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line-soft">
             {processes.map(p => (
               <tr key={p.id} className="hover:bg-canvas">
                 {editingId === p.id ? (
@@ -182,7 +182,7 @@ export default function ProcessesPage() {
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         p.group_type === 'Alt' ? 'bg-canvas text-muted' :
                         p.group_type === 'Üst' ? 'bg-canvas text-muted' :
-                        'bg-gray-100 text-muted'
+                        'bg-canvas text-muted'
                       }`}>{p.group_type}</span>
                     </td>
                     <td className="px-4 py-3 text-muted text-xs">{p.description ?? '—'}</td>

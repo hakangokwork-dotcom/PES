@@ -264,10 +264,10 @@ export default function ModelsPage() {
                 <th className="py-2 text-center text-faint font-medium w-24">Kaynak</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {samEntries.map((entry, idx) => (
                 <tr key={idx} className={entry.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
-                  <td className="py-2 text-gray-700">{entry.process_name}</td>
+                  <td className="py-2 text-body">{entry.process_name}</td>
                   <td className="py-2 text-right">
                     <input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right focus:outline-none focus:border-accent"
                       value={entry.sam_minutes || ''} onChange={e => updateSam(idx, 'sam_minutes', parseFloat(e.target.value) || 0)} step={0.1} min={0} placeholder="0" />
@@ -307,7 +307,7 @@ export default function ModelsPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="text-accent font-bold text-lg">{code}</span>
-                    <span className="text-gray-700 ml-2">{group.name}</span>
+                    <span className="text-body ml-2">{group.name}</span>
                     <span className="text-xs text-faint ml-2">{group.category_name} · {group.template_code}</span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -332,14 +332,14 @@ export default function ModelsPage() {
                 <BottleneckBar code={code} bn={bottlenecks[code]} onSave={loadData} />
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100">
+                    <tr className="border-b border-line-soft">
                       <th className="py-1.5 text-left text-faint font-medium text-xs">Süreç</th>
                       <th className="py-1.5 text-right text-faint font-medium text-xs">SAM (sn)</th>
                       <th className="py-1.5 text-center text-faint font-medium text-xs">Kaynak</th>
                       <th className="py-1.5 text-center text-faint font-medium text-xs">İşlem</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-line-soft">
                     {editingGroup === code ? (
                       groupEditRows.map((row, idx) => {
                         const hasSam = row.sam_minutes > 0
@@ -458,7 +458,7 @@ function BottleneckBar({ code, bn, onSave }: { code: string; bn?: Bottleneck; on
   }
 
   return (
-    <button onClick={() => setEditing(true)} className="mb-3 w-full text-left bg-canvas border border-dashed border-line rounded-lg p-3 text-sm text-faint hover:bg-gray-100 transition-colors">
+    <button onClick={() => setEditing(true)} className="mb-3 w-full text-left bg-canvas border border-dashed border-line rounded-lg p-3 text-sm text-faint hover:bg-line-soft transition-colors">
       + Darboğaz bilgisi ekle (çevrim süresi → maks günlük üretim hesabı)
     </button>
   )

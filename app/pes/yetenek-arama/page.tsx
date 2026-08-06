@@ -213,7 +213,7 @@ export default async function YetenekAramaPage({
             <div className="space-y-3">
               {atolyeListesi.map((a) => (
                 <div key={a.code} className="bg-white border border-line-soft rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-canvas">
+                  <div className="flex items-center justify-between px-5 py-3 border-b border-line-soft bg-canvas">
                     <div className="min-w-0">
                       <span className="text-accent font-semibold">{a.code}</span>
                       <span className="text-ink font-medium ml-2">{a.name}</span>
@@ -223,7 +223,7 @@ export default async function YetenekAramaPage({
                       {a.bantlar.length} bant eşleşti
                     </span>
                   </div>
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-line-soft">
                     {a.bantlar.map((b) => (
                       <div key={b.id} className="px-5 py-2.5 flex items-center justify-between gap-4 text-sm">
                         <div className="min-w-0">

@@ -131,7 +131,7 @@ export default async function ReportsPage() {
               <th className="px-4 py-3 text-right text-faint font-medium">G.Hedef</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line-soft">
             {workshopSummary.map((w, i) => (
               <tr key={i} className="hover:bg-canvas">
                 <td className="px-4 py-3 text-accent font-medium">{String(w.code)}</td>
@@ -163,7 +163,7 @@ export default async function ReportsPage() {
                 <th className="px-4 py-3 text-right text-faint font-medium">Verimlilik</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {prodSummary.map((p, i) => (
                 <tr key={i} className="hover:bg-canvas">
                   <td className="px-4 py-3 text-center text-faint">{i + 1}</td>
@@ -194,7 +194,7 @@ export default async function ReportsPage() {
                 <th className="px-4 py-3 text-right text-faint font-medium">TL/dk</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {expenseSummary.map((e, i) => (
                 <tr key={i} className="hover:bg-canvas">
                   <td className="px-4 py-3 text-ink">{String(e.code)} — {String(e.name)}</td>
@@ -223,7 +223,7 @@ export default async function ReportsPage() {
                 <th className="px-4 py-3 text-right text-faint font-medium">FPQ %</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {qualitySummary.map((q, i) => (
                 <tr key={i} className="hover:bg-canvas">
                   <td className="px-4 py-3 text-ink">{String(q.code)} — {String(q.name)}</td>
@@ -255,7 +255,7 @@ export default async function ReportsPage() {
                 <th className="px-4 py-3 text-center text-faint font-medium">Trend</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {scoreSummary.map((s, i) => (
                 <tr key={i} className="hover:bg-canvas">
                   <td className="px-4 py-3 text-center text-faint">{i + 1}</td>

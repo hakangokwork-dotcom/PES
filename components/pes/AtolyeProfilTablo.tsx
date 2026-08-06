@@ -8,7 +8,7 @@ const DURUM_STIL: Record<DenetimDurum, string> = {
   SURESI_DOLMUS: 'bg-red-100 text-red-700',
   YAKLASIYOR: 'bg-amber-100 text-amber-700',
   GECERLI: 'bg-green-100 text-green-700',
-  YOK: 'bg-gray-100 text-faint',
+  YOK: 'bg-canvas text-faint',
 }
 const DURUM_KISA: Record<DenetimDurum, string> = {
   SURESI_DOLMUS: 'Süresi dolmuş',
@@ -167,7 +167,7 @@ export default function AtolyeProfilTablo({
               <th className="px-4 py-3 text-center text-faint font-medium">Risk</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line-soft">
             {filtreli.map((s) => (
               <tr key={s.id} className={`hover:bg-canvas transition-colors ${s.is_active ? '' : 'opacity-50'}`}>
                 <td className="px-4 py-3">
@@ -217,7 +217,7 @@ export default function AtolyeProfilTablo({
                       : s.risk_seviyesi === 'ORTA' ? 'bg-amber-100 text-amber-700'
                       : 'bg-green-100 text-green-700'
                     }`}>{s.risk_seviyesi}</span>
-                  ) : <span className="text-gray-300">—</span>}
+                  ) : <span className="text-faint">—</span>}
                 </td>
               </tr>
             ))}

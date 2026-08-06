@@ -231,7 +231,7 @@ export default async function PesDashboard() {
             {recentProd.map((r: Record<string, unknown>, i: number) => {
               const eff = Number(r.eff)
               return (
-                <div key={i} className="flex items-center gap-3 py-1.5 border-b border-gray-50 last:border-0">
+                <div key={i} className="flex items-center gap-3 py-1.5 border-b border-line-soft last:border-0">
                   <span className="text-accent font-semibold text-sm w-14">{String(r.code)}</span>
                   <span className="text-muted text-sm truncate flex-1">{String(r.name)}</span>
                   <span className="text-faint text-xs tabular-nums hidden sm:block">{Number(r.total_actual).toLocaleString('tr-TR')}</span>
@@ -250,7 +250,7 @@ export default async function PesDashboard() {
 function EmptyMini({ text }: { text: string }) {
   return (
     <div className="h-[180px] flex flex-col items-center justify-center text-center">
-      <BarChart3 className="w-8 h-8 text-gray-200 mb-2" />
+      <BarChart3 className="w-8 h-8 text-faint mb-2" />
       <p className="text-sm text-faint">{text}</p>
     </div>
   )

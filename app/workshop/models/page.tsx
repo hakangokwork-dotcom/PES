@@ -102,7 +102,7 @@ function WorkshopModelsPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
           <h1 className="text-2xl font-bold text-ink mt-2">Model / SAM Kütüphanesi</h1>
         </div>
         <button onClick={() => showForm ? setShowForm(false) : initForm()} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
@@ -126,10 +126,10 @@ function WorkshopModelsPage() {
           <h2 className="text-lg font-semibold text-ink pt-2">Süreç Bazlı SAM (saniye)</h2>
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line-soft"><th className="py-2 text-left text-faint">Süreç</th><th className="py-2 text-right text-faint w-28">SAM (sn)</th><th className="py-2 text-center text-faint w-24">Kaynak</th></tr></thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {samEntries.map((e, i) => (
                 <tr key={i} className={e.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
-                  <td className="py-2 text-gray-700">{e.process_name}</td>
+                  <td className="py-2 text-body">{e.process_name}</td>
                   <td className="py-2 text-right"><input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
                   <td className="py-2 text-center"><select className="px-2 py-1 border border-line rounded text-sm" value={e.source} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, source: ev.target.value} : s))}><option value="Pratik">Pratik</option><option value="MTM">MTM</option></select></td>
                 </tr>
@@ -154,7 +154,7 @@ function WorkshopModelsPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="text-accent font-bold text-lg">{code}</span>
-                    <span className="text-gray-700 ml-2">{group.name}</span>
+                    <span className="text-body ml-2">{group.name}</span>
                     <span className="text-xs text-faint ml-2">{group.category_name}</span>
                   </div>
                   <div className="text-right">
@@ -196,15 +196,15 @@ function WorkshopModelsPage() {
                     </div>
                   </div>
                 ) : (
-                  <button onClick={() => { setEditBnCode(code); setBnOp(''); setBnSec(0) }} className="mb-3 w-full text-left bg-canvas border border-dashed border-line rounded-lg p-3 text-sm text-faint hover:bg-gray-100">
+                  <button onClick={() => { setEditBnCode(code); setBnOp(''); setBnSec(0) }} className="mb-3 w-full text-left bg-canvas border border-dashed border-line rounded-lg p-3 text-sm text-faint hover:bg-line-soft">
                     + Darboğaz bilgisi ekle
                   </button>
                 )}
 
                 {/* SAM Tablosu */}
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b border-gray-100"><th className="py-1.5 text-left text-faint text-xs">Süreç</th><th className="py-1.5 text-right text-faint text-xs">SAM (sn)</th><th className="py-1.5 text-center text-faint text-xs">Kaynak</th></tr></thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <thead><tr className="border-b border-line-soft"><th className="py-1.5 text-left text-faint text-xs">Süreç</th><th className="py-1.5 text-right text-faint text-xs">SAM (sn)</th><th className="py-1.5 text-center text-faint text-xs">Kaynak</th></tr></thead>
+                  <tbody className="divide-y divide-line-soft">
                     {group.items.map(m => (
                       <tr key={m.id} className="hover:bg-canvas">
                         <td className="py-1.5 text-muted">{m.process_name}</td>
@@ -216,7 +216,7 @@ function WorkshopModelsPage() {
                 </table>
 
                 {/* Eder Maliyet merkez tarafına taşındı: /pes/eder-maliyet */}
-                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                <div className="mt-3 pt-3 border-t border-line-soft flex items-center justify-between">
                   <Link
                     href={`/pes/eder-maliyet`}
                     className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"

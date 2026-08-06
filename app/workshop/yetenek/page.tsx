@@ -73,7 +73,7 @@ export default async function YetenekPage({ searchParams }: Props) {
                   className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                     aktif
                       ? 'bg-accent text-white border-accent'
-                      : 'bg-white text-gray-700 border-line-soft hover:border-accent'
+                      : 'bg-white text-body border-line-soft hover:border-accent'
                   }`}
                 >
                   {b.name as string}

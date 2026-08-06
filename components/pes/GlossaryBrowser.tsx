@@ -93,7 +93,7 @@ export default function GlossaryBrowser({
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-gray-100 px-5 py-4 space-y-3 bg-canvas">
+                  <div className="border-t border-line-soft px-5 py-4 space-y-3 bg-canvas">
                     {m.aliases && m.aliases.length > 0 && (
                       <p className="text-xs text-faint">
                         <span className="font-semibold">Literatürde:</span> {m.aliases.join(' · ')}
@@ -101,7 +101,7 @@ export default function GlossaryBrowser({
                     )}
 
                     <Field title="Formül">
-                      <code className="text-xs bg-white border border-line-soft px-2.5 py-1.5 rounded block font-mono text-gray-800">
+                      <code className="text-xs bg-white border border-line-soft px-2.5 py-1.5 rounded block font-mono text-ink">
                         {m.formula}
                       </code>
                     </Field>
@@ -180,7 +180,7 @@ function FilterChip({
       className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
         active
           ? 'bg-accent text-white border-accent'
-          : 'bg-white text-muted border-line hover:border-gray-400'
+          : 'bg-white text-muted border-line hover:border-line'
       }`}
     >
       {children}

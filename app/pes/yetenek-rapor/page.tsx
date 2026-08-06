@@ -149,15 +149,15 @@ export default async function YetenekRaporPage() {
           const maxBant = Math.max(...items.map(i => i.bant_sayisi), 1)
           return (
             <div key={dimCode} className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-700">{dim.label}</h3>
+              <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+                <h3 className="text-sm font-semibold text-body">{dim.label}</h3>
               </div>
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-line-soft">
                 {items.map(item => (
                   <div key={item.value_code} className="px-4 py-2 flex items-center gap-3">
-                    <span className="text-sm text-gray-800 w-28 truncate">{item.label}</span>
+                    <span className="text-sm text-ink w-28 truncate">{item.label}</span>
                     <div className="flex-1">
-                      <div className="w-full bg-gray-100 rounded-full h-2.5">
+                      <div className="w-full bg-canvas rounded-full h-2.5">
                         <div className="h-2.5 rounded-full bg-emerald-500" style={{ width: `${(item.bant_sayisi / maxBant) * 100}%` }}></div>
                       </div>
                     </div>
@@ -175,13 +175,13 @@ export default async function YetenekRaporPage() {
 
       {allKlasmans.length > 0 && Object.keys(atolyeKlasmanMap).length > 0 && (
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700">Atolye x Klasman Matrisi</h3>
+          <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+            <h3 className="text-sm font-semibold text-body">Atolye x Klasman Matrisi</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-faint border-b border-gray-100">
+                <tr className="text-faint border-b border-line-soft">
                   <th className="text-left px-3 py-2 sticky left-0 bg-white">Atolye</th>
                   <th className="text-center px-1 py-2">Bant</th>
                   <th className="text-center px-1 py-2">Op</th>
@@ -193,7 +193,7 @@ export default async function YetenekRaporPage() {
               </thead>
               <tbody>
                 {Object.values(atolyeKlasmanMap).map(a => (
-                  <tr key={a.code} className="border-b border-gray-50 hover:bg-canvas">
+                  <tr key={a.code} className="border-b border-line-soft hover:bg-canvas">
                     <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-white">{a.code} <span className="text-faint font-normal">— {a.name}</span></td>
                     <td className="text-center px-1 py-2">{a.bantSayisi}</td>
                     <td className="text-center px-1 py-2">{a.toplamOp}</td>
@@ -203,7 +203,7 @@ export default async function YetenekRaporPage() {
                         {a.klasmanlar.has(k) ? (
                           <span className="inline-block w-5 h-5 rounded bg-emerald-500 text-white text-[11px] leading-5">✓</span>
                         ) : (
-                          <span className="text-gray-200">—</span>
+                          <span className="text-faint">—</span>
                         )}
                       </td>
                     ))}

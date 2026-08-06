@@ -66,7 +66,7 @@ export default function TermTip({
         className={
           showIcon
             ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[11px] text-faint hover:border-emerald-500 hover:text-emerald-600 transition-colors align-middle'
-            : 'inline text-left underline decoration-dotted decoration-gray-400 underline-offset-2 hover:decoration-emerald-600 hover:text-emerald-700 transition-colors cursor-help'
+            : 'inline text-left underline decoration-dotted decoration-line underline-offset-2 hover:decoration-emerald-600 hover:text-emerald-700 transition-colors cursor-help'
         }
       >
         {showIcon ? '?' : label}
@@ -76,10 +76,10 @@ export default function TermTip({
       {hovered && !open && short && (
         <span
           role="tooltip"
-          className="absolute z-50 left-0 top-full mt-1.5 w-64 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg pointer-events-none"
+          className="absolute z-50 left-0 top-full mt-1.5 w-64 bg-accent text-white text-xs rounded-lg px-3 py-2 shadow-lg pointer-events-none"
         >
           <span className="block font-semibold mb-0.5">{metric.label}</span>
-          <span className="block text-gray-200 leading-snug">{short}</span>
+          <span className="block text-faint leading-snug">{short}</span>
           <span className="block text-faint mt-1 text-[11px]">Detay için tıklayın</span>
         </span>
       )}
@@ -99,7 +99,7 @@ export default function TermTip({
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(false) }}
-              className="text-faint hover:text-gray-700 text-sm leading-none"
+              className="text-faint hover:text-ink text-sm leading-none"
               aria-label="Kapat"
             >
               ✕
@@ -113,7 +113,7 @@ export default function TermTip({
           )}
 
           <Block title="Formül">
-            <code className="text-xs bg-canvas px-2 py-1.5 rounded block font-mono leading-relaxed text-gray-800">
+            <code className="text-xs bg-canvas px-2 py-1.5 rounded block font-mono leading-relaxed text-ink">
               {metric.formula}
             </code>
           </Block>
@@ -161,7 +161,7 @@ export default function TermTip({
           )}
 
           {metric.literature && (
-            <span className="block text-[11px] text-faint pt-2 border-t border-gray-100 italic">
+            <span className="block text-[11px] text-faint pt-2 border-t border-line-soft italic">
               Kaynak: {metric.literature}
             </span>
           )}

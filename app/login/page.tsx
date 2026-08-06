@@ -60,7 +60,7 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-1.5">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-body">
               E-posta
             </label>
             <input
@@ -76,7 +76,7 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-body">
               Şifre
             </label>
             <input

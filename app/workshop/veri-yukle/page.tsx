@@ -114,7 +114,7 @@ function VeriYuklePage() {
                 <a
                   href={`/api/pes/templates/${t.key}`}
                   download
-                  className="px-3 py-1.5 bg-white border border-line rounded-lg text-xs font-medium text-gray-700 hover:bg-canvas whitespace-nowrap"
+                  className="px-3 py-1.5 bg-white border border-line rounded-lg text-xs font-medium text-body hover:bg-canvas whitespace-nowrap"
                 >
                   Sablon Indir
                 </a>
@@ -125,7 +125,7 @@ function VeriYuklePage() {
                   type="file"
                   accept=".csv,.txt"
                   ref={el => { fileRefs.current[t.key] = el }}
-                  className="flex-1 text-sm text-muted file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-line file:text-xs file:font-medium file:bg-white file:text-gray-700 hover:file:bg-canvas"
+                  className="flex-1 text-sm text-muted file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-line file:text-xs file:font-medium file:bg-white file:text-body hover:file:bg-canvas"
                 />
                 <button
                   onClick={() => handleUpload(t.key)}

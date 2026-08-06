@@ -97,7 +97,7 @@ export default function ReferansPage() {
         </p>
         <div className="flex gap-3 items-center">
           <input type="file" accept=".xlsx,.xls" ref={fileRef}
-            className="flex-1 text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-line file:text-sm file:font-medium file:bg-white file:text-gray-700 hover:file:bg-canvas" />
+            className="flex-1 text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-line file:text-sm file:font-medium file:bg-white file:text-body hover:file:bg-canvas" />
           <button onClick={handleUpload} disabled={uploading}
             className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
             {uploading ? 'Yukleniyor... (bu islem uzun surebilir)' : 'Yukle'}
@@ -132,7 +132,7 @@ export default function ReferansPage() {
         {searchResults.length > 0 && (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-faint border-b border-gray-100">
+              <tr className="text-xs text-faint border-b border-line-soft">
                 <th className="text-left px-3 py-2">Klasman</th>
                 <th className="text-center px-2 py-2">Segment</th>
                 <th className="text-center px-2 py-2">Kumas</th>
@@ -142,7 +142,7 @@ export default function ReferansPage() {
             </thead>
             <tbody>
               {searchResults.map((r, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-canvas">
+                <tr key={i} className="border-b border-line-soft hover:bg-canvas">
                   <td className="px-3 py-2 font-medium text-ink">{r.klasman_ad as string}</td>
                   <td className="text-center px-2 py-2 text-xs">{(r.segment as string) || '—'}</td>
                   <td className="text-center px-2 py-2 text-xs">{(r.kumas_grubu as string) || '—'}</td>

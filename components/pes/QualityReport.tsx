@@ -155,7 +155,7 @@ export default function QualityReport({
                     <th className="px-4 py-3 text-center text-faint font-medium">Bayrak</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-line-soft">
                   {scores.map((s) => {
                     const flags = Array.isArray(s.flags) ? s.flags : []
                     const errors = flags.filter((f) => f.severity === 'error').length

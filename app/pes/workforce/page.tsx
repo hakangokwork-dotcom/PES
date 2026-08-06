@@ -72,20 +72,20 @@ export default function WorkforcePage() {
       <div className="bg-white border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Atölye</label>
+            <label className="block text-sm font-medium text-body mb-1">Atölye</label>
             <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
               <option value="">Seçin...</option>
               {workshops.map(w => <option key={w.id} value={w.id}>{w.code} — {w.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
+            <label className="block text-sm font-medium text-body mb-1">Yıl</label>
             <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
               <option value={2025}>2025</option><option value={2026}>2026</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ay</label>
+            <label className="block text-sm font-medium text-body mb-1">Ay</label>
             <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
               {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}
             </select>

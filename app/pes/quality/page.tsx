@@ -63,7 +63,7 @@ export default function QualityPage() {
       <div className="bg-white border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Atölye</label>
+            <label className="block text-sm font-medium text-body mb-1">Atölye</label>
             <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
               <option value="">Seçin...</option>
               {workshops.map(w => <option key={w.id} value={w.id}>{w.code} — {w.name}</option>)}

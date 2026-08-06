@@ -153,7 +153,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-5">
           <p className="text-xs text-faint">Kalite (FPQ)</p>
-          <p className={`text-3xl font-bold ${fpq !== null ? (fpq >= 95 ? 'text-green-600' : fpq >= 90 ? 'text-amber-600' : 'text-red-600') : 'text-gray-300'}`}>
+          <p className={`text-3xl font-bold ${fpq !== null ? (fpq >= 95 ? 'text-green-600' : fpq >= 90 ? 'text-amber-600' : 'text-red-600') : 'text-faint'}`}>
             {fpq !== null ? `%${fpq}` : '---'}
           </p>
           {Number(qualKpi?.rejected ?? 0) > 0 && <p className="text-xs text-red-400 mt-1">Red: {Number(qualKpi?.rejected)} Tamir: {Number(qualKpi?.rework)}</p>}
@@ -168,17 +168,17 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Model Degisim</p>
-          <p className="text-lg font-bold text-gray-800">{changeKpi?.total_min ?? 0} dk</p>
+          <p className="text-lg font-bold text-ink">{changeKpi?.total_min ?? 0} dk</p>
           <p className="text-xs text-faint">{changeKpi?.count ?? 0} degisim</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Isgucudevir</p>
-          <p className="text-lg font-bold text-gray-800">%{wfKpi?.turnover_pct ?? 0}</p>
+          <p className="text-lg font-bold text-ink">%{wfKpi?.turnover_pct ?? 0}</p>
           <p className="text-xs text-faint">Giden: {wfKpi?.left_count ?? 0} Gelen: {wfKpi?.joined_count ?? 0}</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Toplam Gider</p>
-          <p className="text-lg font-bold text-gray-800">{totalExpense > 0 ? (totalExpense / 1000000).toFixed(2) + 'M' : '---'} TL</p>
+          <p className="text-lg font-bold text-ink">{totalExpense > 0 ? (totalExpense / 1000000).toFixed(2) + 'M' : '---'} TL</p>
           <p className="text-xs text-faint">Gunluk: {workDays > 0 ? Math.round(totalExpense / workDays).toLocaleString('tr-TR') : '---'} TL</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
@@ -220,12 +220,12 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
               return (
                 <div key={String(b.code)}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{String(b.code)} - {String(b.name)}</span>
+                    <span className="text-sm font-medium text-body">{String(b.code)} - {String(b.name)}</span>
                     <span className={`text-sm font-bold ${bEff >= 90 ? 'text-green-600' : bEff >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
                       %{bEff}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2.5">
+                  <div className="w-full bg-canvas rounded-full h-2.5">
                     <div className={`h-2.5 rounded-full ${barColor}`} style={{ width: `${Math.min(bEff, 100)}%` }}></div>
                   </div>
                   <p className="text-xs text-faint mt-0.5">

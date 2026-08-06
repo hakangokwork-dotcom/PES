@@ -114,7 +114,7 @@ export default async function ComparePage({
     if (t === 'Izlemede') return 'bg-amber-100 text-amber-800'
     if (t === 'Risk') return 'bg-orange-100 text-orange-800'
     if (t === 'Kritik') return 'bg-red-100 text-red-800'
-    return 'bg-gray-100 text-muted'
+    return 'bg-canvas text-muted'
   }
 
   return (
@@ -144,13 +144,13 @@ export default async function ComparePage({
       </div>
 
       <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-700">Performans Tablosu</h2>
+        <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+          <h2 className="text-sm font-semibold text-body">Performans Tablosu</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-faint border-b border-gray-100">
+              <tr className="text-xs text-faint border-b border-line-soft">
                 <th className="text-left px-3 py-2">Atolye</th>
                 <th className="text-center px-2 py-2">Tip</th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">Verimlilik <MetricInfo metricKey="verimlilik" size={10} /></span></th>
@@ -165,7 +165,7 @@ export default async function ComparePage({
             </thead>
             <tbody>
               {rows.map(r => (
-                <tr key={r.id as number} className="border-b border-gray-50 hover:bg-canvas">
+                <tr key={r.id as number} className="border-b border-line-soft hover:bg-canvas">
                   <td className="px-3 py-2">
                     <Link href={`/workshop?wid=${r.id}`} className="text-emerald-700 hover:underline font-medium">{r.code as string}</Link>
                     <span className="text-faint ml-1 text-xs">{r.name as string}</span>
@@ -196,15 +196,15 @@ export default async function ComparePage({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700">Verimlilik Siralamasi</h3>
+          <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+            <h3 className="text-sm font-semibold text-body">Verimlilik Siralamasi</h3>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-line-soft">
             {byEff.filter(r => r.efficiency > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i < 3 ? 'bg-accent' : 'bg-line'}`}>{i + 1}</span>
-                  <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
+                  <span className="text-sm text-ink">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className={`text-sm font-bold ${TONE_TEXT[effTone(r.efficiency)]}`}>%{r.efficiency}</span>
               </div>
@@ -213,32 +213,32 @@ export default async function ComparePage({
         </div>
 
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700">Maliyet Siralamasi (TL/dk - dusuk iyi)</h3>
+          <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+            <h3 className="text-sm font-semibold text-body">Maliyet Siralamasi (TL/dk - dusuk iyi)</h3>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-line-soft">
             {byCost.filter(r => r.costPerMin > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-emerald-500' : i === 1 ? 'bg-emerald-400' : i === 2 ? 'bg-emerald-300' : 'bg-gray-300'}`}>{i + 1}</span>
-                  <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-emerald-500' : i === 1 ? 'bg-emerald-400' : i === 2 ? 'bg-emerald-300' : 'bg-line'}`}>{i + 1}</span>
+                  <span className="text-sm text-ink">{r.code as string} — {r.name as string}</span>
                 </div>
-                <span className="text-sm font-bold text-gray-800">{r.costPerMin.toFixed(2)} TL/dk</span>
+                <span className="text-sm font-bold text-ink">{r.costPerMin.toFixed(2)} TL/dk</span>
               </div>
             ))}
           </div>
         </div>
 
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700">Kalite Siralamasi (FPQ)</h3>
+          <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+            <h3 className="text-sm font-semibold text-body">Kalite Siralamasi (FPQ)</h3>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-line-soft">
             {byFpq.filter(r => r.fpq > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-canvas' : i === 1 ? 'bg-canvas' : i === 2 ? 'bg-canvas' : 'bg-gray-300'}`}>{i + 1}</span>
-                  <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-canvas' : i === 1 ? 'bg-canvas' : i === 2 ? 'bg-canvas' : 'bg-line'}`}>{i + 1}</span>
+                  <span className="text-sm text-ink">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className={`text-sm font-bold ${TONE_TEXT[fpqTone(r.fpq)]}`}>%{r.fpq}</span>
               </div>
@@ -247,19 +247,19 @@ export default async function ComparePage({
         </div>
 
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700">Genel Skor Siralamasi</h3>
+          <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+            <h3 className="text-sm font-semibold text-body">Genel Skor Siralamasi</h3>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-line-soft">
             {byScore.filter(r => r.compositeScore > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i < 3 ? 'bg-accent' : 'bg-line'}`}>{i + 1}</span>
-                  <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
+                  <span className="text-sm text-ink">{r.code as string} — {r.name as string}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${tierColor(r.tier)}`}>{r.tier}</span>
-                  <span className="text-sm font-bold text-gray-800">{r.compositeScore.toFixed(1)}</span>
+                  <span className="text-sm font-bold text-ink">{r.compositeScore.toFixed(1)}</span>
                 </div>
               </div>
             ))}

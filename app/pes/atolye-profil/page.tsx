@@ -44,7 +44,7 @@ export default async function AtolyeProfilPage({
         </div>
         <Link
           href={arsivDahil ? '/pes/atolye-profil' : '/pes/atolye-profil?arsiv=1'}
-          className="px-4 py-2 border border-line text-gray-700 rounded-lg hover:bg-canvas transition-colors text-sm font-medium"
+          className="px-4 py-2 border border-line text-body rounded-lg hover:bg-canvas transition-colors text-sm font-medium"
         >
           {arsivDahil ? 'Pasifleri gizle' : 'Pasifleri göster'}
         </Link>

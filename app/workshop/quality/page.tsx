@@ -49,7 +49,7 @@ function WorkshopQualityPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Kalite Girişi</h1>
       </div>
 

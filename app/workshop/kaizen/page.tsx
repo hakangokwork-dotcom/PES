@@ -7,7 +7,7 @@ interface KaizenItem { id: number; baslik: string; kategori: string; hedef_metri
 
 const KATEGORILER = ['DARBOGAZ', 'WIP', 'KALITE', 'MALIYET', 'CHANGEOVER', 'GENEL']
 const DURUMLAR = ['PLAN', 'UYGULA', 'KONTROL', 'STANDART', 'IPTAL']
-const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-amber-100 text-amber-800', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-green-100 text-green-800', IPTAL: 'bg-gray-100 text-faint' }
+const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-amber-100 text-amber-800', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-green-100 text-green-800', IPTAL: 'bg-canvas text-faint' }
 const durumLabel: Record<string, string> = { PLAN: 'Plan', UYGULA: 'Uygula', KONTROL: 'Kontrol', STANDART: 'Standart', IPTAL: 'Iptal' }
 
 export default function Wrapper() {
@@ -110,8 +110,8 @@ function KaizenPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-[11px] px-2 py-0.5 rounded font-medium ${durumColor[a.durum] || 'bg-gray-100'}`}>{durumLabel[a.durum] || a.durum}</span>
-                    <span className="text-[11px] px-2 py-0.5 rounded bg-gray-100 text-muted">{a.kategori}</span>
+                    <span className={`text-[11px] px-2 py-0.5 rounded font-medium ${durumColor[a.durum] || 'bg-canvas'}`}>{durumLabel[a.durum] || a.durum}</span>
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-canvas text-muted">{a.kategori}</span>
                     <span className="font-medium text-ink">{a.baslik}</span>
                   </div>
                   {a.hedef_metrik && (

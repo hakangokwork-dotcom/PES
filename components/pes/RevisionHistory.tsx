@@ -114,7 +114,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                     {g.revisions.length} sürüm
                   </span>
                 ) : (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-faint">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-canvas text-faint">
                     tek beyan
                   </span>
                 )}
@@ -126,7 +126,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
               </button>
 
               {isOpen && (
-                <div className="border-t border-gray-100 px-5 py-4 space-y-4 bg-canvas">
+                <div className="border-t border-line-soft px-5 py-4 space-y-4 bg-canvas">
                   {g.revisions.map((r, i) => {
                     const prev = i > 0 ? g.revisions[i - 1] : null
                     const changes = prev ? diff(prev.raw, r.raw) : []
@@ -134,13 +134,13 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                     return (
                       <div key={r.staging_id} className="text-sm">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-gray-800">Sürüm {r.revision_no}</span>
+                          <span className="font-medium text-ink">Sürüm {r.revision_no}</span>
                           {r.is_current ? (
                             <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                               geçerli
                             </span>
                           ) : (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-muted">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-line-soft text-muted">
                               geçersiz kılındı
                             </span>
                           )}

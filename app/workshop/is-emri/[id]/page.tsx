@@ -241,7 +241,7 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
       </div>
 
       {/* Progress bars */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-100">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-line-soft">
         <ProgressMini label="Üretim" pct={order.ilerleme_pct} sub={`${order.tamamlanan_adet}/${order.siparis_miktari} adet`} />
         <ProgressMini label="Materyal" pct={order.materyal_durumu_pct} sub={`${order.gelen_malzeme}/${order.toplam_malzeme}${order.eksik_malzeme ? ` · ${order.eksik_malzeme} eksik` : ''}`} />
         <ProgressMini label="Aşamalar" pct={order.toplam_asama > 0 ? Math.round((order.tamamlanan_asama / order.toplam_asama) * 100) : 0} sub={`${order.tamamlanan_asama}/${order.toplam_asama} tamamlandı`} />
@@ -577,7 +577,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
   return (
     <div className="border border-line-soft rounded-lg overflow-hidden bg-white">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100" style={{ backgroundColor: (stage.stage_renk || '#94a3b8') + '15' }}>
+      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-line-soft" style={{ backgroundColor: (stage.stage_renk || '#94a3b8') + '15' }}>
         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stage.stage_renk || '#94a3b8' }} />
         <span className="font-semibold text-base">{stage.stage_name}</span>
         <Badge cls={STAGE_DURUM_RENK[stage.durum] || 'bg-canvas'}>{stage.durum}</Badge>
@@ -620,7 +620,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
       </div>
 
       {/* Body — 2 kolon: Plan / Gerçek */}
-      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-line-soft">
         {/* PLAN kolonu */}
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
@@ -708,7 +708,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
       </div>
 
       {/* İlerleme + Adet + Not — alt şerit */}
-      <div className="border-t border-gray-100 px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="border-t border-line-soft px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* İlerleme */}
         <div>
           <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-faint font-semibold mb-1">
@@ -851,7 +851,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
         </thead>
         <tbody>
           {materials.map(m => (
-            <tr key={m.id} className="border-t border-gray-100 hover:bg-canvas">
+            <tr key={m.id} className="border-t border-line-soft hover:bg-canvas">
               <td className="px-3 py-1.5 text-muted">{m.tip}</td>
               <td className="px-3 py-1.5 font-medium">{m.ad}</td>
               <td className="px-3 py-1.5 text-faint font-mono">{m.kod}</td>

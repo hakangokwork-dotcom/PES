@@ -356,7 +356,7 @@ function EderMaliyetPage() {
             {models.length === 0 && <div className="p-4 text-xs text-faint">Henüz model yok</div>}
             {models.map(m => (
               <button key={m.model_id} onClick={() => setSelectedModel(m)}
-                className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-colors ${
+                className={`w-full text-left px-4 py-3 border-b border-line-soft transition-colors ${
                   selectedModel?.model_id === m.model_id ? 'bg-emerald-50' : 'hover:bg-canvas'
                 }`}>
                 <div className="font-medium text-sm text-ink truncate">{m.model_adi}</div>
@@ -394,7 +394,7 @@ function EderMaliyetPage() {
                   <button onClick={() => deleteModel(selectedModel.model_id)}
                     className="text-xs text-red-600 hover:text-red-800">Modeli Sil</button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-4 border-t border-line-soft">
                   <Stat label="Operasyon" value={`${selectedModel.secili_islem_sayisi}`} sub={`${islemler.length} toplam`} />
                   <Stat label="Toplam Süre (teorik)" value={`${(Number(selectedModel.toplam_teorik_sn) / 60).toFixed(2)} dk`} />
                   <Stat label="Toplam Süre (pratik)" value={`${(totalSn / 60).toFixed(2)} dk`} highlight />
@@ -410,7 +410,7 @@ function EderMaliyetPage() {
                     Operasyon Kırılımı — Ana Gruplar
                   </h3>
                   <button onClick={() => setShowAdd(!showAdd)}
-                    className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">
+                    className="text-xs px-3 py-1.5 bg-canvas hover:bg-line-soft rounded-lg font-medium">
                     {showAdd ? 'İptal' : '+ Operasyon Ekle'}
                   </button>
                 </div>
@@ -608,7 +608,7 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
   }
 
   return (
-    <tr className={`border-b border-gray-100 hover:bg-canvas ${!islem.aktif ? 'opacity-40' : ''}`}>
+    <tr className={`border-b border-line-soft hover:bg-canvas ${!islem.aktif ? 'opacity-40' : ''}`}>
       <td className="px-3 py-1.5">
         <select className="text-[11px] px-1 py-0.5 bg-transparent border border-line-soft rounded w-full"
           value={local.ana_grup}
@@ -626,7 +626,7 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
       <td className="px-3 py-1.5 text-muted text-[11px]">
         {islem.makine_tipi || '—'}
       </td>
-      <td className="px-3 py-1.5 text-right text-gray-700 font-mono">
+      <td className="px-3 py-1.5 text-right text-body font-mono">
         {islem.mtm_sn != null ? Number(islem.mtm_sn).toFixed(2) : '—'}
       </td>
       <td className="px-3 py-1.5">

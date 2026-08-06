@@ -49,7 +49,7 @@ function YikamaUkpPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-ink">Yikama & UKP Takibi</h1>
 
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-canvas p-1 rounded-lg w-fit">
         <button onClick={() => setTab('yikama')} className={`px-4 py-2 rounded-md text-sm font-medium ${tab === 'yikama' ? 'bg-white text-ink shadow-sm' : 'text-faint'}`}>Yikama</button>
         <button onClick={() => setTab('ukp')} className={`px-4 py-2 rounded-md text-sm font-medium ${tab === 'ukp' ? 'bg-white text-ink shadow-sm' : 'text-faint'}`}>UKP</button>
       </div>
@@ -80,7 +80,7 @@ function YikamaUkpPage() {
                 <tbody>{yikamaRecords.map((r, i) => {
                   const verim = Number(r.giren_adet) > 0 ? (Number(r.cikan_adet) / Number(r.giren_adet) * 100).toFixed(1) : '---'
                   return (
-                    <tr key={i} className="border-b border-gray-50 hover:bg-canvas">
+                    <tr key={i} className="border-b border-line-soft hover:bg-canvas">
                       <td className="px-3 py-2">{String(r.tarih ?? '').split('T')[0]}</td>
                       <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.giren_adet))}</td>
                       <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.cikan_adet))}</td>
@@ -127,7 +127,7 @@ function YikamaUkpPage() {
                   <th className="text-left px-3 py-2">Tarih</th><th className="text-right px-2 py-2">Utu</th><th className="text-right px-2 py-2">Kontrol</th><th className="text-right px-2 py-2">Paket</th><th className="text-right px-2 py-2">Hata</th><th className="text-right px-2 py-2">Personel</th>
                 </tr></thead>
                 <tbody>{ukpRecords.map((r, i) => (
-                  <tr key={i} className="border-b border-gray-50 hover:bg-canvas">
+                  <tr key={i} className="border-b border-line-soft hover:bg-canvas">
                     <td className="px-3 py-2">{String(r.tarih ?? '').split('T')[0]}</td>
                     <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.utu_adet))}</td>
                     <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.kontrol_adet))}</td>

@@ -89,7 +89,7 @@ export default function ExpenseImport() {
     <div className="space-y-6">
       {/* 1. Şablon */}
       <section className="bg-white border border-line-soft rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-800">1 · Şablonu indirin</h2>
+        <h2 className="text-sm font-semibold text-ink">1 · Şablonu indirin</h2>
         <p className="text-sm text-faint mt-1">
           27 gider kalemini içeren boş şablon. Aktif atölyeler kod ve adlarıyla önceden
           doldurulur; her satıra dönem ve tutarları yazmanız yeterli.
@@ -104,7 +104,7 @@ export default function ExpenseImport() {
 
       {/* 2. Yükle */}
       <section className="bg-white border border-line-soft rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-800">2 · Doldurulmuş dosyayı yükleyin</h2>
+        <h2 className="text-sm font-semibold text-ink">2 · Doldurulmuş dosyayı yükleyin</h2>
         <p className="text-sm text-faint mt-1">
           Önce önizleme yapılır — hiçbir şey kaydedilmez. Sonucu görüp onayladıktan sonra
           içeri aktarılır.
@@ -136,7 +136,7 @@ export default function ExpenseImport() {
         <>
           {/* Başlık eşleme */}
           <section className="bg-white border border-line-soft rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-gray-800">Başlık eşlemesi</h2>
+            <h2 className="text-sm font-semibold text-ink">Başlık eşlemesi</h2>
             <p className="text-sm text-faint mt-1">
               <strong>{result.summary.sheet}</strong> sayfası ·{' '}
               {result.summary.recognized_fields}/{result.summary.total_fields} gider kalemi tanındı
@@ -157,7 +157,7 @@ export default function ExpenseImport() {
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {result.mapping.unmatched.map((h) => (
-                    <span key={h} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-faint">
+                    <span key={h} className="text-xs px-2 py-1 rounded-full bg-canvas text-faint">
                       {h}
                     </span>
                   ))}
@@ -188,7 +188,7 @@ export default function ExpenseImport() {
                     <th className="px-4 py-3 text-left text-faint font-medium">Durum / Sorun</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-line-soft">
                   {result.reports.map((r) => (
                     <tr key={r.rowIndex} className={r.matched ? '' : 'bg-red-50/50'}>
                       <td className="px-4 py-2.5 text-faint">{r.rowIndex}</td>
@@ -224,7 +224,7 @@ export default function ExpenseImport() {
           {/* 3. Onay */}
           {result.mode === 'preview' && result.summary.matched > 0 && (
             <section className="bg-white border border-line-soft rounded-xl p-5">
-              <h2 className="text-sm font-semibold text-gray-800">3 · İçeri aktar</h2>
+              <h2 className="text-sm font-semibold text-ink">3 · İçeri aktar</h2>
               <p className="text-sm text-faint mt-1">
                 {result.summary.matched} satır kaydedilecek. Ham satırlar da saklanır
                 (izlenebilirlik), düzeltme gerektiren kayıtlar sonradan düzenlenebilir.

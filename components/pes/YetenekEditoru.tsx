@@ -195,7 +195,7 @@ export default function YetenekEditoru({
                   <button
                     onClick={() => cevir(b.code, v.code)}
                     className={`px-3 py-1.5 text-sm transition-colors ${
-                      secili ? 'bg-accent text-white' : 'bg-white text-gray-700 hover:bg-canvas'}`}
+                      secili ? 'bg-accent text-white' : 'bg-white text-body hover:bg-canvas'}`}
                   >
                     {v.label}
                   </button>
@@ -216,7 +216,7 @@ export default function YetenekEditoru({
             })}
           </div>
 
-          <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+          <div className="flex gap-2 mt-3 pt-3 border-t border-line-soft">
             <input
               value={yeniTerim[b.code] ?? ''}
               onChange={(e) => setYeniTerim((o) => ({ ...o, [b.code]: e.target.value }))}
@@ -227,7 +227,7 @@ export default function YetenekEditoru({
             <button
               onClick={() => terimEkle(b.code)}
               disabled={!(yeniTerim[b.code] ?? '').trim()}
-              className="px-3 py-1.5 text-sm border border-line text-gray-700 rounded-lg hover:bg-canvas disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-sm border border-line text-body rounded-lg hover:bg-canvas disabled:opacity-40 disabled:cursor-not-allowed"
             >
               + Ekle
             </button>

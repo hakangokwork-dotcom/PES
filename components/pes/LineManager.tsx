@@ -142,7 +142,7 @@ export default function LineManager({ workshop, lines }: Props) {
               <th className="py-2 text-center text-faint font-medium">İşlem</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line-soft">
             {lines.map((line) => (
               <tr key={line.id} className="hover:bg-canvas">
                 {editingId === line.id ? (
@@ -168,7 +168,7 @@ export default function LineManager({ workshop, lines }: Props) {
                     <td className="py-2 text-accent font-medium">{line.code}</td>
                     <td className="py-2 text-ink">{line.name}</td>
                     <td className="py-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${line.line_type === 'Küçük' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-muted'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${line.line_type === 'Küçük' ? 'bg-amber-100 text-amber-700' : 'bg-canvas text-muted'}`}>
                         {line.line_type}
                       </span>
                     </td>

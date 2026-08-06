@@ -77,11 +77,11 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
                 )}
               </p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-faint hover:text-gray-700 text-sm">✕</button>
+            <button onClick={() => setOpen(false)} className="text-faint hover:text-ink text-sm">✕</button>
           </div>
 
           {value !== undefined && value !== null && (
-            <div className="mb-3 px-3 py-2 bg-canvas rounded border border-gray-100">
+            <div className="mb-3 px-3 py-2 bg-canvas rounded border border-line-soft">
               <div className="text-[11px] uppercase tracking-wider text-faint">Değer</div>
               <div className="text-lg font-mono font-semibold text-ink">
                 {typeof value === 'number' ? value.toLocaleString('tr-TR') : value}
@@ -137,7 +137,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
           )}
 
           {metric.notes && (
-            <p className="text-[11px] text-faint mt-3 pt-2 border-t border-gray-100 italic">
+            <p className="text-[11px] text-faint mt-3 pt-2 border-t border-line-soft italic">
               {metric.notes}
             </p>
           )}

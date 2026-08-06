@@ -104,9 +104,9 @@ export default function ScoringPage() {
                 <th className="px-4 py-3 text-center text-faint font-medium">Trend</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {scores.map((s, i) => {
-                const tc = s.tier ? tierColor(s.tier) : { bg: 'bg-gray-100', text: 'text-faint' }
+                const tc = s.tier ? tierColor(s.tier) : { bg: 'bg-canvas', text: 'text-faint' }
                 return (
                   <tr key={i} className="hover:bg-canvas">
                     <td className="px-4 py-3">

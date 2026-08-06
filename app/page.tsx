@@ -37,7 +37,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/pes"
-                className="px-6 py-2.5 border border-line text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm"
+                className="px-6 py-2.5 border border-line text-body rounded-lg hover:bg-line-soft transition-colors font-medium text-sm"
               >
                 Merkez Paneli
               </Link>

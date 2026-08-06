@@ -121,7 +121,7 @@ export default function ProductionPage() {
       <div className="bg-white border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Atölye</label>
+            <label className="block text-sm font-medium text-body mb-1">Atölye</label>
             <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
               <option value="">Seçin...</option>
               {workshops.map(w => (
@@ -148,7 +148,7 @@ export default function ProductionPage() {
                   <th className="py-2 text-right text-faint font-medium">Verimlilik</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-line-soft">
                 {rows.map((row, idx) => {
                   const eff = row.target_qty > 0 ? ((row.actual_qty / row.target_qty) * 100) : 0
                   return (

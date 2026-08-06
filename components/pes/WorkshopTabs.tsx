@@ -73,7 +73,7 @@ const KIND_STYLES: Record<string, string> = {
   olay: 'bg-red-100 text-red-700',
   dmaic: 'bg-amber-100 text-amber-700',
   fiyat_revizyonu: 'bg-emerald-100 text-emerald-700',
-  not: 'bg-gray-100 text-muted',
+  not: 'bg-canvas text-muted',
 }
 
 function yearsSince(dateStr: string | null): string | null {
@@ -119,7 +119,7 @@ export default function WorkshopTabs({
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
               tab === t
                 ? 'border-accent text-accent'
-                : 'border-transparent text-faint hover:text-gray-800'
+                : 'border-transparent text-faint hover:text-ink'
             }`}
           >
             {t}
@@ -272,12 +272,12 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
         ) : (
           Object.entries(byDimension).map(([dimension, values]) => (
             <div key={dimension}>
-              <h4 className="text-xs font-semibold text-gray-700 mb-1.5">{dimension}</h4>
+              <h4 className="text-xs font-semibold text-body mb-1.5">{dimension}</h4>
               <div className="flex flex-wrap gap-2">
                 {values.map((v) => (
                   <span
                     key={`${v.dimension_code}-${v.value_code}`}
-                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-canvas text-body"
                   >
                     {v.value_label ?? v.value_code}
                     <span className="text-faint">{v.line_count} bant</span>
@@ -307,7 +307,7 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
                     className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                       aktif
                         ? 'bg-accent text-white border-accent'
-                        : 'bg-white text-gray-700 border-line-soft hover:border-accent'
+                        : 'bg-white text-body border-line-soft hover:border-accent'
                     }`}
                   >
                     {l.name}
@@ -376,7 +376,7 @@ function IliskiTab({
       {/* Müşteri payları */}
       <section>
         <div className="flex items-baseline justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-800">Müşteri Kapasite Paylaşımı</h3>
+          <h3 className="text-sm font-semibold text-ink">Müşteri Kapasite Paylaşımı</h3>
           <span className={`text-xs ${totalPct > 100 ? 'text-red-600 font-medium' : 'text-faint'}`}>
             Toplam %{totalPct.toFixed(1)}
             {totalPct > 100 && ' — %100ü aşıyor'}
@@ -389,8 +389,8 @@ function IliskiTab({
           <div className="space-y-1.5 mb-3">
             {shares.map((s) => (
               <div key={s.id} className="flex items-center gap-3">
-                <span className="text-sm text-gray-700 w-40 truncate">{s.customer_label}</span>
-                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <span className="text-sm text-body w-40 truncate">{s.customer_label}</span>
+                <div className="flex-1 h-2 bg-canvas rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full"
                     style={{ width: `${Math.min(Number(s.share_pct ?? 0), 100)}%` }}
@@ -439,14 +439,14 @@ function IliskiTab({
 
       {/* İletişim kişileri */}
       <section>
-        <h3 className="text-sm font-semibold text-gray-800 mb-3">İletişim Kişileri</h3>
+        <h3 className="text-sm font-semibold text-ink mb-3">İletişim Kişileri</h3>
         {contacts.length === 0 ? (
           <p className="text-sm text-faint mb-3">Kayıt yok.</p>
         ) : (
           <div className="space-y-2 mb-3">
             {contacts.map((c) => (
               <div key={c.id} className="flex items-center gap-3 text-sm">
-                <span className="font-medium text-gray-800">{c.name}</span>
+                <span className="font-medium text-ink">{c.name}</span>
                 {c.is_primary && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Birincil</span>
                 )}
@@ -583,7 +583,7 @@ function ZamanCizgisiTab({
         <ol className="relative border-l border-line-soft ml-2 space-y-5">
           {interactions.map((it) => (
             <li key={it.id} className="ml-5">
-              <span className="absolute -left-1.5 w-3 h-3 rounded-full bg-gray-300" />
+              <span className="absolute -left-1.5 w-3 h-3 rounded-full bg-line" />
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${KIND_STYLES[it.kind] ?? KIND_STYLES.not}`}>
                   {KIND_LABELS[it.kind] ?? it.kind}
@@ -592,7 +592,7 @@ function ZamanCizgisiTab({
                   {new Date(it.occurred_at).toLocaleDateString('tr-TR')}
                 </time>
               </div>
-              <p className="text-sm text-gray-700 mt-1">{it.summary}</p>
+              <p className="text-sm text-body mt-1">{it.summary}</p>
             </li>
           ))}
         </ol>

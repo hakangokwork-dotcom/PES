@@ -88,7 +88,7 @@ export default function AtolyeTehlikeliIslemler({
         <button
           onClick={arsivDegistir}
           disabled={bekliyor}
-          className="text-sm font-medium px-4 py-2 rounded-lg border border-line text-gray-700 hover:bg-canvas transition-colors disabled:opacity-40"
+          className="text-sm font-medium px-4 py-2 rounded-lg border border-line text-body hover:bg-canvas transition-colors disabled:opacity-40"
         >
           {bekliyor ? '…' : aktif ? 'Pasife al' : 'Aktife al'}
         </button>
@@ -103,7 +103,7 @@ export default function AtolyeTehlikeliIslemler({
           </button>
         ) : (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-body">
               {kod} kalıcı olarak silinecek. Emin misin?
             </span>
             <button
@@ -116,7 +116,7 @@ export default function AtolyeTehlikeliIslemler({
             <button
               onClick={() => setOnayIstendi(false)}
               disabled={bekliyor}
-              className="text-sm font-medium px-4 py-2 rounded-lg border border-line text-gray-700 hover:bg-canvas transition-colors disabled:opacity-40"
+              className="text-sm font-medium px-4 py-2 rounded-lg border border-line text-body hover:bg-canvas transition-colors disabled:opacity-40"
             >
               Vazgeç
             </button>

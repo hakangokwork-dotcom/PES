@@ -49,7 +49,7 @@ function WorkshopDowntimePage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
           <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Duruş Kayıtları</h1>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium">{showForm ? 'İptal' : '+ Duruş Ekle'}</button>
@@ -81,13 +81,13 @@ function WorkshopDowntimePage() {
         <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="bg-canvas border-b border-line-soft"><th className="px-4 py-3 text-left text-faint">Tarih</th><th className="px-4 py-3 text-left text-faint">Bant</th><th className="px-4 py-3 text-right text-faint">Süre</th><th className="px-4 py-3 text-center text-faint">Tür</th><th className="px-4 py-3 text-left text-faint">Neden</th></tr></thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {records.map(r => (
                 <tr key={r.id} className="hover:bg-canvas">
                   <td className="px-4 py-3 text-muted">{new Date(r.occurred_at).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3">{r.line_code}</td>
                   <td className="px-4 py-3 text-right text-red-600 font-medium">{r.duration_min} dk</td>
-                  <td className="px-4 py-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.downtime_type === 'Plansız' ? 'bg-red-100 text-red-700' : r.downtime_type === 'Tedarik' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-muted'}`}>{r.downtime_type}</span></td>
+                  <td className="px-4 py-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.downtime_type === 'Plansız' ? 'bg-red-100 text-red-700' : r.downtime_type === 'Tedarik' ? 'bg-orange-100 text-orange-700' : 'bg-canvas text-muted'}`}>{r.downtime_type}</span></td>
                   <td className="px-4 py-3 text-muted truncate max-w-[200px]">{r.reason ?? '—'}</td>
                 </tr>
               ))}

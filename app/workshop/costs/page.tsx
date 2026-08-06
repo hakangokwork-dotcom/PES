@@ -127,7 +127,7 @@ function WorkshopCostsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{w?.name ?? ''} — Maliyet Yönetimi</h1>
       </div>
 
@@ -220,7 +220,7 @@ function WorkshopCostsPage() {
         {/* Gerçek vs Sektör Referans TL/dk Karşılaştırma */}
         {costPerMin > 0 && sektorDkMaliyetler.length > 0 && (
           <div className="mt-4 pt-4 border-t border-line-soft">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Gerçek Maliyet vs Sektör Referans (TL/dk)</h3>
+            <h3 className="text-sm font-semibold text-body mb-3">Gerçek Maliyet vs Sektör Referans (TL/dk)</h3>
             <div className="grid grid-cols-7 gap-2">
               <div className="bg-emerald-100 border-2 border-emerald-500 rounded-lg p-3 text-center">
                 <p className="text-[11px] font-semibold text-emerald-700">GERÇEK</p>
@@ -236,7 +236,7 @@ function WorkshopCostsPage() {
                 return (
                   <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-green-50 border-green-200' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-red-50 border-red-200'}`}>
                     <p className="text-[11px] text-faint">{bolge}. Bölge</p>
-                    <p className="text-lg font-bold text-gray-800">{refVal > 0 ? refVal.toFixed(2) : '—'}</p>
+                    <p className="text-lg font-bold text-ink">{refVal > 0 ? refVal.toFixed(2) : '—'}</p>
                     {refVal > 0 && (
                       <p className={`text-[11px] font-medium ${isLower ? 'text-green-600' : 'text-red-600'}`}>
                         {diff > 0 ? '+' : ''}{diffPct.toFixed(1)}%
@@ -255,7 +255,7 @@ function WorkshopCostsPage() {
         {/* Adet Bazlı Analiz */}
         {dailyTarget > 0 && (
           <div className="mt-4 pt-4 border-t border-line-soft">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Adet Bazlı Analiz ({dailyTarget.toLocaleString('tr-TR')} adet/gün hedefle)</h3>
+            <h3 className="text-sm font-semibold text-body mb-3">Adet Bazlı Analiz ({dailyTarget.toLocaleString('tr-TR')} adet/gün hedefle)</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-amber-50 rounded-lg p-3 text-center">
                 <p className="text-xs text-amber-600">Adet Başı Gider</p>
@@ -273,7 +273,7 @@ function WorkshopCostsPage() {
               </div>
               <div className="bg-canvas rounded-lg p-3 text-center">
                 <p className="text-xs text-faint">Aylık Üretim Hedefi</p>
-                <p className="text-lg font-bold text-gray-700">{(dailyTarget * workDays).toLocaleString('tr-TR')} adet</p>
+                <p className="text-lg font-bold text-body">{(dailyTarget * workDays).toLocaleString('tr-TR')} adet</p>
               </div>
             </div>
           </div>
@@ -281,17 +281,17 @@ function WorkshopCostsPage() {
 
         {/* Gider Dağılımı */}
         <div className="mt-4 pt-4 border-t border-line-soft">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Gider Dağılımı</h3>
+          <h3 className="text-sm font-semibold text-body mb-3">Gider Dağılımı</h3>
           <div className="space-y-2">
             {MAIN_FIELDS.filter(f => expenses[f.key] > 0).sort((a, b) => expenses[b.key] - expenses[a.key]).map(f => {
               const pct = total > 0 ? (expenses[f.key] / total * 100) : 0
               return (
                 <div key={f.key} className="flex items-center gap-3">
                   <span className="text-xs text-muted w-36 text-right">{f.label}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-3">
+                  <div className="flex-1 bg-canvas rounded-full h-3">
                     <div className="h-3 rounded-full bg-accent" style={{ width: `${pct}%`, opacity: 0.4 + (pct / 100) * 0.6 }}></div>
                   </div>
-                  <span className="text-xs text-gray-700 w-20 text-right">{(expenses[f.key] / 1000).toFixed(0)}K</span>
+                  <span className="text-xs text-body w-20 text-right">{(expenses[f.key] / 1000).toFixed(0)}K</span>
                   <span className="text-xs text-faint w-12 text-right">%{pct.toFixed(0)}</span>
                 </div>
               )
@@ -303,7 +303,7 @@ function WorkshopCostsPage() {
         {/* Atölye Tipine Göre Kapsam */}
         {w && (
           <div className="mt-4 pt-4 border-t border-line-soft">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Maliyet Kapsamı (Tip {w.type})</h3>
+            <h3 className="text-sm font-semibold text-body mb-2">Maliyet Kapsamı (Tip {w.type})</h3>
             <p className="text-xs text-faint">
               {w.type === 'CMT' && `Dikim (${w.sewing_staff}) + Kesim (${w.cutting_staff}) + UKP (${w.ukp_staff}) = ${productiveStaff} verimli operatör`}
               {w.type === 'CM' && `Dikim (${w.sewing_staff}) + Kesim (${w.cutting_staff}) = ${productiveStaff} verimli operatör`}

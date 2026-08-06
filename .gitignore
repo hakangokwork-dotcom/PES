@@ -38,3 +38,6 @@ ekip.csv
 # Eslestirme inceleme dosyasi: her import calismasinda yeniden uretilir,
 # doldurulup eslestirme_uygula.mjs ile tuketilir. Surumlenmesi anlamsiz.
 /atolye_eslestirme_incelemesi.xlsx
+
+# Playwright ile alinan inceleme ekran goruntuleri (gecici)
+/*.png

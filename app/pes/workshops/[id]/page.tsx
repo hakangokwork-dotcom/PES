@@ -77,7 +77,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <Link href="/pes/workshops" className="text-sm text-faint hover:text-gray-700">
+        <Link href="/pes/workshops" className="text-sm text-faint hover:text-ink">
           ← Atölyeler
         </Link>
         <div className="flex items-center gap-3 mt-2">
@@ -88,7 +88,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
           {w.is_active ? (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">Aktif</span>
           ) : (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-faint">Pasif</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-canvas text-faint">Pasif</span>
           )}
         </div>
         <p className="text-faint mt-1">{w.code} · {w.city ?? ''} {w.district ?? ''}</p>
@@ -130,7 +130,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
       <LineManager workshop={w} lines={lineList} />
 
       <details className="group">
-        <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-ink py-2">
+        <summary className="cursor-pointer text-sm font-medium text-body hover:text-ink py-2">
           Atölye Bilgilerini Düzenle ▾
         </summary>
         <div className="mt-4">

@@ -58,7 +58,7 @@ export default function ImportWorkshopsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <Link href="/pes/workshops" className="text-sm text-faint hover:text-gray-700">
+        <Link href="/pes/workshops" className="text-sm text-faint hover:text-ink">
           ← Atölyeler
         </Link>
         <h1 className="text-2xl font-bold text-ink mt-2">CSV Import</h1>
@@ -68,7 +68,7 @@ export default function ImportWorkshopsPage() {
       {/* Upload */}
       <div className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">CSV Dosyası Seçin</label>
+          <label className="block text-sm font-medium text-body mb-2">CSV Dosyası Seçin</label>
           <input
             type="file"
             accept=".csv,.txt"

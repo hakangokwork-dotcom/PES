@@ -413,7 +413,7 @@ function IsEmriPage() {
                   {o.aciliyet === 'acil'  && <Badge cls="bg-amber-500 text-white">⏰ Acil</Badge>}
                   {!o.sample_onaylandi && <Badge cls="bg-orange-100 text-orange-700">Numune onayı bekliyor</Badge>}
                 </div>
-                <div className="text-sm text-gray-700 mt-1 truncate">
+                <div className="text-sm text-body mt-1 truncate">
                   <span className="font-medium">{o.model_adi}</span>
                   {o.stil_kodu && <span className="text-faint"> · {o.stil_kodu}</span>}
                   {o.musteri && <span className="text-faint"> · {o.musteri}</span>}

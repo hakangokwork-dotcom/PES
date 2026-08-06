@@ -75,7 +75,7 @@ function WorkshopProductionPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Üretim Girişi</h1>
       </div>
 
@@ -109,7 +109,7 @@ function WorkshopProductionPage() {
                 <th className="py-2 text-center text-faint font-medium">Verimlilik</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-soft">
               {rows.map((row, idx) => {
                 const eff = row.target_qty > 0 ? ((row.actual_qty / row.target_qty) * 100) : 0
                 return (

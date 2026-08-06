@@ -131,12 +131,12 @@ export default async function BenchmarkPage({
       </div>
 
       <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-700">Hedef Degerleri</h2>
+        <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+          <h2 className="text-sm font-semibold text-body">Hedef Degerleri</h2>
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-xs text-faint border-b border-gray-100">
+            <tr className="text-xs text-faint border-b border-line-soft">
               <th className="text-left px-4 py-2">Metrik</th>
               <th className="text-center px-2 py-2 bg-green-50">Hedef</th>
               <th className="text-center px-2 py-2 bg-amber-50">Uyari</th>
@@ -149,7 +149,7 @@ export default async function BenchmarkPage({
             {benchmarks.map(bm => {
               const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
               return (
-              <tr key={bm.id as number} className="border-b border-gray-50 hover:bg-canvas">
+              <tr key={bm.id as number} className="border-b border-line-soft hover:bg-canvas">
                 <td className="px-4 py-2 font-medium text-ink">
                   <span className="inline-flex items-center gap-1">
                     {bm.metric_label as string}
@@ -169,13 +169,13 @@ export default async function BenchmarkPage({
       </div>
 
       <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-canvas border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-700">Atolye Benchmark Karsilastirmasi</h2>
+        <div className="px-4 py-3 bg-canvas border-b border-line-soft">
+          <h2 className="text-sm font-semibold text-body">Atolye Benchmark Karsilastirmasi</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-faint border-b border-gray-100">
+              <tr className="text-xs text-faint border-b border-line-soft">
                 <th className="text-left px-3 py-2 sticky left-0 bg-white">Atolye</th>
                 {benchmarks.map(bm => {
                   const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
@@ -193,7 +193,7 @@ export default async function BenchmarkPage({
             </thead>
             <tbody>
               {wsMetrics.map(ws => (
-                <tr key={ws.id as number} className="border-b border-gray-50">
+                <tr key={ws.id as number} className="border-b border-line-soft">
                   <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-white">{ws.code}</td>
                   {benchmarks.map(bm => {
                     const key = bm.metric_key as string

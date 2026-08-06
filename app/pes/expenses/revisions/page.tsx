@@ -25,7 +25,7 @@ export default async function RevisionsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
-        <Link href="/pes/veri-kalitesi" className="text-sm text-faint hover:text-gray-700">
+        <Link href="/pes/veri-kalitesi" className="text-sm text-faint hover:text-ink">
           ← Veri Kalitesi
         </Link>
         <h1 className="text-2xl font-bold text-ink mt-2">Beyan Geçmişi</h1>

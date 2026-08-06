@@ -5,7 +5,7 @@ export default function NewWorkshopPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href="/pes/workshops" className="text-sm text-faint hover:text-gray-700">
+        <Link href="/pes/workshops" className="text-sm text-faint hover:text-ink">
           ← Atölyeler
         </Link>
         <h1 className="text-2xl font-bold text-ink mt-2">Yeni Atölye</h1>

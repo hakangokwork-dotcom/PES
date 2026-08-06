@@ -31,3 +31,16 @@ export function bantPaylari(adet: number, bantlar: BantKapasite[]): BantPay[] {
   }
   return paylar
 }
+
+/**
+ * Bir aşamanın kaç gün süreceği.
+ *
+ * gunlukKapasite null veya 0 ise NULL döner: sistem tarih üretmez,
+ * kullanıcı "girer/çıkar" tarihini elle yazar (tasarım K2). Buraya
+ * varsayılan bir kapasite uydurmak, olmayan bir bilgiyi varmış gibi
+ * göstermek olurdu.
+ */
+export function asamaGunu(adet: number, gunlukKapasite: number | null): number | null {
+  if (!gunlukKapasite || gunlukKapasite <= 0) return null
+  return Math.max(1, Math.ceil(adet / gunlukKapasite))
+}

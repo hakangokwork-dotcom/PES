@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { bantPaylari } from './yerlestirme'
+import { bantPaylari, asamaGunu } from './yerlestirme'
 
 test('kapasiteye orantılı böler ve toplam adedi korur', () => {
   const paylar = bantPaylari(10_000, [
@@ -38,4 +38,15 @@ test('günlük hedefi 0 olan bant pay almaz', () => {
 test('hiçbir bantta kapasite yoksa hata verir', () => {
   expect(() => bantPaylari(100, [{ lineId: 1, gunlukHedef: 0 }]))
     .toThrow('kapasitesi tanımlı bant yok')
+})
+
+test('süre yukarı yuvarlanır', () => {
+  expect(asamaGunu(10_000, 1000)).toBe(10)
+  expect(asamaGunu(10_001, 1000)).toBe(11)
+  expect(asamaGunu(1, 1000)).toBe(1)
+})
+
+test('kapasite yoksa null döner — tarih elle girilecek', () => {
+  expect(asamaGunu(10_000, null)).toBeNull()
+  expect(asamaGunu(10_000, 0)).toBeNull()
 })

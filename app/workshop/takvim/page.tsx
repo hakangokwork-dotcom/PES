@@ -436,7 +436,7 @@ function TakvimPage() {
                   isToday ? 'bg-cyan-50 ring-1 ring-cyan-300' : w ? 'bg-canvas text-slate-400' : 'bg-white'
                 }`}>
                 <div className="font-mono font-semibold text-[11px]">{d.getDate()}</div>
-                <div className="text-[9px] text-slate-400">{TR_GUNLER[d.getDay()]}</div>
+                <div className="text-[11px] text-slate-400">{TR_GUNLER[d.getDay()]}</div>
               </div>
             )
           })}
@@ -446,13 +446,13 @@ function TakvimPage() {
             <>
               <div className="sticky left-0 z-10 bg-amber-50 border-r border-b border-line-soft px-3 py-2 flex flex-col">
                 <span className="font-semibold text-amber-800 text-xs">⚠ Atanmamış</span>
-                <span className="text-[10px] text-amber-600">{unassignedRow.length} WO</span>
+                <span className="text-[11px] text-amber-600">{unassignedRow.length} WO</span>
               </div>
               <div className="border-b border-line-soft bg-amber-50/30 relative" style={{ gridColumn: `2 / span ${days.length}`, minHeight: 50 }}>
                 <div className="px-2 py-1 flex flex-wrap gap-1">
                   {unassignedRow.map(o => (
                     <Link key={o.id} href={`/workshop/is-emri/${o.id}?wid=${wid}`}
-                      className="text-[10px] px-2 py-0.5 bg-white border border-amber-300 rounded hover:bg-amber-100 truncate max-w-[120px]"
+                      className="text-[11px] px-2 py-0.5 bg-white border border-amber-300 rounded hover:bg-amber-100 truncate max-w-[120px]"
                       title={`${o.is_emri_no}: ${o.model_adi}`}>
                       {o.model_adi}
                     </Link>
@@ -508,7 +508,7 @@ function TakvimPage() {
               <div key={line.id} className="contents">
                 <div className="sticky left-0 z-10 bg-white border-r border-b border-line-soft px-3 py-2 flex flex-col justify-center">
                   <div className="text-xs font-semibold text-ink">{line.code}</div>
-                  <div className="text-[10px] text-faint truncate">{line.name}</div>
+                  <div className="text-[11px] text-faint truncate">{line.name}</div>
                 </div>
                 <div
                   ref={el => { lineRowRefs.current.set(line.id, el) }}
@@ -534,7 +534,7 @@ function TakvimPage() {
                       return (
                         <div key={it.id}
                           title={it.tooltip}
-                          className={`relative my-1.5 mx-0.5 rounded text-white text-[10px] flex items-center px-1.5 overflow-hidden shadow-sm ${
+                          className={`relative my-1.5 mx-0.5 rounded text-white text-[11px] flex items-center px-1.5 overflow-hidden shadow-sm ${
                             isDraggable ? 'cursor-grab' : 'cursor-pointer'
                           } ${it.isDragging ? 'ring-2 ring-offset-1 ring-purple-500 cursor-grabbing z-20' : 'hover:ring-2 hover:ring-offset-1 hover:ring-slate-400'} transition-shadow`}
                           style={{
@@ -575,7 +575,7 @@ function TakvimPage() {
                           )}
                           {/* Drag preview tarih etiketi */}
                           {it.isDragging && (
-                            <div className="absolute -top-6 left-0 bg-purple-700 text-white text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap z-30 shadow">
+                            <div className="absolute -top-6 left-0 bg-purple-700 text-white text-[11px] px-1.5 py-0.5 rounded whitespace-nowrap z-30 shadow">
                               {fmt(it.barStart)} → {fmt(it.barEnd)}
                             </div>
                           )}
@@ -627,7 +627,7 @@ function TakvimPage() {
                 <span className="w-32 truncate font-medium">{line.code} · {line.name}</span>
                 <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative">
                   <div className={`h-full ${barColor}`} style={{ width: `${dolulukPct}%` }} />
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-semibold text-ink">
+                  <span className="absolute inset-0 flex items-center justify-center text-[11px] font-mono font-semibold text-ink">
                     %{dolulukPct} · {dolugun.size}/{totalDays} iş günü
                   </span>
                 </div>

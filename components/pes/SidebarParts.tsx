@@ -57,7 +57,7 @@ export function NavGroupBlock({
     <div className={ilk ? '' : 'mt-3'}>
       <button
         onClick={() => setKapali(k => !k)}
-        className="flex w-full items-center justify-between px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-faint transition-colors hover:text-muted"
+        className="flex w-full items-center justify-between px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-faint transition-colors hover:text-muted"
       >
         <span>{group.title}</span>
         <ChevronDown className={cn('size-3 transition-transform', kapali && '-rotate-90')} strokeWidth={2} />
@@ -103,7 +103,7 @@ export function SidebarIdentity({
         </span>
         <span className="min-w-0">
           <span className="block truncate text-[12px] text-ink">{eposta ?? 'Oturum'}</span>
-          {tenantAdi && <span className="block truncate text-[10px] text-faint">{tenantAdi}</span>}
+          {tenantAdi && <span className="block truncate text-[11px] text-faint">{tenantAdi}</span>}
         </span>
       </div>
       <button

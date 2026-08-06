@@ -161,7 +161,7 @@ function WorkshopCostsPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {OTHER_DETAILS.map(d => (
                   <div key={d}>
-                    <label className="block text-[10px] font-medium text-faint mb-0.5">{d}</label>
+                    <label className="block text-[11px] font-medium text-faint mb-0.5">{d}</label>
                     <input type="number" className="w-full px-2 py-1.5 border border-line rounded text-xs text-right" value={otherDetails[d]} onChange={e => setOtherDetails(p => ({...p, [d]: parseInt(e.target.value)||0}))} />
                   </div>
                 ))}
@@ -202,7 +202,7 @@ function WorkshopCostsPage() {
           <div className="bg-emerald-50 rounded-lg p-4 text-center">
             <p className="text-xs text-emerald-600">Dakika Başı Maliyet</p>
             <p className="text-xl font-bold text-accent">{costPerMin.toFixed(2)} TL/dk</p>
-            <p className="text-[10px] text-emerald-400">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
+            <p className="text-[11px] text-emerald-400">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
           </div>
           <div className="bg-blue-50 rounded-lg p-4 text-center">
             <p className="text-xs text-blue-600">Kişi Başı Aylık Gider</p>
@@ -213,7 +213,7 @@ function WorkshopCostsPage() {
             <p className={`text-xl font-bold ${netMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {targetRevenue > 0 ? `%${marginPct.toFixed(1)}` : '—'}
             </p>
-            {targetRevenue > 0 && <p className="text-[10px] text-faint">{(netMargin / 1000).toFixed(0)}K TL</p>}
+            {targetRevenue > 0 && <p className="text-[11px] text-faint">{(netMargin / 1000).toFixed(0)}K TL</p>}
           </div>
         </div>
 
@@ -223,9 +223,9 @@ function WorkshopCostsPage() {
             <h3 className="text-sm font-semibold text-gray-700 mb-3">Gerçek Maliyet vs Sektör Referans (TL/dk)</h3>
             <div className="grid grid-cols-7 gap-2">
               <div className="bg-emerald-100 border-2 border-emerald-500 rounded-lg p-3 text-center">
-                <p className="text-[10px] font-semibold text-emerald-700">GERÇEK</p>
+                <p className="text-[11px] font-semibold text-emerald-700">GERÇEK</p>
                 <p className="text-xl font-bold text-emerald-800">{costPerMin.toFixed(2)}</p>
-                <p className="text-[9px] text-emerald-600">TL/dk</p>
+                <p className="text-[11px] text-emerald-600">TL/dk</p>
               </div>
               {[1, 2, 3, 4, 5, 6].map(bolge => {
                 const ref = sektorDkMaliyetler.find(d => d.bolge === bolge)
@@ -235,10 +235,10 @@ function WorkshopCostsPage() {
                 const isLower = diff < 0
                 return (
                   <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-green-50 border-green-200' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-red-50 border-red-200'}`}>
-                    <p className="text-[10px] text-faint">{bolge}. Bölge</p>
+                    <p className="text-[11px] text-faint">{bolge}. Bölge</p>
                     <p className="text-lg font-bold text-gray-800">{refVal > 0 ? refVal.toFixed(2) : '—'}</p>
                     {refVal > 0 && (
-                      <p className={`text-[10px] font-medium ${isLower ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className={`text-[11px] font-medium ${isLower ? 'text-green-600' : 'text-red-600'}`}>
                         {diff > 0 ? '+' : ''}{diffPct.toFixed(1)}%
                       </p>
                     )}
@@ -246,7 +246,7 @@ function WorkshopCostsPage() {
                 )
               })}
             </div>
-            <p className="text-[10px] text-faint mt-2">
+            <p className="text-[11px] text-faint mt-2">
               Sektör referansı bölgesel DK maliyet tablosundan alınmaktadır. Yeşil = sizin maliyetiniz sektörden düşük.
             </p>
           </div>

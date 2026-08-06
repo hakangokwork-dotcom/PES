@@ -326,14 +326,14 @@ function WorkshopProfilePage() {
                   </>)}
                 </tr>
                 {capLineId !== l.id && capSummaries[l.id] && (
-                  <tr><td colSpan={7} className="px-2 py-1 text-[10px] text-faint bg-canvas">{capSummaries[l.id]}</td></tr>
+                  <tr><td colSpan={7} className="px-2 py-1 text-[11px] text-faint bg-canvas">{capSummaries[l.id]}</td></tr>
                 )}
                 {capLineId === l.id && (
                   <tr><td colSpan={7} className="p-0">
                     <div className="bg-emerald-50 border-t border-b border-emerald-200 p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-emerald-800">{l.code} — Yetenek Profili</span>
-                        <span className="text-[10px] text-emerald-600">{capSelected.size} yetenek secili</span>
+                        <span className="text-[11px] text-emerald-600">{capSelected.size} yetenek secili</span>
                       </div>
                       {capDimensions.filter(dim => {
                         if (!dim.applies_to) return true
@@ -341,7 +341,7 @@ function WorkshopProfilePage() {
                         return dim.applies_to.split(',').some((a: string) => capKlasmans.includes(a.trim()))
                       }).map(dim => (
                         <div key={dim.code}>
-                          <p className="text-[10px] font-semibold text-muted mb-1">{dim.label}</p>
+                          <p className="text-[11px] font-semibold text-muted mb-1">{dim.label}</p>
                           <div className="flex flex-wrap gap-1">
                             {dim.values.map(v => {
                               const key = `${dim.code}:${v.code}`
@@ -392,24 +392,24 @@ function WorkshopProfilePage() {
         {/* Bantlardan gelen (read-only) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="bg-emerald-50 rounded-lg p-3 text-center">
-            <p className="text-[10px] text-emerald-600 font-medium">Dikim Operatörü</p>
+            <p className="text-[11px] text-emerald-600 font-medium">Dikim Operatörü</p>
             <p className="text-xl font-bold text-emerald-700">{staffFromLines.dikimOp}</p>
-            <p className="text-[10px] text-emerald-400">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
+            <p className="text-[11px] text-emerald-400">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
           </div>
           <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <p className="text-[10px] text-blue-600 font-medium">Kesim Operatörü</p>
+            <p className="text-[11px] text-blue-600 font-medium">Kesim Operatörü</p>
             <p className="text-xl font-bold text-blue-700">{staffFromLines.kesimOp}</p>
-            <p className="text-[10px] text-blue-400">{lines.filter(l => effectiveType(l.line_type) === 'Kesim').length} bant</p>
+            <p className="text-[11px] text-blue-400">{lines.filter(l => effectiveType(l.line_type) === 'Kesim').length} bant</p>
           </div>
           <div className="bg-amber-50 rounded-lg p-3 text-center">
-            <p className="text-[10px] text-amber-600 font-medium">UKP Operatörü</p>
+            <p className="text-[11px] text-amber-600 font-medium">UKP Operatörü</p>
             <p className="text-xl font-bold text-amber-700">{staffFromLines.ukpOp}</p>
-            <p className="text-[10px] text-amber-400">{lines.filter(l => effectiveType(l.line_type) === 'UKP').length} bant</p>
+            <p className="text-[11px] text-amber-400">{lines.filter(l => effectiveType(l.line_type) === 'UKP').length} bant</p>
           </div>
           <div className="bg-purple-50 rounded-lg p-3 text-center">
-            <p className="text-[10px] text-purple-600 font-medium">Yıkama Operatörü</p>
+            <p className="text-[11px] text-purple-600 font-medium">Yıkama Operatörü</p>
             <p className="text-xl font-bold text-purple-700">{staffFromLines.yikamaOp}</p>
-            <p className="text-[10px] text-purple-400">{lines.filter(l => effectiveType(l.line_type) === 'Yikama').length} bant</p>
+            <p className="text-[11px] text-purple-400">{lines.filter(l => effectiveType(l.line_type) === 'Yikama').length} bant</p>
           </div>
         </div>
 
@@ -436,7 +436,7 @@ function WorkshopProfilePage() {
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Net Çalışma (dk/gün)</p><p className="text-lg font-bold text-gray-700">{(w.net_hours_day * 60).toFixed(0)} dk</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Bant Sayısı</p><p className="text-lg font-bold text-gray-700">{staffFromLines.bantSayisi}</p></div>
           <div className="bg-emerald-50 rounded-lg p-3"><p className="text-xs text-emerald-600">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-emerald-700">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
-          <div className="bg-blue-50 rounded-lg p-3"><p className="text-xs text-blue-600">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-blue-700">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[10px] text-blue-400">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
+          <div className="bg-blue-50 rounded-lg p-3"><p className="text-xs text-blue-600">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-blue-700">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[11px] text-blue-400">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
         </div>
       </div>
 

@@ -484,7 +484,7 @@ function EderMaliyetPage() {
                               <tr className={`${renk} border-t border-b font-semibold`}>
                                 <td colSpan={9} className="px-3 py-1.5 text-[11px] uppercase tracking-wide">
                                   {grup}
-                                  <span className="ml-3 font-normal text-[10px] opacity-70">
+                                  <span className="ml-3 font-normal text-[11px] opacity-70">
                                     {list.filter(i => i.aktif).length} aktif / {list.length} toplam
                                   </span>
                                 </td>
@@ -621,7 +621,7 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
       </td>
       <td className="px-3 py-1.5">
         <div className="text-ink truncate max-w-[320px]" title={islem.islem_adi}>{islem.islem_adi}</div>
-        {islem.parca && <div className="text-[10px] text-faint truncate max-w-[320px]" title={islem.parca}>{islem.parca}</div>}
+        {islem.parca && <div className="text-[11px] text-faint truncate max-w-[320px]" title={islem.parca}>{islem.parca}</div>}
       </td>
       <td className="px-3 py-1.5 text-muted text-[11px]">
         {islem.makine_tipi || '—'}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { tierColor, trendIcon } from '@/lib/pes/scoring'
 import type { ScoreTier, TrendDirection } from '@/types/pes'
 import { useDonem } from '@/lib/pes/useDonem'
+import { useToast } from '@/components/ui'
 
 interface ScoreRow {
   workshop_id: number
@@ -31,7 +32,7 @@ export default function ScoringPage() {
      tutulur ve tüm /pes ekranları aynı dönemi gösterir. */
   const { yil: year, ay: month } = useDonem()
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const toast = useToast()
 
   useEffect(() => {
     fetch('/api/pes/scoring').then(r => r.json()).then(d => setScores(d.scores ?? []))
@@ -40,7 +41,6 @@ export default function ScoringPage() {
 
   async function calculateAll() {
     setLoading(true)
-    setMessage('')
     let count = 0
 
     for (const w of workshops) {
@@ -52,7 +52,7 @@ export default function ScoringPage() {
       if (res.ok) count++
     }
 
-    setMessage(`${count} atölye için skor hesaplandı`)
+    toast.success(`${count} atölye için skor hesaplandı`)
     setLoading(false)
 
     // Listeyi yenile
@@ -78,10 +78,6 @@ export default function ScoringPage() {
           </button>
         </div>
       </div>
-
-      {message && (
-        <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>
-      )}
 
       {/* Ağırlık bilgisi */}
       <div className="bg-canvas border border-line-soft rounded-xl p-4">

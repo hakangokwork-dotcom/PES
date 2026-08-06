@@ -45,11 +45,11 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
       <div className="h-16 flex items-center px-5 border-b border-line-soft">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-accent rounded-md flex items-center justify-center">
-            <span className="text-white font-bold text-[10px]">PES</span>
+            <span className="text-white font-bold text-[11px]">PES</span>
           </div>
           <div>
             <span className="font-semibold text-ink text-sm block leading-tight">PES</span>
-            <span className="text-[10px] text-faint leading-tight">Verimlilik Sistemi</span>
+            <span className="text-[11px] text-faint leading-tight">Verimlilik Sistemi</span>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium text-ink truncate">{displayName}</p>
-            <p className="text-[10px] text-emerald-600 font-medium">{ROLE_LABELS[role]}</p>
+            <p className="text-[11px] text-emerald-600 font-medium">{ROLE_LABELS[role]}</p>
           </div>
         </div>
         <button

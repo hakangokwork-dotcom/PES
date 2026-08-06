@@ -68,7 +68,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
           <div className="flex items-start justify-between gap-2 mb-2">
             <div>
               <h4 className="text-sm font-semibold text-ink">{metric.label}</h4>
-              <p className="text-[10px] text-faint uppercase tracking-wider">
+              <p className="text-[11px] text-faint uppercase tracking-wider">
                 {METRIC_CATEGORIES[metric.category]} · {metric.unit}
                 {metric.direction && (
                   <span className="ml-1">
@@ -82,7 +82,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
 
           {value !== undefined && value !== null && (
             <div className="mb-3 px-3 py-2 bg-canvas rounded border border-gray-100">
-              <div className="text-[10px] uppercase tracking-wider text-faint">Değer</div>
+              <div className="text-[11px] uppercase tracking-wider text-faint">Değer</div>
               <div className="text-lg font-mono font-semibold text-ink">
                 {typeof value === 'number' ? value.toLocaleString('tr-TR') : value}
                 <span className="text-xs text-faint ml-1">{metric.unit}</span>
@@ -137,7 +137,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
           )}
 
           {metric.notes && (
-            <p className="text-[10px] text-faint mt-3 pt-2 border-t border-gray-100 italic">
+            <p className="text-[11px] text-faint mt-3 pt-2 border-t border-gray-100 italic">
               {metric.notes}
             </p>
           )}
@@ -150,7 +150,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <div className="text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">{title}</div>
+      <div className="text-[11px] uppercase tracking-wider text-faint font-semibold mb-1">{title}</div>
       {children}
     </div>
   )

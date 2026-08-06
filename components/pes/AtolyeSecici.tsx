@@ -149,7 +149,7 @@ function Kart({
             <span className="text-accent font-bold text-lg">{a.code}</span>
             <span className="text-ink font-medium">{a.name}</span>
             {benimMi && (
-              <span className="text-[10px] font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
                 Benim
               </span>
             )}

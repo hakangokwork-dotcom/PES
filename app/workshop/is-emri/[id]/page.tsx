@@ -624,7 +624,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* PLAN kolonu */}
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-blue-700 font-semibold">📅 Plan</span>
+            <span className="text-[11px] uppercase tracking-wider text-blue-700 font-semibold">📅 Plan</span>
             {!editPlan && (
               <button onClick={() => setEditPlan(true)}
                 className="text-xs text-blue-600 hover:text-blue-800">✏ Değiştir</button>
@@ -637,8 +637,8 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               </div>
               {!isPlanned && (
                 <div className="flex gap-1.5 mt-2">
-                  <button onClick={quickPlanBugun} className="text-[10px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100">Bugün başla</button>
-                  <button onClick={quickPlanFromYesterday} className="text-[10px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100">Bu hafta (7 gün)</button>
+                  <button onClick={quickPlanBugun} className="text-[11px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100">Bugün başla</button>
+                  <button onClick={quickPlanFromYesterday} className="text-[11px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100">Bu hafta (7 gün)</button>
                 </div>
               )}
             </div>
@@ -646,19 +646,19 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             <div className="space-y-2 bg-blue-50 -m-1 p-3 rounded">
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] text-muted block">Başlangıç</label>
+                  <label className="text-[11px] text-muted block">Başlangıç</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={planStart} onChange={e => setPlanStart(e.target.value)} />
                 </div>
                 <div>
-                  <label className="text-[10px] text-muted block">Bitiş</label>
+                  <label className="text-[11px] text-muted block">Bitiş</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={planEnd} onChange={e => setPlanEnd(e.target.value)} />
                 </div>
                 <div>
-                  <label className="text-[10px] text-muted block">veya Süre (gün)</label>
+                  <label className="text-[11px] text-muted block">veya Süre (gün)</label>
                   <input type="number" min={1} placeholder="5" className="w-full text-sm px-2 py-1 border border-line rounded" value={planDays} onChange={e => setPlanDays(e.target.value)} />
                 </div>
               </div>
-              <div className="text-[10px] text-faint italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
+              <div className="text-[11px] text-faint italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
               <div className="flex gap-2">
                 <button onClick={savePlan} className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Kaydet</button>
                 <button onClick={() => setEditPlan(false)} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
@@ -670,7 +670,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* GERÇEK kolonu */}
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">⏱ Gerçek</span>
+            <span className="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold">⏱ Gerçek</span>
             {!editGercek && (
               <button onClick={() => setEditGercek(true)}
                 className="text-xs text-emerald-700 hover:text-emerald-900">✏ Değiştir</button>
@@ -688,14 +688,14 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             <div className="space-y-2 bg-emerald-50 -m-1 p-3 rounded">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-muted block">Gerçek Başlangıç</label>
+                  <label className="text-[11px] text-muted block">Gerçek Başlangıç</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekStart} onChange={e => setGercekStart(e.target.value)} />
-                  <button onClick={() => setGercekStart(todayISO())} className="text-[10px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
+                  <button onClick={() => setGercekStart(todayISO())} className="text-[11px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
                 </div>
                 <div>
-                  <label className="text-[10px] text-muted block">Gerçek Bitiş</label>
+                  <label className="text-[11px] text-muted block">Gerçek Bitiş</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekEnd} onChange={e => setGercekEnd(e.target.value)} />
-                  <button onClick={() => setGercekEnd(todayISO())} className="text-[10px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
+                  <button onClick={() => setGercekEnd(todayISO())} className="text-[11px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -711,7 +711,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
       <div className="border-t border-gray-100 px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* İlerleme */}
         <div>
-          <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">
+          <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-faint font-semibold mb-1">
             <span>📊 İlerleme</span>
             <span className="font-mono text-slate-700">%{stage.ilerleme_pct}</span>
           </div>
@@ -722,7 +722,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           <div className="flex gap-1 mt-1.5">
             {[0, 25, 50, 75, 100].map(p => (
               <button key={p} onClick={() => setProgress(p)}
-                className={`text-[10px] px-1.5 py-0.5 rounded ${stage.ilerleme_pct === p ? 'bg-slate-800 text-white' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}>
+                className={`text-[11px] px-1.5 py-0.5 rounded ${stage.ilerleme_pct === p ? 'bg-slate-800 text-white' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}>
                 %{p}
               </button>
             ))}
@@ -732,7 +732,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* Adet */}
         <div>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-faint font-semibold">🎯 Üretim</span>
+            <span className="text-[11px] uppercase tracking-wider text-faint font-semibold">🎯 Üretim</span>
             {!editAdet && (
               <button onClick={() => setEditAdet(true)} className="text-xs text-faint hover:text-slate-800">✏</button>
             )}
@@ -759,7 +759,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* Notlar */}
         <div>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-faint font-semibold">📝 Not</span>
+            <span className="text-[11px] uppercase tracking-wider text-faint font-semibold">📝 Not</span>
             {!editNot && (
               <button onClick={() => setEditNot(true)} className="text-xs text-faint hover:text-slate-800">✏</button>
             )}
@@ -836,7 +836,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
       {materials.length === 0 && <div className="text-xs text-slate-400 italic text-center py-6">Henüz malzeme kaydı yok.</div>}
 
       <table className="w-full text-xs">
-        <thead className="bg-canvas text-faint uppercase tracking-wider text-[10px]">
+        <thead className="bg-canvas text-faint uppercase tracking-wider text-[11px]">
           <tr>
             <th className="px-3 py-2 text-left">Tip</th>
             <th className="px-3 py-2 text-left">Ad</th>
@@ -988,7 +988,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                   <span className="font-semibold text-emerald-700">Çözüm Notu: </span>{j.resolved_notlar}
                 </div>
               )}
-              {j.yazan && <div className="text-[10px] text-slate-400 mt-2">— {j.yazan}</div>}
+              {j.yazan && <div className="text-[11px] text-slate-400 mt-2">— {j.yazan}</div>}
             </div>
           )
         })}
@@ -1016,7 +1016,7 @@ function GecmisTab({ history }: { history: { tarih: string; eski_durum: string; 
 
 /* ───────── Helpers ───────── */
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><label className="block text-[10px] font-medium text-faint uppercase tracking-wider mb-1">{label}</label>{children}</div>
+  return <div><label className="block text-[11px] font-medium text-faint uppercase tracking-wider mb-1">{label}</label>{children}</div>
 }
 function DataRow({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) {
   return (
@@ -1029,13 +1029,13 @@ function DataRow({ label, value, highlight }: { label: string; value: string | n
 function Cell({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-faint font-semibold">{label}</div>
+      <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">{label}</div>
       <div className={`mt-0.5 font-mono ${highlight ? 'text-accent font-bold' : 'text-slate-700'}`}>{value || '—'}</div>
     </div>
   )
 }
 function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
-  return <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${cls}`}>{children}</span>
+  return <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider ${cls}`}>{children}</span>
 }
 function ProgressMini({ label, pct, sub }: { label: string; pct: number; sub: string }) {
   const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-blue-500' : 'bg-slate-300'
@@ -1048,7 +1048,7 @@ function ProgressMini({ label, pct, sub }: { label: string; pct: number; sub: st
       <div className="h-2 bg-slate-100 rounded-full overflow-hidden mt-1">
         <div className={`h-full ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
-      <div className="text-[10px] text-faint mt-0.5 truncate">{sub}</div>
+      <div className="text-[11px] text-faint mt-0.5 truncate">{sub}</div>
     </div>
   )
 }

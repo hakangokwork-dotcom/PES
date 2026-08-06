@@ -371,7 +371,7 @@ export default function ModelsPage() {
                           <td className="py-1.5 text-muted">{m.process_name}</td>
                           <td className="py-1.5 text-right font-medium text-ink">{Number(m.sam_minutes).toFixed(1)} sn</td>
                           <td className="py-1.5 text-center">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span>
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span>
                           </td>
                           <td className="py-1.5 text-center">
                             <button onClick={() => handleDelete(m.id, `${code}/${m.process_name}`)} className="text-xs text-red-500 hover:underline">Sil</button>
@@ -421,15 +421,15 @@ function BottleneckBar({ code, bn, onSave }: { code: string; bn?: Bottleneck; on
       <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-3">
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <label className="block text-[10px] text-amber-600 mb-0.5">Darboğaz Operasyonu</label>
+            <label className="block text-[11px] text-amber-600 mb-0.5">Darboğaz Operasyonu</label>
             <input className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm bg-white" value={operation} onChange={e => setOperation(e.target.value)} placeholder="Açık Pat Takma" />
           </div>
           <div className="w-28">
-            <label className="block text-[10px] text-amber-600 mb-0.5">Çevrim Süresi (sn)</label>
+            <label className="block text-[11px] text-amber-600 mb-0.5">Çevrim Süresi (sn)</label>
             <input type="number" className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm text-right bg-white" value={sec || ''} onChange={e => setSec(parseFloat(e.target.value) || 0)} step={0.1} />
           </div>
           <div className="w-28 text-center">
-            <label className="block text-[10px] text-amber-600 mb-0.5">Maks Üretim</label>
+            <label className="block text-[11px] text-amber-600 mb-0.5">Maks Üretim</label>
             <p className="text-lg font-bold text-amber-900">{maxDaily > 0 ? maxDaily.toLocaleString('tr-TR') : '—'}</p>
           </div>
           <div className="flex gap-1 pt-3">

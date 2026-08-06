@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useDonem } from '@/lib/pes/useDonem'
+import { useToast } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
 
@@ -21,7 +22,7 @@ export default function QualityPage() {
     rework_qty: 0, top_defect_cat: '', customer_return: 0,
   })
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const toast = useToast()
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -36,7 +37,6 @@ export default function QualityPage() {
     if (!workshopId) return
     setLoading(true)
     setError('')
-    setMessage('')
 
     const res = await fetch('/api/pes/quality', {
       method: 'POST',
@@ -47,7 +47,7 @@ export default function QualityPage() {
     const data = await res.json()
     setLoading(false)
     if (!res.ok) setError(data.error)
-    else setMessage('Kalite verisi kaydedildi')
+    else toast.success('Kalite verisi kaydedildi')
   }
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-right'
@@ -124,7 +124,6 @@ export default function QualityPage() {
           </div>
 
           {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-          {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
           <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Kalite Verisini Kaydet'}

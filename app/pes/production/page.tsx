@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useDonem } from '@/lib/pes/useDonem'
+import { useToast } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string; daily_target: number }
@@ -16,7 +17,7 @@ export default function ProductionPage() {
   const { yil: year, ay: month } = useDonem()
   const [rows, setRows] = useState<ProdRow[]>([])
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const toast = useToast()
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -75,7 +76,6 @@ export default function ProductionPage() {
     if (!workshopId) return
     setLoading(true)
     setError('')
-    setMessage('')
 
     let saved = 0
     for (const row of rows) {
@@ -105,7 +105,7 @@ export default function ProductionPage() {
     }
 
     setLoading(false)
-    if (!error) setMessage(`${saved} bant için üretim verisi kaydedildi`)
+    if (!error) toast.success(`${saved} bant için üretim verisi kaydedildi`)
   }
 
   const inputClass = 'w-full px-2 py-1.5 border border-line rounded text-sm focus:outline-none focus:border-accent text-right'
@@ -171,7 +171,6 @@ export default function ProductionPage() {
           </div>
 
           {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-          {message && <div className="mt-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
           <button
             onClick={handleSave}

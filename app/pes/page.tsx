@@ -38,6 +38,45 @@ export default async function PesDashboard() {
       WHERE (year, month) = (SELECT year, month FROM supplier_score ORDER BY year DESC, month DESC LIMIT 1)
       GROUP BY tier`
 
+    /* DİKKAT GEREKTİRENLER — panonun asıl işi.
+       "Aktif Atölye: 12" bir yöneticinin sabah ilk sorusu değil; "bugün
+       neye bakmam lazım" öyle. Her satır ilgili ekrana gider. */
+    /* DISTINCT workshop_id: view atölye x denetim tipi başına satır
+       veriyor. count(*) kullanılırsa iki denetimi de dolmuş bir atölye
+       iki kez sayılır ve "74 atölye" gibi gerçekte olmayan bir sayı çıkar. */
+    const [denetim] = await sql`
+      SELECT
+        count(DISTINCT workshop_id) FILTER (WHERE durum = 'SURESI_DOLMUS')::int AS dolmus,
+        count(DISTINCT workshop_id) FILTER (WHERE durum = 'YAKLASIYOR')::int    AS yaklasan
+      FROM v_atolye_denetim_durum WHERE is_active`
+
+    const [eksikBeyan] = await sql`
+      SELECT count(*)::int AS c
+      FROM workshop w
+      WHERE w.is_active
+        AND NOT EXISTS (
+          SELECT 1 FROM monthly_expense me
+          WHERE me.workshop_id = w.id
+            AND (me.year, me.month) =
+                (SELECT year, month FROM monthly_production ORDER BY year DESC, month DESC LIMIT 1))`
+
+    const [gecikenIs] = await sql`
+      SELECT count(*)::int AS c
+      FROM work_order
+      WHERE durum NOT IN ('Tamamlandi','Sevk Edildi','İptal')
+        AND teslim_tarihi IS NOT NULL
+        AND teslim_tarihi <= CURRENT_DATE + 7`
+
+    const [dusukVerim] = await sql`
+      SELECT count(*)::int AS c FROM (
+        SELECT mp.workshop_id,
+               SUM(mp.actual_qty)::numeric / NULLIF(SUM(mp.target_qty), 0) * 100 AS eff
+        FROM monthly_production mp
+        WHERE (mp.year, mp.month) =
+              (SELECT year, month FROM monthly_production ORDER BY year DESC, month DESC LIMIT 1)
+        GROUP BY mp.workshop_id
+      ) t WHERE t.eff < 75`
+
     const recentProd = await sql`
       SELECT w.code, w.name, mp.year, mp.month,
              SUM(mp.actual_qty) as total_actual, SUM(mp.target_qty) as total_target,
@@ -50,57 +89,101 @@ export default async function PesDashboard() {
       GROUP BY w.code, w.name, mp.year, mp.month, ss.tier
       ORDER BY eff DESC LIMIT 8`
 
-    return { wc, lc, ec, pc, woc, avgEff: eff?.avg_eff ?? null, effTrend, wsEff, tierDist, recentProd }
+    return { denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff: eff?.avg_eff ?? null, effTrend, wsEff, tierDist, recentProd }
   })
 
   if (!data) redirect('/login')
 
-  const { wc, lc, ec, pc, woc, avgEff, effTrend, wsEff, tierDist, recentProd } = data
+  const { denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff, effTrend, wsEff, tierDist, recentProd } = data
 
   const trendDelta = effTrend.length >= 2 ? Number(effTrend.at(-1)!.eff) - Number(effTrend.at(-2)!.eff) : 0
 
-  const stats = [
-    { label: 'Aktif Atölye', value: wc?.c ?? 0, href: '/pes/workshops', Icon: Building2, tint: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Aktif Bant', value: lc?.c ?? 0, href: '/pes/workshops', Icon: Layers, tint: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Açık İş Emri', value: woc?.c ?? 0, href: '/workshop/is-emri', Icon: ClipboardList, tint: 'text-violet-600', bg: 'bg-violet-50' },
-    { label: 'Üretim Kaydı', value: pc?.c ?? 0, href: '/pes/production', Icon: Boxes, tint: 'text-amber-600', bg: 'bg-amber-50' },
+  /* Sayımlar artık kart değil, başlığın altında ince bir şerit.
+     Dört büyük rakam ekranın en değerli yerini kaplıyordu ama hiçbiri
+     eyleme çağırmıyordu. */
+  const serit = [
+    { etiket: 'aktif atölye', deger: wc?.c ?? 0, href: '/pes/workshops' },
+    { etiket: 'aktif bant', deger: lc?.c ?? 0, href: '/pes/workshops' },
+    { etiket: 'iş emri', deger: woc?.c ?? 0, href: '/workshop/is-emri' },
+    { etiket: 'üretim kaydı', deger: pc?.c ?? 0, href: '/pes/production' },
+    { etiket: 'gider kaydı', deger: ec?.c ?? 0, href: '/pes/costs' },
   ]
 
-  const quickActions = [
-    { label: 'Atölyeler', href: '/pes/workshops', Icon: Building2 },
-    { label: 'Skorlama', href: '/pes/scoring', Icon: Star },
-    { label: 'Üretim', href: '/pes/production', Icon: Boxes },
-    { label: 'Kalite', href: '/pes/quality', Icon: Gauge },
-    { label: 'Karşılaştırma', href: '/pes/compare', Icon: BarChart3 },
-    { label: 'Raporlar', href: '/pes/reports', Icon: LineIcon },
-  ]
+  const dikkat = [
+    {
+      sayi: denetim?.dolmus ?? 0,
+      metin: 'atölyenin denetim süresi dolmuş',
+      href: '/pes/atolye-profil',
+      agir: true,
+    },
+    {
+      sayi: denetim?.yaklasan ?? 0,
+      metin: 'atölyenin denetimi 90 gün içinde doluyor',
+      href: '/pes/atolye-profil',
+      agir: false,
+    },
+    {
+      sayi: dusukVerim?.c ?? 0,
+      metin: 'atölye son dönemde %75 verimliliğin altında',
+      href: '/pes/compare',
+      agir: true,
+    },
+    {
+      sayi: gecikenIs?.c ?? 0,
+      metin: 'iş emrinin teslimine 7 gün veya daha az kaldı',
+      href: '/workshop/is-emri',
+      agir: true,
+    },
+    {
+      sayi: eksikBeyan?.c ?? 0,
+      metin: 'atölye son dönem gider beyanını vermemiş',
+      href: '/pes/costs',
+      agir: false,
+    },
+  ].filter(d => d.sayi > 0)
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-end justify-between">
-        <div>
+      <div>
+        <div className="flex items-end justify-between">
           <h1 className="text-2xl font-bold text-ink">Merkez Paneli</h1>
-          <p className="text-faint mt-1">Atölye Verimlilik Değerlendirme Sistemi</p>
+          <span className="hidden text-xs text-faint sm:block">
+            {effTrend.length ? `Son dönem: ${effTrend.at(-1)!.month}/${effTrend.at(-1)!.year}` : ''}
+          </span>
         </div>
-        <span className="text-xs text-faint hidden sm:block">
-          {effTrend.length ? `Son dönem: ${effTrend.at(-1)!.month}/${effTrend.at(-1)!.year}` : ''}
-        </span>
+        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-faint">
+          {serit.map((x, i) => (
+            <span key={x.etiket} className="flex items-center gap-1">
+              {i > 0 && <span className="mr-2 text-line">·</span>}
+              <Link href={x.href} className="text-ink tabular-nums hover:text-accent hover:underline">
+                {x.deger}
+              </Link>
+              {x.etiket}
+            </span>
+          ))}
+        </p>
       </div>
 
-      {/* Stat kartları */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {stats.map(s => (
-          <Link key={s.label} href={s.href}
-            className="group bg-white border border-line-soft rounded-xl p-4 hover:border-accent hover:shadow-sm transition-all">
-            <div className={`w-9 h-9 rounded-lg ${s.bg} flex items-center justify-center mb-3`}>
-              <s.Icon className={`w-5 h-5 ${s.tint}`} strokeWidth={2} />
-            </div>
-            <div className="text-2xl font-bold text-ink tabular-nums">{s.value}</div>
-            <div className="text-xs text-faint mt-0.5 flex items-center gap-1">{s.label}
-              <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
-            </div>
-          </Link>
-        ))}
+      {/* Dikkat gerektirenler — panonun en üstü, en değerli yeri */}
+      <div className="rounded-xl border border-line-soft bg-surface p-5">
+        <h2 className="mb-3 text-sm font-semibold text-ink">Dikkat gerektirenler</h2>
+        {dikkat.length === 0 ? (
+          <p className="text-sm text-faint">Bekleyen bir şey görünmüyor.</p>
+        ) : (
+          <ul className="divide-y divide-line-soft">
+            {dikkat.map(d => (
+              <li key={d.metin}>
+                <Link href={d.href} className="group flex items-center gap-3 py-2">
+                  <span className={`w-10 shrink-0 text-right text-lg font-semibold tabular-nums ${d.agir ? 'text-danger' : 'text-warn'}`}>
+                    {d.sayi}
+                  </span>
+                  <span className="flex-1 text-sm text-body">{d.metin}</span>
+                  <ArrowRight className="size-3.5 shrink-0 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Grafikler */}
@@ -160,19 +243,6 @@ export default async function PesDashboard() {
         </div>
       </div>
 
-      {/* Hızlı erişim */}
-      <div>
-        <h2 className="text-sm font-semibold text-ink mb-2">Hızlı Erişim</h2>
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
-          {quickActions.map(a => (
-            <Link key={a.label} href={a.href}
-              className="bg-white border border-line-soft rounded-lg p-3 flex flex-col items-center gap-1.5 hover:border-accent hover:bg-emerald-50/40 transition-colors">
-              <a.Icon className="w-5 h-5 text-faint" strokeWidth={1.8} />
-              <span className="text-xs text-gray-700">{a.label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

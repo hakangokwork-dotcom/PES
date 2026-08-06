@@ -98,12 +98,12 @@ export default function PesDevSidebar({
     <aside className="flex min-h-screen w-64 flex-col border-r border-line-soft bg-surface">
       <div className="flex h-16 shrink-0 items-center border-b border-line-soft px-4">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-md bg-accent text-[10px] font-bold tracking-wider text-white">
+          <span className="flex size-8 items-center justify-center rounded-md bg-accent text-[11px] font-bold tracking-wider text-white">
             PES
           </span>
           <span>
             <span className="block text-sm font-semibold leading-tight text-ink">Merkez Paneli</span>
-            <span className="block text-[10px] leading-tight tracking-wide text-faint">Verimlilik Sistemi</span>
+            <span className="block text-[11px] leading-tight tracking-wide text-faint">Verimlilik Sistemi</span>
           </span>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function PesDevSidebar({
 
       <SidebarIdentity eposta={eposta} tenantAdi={tenantAdi} />
 
-      <div className="shrink-0 px-3 pb-2 text-[10px] text-faint">
+      <div className="shrink-0 px-3 pb-2 text-[11px] text-faint">
         {/* Dev Mode rozeti üretimde görünmemeli — kullanıcıya bir şey söylemiyor. */}
         {process.env.NODE_ENV !== 'production' && (
           <span className="mr-2 font-medium text-warn">Dev Mode</span>

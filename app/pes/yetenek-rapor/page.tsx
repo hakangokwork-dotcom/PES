@@ -134,7 +134,7 @@ export default async function YetenekRaporPage() {
         <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
           <p className="text-xs text-faint">Gunluk Kapasite</p>
           <p className="text-2xl font-bold text-ink">{fmt(totalHedef)}</p>
-          <p className="text-[10px] text-faint">adet/gun (aylik: {fmt(totalHedef * 22)})</p>
+          <p className="text-[11px] text-faint">adet/gun (aylik: {fmt(totalHedef * 22)})</p>
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
           <p className="text-xs text-faint">Atolye Sayisi</p>
@@ -201,7 +201,7 @@ export default async function YetenekRaporPage() {
                     {allKlasmans.map(k => (
                       <td key={k} className="text-center px-2 py-2">
                         {a.klasmanlar.has(k) ? (
-                          <span className="inline-block w-5 h-5 rounded bg-emerald-500 text-white text-[10px] leading-5">✓</span>
+                          <span className="inline-block w-5 h-5 rounded bg-emerald-500 text-white text-[11px] leading-5">✓</span>
                         ) : (
                           <span className="text-gray-200">—</span>
                         )}

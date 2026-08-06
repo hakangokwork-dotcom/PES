@@ -168,16 +168,16 @@ function WorkshopModelsPage() {
                 {editBnCode === code ? (
                   <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
                     <div className="flex-1">
-                      <label className="block text-[10px] text-amber-600 mb-0.5">Darboğaz Operasyonu</label>
+                      <label className="block text-[11px] text-amber-600 mb-0.5">Darboğaz Operasyonu</label>
                       <input className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm" value={bnOp} onChange={e => setBnOp(e.target.value)} placeholder="Açık Pat Takma" />
                     </div>
                     <div className="w-28">
-                      <label className="block text-[10px] text-amber-600 mb-0.5">Çevrim (sn)</label>
+                      <label className="block text-[11px] text-amber-600 mb-0.5">Çevrim (sn)</label>
                       <input type="number" className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm text-right" value={bnSec || ''} onChange={e => setBnSec(parseFloat(e.target.value)||0)} step={0.1} />
                     </div>
                     <div className="w-24 text-center pt-3">
                       <p className="text-lg font-bold text-amber-900">{bnSec > 0 ? Math.floor((9*3600)/bnSec).toLocaleString('tr-TR') : '—'}</p>
-                      <p className="text-[10px] text-amber-600">adet/gün</p>
+                      <p className="text-[11px] text-amber-600">adet/gün</p>
                     </div>
                     <div className="flex gap-1 pt-3">
                       <button onClick={() => saveBn(code)} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">Kaydet</button>
@@ -209,7 +209,7 @@ function WorkshopModelsPage() {
                       <tr key={m.id} className="hover:bg-canvas">
                         <td className="py-1.5 text-muted">{m.process_name}</td>
                         <td className="py-1.5 text-right font-medium text-ink">{Number(m.sam_minutes).toFixed(1)} sn</td>
-                        <td className="py-1.5 text-center"><span className={`text-[10px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span></td>
+                        <td className="py-1.5 text-center"><span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span></td>
                       </tr>
                     ))}
                   </tbody>

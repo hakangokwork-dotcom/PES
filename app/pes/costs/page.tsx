@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDonem } from '@/lib/pes/useDonem'
+import { useToast } from '@/components/ui'
 
 const EXPENSE_FIELDS = [
   { key: 'personnel', label: 'Personel Gideri' },
@@ -34,7 +35,7 @@ export default function CostsPage() {
     Object.fromEntries(EXPENSE_FIELDS.map(f => [f.key, 0]))
   )
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const toast = useToast()
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -69,7 +70,6 @@ export default function CostsPage() {
     if (!workshopId) return
     setLoading(true)
     setError('')
-    setMessage('')
 
     const res = await fetch('/api/pes/expenses', {
       method: 'POST',
@@ -88,7 +88,7 @@ export default function CostsPage() {
     if (!res.ok) {
       setError(data.error)
     } else {
-      setMessage('Gider kaydedildi')
+      toast.success('Gider kaydedildi')
       router.refresh()
     }
   }
@@ -163,7 +163,6 @@ export default function CostsPage() {
 
           {/* Kaydet */}
           {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-          {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
           <button
             onClick={handleSave}

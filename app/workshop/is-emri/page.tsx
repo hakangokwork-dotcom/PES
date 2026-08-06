@@ -341,7 +341,7 @@ function IsEmriPage() {
                       }`}
                       onClick={() => applySuggestion(s)}>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {i === 0 && <span className="text-[10px] px-1.5 py-0.5 bg-purple-600 text-white rounded font-semibold">EN İYİ</span>}
+                        {i === 0 && <span className="text-[11px] px-1.5 py-0.5 bg-purple-600 text-white rounded font-semibold">EN İYİ</span>}
                         <span className="font-semibold text-sm">{s.line_code} — {s.line_name}</span>
                         <span className="ml-auto text-xs font-mono text-faint">skor {s.score}</span>
                       </div>
@@ -360,12 +360,12 @@ function IsEmriPage() {
                         </div>
                       )}
                       <div className="mt-2 flex items-center gap-2">
-                        <span className="text-[10px] text-slate-400 uppercase tracking-wider">Bant Yükü</span>
+                        <span className="text-[11px] text-slate-400 uppercase tracking-wider">Bant Yükü</span>
                         <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div className={`h-full ${s.capacity_pct >= 90 ? 'bg-red-500' : s.capacity_pct >= 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                             style={{ width: `${s.capacity_pct}%` }} />
                         </div>
-                        <span className="text-[10px] font-mono text-muted">%{s.capacity_pct}</span>
+                        <span className="text-[11px] font-mono text-muted">%{s.capacity_pct}</span>
                       </div>
                       <div className="mt-2 text-center">
                         <span className={`text-xs font-medium ${isSelected ? 'text-emerald-700' : 'text-purple-600'}`}>
@@ -434,13 +434,13 @@ function IsEmriPage() {
 
               {/* Sağ: Aşama özet + uyarı */}
               <div className="text-right space-y-1 min-w-[100px]">
-                <div className="text-[10px] uppercase tracking-wider text-faint font-semibold">Aşamalar</div>
+                <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Aşamalar</div>
                 <div className="text-sm font-mono">
                   <span className="text-emerald-700 font-semibold">{o.tamamlanan_asama}</span>
                   <span className="text-slate-400"> / {o.toplam_asama}</span>
                 </div>
                 {o.acik_problem > 0 && (
-                  <div className="text-[10px] text-red-700 font-medium">⚠ {o.acik_problem} açık problem</div>
+                  <div className="text-[11px] text-red-700 font-medium">⚠ {o.acik_problem} açık problem</div>
                 )}
               </div>
             </div>
@@ -477,28 +477,28 @@ function Stat({ label, value, tone = 'slate' }: { label: string; value: number; 
   }
   return (
     <div className={`rounded-lg p-3 ${tones[tone]}`}>
-      <div className="text-[10px] uppercase tracking-wider opacity-70 font-semibold">{label}</div>
+      <div className="text-[11px] uppercase tracking-wider opacity-70 font-semibold">{label}</div>
       <div className="text-2xl font-bold font-mono mt-0.5">{value}</div>
     </div>
   )
 }
 
 function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
-  return <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${cls}`}>{children}</span>
+  return <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider ${cls}`}>{children}</span>
 }
 
 function ProgressBox({ label, pct, sub }: { label: string; pct: number; sub: string }) {
   const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-blue-500' : 'bg-slate-300'
   return (
     <div className="text-xs">
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-faint font-semibold">
+      <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-faint font-semibold">
         <span>{label}</span>
         <span className="font-mono text-slate-700">%{pct}</span>
       </div>
       <div className="h-2 bg-slate-100 rounded-full overflow-hidden mt-0.5">
         <div className={`h-full ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
-      <div className="text-[10px] text-slate-400 mt-0.5 truncate">{sub}</div>
+      <div className="text-[11px] text-slate-400 mt-0.5 truncate">{sub}</div>
     </div>
   )
 }

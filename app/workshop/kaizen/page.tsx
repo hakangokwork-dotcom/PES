@@ -110,8 +110,8 @@ function KaizenPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${durumColor[a.durum] || 'bg-gray-100'}`}>{durumLabel[a.durum] || a.durum}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-muted">{a.kategori}</span>
+                    <span className={`text-[11px] px-2 py-0.5 rounded font-medium ${durumColor[a.durum] || 'bg-gray-100'}`}>{durumLabel[a.durum] || a.durum}</span>
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-gray-100 text-muted">{a.kategori}</span>
                     <span className="font-medium text-ink">{a.baslik}</span>
                   </div>
                   {a.hedef_metrik && (
@@ -125,7 +125,7 @@ function KaizenPage() {
                 <div className="flex gap-1">
                   {DURUMLAR.filter(d => d !== a.durum && d !== 'IPTAL').map(d => (
                     <button key={d} onClick={() => updateDurum(a.id, d)}
-                      className={`text-[10px] px-2 py-1 rounded ${durumColor[d]}`}>{durumLabel[d]}</button>
+                      className={`text-[11px] px-2 py-1 rounded ${durumColor[d]}`}>{durumLabel[d]}</button>
                   ))}
                 </div>
               </div>

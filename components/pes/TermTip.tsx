@@ -65,7 +65,7 @@ export default function TermTip({
         aria-controls={open ? panelId : undefined}
         className={
           showIcon
-            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[10px] text-faint hover:border-emerald-500 hover:text-emerald-600 transition-colors align-middle'
+            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[11px] text-faint hover:border-emerald-500 hover:text-emerald-600 transition-colors align-middle'
             : 'inline text-left underline decoration-dotted decoration-gray-400 underline-offset-2 hover:decoration-emerald-600 hover:text-emerald-700 transition-colors cursor-help'
         }
       >
@@ -80,7 +80,7 @@ export default function TermTip({
         >
           <span className="block font-semibold mb-0.5">{metric.label}</span>
           <span className="block text-gray-200 leading-snug">{short}</span>
-          <span className="block text-faint mt-1 text-[10px]">Detay için tıklayın</span>
+          <span className="block text-faint mt-1 text-[11px]">Detay için tıklayın</span>
         </span>
       )}
 
@@ -93,7 +93,7 @@ export default function TermTip({
           <span className="flex items-start justify-between gap-2 mb-2">
             <span>
               <span className="block text-sm font-semibold text-ink">{metric.label}</span>
-              <span className="block text-[10px] text-faint uppercase tracking-wider">
+              <span className="block text-[11px] text-faint uppercase tracking-wider">
                 {METRIC_CATEGORIES[metric.category]} · {metric.unit}
               </span>
             </span>
@@ -161,7 +161,7 @@ export default function TermTip({
           )}
 
           {metric.literature && (
-            <span className="block text-[10px] text-faint pt-2 border-t border-gray-100 italic">
+            <span className="block text-[11px] text-faint pt-2 border-t border-gray-100 italic">
               Kaynak: {metric.literature}
             </span>
           )}
@@ -174,7 +174,7 @@ export default function TermTip({
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <span className="block mb-3">
-      <span className="block text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">
+      <span className="block text-[11px] uppercase tracking-wider text-faint font-semibold mb-1">
         {title}
       </span>
       {children}

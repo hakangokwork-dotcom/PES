@@ -181,11 +181,11 @@ export default async function BenchmarkPage({
                   const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
                   return (
                   <th key={bm.id as number} className="text-center px-2 py-2 min-w-[80px]">
-                    <div className="text-[10px] leading-tight inline-flex items-center justify-center gap-0.5">
+                    <div className="text-[11px] leading-tight inline-flex items-center justify-center gap-0.5">
                       {bm.metric_label as string}
                       {ontologyKey && <MetricInfo metricKey={ontologyKey} size={11} />}
                     </div>
-                    <div className="text-[9px] text-faint">H: {String(bm.target_value)}</div>
+                    <div className="text-[11px] text-faint">H: {String(bm.target_value)}</div>
                   </th>
                   )
                 })}
@@ -220,7 +220,7 @@ export default async function BenchmarkPage({
           <p className="text-green-800 font-medium">Hedefte</p>
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-          <div className="w-3 h-3 bg-amber-500 rounded-full mx-auto mb-1"></div>
+          <div className="w-3 h-3 bg-accent rounded-full mx-auto mb-1"></div>
           <p className="text-amber-800 font-medium">Uyari</p>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">

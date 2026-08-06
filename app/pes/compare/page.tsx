@@ -184,7 +184,7 @@ export default async function ComparePage({
                   <td className="text-right px-2 py-2 font-mono text-red-600">{r.downtimeMin > 0 ? fmt(r.downtimeMin) : '---'}</td>
                   <td className="text-right px-2 py-2 font-mono font-semibold">{r.compositeScore > 0 ? r.compositeScore.toFixed(1) : '---'}</td>
                   <td className="text-center px-2 py-2">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${tierColor(r.tier)}`}>{r.tier}</span>
+                    <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${tierColor(r.tier)}`}>{r.tier}</span>
                   </td>
                   <td className="text-center px-2 py-2 text-xs">{r.trend === 'Artis' ? '▲' : r.trend === 'Dusus' ? '▼' : '—'}</td>
                 </tr>
@@ -203,7 +203,7 @@ export default async function ComparePage({
             {byEff.filter(r => r.efficiency > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-amber-700' : 'bg-gray-300'}`}>{i + 1}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i < 3 ? 'bg-accent' : 'bg-line'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className={`text-sm font-bold ${TONE_TEXT[effTone(r.efficiency)]}`}>%{r.efficiency}</span>
@@ -220,7 +220,7 @@ export default async function ComparePage({
             {byCost.filter(r => r.costPerMin > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${i === 0 ? 'bg-emerald-500' : i === 1 ? 'bg-emerald-400' : i === 2 ? 'bg-emerald-300' : 'bg-gray-300'}`}>{i + 1}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-emerald-500' : i === 1 ? 'bg-emerald-400' : i === 2 ? 'bg-emerald-300' : 'bg-gray-300'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className="text-sm font-bold text-gray-800">{r.costPerMin.toFixed(2)} TL/dk</span>
@@ -237,7 +237,7 @@ export default async function ComparePage({
             {byFpq.filter(r => r.fpq > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-blue-300' : 'bg-gray-300'}`}>{i + 1}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-blue-300' : 'bg-gray-300'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className={`text-sm font-bold ${TONE_TEXT[fpqTone(r.fpq)]}`}>%{r.fpq}</span>
@@ -254,11 +254,11 @@ export default async function ComparePage({
             {byScore.filter(r => r.compositeScore > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-amber-700' : 'bg-gray-300'}`}>{i + 1}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i < 3 ? 'bg-accent' : 'bg-line'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${tierColor(r.tier)}`}>{r.tier}</span>
+                  <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${tierColor(r.tier)}`}>{r.tier}</span>
                   <span className="text-sm font-bold text-gray-800">{r.compositeScore.toFixed(1)}</span>
                 </div>
               </div>

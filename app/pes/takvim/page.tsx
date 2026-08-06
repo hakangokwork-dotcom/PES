@@ -283,13 +283,13 @@ function AtolyeListView({
             className={`text-left rounded-lg border p-4 hover:shadow-md transition cursor-pointer ${tones[tone]}`}>
             <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="font-mono text-[10px] text-faint uppercase">{s.ws.code} · {s.ws.city || '—'}</div>
+                <div className="font-mono text-[11px] text-faint uppercase">{s.ws.code} · {s.ws.city || '—'}</div>
                 <div className="font-semibold text-ink mt-0.5 text-base">{s.ws.name}</div>
                 <div className="text-[11px] text-faint mt-0.5">{s.ws.type || '—'} · {s.ws.line_count} bant · {s.ws.daily_target} adet/gün</div>
               </div>
-              {s.avgDoluluk < 20 && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-600 text-white rounded font-semibold">BOŞ</span>}
-              {s.avgDoluluk >= 90 && <span className="text-[10px] px-1.5 py-0.5 bg-red-600 text-white rounded font-semibold">DOLU</span>}
-              {s.kritikWo > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-red-600 text-white rounded font-semibold">⚠ {s.kritikWo}</span>}
+              {s.avgDoluluk < 20 && <span className="text-[11px] px-1.5 py-0.5 bg-emerald-600 text-white rounded font-semibold">BOŞ</span>}
+              {s.avgDoluluk >= 90 && <span className="text-[11px] px-1.5 py-0.5 bg-red-600 text-white rounded font-semibold">DOLU</span>}
+              {s.kritikWo > 0 && <span className="text-[11px] px-1.5 py-0.5 bg-red-600 text-white rounded font-semibold">⚠ {s.kritikWo}</span>}
             </div>
 
             {/* Genel doluluk */}
@@ -306,7 +306,7 @@ function AtolyeListView({
             {/* Bant başına ufak bar */}
             <div className="mt-2 space-y-1">
               {s.lineDoluluk.slice(0, 5).map(ld => (
-                <div key={ld.line.id} className="flex items-center gap-2 text-[10px]">
+                <div key={ld.line.id} className="flex items-center gap-2 text-[11px]">
                   <span className="font-mono text-muted w-20 truncate">{ld.line.code}</span>
                   <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div className={`h-full ${ld.doluluk_pct >= 90 ? 'bg-red-500' : ld.doluluk_pct >= 70 ? 'bg-amber-500' : ld.doluluk_pct >= 30 ? 'bg-emerald-500' : 'bg-slate-300'}`}
@@ -316,7 +316,7 @@ function AtolyeListView({
                   <span className="font-mono text-slate-400 w-12 text-right">{isgun - ld.dolu_gun}g boş</span>
                 </div>
               ))}
-              {s.lineDoluluk.length > 5 && <div className="text-[10px] text-faint italic">+{s.lineDoluluk.length - 5} bant daha</div>}
+              {s.lineDoluluk.length > 5 && <div className="text-[11px] text-faint italic">+{s.lineDoluluk.length - 5} bant daha</div>}
             </div>
 
             {/* Alt: rakamlar */}
@@ -415,7 +415,7 @@ function AtolyeDetayView({
                 isToday ? 'bg-cyan-50 ring-1 ring-cyan-300' : w ? 'bg-canvas text-slate-400' : 'bg-white'
               }`}>
                 <div className="font-mono font-semibold text-[11px]">{d.getDate()}</div>
-                <div className="text-[9px] text-slate-400">{TR_GUNLER[d.getDay()]}</div>
+                <div className="text-[11px] text-slate-400">{TR_GUNLER[d.getDay()]}</div>
               </div>
             )
           })}
@@ -427,7 +427,7 @@ function AtolyeDetayView({
               <div key={line.id} className="contents">
                 <div className="sticky left-0 z-10 bg-white border-r border-b border-line-soft px-3 py-2 flex flex-col justify-center">
                   <div className="text-xs font-semibold text-ink">{line.code}</div>
-                  <div className="text-[10px] text-faint truncate">{line.name}</div>
+                  <div className="text-[11px] text-faint truncate">{line.name}</div>
                 </div>
                 <div className="border-b border-slate-100 relative grid"
                   style={{ gridColumn: `2 / span ${days.length}`, gridTemplateColumns: `repeat(${days.length}, ${dayColWidth}px)`, minHeight: 48 }}>
@@ -455,7 +455,7 @@ function AtolyeDetayView({
                       return (
                         <Link key={o.id} href={`/workshop/is-emri/${o.id}?wid=${summary.ws.id}`}
                           title={`${o.is_emri_no} · ${o.model_adi}\n${o.musteri || ''} · ${o.siparis_miktari} adet\n${o.durum} · ${o.oncelik}`}
-                          className="relative my-1 mx-0.5 rounded text-white text-[10px] flex items-center px-1.5 overflow-hidden hover:ring-2 hover:ring-offset-1 hover:ring-slate-400"
+                          className="relative my-1 mx-0.5 rounded text-white text-[11px] flex items-center px-1.5 overflow-hidden hover:ring-2 hover:ring-offset-1 hover:ring-slate-400"
                           style={{
                             gridColumnStart: startCol, gridColumnEnd: endCol,
                             backgroundColor: color,
@@ -496,7 +496,7 @@ function AtolyeDetayView({
                   ld.doluluk_pct >= 70 ? 'bg-amber-500' :
                   ld.doluluk_pct >= 30 ? 'bg-emerald-500' : 'bg-slate-300'
                 }`} style={{ width: `${ld.doluluk_pct}%` }} />
-                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-semibold text-ink">
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-mono font-semibold text-ink">
                   %{ld.doluluk_pct}
                 </span>
               </div>
@@ -654,10 +654,10 @@ function SlotResultCard({ rank, result, onJumpAtolye }: { rank: number; result: 
         </div>
         <div className="flex-1 min-w-[260px]">
           <div className="flex items-center gap-2 flex-wrap">
-            {isBest && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-600 text-white rounded font-bold">EN İYİ</span>}
+            {isBest && <span className="text-[11px] px-1.5 py-0.5 bg-emerald-600 text-white rounded font-bold">EN İYİ</span>}
             <span className="font-semibold text-sm">{result.workshop_code} — {result.workshop_name}</span>
             <span className="text-xs text-faint">{result.workshop_city ? `· ${result.workshop_city}` : ''}</span>
-            <span className="ml-auto text-[10px] text-faint font-mono">skor {result.score}</span>
+            <span className="ml-auto text-[11px] text-faint font-mono">skor {result.score}</span>
           </div>
           <div className="text-sm mt-1">
             🏭 <b>{result.line_code}</b> — {result.line_name}
@@ -673,12 +673,12 @@ function SlotResultCard({ rank, result, onJumpAtolye }: { rank: number; result: 
             </div>
           )}
           <div className="mt-2 flex items-center gap-2">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider">Bant Yükü</span>
+            <span className="text-[11px] text-slate-400 uppercase tracking-wider">Bant Yükü</span>
             <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[200px]">
               <div className={`h-full ${result.line_doluluk >= 90 ? 'bg-red-500' : result.line_doluluk >= 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                 style={{ width: `${result.line_doluluk}%` }} />
             </div>
-            <span className="text-[10px] font-mono text-muted">%{result.line_doluluk}</span>
+            <span className="text-[11px] font-mono text-muted">%{result.line_doluluk}</span>
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -823,7 +823,7 @@ function addDays(d: Date, n: number): Date {
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><label className="block text-[10px] font-medium text-faint uppercase tracking-wider mb-1">{label}</label>{children}<style jsx>{`:global(.input) { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; } :global(.input:focus) { border-color: #197A56; box-shadow: 0 0 0 2px rgba(25, 122, 86, 0.15); }`}</style></div>
+  return <div><label className="block text-[11px] font-medium text-faint uppercase tracking-wider mb-1">{label}</label>{children}<style jsx>{`:global(.input) { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; } :global(.input:focus) { border-color: #197A56; box-shadow: 0 0 0 2px rgba(25, 122, 86, 0.15); }`}</style></div>
 }
 
 // Type helper — TS için (gerçek fonksiyon değil)
@@ -850,9 +850,9 @@ function Stat({ label, value, sub, tone = 'slate' }: { label: string; value: num
   }
   return (
     <div className={`rounded-lg border p-3 ${tones[tone]}`}>
-      <div className="text-[10px] uppercase tracking-wider text-faint font-semibold">{label}</div>
+      <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">{label}</div>
       <div className="text-2xl font-bold font-mono mt-0.5">{value}</div>
-      {sub && <div className="text-[10px] text-slate-400 mt-0.5">{sub}</div>}
+      {sub && <div className="text-[11px] text-slate-400 mt-0.5">{sub}</div>}
     </div>
   )
 }

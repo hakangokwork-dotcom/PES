@@ -152,7 +152,7 @@ export default function GlossaryBrowser({
                     )}
 
                     {m.literature && (
-                      <p className="text-[10px] text-faint italic pt-1">
+                      <p className="text-[11px] text-faint italic pt-1">
                         Kaynak: {m.literature}
                       </p>
                     )}
@@ -191,7 +191,7 @@ function FilterChip({
 function Field({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">
+      <div className="text-[11px] uppercase tracking-wider text-faint font-semibold mb-1">
         {title}
       </div>
       {children}

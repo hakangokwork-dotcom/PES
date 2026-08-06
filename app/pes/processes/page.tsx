@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Badge, Button, DataTable, EmptyState, useToast, type Column } from '@/components/ui'
 
 interface ProcessRow {
   id: number; code: string; name: string; group_type: string; description: string | null; sort_order: number
@@ -11,8 +12,7 @@ export default function ProcessesPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   const [form, setForm] = useState({ code: '', name: '', group_type: 'Her ikisi', description: '', sort_order: 0 })
   const [editForm, setEditForm] = useState({ code: '', name: '', group_type: 'Her ikisi', description: '', sort_order: 0 })
@@ -27,8 +27,6 @@ export default function ProcessesPage() {
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    setMessage('')
 
     const res = await fetch('/api/pes/processes', {
       method: 'POST',
@@ -38,13 +36,13 @@ export default function ProcessesPage() {
 
     setLoading(false)
     if (res.ok) {
-      setMessage('Süreç eklendi')
+      toast.success('Süreç eklendi')
       setShowForm(false)
       setForm({ code: '', name: '', group_type: 'Her ikisi', description: '', sort_order: 0 })
       loadData()
     } else {
       const d = await res.json()
-      setError(d.error)
+      toast.error(d.error ?? 'İşlem başarısız')
     }
   }
 
@@ -63,7 +61,7 @@ export default function ProcessesPage() {
     setLoading(false)
     if (res.ok) {
       setEditingId(null)
-      setMessage('Süreç güncellendi')
+      toast.success('Süreç güncellendi')
       loadData()
     }
   }
@@ -72,13 +70,74 @@ export default function ProcessesPage() {
     if (!confirm(`"${name}" sürecini silmek istediğinize emin misiniz? Bağlı SAM kayıtları da silinir.`)) return
     const res = await fetch(`/api/pes/processes/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      setMessage('Süreç silindi')
+      toast.success('Süreç silindi')
       loadData()
     } else {
       const d = await res.json()
-      setError(d.error)
+      toast.error(d.error ?? 'İşlem başarısız')
     }
   }
+
+  /* Satır-içi düzenleme korundu: render fonksiyonları editingId ve
+     editForm üzerine kapanıyor, düzenlenen satır input basıyor.
+     DataTable'ın kendisi bunu bilmiyor — sadece hücreyi çiziyor. */
+  const kolonlar: Column<ProcessRow>[] = [
+    {
+      key: 'sort_order', label: 'Sıra', numeric: true, width: '72px',
+      render: p => editingId === p.id
+        ? <input type="number" className={editInputClass} style={{ width: 48 }} value={editForm.sort_order}
+            onChange={e => setEditForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 0 }))} />
+        : <span className="text-faint">{p.sort_order}</span>,
+    },
+    {
+      key: 'code', label: 'Kod', width: '104px',
+      render: p => editingId === p.id
+        ? <input className={editInputClass} style={{ width: 72 }} value={editForm.code}
+            onChange={e => setEditForm(f => ({ ...f, code: e.target.value }))} />
+        : <span className="font-medium text-accent">{p.code}</span>,
+    },
+    {
+      key: 'name', label: 'Ad',
+      render: p => editingId === p.id
+        ? <input className={editInputClass} style={{ width: 160 }} value={editForm.name}
+            onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
+        : <span className="text-ink">{p.name}</span>,
+    },
+    {
+      key: 'group_type', label: 'Grup', align: 'center', width: '120px',
+      render: p => editingId === p.id
+        ? <select className={editInputClass} value={editForm.group_type}
+            onChange={e => setEditForm(f => ({ ...f, group_type: e.target.value }))}>
+            <option value="Alt">Alt</option>
+            <option value="Üst">Üst</option>
+            <option value="Her ikisi">Her ikisi</option>
+          </select>
+        : <Badge>{p.group_type}</Badge>,
+    },
+    {
+      key: 'description', label: 'Açıklama',
+      render: p => editingId === p.id
+        ? <input className={editInputClass} style={{ width: 240 }} value={editForm.description}
+            onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} />
+        : <span className="text-muted">{p.description ?? '—'}</span>,
+    },
+    {
+      key: 'actions', label: 'İşlem', align: 'right', sortable: false, width: '148px',
+      render: p => editingId === p.id ? (
+        <span className="flex justify-end gap-2 whitespace-nowrap">
+          <button onClick={() => handleEdit(p.id)} disabled={loading}
+            className="text-xs font-medium text-accent hover:underline disabled:opacity-40">Kaydet</button>
+          <button onClick={() => setEditingId(null)}
+            className="text-xs text-faint hover:underline">İptal</button>
+        </span>
+      ) : (
+        <span className="flex justify-end gap-2 whitespace-nowrap">
+          <button onClick={() => startEdit(p)} className="text-xs text-accent hover:underline">Düzenle</button>
+          <button onClick={() => handleDelete(p.id, p.name)} className="text-xs text-danger hover:underline">Sil</button>
+        </span>
+      ),
+    },
+  ]
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
   const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-accent bg-emerald-50'
@@ -90,13 +149,11 @@ export default function ProcessesPage() {
           <h1 className="text-2xl font-bold text-ink">Süreç Kataloğu</h1>
           <p className="text-faint mt-1">Ana süreç tanımları (HAZ, ONB, ARB, MON, UKP...)</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
-          {showForm ? 'İptal' : '+ Yeni Süreç'}
-        </button>
+        <Button variant={showForm ? 'secondary' : 'primary'} onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'İptal' : 'Yeni süreç'}
+        </Button>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {showForm && (
         <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
@@ -132,71 +189,14 @@ export default function ProcessesPage() {
         </form>
       )}
 
-      <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-canvas border-b border-line-soft">
-              <th className="px-4 py-3 text-center text-faint font-medium w-12">Sıra</th>
-              <th className="px-4 py-3 text-left text-faint font-medium">Kod</th>
-              <th className="px-4 py-3 text-left text-faint font-medium">Ad</th>
-              <th className="px-4 py-3 text-center text-faint font-medium">Grup</th>
-              <th className="px-4 py-3 text-left text-faint font-medium">Açıklama</th>
-              <th className="px-4 py-3 text-center text-faint font-medium">İşlem</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line-soft">
-            {processes.map(p => (
-              <tr key={p.id} className="hover:bg-canvas">
-                {editingId === p.id ? (
-                  <>
-                    <td className="px-4 py-3 text-center">
-                      <input type="number" className={editInputClass} style={{width:40}} value={editForm.sort_order} onChange={e => setEditForm(f => ({...f, sort_order: parseInt(e.target.value)||0}))} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input className={editInputClass} style={{width:60}} value={editForm.code} onChange={e => setEditForm(f => ({...f, code: e.target.value}))} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input className={editInputClass} style={{width:120}} value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))} />
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <select className={editInputClass} value={editForm.group_type} onChange={e => setEditForm(f => ({...f, group_type: e.target.value}))}>
-                        <option value="Alt">Alt</option>
-                        <option value="Üst">Üst</option>
-                        <option value="Her ikisi">Her ikisi</option>
-                      </select>
-                    </td>
-                    <td className="px-4 py-3">
-                      <input className={editInputClass} style={{width:200}} value={editForm.description} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} />
-                    </td>
-                    <td className="px-4 py-3 text-center space-x-2">
-                      <button onClick={() => handleEdit(p.id)} disabled={loading} className="text-xs text-accent font-medium hover:underline">Kaydet</button>
-                      <button onClick={() => setEditingId(null)} className="text-xs text-faint hover:underline">İptal</button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="px-4 py-3 text-center text-faint">{p.sort_order}</td>
-                    <td className="px-4 py-3 text-accent font-bold">{p.code}</td>
-                    <td className="px-4 py-3 text-ink font-medium">{p.name}</td>
-                    <td className="px-4 py-3 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        p.group_type === 'Alt' ? 'bg-canvas text-muted' :
-                        p.group_type === 'Üst' ? 'bg-canvas text-muted' :
-                        'bg-canvas text-muted'
-                      }`}>{p.group_type}</span>
-                    </td>
-                    <td className="px-4 py-3 text-muted text-xs">{p.description ?? '—'}</td>
-                    <td className="px-4 py-3 text-center space-x-2">
-                      <button onClick={() => startEdit(p)} className="text-xs text-accent hover:underline">Düzenle</button>
-                      <button onClick={() => handleDelete(p.id, p.name)} className="text-xs text-red-500 hover:underline">Sil</button>
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={kolonlar}
+        rows={processes}
+        rowKey={p => p.id}
+        initialSort={{ key: 'sort_order', dir: 'asc' }}
+        empty={<EmptyState title="Süreç tanımı yok" description="Ana süreçleri ekleyerek başlayın (HAZ, ONB, ARB, MON, UKP…)." />}
+        footer={<span className="num">{processes.length} süreç</span>}
+      />
     </div>
   )
 }

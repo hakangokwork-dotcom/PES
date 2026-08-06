@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useToast } from '@/components/ui'
 
 interface Category { id: number; code: string; name: string }
 interface Process { id: number; code: string; name: string; sort_order: number }
@@ -27,8 +28,7 @@ export default function ModelsPage() {
   const [editForm, setEditForm] = useState({ sam_minutes: 0, source: 'Pratik' })
   const [groupEditData, setGroupEditData] = useState<Record<number, { sam_minutes: number; source: string }>>({})
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   // Toplu giriş formu
   const [form, setForm] = useState({ code: '', name: '', category_id: '', template_code: '' })
@@ -68,12 +68,10 @@ export default function ModelsPage() {
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    setMessage('')
 
     const activeSams = samEntries.filter(s => s.sam_minutes > 0)
     if (activeSams.length === 0) {
-      setError('En az bir süreç için SAM değeri girin')
+      toast.error('En az bir süreç için SAM değeri girin')
       setLoading(false)
       return
     }
@@ -96,14 +94,14 @@ export default function ModelsPage() {
       if (res.ok) saved++
       else {
         const d = await res.json()
-        setError(d.error)
+        toast.error(d.error)
         break
       }
     }
 
     setLoading(false)
     if (saved > 0) {
-      setMessage(`${saved} süreç için SAM kaydedildi`)
+      toast.success(`${saved} süreç için SAM kaydedildi`)
       setShowForm(false)
       setForm({ code: '', name: '', category_id: '', template_code: '' })
       setSamEntries([])
@@ -126,7 +124,7 @@ export default function ModelsPage() {
     setLoading(false)
     if (res.ok) {
       setEditingId(null)
-      setMessage('SAM güncellendi')
+      toast.success('SAM güncellendi')
       loadData()
     }
   }
@@ -188,14 +186,14 @@ export default function ModelsPage() {
 
     setLoading(false)
     setEditingGroup(null)
-    setMessage('SAM değerleri güncellendi')
+    toast.success('SAM değerleri güncellendi')
     loadData()
   }
 
   async function handleDelete(id: number, label: string) {
     if (!confirm(`"${label}" SAM kaydını silmek istediğinize emin misiniz?`)) return
     await fetch(`/api/pes/models/${id}`, { method: 'DELETE' })
-    setMessage('Kayıt silindi')
+    toast.success('Kayıt silindi')
     loadData()
   }
 
@@ -224,8 +222,6 @@ export default function ModelsPage() {
         </button>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {/* Yeni Model + Toplu SAM Girişi */}
       {showForm && (

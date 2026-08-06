@@ -134,14 +134,19 @@ function PesTakvimPage() {
     }).sort((a, b) => a.avgDoluluk - b.avgDoluluk)  // Boş olanlar üstte
   }, [workshopSummary, filterDolulukMin, filterDolulukMax, showInactive, search])
 
+  /* Özet kartları LİSTEDE GÖRÜNEN atölyeleri sayar, hepsini değil.
+     Eskiden workshopSummary (filtresiz) üzerinden hesaplanıyordu:
+     pasif atölyeler dahil "131 atölye" yazıyordu, oysa liste 123
+     gösteriyor ve panonun da dediği 123. Aynı ekranda iki farklı
+     gerçek olması, hangisine güvenileceğini belirsiz bırakıyordu. */
   const totals = useMemo(() => ({
-    total: workshopSummary.length,
-    bos: workshopSummary.filter(s => s.avgDoluluk < 30).length,
-    yogun: workshopSummary.filter(s => s.avgDoluluk >= 80).length,
-    tum_acik_slot: workshopSummary.reduce((s, x) => s + x.acikSlot, 0),
-    tum_wo: workshopSummary.reduce((s, x) => s + x.wos.length, 0),
-    tum_kritik: workshopSummary.reduce((s, x) => s + x.kritikWo, 0),
-  }), [workshopSummary])
+    total: filteredSummary.length,
+    bos: filteredSummary.filter(s => s.avgDoluluk < 30).length,
+    yogun: filteredSummary.filter(s => s.avgDoluluk >= 80).length,
+    tum_acik_slot: filteredSummary.reduce((s, x) => s + x.acikSlot, 0),
+    tum_wo: filteredSummary.reduce((s, x) => s + x.wos.length, 0),
+    tum_kritik: filteredSummary.reduce((s, x) => s + x.kritikWo, 0),
+  }), [filteredSummary])
 
   function shiftMonth(delta: number) {
     const d = new Date(refDate)

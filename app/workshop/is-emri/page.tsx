@@ -55,7 +55,7 @@ const ONCELIK_RENK: Record<string, string> = {
   'Kritik': 'bg-red-600 text-white',
   'Yüksek': 'bg-amber-500 text-white',
   'Normal': 'bg-slate-200 text-slate-700',
-  'Düşük':  'bg-slate-100 text-slate-500',
+  'Düşük':  'bg-slate-100 text-faint',
 }
 const ACILIYET_RENK: Record<string, string> = {
   'kritik': 'border-l-4 border-red-500 bg-red-50/30',
@@ -65,7 +65,7 @@ const ACILIYET_RENK: Record<string, string> = {
 }
 
 export default function Wrapper() {
-  return <Suspense fallback={<div className="p-6 text-gray-400">Yükleniyor...</div>}><IsEmriPage /></Suspense>
+  return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><IsEmriPage /></Suspense>
 }
 
 function IsEmriPage() {
@@ -193,7 +193,7 @@ function IsEmriPage() {
   }
 
   if (!wid) {
-    return <div className="p-6 text-gray-400">Lütfen sol menüden bir atölye seçin.</div>
+    return <div className="p-6 text-faint">Lütfen sol menüden bir atölye seçin.</div>
   }
 
   return (
@@ -201,11 +201,11 @@ function IsEmriPage() {
       {/* Header + Stats */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">İş Emirleri</h1>
-          <p className="text-sm text-gray-500 mt-1">Sipariş geldiğinde estimate iş emri oluştur, bant ata, plan yap, gerçekleşeni gir, problemleri günlüğe yaz.</p>
+          <h1 className="text-2xl font-semibold text-ink">İş Emirleri</h1>
+          <p className="text-sm text-faint mt-1">Sipariş geldiğinde estimate iş emri oluştur, bant ata, plan yap, gerçekleşeni gir, problemleri günlüğe yaz.</p>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#145e42]">
+          className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover">
           {showForm ? 'İptal' : '+ Yeni İş Emri'}
         </button>
       </div>
@@ -221,19 +221,19 @@ function IsEmriPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 flex items-center gap-2 flex-wrap">
-        <input className="flex-1 min-w-[160px] px-3 py-1.5 text-sm border border-gray-200 rounded-lg"
+      <div className="bg-white border border-line-soft rounded-xl p-3 flex items-center gap-2 flex-wrap">
+        <input className="flex-1 min-w-[160px] px-3 py-1.5 text-sm border border-line-soft rounded-lg"
           placeholder="Ara: iş emri no, model, müşteri, stil..."
           value={filter.q} onChange={e => setFilter({ ...filter, q: e.target.value })} />
-        <select className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg" value={filter.durum} onChange={e => setFilter({ ...filter, durum: e.target.value })}>
+        <select className="px-3 py-1.5 text-sm border border-line-soft rounded-lg" value={filter.durum} onChange={e => setFilter({ ...filter, durum: e.target.value })}>
           <option value="">Tüm Durum</option>
           {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        <select className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg" value={filter.oncelik} onChange={e => setFilter({ ...filter, oncelik: e.target.value })}>
+        <select className="px-3 py-1.5 text-sm border border-line-soft rounded-lg" value={filter.oncelik} onChange={e => setFilter({ ...filter, oncelik: e.target.value })}>
           <option value="">Tüm Öncelik</option>
           {['Kritik','Yüksek','Normal','Düşük'].map(o => <option key={o} value={o}>{o}</option>)}
         </select>
-        <select className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg" value={filter.aciliyet} onChange={e => setFilter({ ...filter, aciliyet: e.target.value })}>
+        <select className="px-3 py-1.5 text-sm border border-line-soft rounded-lg" value={filter.aciliyet} onChange={e => setFilter({ ...filter, aciliyet: e.target.value })}>
           <option value="">Tüm Aciliyet</option>
           <option value="kritik">Kritik (geçti)</option>
           <option value="acil">Acil (≤3 gün)</option>
@@ -242,15 +242,15 @@ function IsEmriPage() {
         </select>
         {(filter.q || filter.durum || filter.oncelik || filter.aciliyet) && (
           <button onClick={() => setFilter({ durum: '', oncelik: '', aciliyet: '', q: '' })}
-            className="text-xs text-slate-500 hover:text-slate-700">Filtreyi temizle</button>
+            className="text-xs text-faint hover:text-slate-700">Filtreyi temizle</button>
         )}
-        <span className="ml-auto text-xs text-slate-500">{filtered.length} / {orders.length}</span>
+        <span className="ml-auto text-xs text-faint">{filtered.length} / {orders.length}</span>
       </div>
 
       {/* New Order Form */}
       {showForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-          <h3 className="font-semibold text-gray-900">Yeni İş Emri Oluştur (Estimate)</h3>
+        <div className="bg-white border border-line-soft rounded-xl p-5 space-y-4">
+          <h3 className="font-semibold text-ink">Yeni İş Emri Oluştur (Estimate)</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Field label="İş Emri No *">
               <input className="input" value={form.is_emri_no} onChange={e => setForm({ ...form, is_emri_no: e.target.value })} placeholder="WO-2026-001" />
@@ -343,11 +343,11 @@ function IsEmriPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         {i === 0 && <span className="text-[10px] px-1.5 py-0.5 bg-purple-600 text-white rounded font-semibold">EN İYİ</span>}
                         <span className="font-semibold text-sm">{s.line_code} — {s.line_name}</span>
-                        <span className="ml-auto text-xs font-mono text-slate-500">skor {s.score}</span>
+                        <span className="ml-auto text-xs font-mono text-faint">skor {s.score}</span>
                       </div>
                       <div className="text-sm mt-1.5">
                         📅 <b>{s.baslangic_tarihi}</b> → <b>{s.bitis_tarihi}</b>
-                        <span className="text-slate-500"> · {s.gun_sayisi} gün · {s.daily_target} adet/gün</span>
+                        <span className="text-faint"> · {s.gun_sayisi} gün · {s.daily_target} adet/gün</span>
                       </div>
                       {s.reasons.length > 0 && (
                         <div className="mt-1.5 text-[11px] text-emerald-700">
@@ -365,7 +365,7 @@ function IsEmriPage() {
                           <div className={`h-full ${s.capacity_pct >= 90 ? 'bg-red-500' : s.capacity_pct >= 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                             style={{ width: `${s.capacity_pct}%` }} />
                         </div>
-                        <span className="text-[10px] font-mono text-slate-600">%{s.capacity_pct}</span>
+                        <span className="text-[10px] font-mono text-muted">%{s.capacity_pct}</span>
                       </div>
                       <div className="mt-2 text-center">
                         <span className={`text-xs font-medium ${isSelected ? 'text-emerald-700' : 'text-purple-600'}`}>
@@ -384,10 +384,10 @@ function IsEmriPage() {
           </Field>
           <div className="flex items-center gap-2">
             <button disabled={saving} onClick={createOrder}
-              className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#145e42] disabled:opacity-50">
+              className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover disabled:opacity-50">
               {saving ? 'Kaydediliyor...' : 'Oluştur (zorunlu aşamalar otomatik açılır)'}
             </button>
-            <span className="text-xs text-slate-500">Oluşturduktan sonra detay sayfasında plan/gerçek tarihleri, malzemeleri ve günlüğü yönet.</span>
+            <span className="text-xs text-faint">Oluşturduktan sonra detay sayfasında plan/gerçek tarihleri, malzemeleri ve günlüğü yönet.</span>
           </div>
         </div>
       )}
@@ -395,30 +395,30 @@ function IsEmriPage() {
       {/* List */}
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400">
+          <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">
             Henüz iş emri yok veya filtreyle eşleşen yok.
           </div>
         )}
         {filtered.map(o => (
           <Link key={o.id} href={`/workshop/is-emri/${o.id}?wid=${wid}`}
-            className={`block bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition ${ACILIYET_RENK[o.aciliyet] || ''}`}>
+            className={`block bg-white border border-line-soft rounded-xl p-4 hover:shadow-sm transition ${ACILIYET_RENK[o.aciliyet] || ''}`}>
             <div className="flex items-start gap-4 flex-wrap">
               {/* Sol: Tanımlama */}
               <div className="flex-1 min-w-[260px]">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-gray-900 text-sm">{o.is_emri_no}</span>
+                  <span className="font-semibold text-ink text-sm">{o.is_emri_no}</span>
                   <Badge cls={DURUM_RENK[o.durum] || 'bg-slate-100 text-slate-700'}>{o.durum}</Badge>
-                  <Badge cls={ONCELIK_RENK[o.oncelik] || 'bg-slate-100 text-slate-500'}>{o.oncelik}</Badge>
+                  <Badge cls={ONCELIK_RENK[o.oncelik] || 'bg-slate-100 text-faint'}>{o.oncelik}</Badge>
                   {o.aciliyet === 'kritik' && <Badge cls="bg-red-600 text-white">⚠ Teslim Geçti</Badge>}
                   {o.aciliyet === 'acil'  && <Badge cls="bg-amber-500 text-white">⏰ Acil</Badge>}
                   {!o.sample_onaylandi && <Badge cls="bg-orange-100 text-orange-700">Numune onayı bekliyor</Badge>}
                 </div>
                 <div className="text-sm text-gray-700 mt-1 truncate">
                   <span className="font-medium">{o.model_adi}</span>
-                  {o.stil_kodu && <span className="text-gray-400"> · {o.stil_kodu}</span>}
-                  {o.musteri && <span className="text-gray-500"> · {o.musteri}</span>}
+                  {o.stil_kodu && <span className="text-faint"> · {o.stil_kodu}</span>}
+                  {o.musteri && <span className="text-faint"> · {o.musteri}</span>}
                 </div>
-                <div className="text-xs text-gray-500 mt-1 flex items-center gap-3 flex-wrap">
+                <div className="text-xs text-faint mt-1 flex items-center gap-3 flex-wrap">
                   <span><b>{o.siparis_miktari.toLocaleString('tr-TR')}</b> adet</span>
                   {o.line_name && <span>→ {o.line_code || ''} {o.line_name}</span>}
                   {o.teslim_tarihi && <span>📅 {o.teslim_tarihi}{o.teslim_kalan_gun != null && ` (${o.teslim_kalan_gun >= 0 ? '+' : ''}${o.teslim_kalan_gun}g)`}</span>}
@@ -434,7 +434,7 @@ function IsEmriPage() {
 
               {/* Sağ: Aşama özet + uyarı */}
               <div className="text-right space-y-1 min-w-[100px]">
-                <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Aşamalar</div>
+                <div className="text-[10px] uppercase tracking-wider text-faint font-semibold">Aşamalar</div>
                 <div className="text-sm font-mono">
                   <span className="text-emerald-700 font-semibold">{o.tamamlanan_asama}</span>
                   <span className="text-slate-400"> / {o.toplam_asama}</span>
@@ -464,12 +464,12 @@ function IsEmriPage() {
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>{children}</div>
+  return <div><label className="block text-xs font-medium text-faint mb-1">{label}</label>{children}</div>
 }
 
 function Stat({ label, value, tone = 'slate' }: { label: string; value: number; tone?: string }) {
   const tones: Record<string, string> = {
-    slate: 'bg-slate-50 text-slate-900',
+    slate: 'bg-canvas text-ink',
     emerald: 'bg-emerald-50 text-emerald-900',
     amber: 'bg-amber-50 text-amber-900',
     red: 'bg-red-50 text-red-900',
@@ -491,7 +491,7 @@ function ProgressBox({ label, pct, sub }: { label: string; pct: number; sub: str
   const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-blue-500' : 'bg-slate-300'
   return (
     <div className="text-xs">
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+      <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-faint font-semibold">
         <span>{label}</span>
         <span className="font-mono text-slate-700">%{pct}</span>
       </div>

@@ -87,7 +87,7 @@ const DURUM_RENK: Record<string, string> = {
   'Sevk Edildi': 'bg-purple-100 text-purple-800',
 }
 const STAGE_DURUM_RENK: Record<string, string> = {
-  'Beklemede':    'bg-slate-100 text-slate-600',
+  'Beklemede':    'bg-slate-100 text-muted',
   'Hazır':        'bg-blue-100 text-blue-700',
   'Devam':        'bg-emerald-100 text-emerald-700',
   'Duraklatildi': 'bg-amber-100 text-amber-700',
@@ -95,7 +95,7 @@ const STAGE_DURUM_RENK: Record<string, string> = {
   'İptal':        'bg-red-100 text-red-700',
 }
 const MATERIAL_DURUM_RENK: Record<string, string> = {
-  'Bekleniyor':     'bg-slate-100 text-slate-600',
+  'Bekleniyor':     'bg-slate-100 text-muted',
   'Sipariş Verildi':'bg-blue-100 text-blue-700',
   'Yolda':          'bg-amber-100 text-amber-700',
   'Geldi':          'bg-emerald-100 text-emerald-800',
@@ -112,7 +112,7 @@ const JOURNAL_TIP_RENK: Record<string, { bg: string; text: string; icon: string 
 }
 
 export default function Wrapper() {
-  return <Suspense fallback={<div className="p-6 text-gray-400">Yükleniyor...</div>}><WoDetailPage /></Suspense>
+  return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><WoDetailPage /></Suspense>
 }
 
 function WoDetailPage() {
@@ -149,19 +149,19 @@ function WoDetailPage() {
     if (wid) fetch(`/api/pes/workshops/${wid}/lines`).then(r => r.json()).then(d => setLines(d.lines || []))
   }, [reload, wid])
 
-  if (loading || !order) return <div className="p-6 text-gray-400">Yükleniyor...</div>
+  if (loading || !order) return <div className="p-6 text-faint">Yükleniyor...</div>
 
   return (
     <div className="space-y-5">
       {/* Geri */}
-      <Link href={`/workshop/is-emri?wid=${wid}`} className="text-xs text-slate-500 hover:text-slate-900">← İş Emri Listesi</Link>
+      <Link href={`/workshop/is-emri?wid=${wid}`} className="text-xs text-faint hover:text-ink">← İş Emri Listesi</Link>
 
       {/* Header */}
       <WoHeader order={order} onRefresh={reload} />
 
       {/* Tabs */}
-      <div className="bg-white border border-gray-200 rounded-xl">
-        <div className="border-b border-gray-200 flex items-center gap-1 px-2 overflow-x-auto">
+      <div className="bg-white border border-line-soft rounded-xl">
+        <div className="border-b border-line-soft flex items-center gap-1 px-2 overflow-x-auto">
           {[
             ['ozet','Özet','📋'],
             ['asamalar',`Aşamalar (${stages.length})`,'📊'],
@@ -170,7 +170,7 @@ function WoDetailPage() {
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (
             <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'malzemeler'|'gunluk'|'gecmis')}
-              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-faint hover:text-slate-800'}`}>
               <span className="mr-1">{icon}</span>{label}
             </button>
           ))}
@@ -206,23 +206,23 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <div className="bg-white border border-line-soft rounded-xl p-5">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex-1 min-w-[300px]">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-semibold">{order.is_emri_no}</span>
+            <span className="text-xs uppercase tracking-wider text-faint font-semibold">{order.is_emri_no}</span>
             <Badge cls={DURUM_RENK[order.durum] || 'bg-slate-100 text-slate-700'}>{order.durum}</Badge>
             {order.aciliyet === 'kritik' && <Badge cls="bg-red-600 text-white">⚠ Teslim Geçti ({Math.abs(order.teslim_kalan_gun || 0)}g)</Badge>}
             {order.aciliyet === 'acil' && <Badge cls="bg-amber-500 text-white">⏰ {order.teslim_kalan_gun}g kaldı</Badge>}
             <Badge cls={
               order.oncelik === 'Kritik' ? 'bg-red-600 text-white' :
               order.oncelik === 'Yüksek' ? 'bg-amber-500 text-white' :
-              order.oncelik === 'Düşük' ? 'bg-slate-100 text-slate-500' :
+              order.oncelik === 'Düşük' ? 'bg-slate-100 text-faint' :
               'bg-slate-200 text-slate-700'
             }>{order.oncelik}</Badge>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mt-1">{order.model_adi}</h1>
-          <div className="text-sm text-gray-600 mt-0.5 flex items-center gap-3 flex-wrap">
+          <h1 className="text-2xl font-semibold text-ink mt-1">{order.model_adi}</h1>
+          <div className="text-sm text-muted mt-0.5 flex items-center gap-3 flex-wrap">
             {order.stil_kodu && <span>Stil: {order.stil_kodu}</span>}
             {order.musteri && <span>Müşteri: {order.musteri}</span>}
             {order.sezon && <span>{order.sezon}</span>}
@@ -230,10 +230,10 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-slate-500 mr-1">Hızlı Durum:</span>
+          <span className="text-xs text-faint mr-1">Hızlı Durum:</span>
           {['Devam','Duraklatildi','Tamamlandi'].filter(d => d !== order.durum).map(d => (
             <button key={d} onClick={() => changeStatus(d)}
-              className="text-xs px-2.5 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50">
+              className="text-xs px-2.5 py-1.5 border border-line rounded-lg hover:bg-canvas">
               {d}
             </button>
           ))}
@@ -246,7 +246,7 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
         <ProgressMini label="Materyal" pct={order.materyal_durumu_pct} sub={`${order.gelen_malzeme}/${order.toplam_malzeme}${order.eksik_malzeme ? ` · ${order.eksik_malzeme} eksik` : ''}`} />
         <ProgressMini label="Aşamalar" pct={order.toplam_asama > 0 ? Math.round((order.tamamlanan_asama / order.toplam_asama) * 100) : 0} sub={`${order.tamamlanan_asama}/${order.toplam_asama} tamamlandı`} />
         <div>
-          <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Onaylar</div>
+          <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Onaylar</div>
           <div className="flex flex-col gap-1 mt-1.5 text-xs">
             <span className={order.tech_pack_onaylandi ? 'text-emerald-700' : 'text-amber-700'}>
               {order.tech_pack_onaylandi ? '✓' : '○'} Tech Pack onaylandı
@@ -305,8 +305,8 @@ function OzetTab({ order, lines, onRefresh }: { order: WO; lines: Line[]; onRefr
         </div>
         {order.notlar_genel && (
           <div>
-            <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Genel Notlar</div>
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm whitespace-pre-wrap">{order.notlar_genel}</div>
+            <div className="text-xs uppercase tracking-wider text-faint font-semibold mb-1">Genel Notlar</div>
+            <div className="bg-canvas border border-line-soft rounded-lg p-3 text-sm whitespace-pre-wrap">{order.notlar_genel}</div>
           </div>
         )}
       </div>
@@ -341,8 +341,8 @@ function OzetTab({ order, lines, onRefresh }: { order: WO; lines: Line[]; onRefr
       </div>
       <Field label="Genel Notlar"><textarea className="input min-h-[80px]" value={form.notlar_genel || ''} onChange={e => setForm({ ...form, notlar_genel: e.target.value })} /></Field>
       <div className="flex gap-2">
-        <button onClick={save} className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#145e42]">Kaydet</button>
-        <button onClick={() => setEditing(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm">İptal</button>
+        <button onClick={save} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover">Kaydet</button>
+        <button onClick={() => setEditing(false)} className="px-4 py-2 border border-line rounded-lg text-sm">İptal</button>
       </div>
     </div>
   )
@@ -427,7 +427,7 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
   return (
     <div className="space-y-3">
       {/* Kullanıcı talimat satırı */}
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 flex items-start gap-2">
+      <div className="bg-canvas border border-line-soft rounded-lg p-3 text-xs text-muted flex items-start gap-2">
         <span className="text-blue-500">💡</span>
         <span>
           Her aşama bir kart. <b>"Plan tarihi"</b> ve <b>"Süre"</b> birinden biri girince diğeri otomatik hesaplanır.
@@ -447,14 +447,14 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
       <div className="flex items-center gap-2">
         {!showAdd ? (
           <button onClick={() => setShowAdd(true)}
-            className="text-sm px-4 py-2 bg-white border border-dashed border-slate-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50/30 text-slate-600 flex items-center gap-2">
+            className="text-sm px-4 py-2 bg-white border border-dashed border-slate-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50/30 text-muted flex items-center gap-2">
             <span className="text-lg leading-none">+</span> Opsiyonel Aşama Ekle
           </button>
         ) : (
           <div className="flex-1 bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center gap-2 flex-wrap">
             <span className="text-xs text-slate-700 font-medium">Hangi aşama eklensin?</span>
             {eklenebilir.length === 0 ? (
-              <span className="text-xs text-slate-500 italic">Tüm katalog aşamaları zaten eklenmiş.</span>
+              <span className="text-xs text-faint italic">Tüm katalog aşamaları zaten eklenmiş.</span>
             ) : (
               eklenebilir.map(c => (
                 <button key={c.id} onClick={() => addStage(c.id)}
@@ -464,7 +464,7 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
                 </button>
               ))
             )}
-            <button onClick={() => setShowAdd(false)} className="text-xs text-slate-500 ml-auto px-2">İptal</button>
+            <button onClick={() => setShowAdd(false)} className="text-xs text-faint ml-auto px-2">İptal</button>
           </div>
         )}
       </div>
@@ -575,7 +575,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
   const isDone = stage.durum === 'Tamamlandi'
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+    <div className="border border-line-soft rounded-lg overflow-hidden bg-white">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100" style={{ backgroundColor: (stage.stage_renk || '#94a3b8') + '15' }}>
         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stage.stage_renk || '#94a3b8' }} />
@@ -589,7 +589,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         )}
 
         {/* Bant seçici inline */}
-        <select className="text-xs px-2 py-1 bg-white border border-gray-200 rounded ml-2"
+        <select className="text-xs px-2 py-1 bg-white border border-line-soft rounded ml-2"
           value={stage.line_id ?? ''}
           onChange={e => setLine(e.target.value ? Number(e.target.value) : null)}>
           <option value="">— Bant seç —</option>
@@ -632,7 +632,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           </div>
           {!editPlan ? (
             <div>
-              <div className="text-sm font-medium text-slate-900">
+              <div className="text-sm font-medium text-ink">
                 {isPlanned ? rangeLabel(stage.plan_baslangic, stage.plan_bitis) : <span className="text-slate-400 italic">henüz plan yok</span>}
               </div>
               {!isPlanned && (
@@ -646,22 +646,22 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             <div className="space-y-2 bg-blue-50 -m-1 p-3 rounded">
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] text-slate-600 block">Başlangıç</label>
-                  <input type="date" className="w-full text-sm px-2 py-1 border border-gray-300 rounded" value={planStart} onChange={e => setPlanStart(e.target.value)} />
+                  <label className="text-[10px] text-muted block">Başlangıç</label>
+                  <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={planStart} onChange={e => setPlanStart(e.target.value)} />
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-600 block">Bitiş</label>
-                  <input type="date" className="w-full text-sm px-2 py-1 border border-gray-300 rounded" value={planEnd} onChange={e => setPlanEnd(e.target.value)} />
+                  <label className="text-[10px] text-muted block">Bitiş</label>
+                  <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={planEnd} onChange={e => setPlanEnd(e.target.value)} />
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-600 block">veya Süre (gün)</label>
-                  <input type="number" min={1} placeholder="5" className="w-full text-sm px-2 py-1 border border-gray-300 rounded" value={planDays} onChange={e => setPlanDays(e.target.value)} />
+                  <label className="text-[10px] text-muted block">veya Süre (gün)</label>
+                  <input type="number" min={1} placeholder="5" className="w-full text-sm px-2 py-1 border border-line rounded" value={planDays} onChange={e => setPlanDays(e.target.value)} />
                 </div>
               </div>
-              <div className="text-[10px] text-slate-500 italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
+              <div className="text-[10px] text-faint italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
               <div className="flex gap-2">
                 <button onClick={savePlan} className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Kaydet</button>
-                <button onClick={() => setEditPlan(false)} className="text-xs px-3 py-1 border border-gray-300 rounded">İptal</button>
+                <button onClick={() => setEditPlan(false)} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
               </div>
             </div>
           )}
@@ -678,7 +678,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           </div>
           {!editGercek ? (
             <div>
-              <div className="text-sm font-medium text-slate-900">
+              <div className="text-sm font-medium text-ink">
                 {(stage.gercek_baslangic || stage.gercek_bitis)
                   ? rangeLabel(stage.gercek_baslangic, stage.gercek_bitis)
                   : <span className="text-slate-400 italic">henüz başlamadı</span>}
@@ -688,19 +688,19 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             <div className="space-y-2 bg-emerald-50 -m-1 p-3 rounded">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-slate-600 block">Gerçek Başlangıç</label>
-                  <input type="date" className="w-full text-sm px-2 py-1 border border-gray-300 rounded" value={gercekStart} onChange={e => setGercekStart(e.target.value)} />
+                  <label className="text-[10px] text-muted block">Gerçek Başlangıç</label>
+                  <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekStart} onChange={e => setGercekStart(e.target.value)} />
                   <button onClick={() => setGercekStart(todayISO())} className="text-[10px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-600 block">Gerçek Bitiş</label>
-                  <input type="date" className="w-full text-sm px-2 py-1 border border-gray-300 rounded" value={gercekEnd} onChange={e => setGercekEnd(e.target.value)} />
+                  <label className="text-[10px] text-muted block">Gerçek Bitiş</label>
+                  <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekEnd} onChange={e => setGercekEnd(e.target.value)} />
                   <button onClick={() => setGercekEnd(todayISO())} className="text-[10px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
                 </div>
               </div>
               <div className="flex gap-2">
                 <button onClick={saveGercek} className="text-xs px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700">Kaydet</button>
-                <button onClick={() => setEditGercek(false)} className="text-xs px-3 py-1 border border-gray-300 rounded">İptal</button>
+                <button onClick={() => setEditGercek(false)} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
               </div>
             </div>
           )}
@@ -711,7 +711,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
       <div className="border-t border-gray-100 px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* İlerleme */}
         <div>
-          <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">
             <span>📊 İlerleme</span>
             <span className="font-mono text-slate-700">%{stage.ilerleme_pct}</span>
           </div>
@@ -722,7 +722,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           <div className="flex gap-1 mt-1.5">
             {[0, 25, 50, 75, 100].map(p => (
               <button key={p} onClick={() => setProgress(p)}
-                className={`text-[10px] px-1.5 py-0.5 rounded ${stage.ilerleme_pct === p ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                className={`text-[10px] px-1.5 py-0.5 rounded ${stage.ilerleme_pct === p ? 'bg-slate-800 text-white' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}>
                 %{p}
               </button>
             ))}
@@ -732,14 +732,14 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* Adet */}
         <div>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">🎯 Üretim</span>
+            <span className="text-[10px] uppercase tracking-wider text-faint font-semibold">🎯 Üretim</span>
             {!editAdet && (
-              <button onClick={() => setEditAdet(true)} className="text-xs text-slate-500 hover:text-slate-800">✏</button>
+              <button onClick={() => setEditAdet(true)} className="text-xs text-faint hover:text-slate-800">✏</button>
             )}
           </div>
           {!editAdet ? (
             <div className="text-sm mt-1">
-              <span className="font-semibold text-slate-900">{stage.uretilen_adet}</span>
+              <span className="font-semibold text-ink">{stage.uretilen_adet}</span>
               <span className="text-slate-400"> adet</span>
               {stage.hatali_adet > 0 && (
                 <span className="text-red-600 ml-2 text-xs">· {stage.hatali_adet} hatalı</span>
@@ -747,11 +747,11 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             </div>
           ) : (
             <div className="flex items-center gap-1.5 mt-1">
-              <input type="number" className="w-16 text-sm px-1.5 py-0.5 border border-gray-300 rounded" value={uretilen} onChange={e => setUretilen(e.target.value)} placeholder="adet" />
+              <input type="number" className="w-16 text-sm px-1.5 py-0.5 border border-line rounded" value={uretilen} onChange={e => setUretilen(e.target.value)} placeholder="adet" />
               <span className="text-xs text-slate-400">/</span>
-              <input type="number" className="w-14 text-sm px-1.5 py-0.5 border border-gray-300 rounded" value={hatali} onChange={e => setHatali(e.target.value)} placeholder="hatalı" />
+              <input type="number" className="w-14 text-sm px-1.5 py-0.5 border border-line rounded" value={hatali} onChange={e => setHatali(e.target.value)} placeholder="hatalı" />
               <button onClick={saveAdet} className="text-xs px-2 py-0.5 bg-emerald-600 text-white rounded">✓</button>
-              <button onClick={() => setEditAdet(false)} className="text-xs text-slate-500">×</button>
+              <button onClick={() => setEditAdet(false)} className="text-xs text-faint">×</button>
             </div>
           )}
         </div>
@@ -759,21 +759,21 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* Notlar */}
         <div>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">📝 Not</span>
+            <span className="text-[10px] uppercase tracking-wider text-faint font-semibold">📝 Not</span>
             {!editNot && (
-              <button onClick={() => setEditNot(true)} className="text-xs text-slate-500 hover:text-slate-800">✏</button>
+              <button onClick={() => setEditNot(true)} className="text-xs text-faint hover:text-slate-800">✏</button>
             )}
           </div>
           {!editNot ? (
-            <div className="text-xs text-slate-600 mt-1 italic">
+            <div className="text-xs text-muted mt-1 italic">
               {stage.notlar || <span className="text-slate-300">— not yok —</span>}
             </div>
           ) : (
             <div className="space-y-1 mt-1">
-              <textarea className="w-full text-xs px-2 py-1 border border-gray-300 rounded min-h-[40px]" value={notlar} onChange={e => setNotlar(e.target.value)} />
+              <textarea className="w-full text-xs px-2 py-1 border border-line rounded min-h-[40px]" value={notlar} onChange={e => setNotlar(e.target.value)} />
               <div className="flex gap-2">
                 <button onClick={saveNot} className="text-xs px-2 py-0.5 bg-emerald-600 text-white rounded">Kaydet</button>
-                <button onClick={() => setEditNot(false)} className="text-xs text-slate-500">İptal</button>
+                <button onClick={() => setEditNot(false)} className="text-xs text-faint">İptal</button>
               </div>
             </div>
           )}
@@ -815,12 +815,12 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <button onClick={() => setShowAdd(!showAdd)} className="text-xs px-3 py-1.5 bg-[#197A56] text-white rounded-lg">+ Malzeme Ekle</button>
-        <span className="text-xs text-slate-500">Kumaş, aksesuar, etiket, ambalaj — durum: Bekleniyor → Sipariş → Yolda → Geldi</span>
+        <button onClick={() => setShowAdd(!showAdd)} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">+ Malzeme Ekle</button>
+        <span className="text-xs text-faint">Kumaş, aksesuar, etiket, ambalaj — durum: Bekleniyor → Sipariş → Yolda → Geldi</span>
       </div>
 
       {showAdd && (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div className="bg-canvas border border-line-soft rounded-lg p-3 grid grid-cols-1 md:grid-cols-4 gap-2">
           <Field label="Tip"><select className="input-sm" value={add.tip} onChange={e => setAdd({ ...add, tip: e.target.value })}>{['KUMAŞ','AKSESUAR','ETİKET','AMBALAJ','İPLİK','DIGER'].map(t => <option key={t}>{t}</option>)}</select></Field>
           <Field label="Ad *"><input className="input-sm" value={add.ad} onChange={e => setAdd({ ...add, ad: e.target.value })} /></Field>
           <Field label="Kod"><input className="input-sm" value={add.kod} onChange={e => setAdd({ ...add, kod: e.target.value })} /></Field>
@@ -829,14 +829,14 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
           <Field label="Tedarikçi"><input className="input-sm" value={add.tedarikci} onChange={e => setAdd({ ...add, tedarikci: e.target.value })} /></Field>
           <Field label="Beklenen Tarih"><input type="date" className="input-sm" value={add.beklenen_tarih} onChange={e => setAdd({ ...add, beklenen_tarih: e.target.value })} /></Field>
           <Field label="Durum"><select className="input-sm" value={add.durum} onChange={e => setAdd({ ...add, durum: e.target.value })}>{Object.keys(MATERIAL_DURUM_RENK).map(d => <option key={d}>{d}</option>)}</select></Field>
-          <div className="md:col-span-4 flex gap-2"><button onClick={save} className="px-3 py-1 bg-[#197A56] text-white rounded text-xs">Ekle</button></div>
+          <div className="md:col-span-4 flex gap-2"><button onClick={save} className="px-3 py-1 bg-accent text-white rounded text-xs">Ekle</button></div>
         </div>
       )}
 
       {materials.length === 0 && <div className="text-xs text-slate-400 italic text-center py-6">Henüz malzeme kaydı yok.</div>}
 
       <table className="w-full text-xs">
-        <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px]">
+        <thead className="bg-canvas text-faint uppercase tracking-wider text-[10px]">
           <tr>
             <th className="px-3 py-2 text-left">Tip</th>
             <th className="px-3 py-2 text-left">Ad</th>
@@ -851,14 +851,14 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
         </thead>
         <tbody>
           {materials.map(m => (
-            <tr key={m.id} className="border-t border-gray-100 hover:bg-slate-50">
-              <td className="px-3 py-1.5 text-slate-600">{m.tip}</td>
+            <tr key={m.id} className="border-t border-gray-100 hover:bg-canvas">
+              <td className="px-3 py-1.5 text-muted">{m.tip}</td>
               <td className="px-3 py-1.5 font-medium">{m.ad}</td>
-              <td className="px-3 py-1.5 text-slate-500 font-mono">{m.kod}</td>
+              <td className="px-3 py-1.5 text-faint font-mono">{m.kod}</td>
               <td className="px-3 py-1.5 text-right font-mono">{m.miktar} {m.birim}</td>
-              <td className="px-3 py-1.5 text-slate-600">{m.tedarikci}</td>
-              <td className="px-3 py-1.5 text-slate-500">{m.beklenen_tarih}</td>
-              <td className="px-3 py-1.5 text-slate-500">
+              <td className="px-3 py-1.5 text-muted">{m.tedarikci}</td>
+              <td className="px-3 py-1.5 text-faint">{m.beklenen_tarih}</td>
+              <td className="px-3 py-1.5 text-faint">
                 <input type="date" className="input-sm" value={m.gelis_tarihi || ''}
                   onChange={e => patch(m, { gelis_tarihi: e.target.value, durum: e.target.value ? 'Geldi' : m.durum })} />
               </td>
@@ -924,12 +924,12 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 flex-wrap">
-        <button onClick={() => setShowAdd(!showAdd)} className="text-xs px-3 py-1.5 bg-[#197A56] text-white rounded-lg">+ Günlük Kaydı</button>
-        <span className="text-xs text-slate-500">Problem, kaizen, başarı, blokaj, uyarı, not — admin ile paylaşıma açabilirsin</span>
+        <button onClick={() => setShowAdd(!showAdd)} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">+ Günlük Kaydı</button>
+        <span className="text-xs text-faint">Problem, kaizen, başarı, blokaj, uyarı, not — admin ile paylaşıma açabilirsin</span>
       </div>
 
       {showAdd && (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2">
+        <div className="bg-canvas border border-line-soft rounded-lg p-3 space-y-2">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
             <Field label="Tarih"><input type="date" className="input-sm" value={add.tarih} onChange={e => setAdd({ ...add, tarih: e.target.value })} /></Field>
             <Field label="Vardiya"><select className="input-sm" value={add.vardiya} onChange={e => setAdd({ ...add, vardiya: e.target.value })}>{['Gündüz','Gece','Tek'].map(v => <option key={v}>{v}</option>)}</select></Field>
@@ -947,7 +947,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
           <Field label="Açıklama *"><textarea className="input min-h-[80px]" value={add.aciklama} onChange={e => setAdd({ ...add, aciklama: e.target.value })} placeholder="Ne oldu? Detaylı yaz." /></Field>
           <Field label="Öneri / Çözüm"><textarea className="input min-h-[50px]" value={add.oneri} onChange={e => setAdd({ ...add, oneri: e.target.value })} placeholder="Çözüm önerisi (opsiyonel)" /></Field>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={add.paylasim_admin} onChange={e => setAdd({ ...add, paylasim_admin: e.target.checked })} /> Bu kaydı admin (merkez) ile paylaş</label>
-          <div className="flex gap-2"><button onClick={save} className="px-3 py-1 bg-[#197A56] text-white rounded text-xs">Kaydet</button></div>
+          <div className="flex gap-2"><button onClick={save} className="px-3 py-1 bg-accent text-white rounded text-xs">Kaydet</button></div>
         </div>
       )}
 
@@ -962,9 +962,9 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-lg">{meta.icon}</span>
                   <Badge cls={`${meta.bg} ${meta.text}`}>{j.tip}</Badge>
-                  {j.kategori && <Badge cls="bg-white text-slate-600 border border-slate-200">{j.kategori}</Badge>}
-                  {j.stage_name && <Badge cls="bg-slate-100 text-slate-600">📊 {j.stage_name}</Badge>}
-                  <span className="text-xs text-slate-500">{j.tarih} · {j.vardiya}</span>
+                  {j.kategori && <Badge cls="bg-white text-muted border border-line-soft">{j.kategori}</Badge>}
+                  {j.stage_name && <Badge cls="bg-slate-100 text-muted">📊 {j.stage_name}</Badge>}
+                  <span className="text-xs text-faint">{j.tarih} · {j.vardiya}</span>
                   {j.paylasim_admin && <Badge cls="bg-blue-100 text-blue-700">🔗 Admin paylaşımda</Badge>}
                   {j.resolved && <Badge cls="bg-emerald-100 text-emerald-700">✓ Çözüldü</Badge>}
                 </div>
@@ -984,7 +984,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                 </div>
               )}
               {j.resolved && j.resolved_notlar && (
-                <div className="mt-2 pl-3 border-l-2 border-emerald-400 text-xs text-slate-600">
+                <div className="mt-2 pl-3 border-l-2 border-emerald-400 text-xs text-muted">
                   <span className="font-semibold text-emerald-700">Çözüm Notu: </span>{j.resolved_notlar}
                 </div>
               )}
@@ -1005,7 +1005,7 @@ function GecmisTab({ history }: { history: { tarih: string; eski_durum: string; 
       {history.map((h, i) => (
         <div key={i} className="flex items-center gap-3 text-xs border-b border-slate-100 py-2">
           <span className="text-slate-400 font-mono">{new Date(h.tarih).toLocaleString('tr-TR')}</span>
-          <span className="text-slate-600">{h.eski_durum || '—'}</span>
+          <span className="text-muted">{h.eski_durum || '—'}</span>
           <span>→</span>
           <span className="font-medium">{h.yeni_durum}</span>
         </div>
@@ -1016,21 +1016,21 @@ function GecmisTab({ history }: { history: { tarih: string; eski_durum: string; 
 
 /* ───────── Helpers ───────── */
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><label className="block text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-1">{label}</label>{children}</div>
+  return <div><label className="block text-[10px] font-medium text-faint uppercase tracking-wider mb-1">{label}</label>{children}</div>
 }
 function DataRow({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) {
   return (
     <div className="flex items-baseline gap-3 border-b border-slate-100 pb-2">
-      <div className="w-32 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div>
-      <div className={`flex-1 ${highlight ? 'font-bold text-[#197A56]' : 'text-slate-900'}`}>{value || '—'}</div>
+      <div className="w-32 text-[11px] uppercase tracking-wider text-faint font-semibold">{label}</div>
+      <div className={`flex-1 ${highlight ? 'font-bold text-accent' : 'text-ink'}`}>{value || '—'}</div>
     </div>
   )
 }
 function Cell({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div>
-      <div className={`mt-0.5 font-mono ${highlight ? 'text-[#197A56] font-bold' : 'text-slate-700'}`}>{value || '—'}</div>
+      <div className="text-[10px] uppercase tracking-wider text-faint font-semibold">{label}</div>
+      <div className={`mt-0.5 font-mono ${highlight ? 'text-accent font-bold' : 'text-slate-700'}`}>{value || '—'}</div>
     </div>
   )
 }
@@ -1042,13 +1042,13 @@ function ProgressMini({ label, pct, sub }: { label: string; pct: number; sub: st
   return (
     <div>
       <div className="flex items-baseline justify-between text-[11px]">
-        <span className="uppercase tracking-wider text-slate-500 font-semibold">{label}</span>
+        <span className="uppercase tracking-wider text-faint font-semibold">{label}</span>
         <span className="font-mono font-semibold">%{pct}</span>
       </div>
       <div className="h-2 bg-slate-100 rounded-full overflow-hidden mt-1">
         <div className={`h-full ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
-      <div className="text-[10px] text-slate-500 mt-0.5 truncate">{sub}</div>
+      <div className="text-[10px] text-faint mt-0.5 truncate">{sub}</div>
     </div>
   )
 }

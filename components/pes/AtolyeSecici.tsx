@@ -71,11 +71,11 @@ export default function AtolyeSecici({
   return (
     <div className="max-w-2xl mx-auto space-y-6 pt-8">
       <div className="text-center">
-        <div className="w-16 h-16 bg-[#197A56] rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span className="text-white font-bold text-xl">PES</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Atölye Seçin</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-ink">Atölye Seçin</h1>
+        <p className="text-faint mt-1">
           Verimlilik paneline erişmek için atölyenizi seçin
         </p>
       </div>
@@ -85,7 +85,7 @@ export default function AtolyeSecici({
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Kod, isim veya şehir ara…"
-        className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56]"
+        className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
       />
 
       {hata && (
@@ -96,7 +96,7 @@ export default function AtolyeSecici({
 
       {benim.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-faint">
             Benim atölyelerim
           </h2>
           {benim.map((a) => (
@@ -107,7 +107,7 @@ export default function AtolyeSecici({
 
       <section className="space-y-3">
         {benim.length > 0 && (
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-faint">
             Diğer atölyeler
           </h2>
         )}
@@ -115,7 +115,7 @@ export default function AtolyeSecici({
           <Kart key={a.id} a={a} benimMi={false} bekliyor={bekleyen === a.id} onSahiplik={sahiplik} />
         ))}
         {benim.length === 0 && digerleri.length === 0 && (
-          <p className="text-center text-gray-400 text-sm py-8">
+          <p className="text-center text-faint text-sm py-8">
             &quot;{q}&quot; için atölye bulunamadı.
           </p>
         )}
@@ -140,27 +140,27 @@ function Kart({
   return (
     <div
       className={`bg-white border rounded-xl p-5 transition-all hover:shadow-md ${
-        benimMi ? 'border-[#197A56] ring-1 ring-[#197A56]/20' : 'border-gray-200 hover:border-[#197A56]'
+        benimMi ? 'border-accent ring-1 ring-accent/20' : 'border-line-soft hover:border-accent'
       }`}
     >
       <div className="flex items-center justify-between gap-4">
         <Link href={`/workshop?wid=${a.id}`} className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[#197A56] font-bold text-lg">{a.code}</span>
-            <span className="text-gray-900 font-medium">{a.name}</span>
+            <span className="text-accent font-bold text-lg">{a.code}</span>
+            <span className="text-ink font-medium">{a.name}</span>
             {benimMi && (
               <span className="text-[10px] font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
                 Benim
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-faint mt-0.5">
             {[a.city, `Tip ${a.type}`, `${a.sewing_staff} dikim op.`, `${a.total_staff} toplam`]
               .filter(Boolean)
               .join(' · ')}
           </p>
           {baskasinda && (
-            <p className="text-xs text-gray-400 mt-1">Sahiplenen: {a.owner_email ?? 'başka kullanıcı'}</p>
+            <p className="text-xs text-faint mt-1">Sahiplenen: {a.owner_email ?? 'başka kullanıcı'}</p>
           )}
         </Link>
 
@@ -170,8 +170,8 @@ function Kart({
           title={baskasinda ? 'Başka bir kullanıcı sahiplenmiş' : undefined}
           className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
             benimMi
-              ? 'border-gray-300 text-gray-600 hover:bg-gray-50'
-              : 'border-[#197A56] text-[#197A56] hover:bg-[#197A56]/5'
+              ? 'border-line text-muted hover:bg-canvas'
+              : 'border-accent text-accent hover:bg-accent/5'
           }`}
         >
           {bekliyor ? '…' : benimMi ? 'Bırak' : 'Sahiplen'}

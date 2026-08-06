@@ -8,7 +8,7 @@ import VsimEmbed from '@/components/pes/VsimEmbed'
 
 export default function VsmPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-gray-400">Yükleniyor...</div>}>
+    <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}>
       <VsmContent />
     </Suspense>
   )

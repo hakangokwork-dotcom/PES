@@ -71,7 +71,7 @@ const ANA_GRUP_RENK: Record<string, string> = {
 /* ───────── Wrapper ───────── */
 export default function EderMaliyetWrapper() {
   return (
-    <Suspense fallback={<div className="p-6 text-gray-400">Yükleniyor...</div>}>
+    <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}>
       <EderMaliyetPage />
     </Suspense>
   )
@@ -260,22 +260,22 @@ function EderMaliyetPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Atölye Fiyatlama (Eder Maliyet)</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-semibold text-ink">Atölye Fiyatlama (Eder Maliyet)</h1>
+          <p className="text-sm text-faint mt-1">
             konfeksiyon_v3 · Kumaş › Ürün › Özellik · Ana Grup: Ön Bant / Arka Bant / Montaj / UKP / Son Montaj
           </p>
         </div>
         <button onClick={() => setShowNew(!showNew)}
-          className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#145e42]">
+          className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover">
           {showNew ? 'İptal' : '+ Yeni Model'}
         </button>
       </div>
 
       {/* New Model Form */}
       {showNew && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-          <h3 className="font-semibold text-gray-900">Yeni Model</h3>
-          <p className="text-xs text-gray-500">
+        <div className="bg-white border border-line-soft rounded-xl p-5 space-y-4">
+          <h3 className="font-semibold text-ink">Yeni Model</h3>
+          <p className="text-xs text-faint">
             Kaydettiğinizde seçilen ürünün tüm operasyonları (konfeksiyon_v3 kataloğundan) otomatik olarak modele kopyalanır. Sonra tek tek düzenleyebilir/silebilirsiniz.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -308,7 +308,7 @@ function EderMaliyetPage() {
           </div>
 
           <div className="border-t pt-4">
-            <p className="text-xs font-medium text-gray-500 mb-3">ÜRÜN SEÇİMİ</p>
+            <p className="text-xs font-medium text-faint mb-3">ÜRÜN SEÇİMİ</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Kumaş">
                 <select className="input" value={newForm.kumas}
@@ -339,7 +339,7 @@ function EderMaliyetPage() {
           </div>
 
           <button disabled={saving} onClick={createModel}
-            className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#145e42] disabled:opacity-50">
+            className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover disabled:opacity-50">
             {saving ? 'Kaydediliyor...' : 'Modeli Oluştur'}
           </button>
         </div>
@@ -348,24 +348,24 @@ function EderMaliyetPage() {
       {/* Main */}
       <div className="grid grid-cols-12 gap-5">
         {/* Models list */}
-        <div className="col-span-12 lg:col-span-3 bg-white border border-gray-200 rounded-xl">
-          <div className="px-4 py-3 border-b border-gray-200">
-            <h3 className="font-semibold text-sm text-gray-900">Modeller ({models.length})</h3>
+        <div className="col-span-12 lg:col-span-3 bg-white border border-line-soft rounded-xl">
+          <div className="px-4 py-3 border-b border-line-soft">
+            <h3 className="font-semibold text-sm text-ink">Modeller ({models.length})</h3>
           </div>
           <div className="max-h-[800px] overflow-auto">
-            {models.length === 0 && <div className="p-4 text-xs text-gray-400">Henüz model yok</div>}
+            {models.length === 0 && <div className="p-4 text-xs text-faint">Henüz model yok</div>}
             {models.map(m => (
               <button key={m.model_id} onClick={() => setSelectedModel(m)}
                 className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-colors ${
-                  selectedModel?.model_id === m.model_id ? 'bg-emerald-50' : 'hover:bg-gray-50'
+                  selectedModel?.model_id === m.model_id ? 'bg-emerald-50' : 'hover:bg-canvas'
                 }`}>
-                <div className="font-medium text-sm text-gray-900 truncate">{m.model_adi}</div>
-                <div className="text-[11px] text-gray-500 mt-0.5 truncate">
+                <div className="font-medium text-sm text-ink truncate">{m.model_adi}</div>
+                <div className="text-[11px] text-faint mt-0.5 truncate">
                   {m.kumas} · {m.urun}{m.ozellik ? ` · ${m.ozellik}` : ''}
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-[11px]">
-                  <span className="text-gray-600">{Number(m.toplam_sure_dk).toFixed(1)} dk</span>
-                  <span className="font-medium text-[#197A56]">{Number(m.eder_maliyet_tl).toFixed(2)} TL</span>
+                  <span className="text-muted">{Number(m.toplam_sure_dk).toFixed(1)} dk</span>
+                  <span className="font-medium text-accent">{Number(m.eder_maliyet_tl).toFixed(2)} TL</span>
                 </div>
               </button>
             ))}
@@ -375,20 +375,20 @@ function EderMaliyetPage() {
         {/* Details */}
         <div className="col-span-12 lg:col-span-9 space-y-5">
           {!selectedModel && (
-            <div className="bg-white border border-gray-200 rounded-xl p-10 text-center text-gray-400">
+            <div className="bg-white border border-line-soft rounded-xl p-10 text-center text-faint">
               Bir model seçin veya yeni model oluşturun
             </div>
           )}
           {selectedModel && (
             <>
               {/* Model Header */}
-              <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <div className="bg-white border border-line-soft rounded-xl p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{selectedModel.model_adi}</h2>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h2 className="text-lg font-semibold text-ink">{selectedModel.model_adi}</h2>
+                    <p className="text-sm text-faint mt-1">
                       {selectedModel.kumas} › {selectedModel.urun}{selectedModel.ozellik ? ` › ${selectedModel.ozellik}` : ''}
-                      {selectedModel.plm_id && <span className="ml-2 text-gray-400">PLM: {selectedModel.plm_id}</span>}
+                      {selectedModel.plm_id && <span className="ml-2 text-faint">PLM: {selectedModel.plm_id}</span>}
                     </p>
                   </div>
                   <button onClick={() => deleteModel(selectedModel.model_id)}
@@ -404,9 +404,9 @@ function EderMaliyetPage() {
               </div>
 
               {/* Operasyon Tablosu */}
-              <div className="bg-white border border-gray-200 rounded-xl">
-                <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between">
-                  <h3 className="font-semibold text-sm text-gray-900">
+              <div className="bg-white border border-line-soft rounded-xl">
+                <div className="px-5 py-3 border-b border-line-soft flex items-center justify-between">
+                  <h3 className="font-semibold text-sm text-ink">
                     Operasyon Kırılımı — Ana Gruplar
                   </h3>
                   <button onClick={() => setShowAdd(!showAdd)}
@@ -417,7 +417,7 @@ function EderMaliyetPage() {
 
                 {/* Add op form */}
                 {showAdd && (
-                  <div className="px-5 py-4 bg-gray-50 border-b border-gray-200">
+                  <div className="px-5 py-4 bg-canvas border-b border-line-soft">
                     <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
                       <Field label="Ana Grup">
                         <select className="input" value={addForm.ana_grup}
@@ -443,23 +443,23 @@ function EderMaliyetPage() {
                           onChange={e => setAddForm({ ...addForm, kisi_sayisi: Number(e.target.value) })} />
                       </Field>
                       <button onClick={addIslem} disabled={saving}
-                        className="px-3 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#145e42] disabled:opacity-50">
+                        className="px-3 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover disabled:opacity-50">
                         Ekle
                       </button>
                     </div>
                   </div>
                 )}
 
-                {loading && <div className="p-4 text-xs text-gray-400">Yükleniyor...</div>}
+                {loading && <div className="p-4 text-xs text-faint">Yükleniyor...</div>}
                 {!loading && islemler.length === 0 && (
-                  <div className="p-8 text-center text-gray-400 text-sm">
+                  <div className="p-8 text-center text-faint text-sm">
                     Bu model için operasyon yok. Yeni model oluşturduğunda katalog otomatik yüklenir.
                   </div>
                 )}
                 {!loading && islemler.length > 0 && (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
-                      <thead className="bg-gray-50 text-gray-500 uppercase tracking-wide">
+                      <thead className="bg-canvas text-faint uppercase tracking-wide">
                         <tr>
                           <th className="px-3 py-2 text-left font-medium w-[14%]">Ana Grup</th>
                           <th className="px-3 py-2 text-left font-medium">Operasyon Adı</th>
@@ -477,7 +477,7 @@ function EderMaliyetPage() {
                           const list = grouped.get(grup) || []
                           if (list.length === 0) return null
                           const ozet = anaGruplar.find(a => a.ana_grup === grup)
-                          const renk = ANA_GRUP_RENK[grup] || 'bg-gray-50 border-gray-200'
+                          const renk = ANA_GRUP_RENK[grup] || 'bg-canvas border-line-soft'
                           return (
                             <Fragment key={grup}>
                               {/* Ana grup başlık satırı */}
@@ -608,9 +608,9 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
   }
 
   return (
-    <tr className={`border-b border-gray-100 hover:bg-gray-50 ${!islem.aktif ? 'opacity-40' : ''}`}>
+    <tr className={`border-b border-gray-100 hover:bg-canvas ${!islem.aktif ? 'opacity-40' : ''}`}>
       <td className="px-3 py-1.5">
-        <select className="text-[11px] px-1 py-0.5 bg-transparent border border-gray-200 rounded w-full"
+        <select className="text-[11px] px-1 py-0.5 bg-transparent border border-line-soft rounded w-full"
           value={local.ana_grup}
           onChange={e => { setLocal({ ...local, ana_grup: e.target.value }); onPatch({ ana_grup: e.target.value }) }}
           disabled={saving}>
@@ -620,10 +620,10 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
         </select>
       </td>
       <td className="px-3 py-1.5">
-        <div className="text-gray-900 truncate max-w-[320px]" title={islem.islem_adi}>{islem.islem_adi}</div>
-        {islem.parca && <div className="text-[10px] text-gray-400 truncate max-w-[320px]" title={islem.parca}>{islem.parca}</div>}
+        <div className="text-ink truncate max-w-[320px]" title={islem.islem_adi}>{islem.islem_adi}</div>
+        {islem.parca && <div className="text-[10px] text-faint truncate max-w-[320px]" title={islem.parca}>{islem.parca}</div>}
       </td>
-      <td className="px-3 py-1.5 text-gray-600 text-[11px]">
+      <td className="px-3 py-1.5 text-muted text-[11px]">
         {islem.makine_tipi || '—'}
       </td>
       <td className="px-3 py-1.5 text-right text-gray-700 font-mono">
@@ -637,10 +637,10 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
           disabled={saving || !islem.aktif}
         />
       </td>
-      <td className="px-3 py-1.5 text-right text-gray-900 font-mono">
+      <td className="px-3 py-1.5 text-right text-ink font-mono">
         {calcDakikaAdet(islem.cevrim_sn)}
       </td>
-      <td className="px-3 py-1.5 text-right text-gray-900 font-mono">
+      <td className="px-3 py-1.5 text-right text-ink font-mono">
         {calcGunlukAdet(islem.cevrim_sn)}
       </td>
       <td className="px-3 py-1.5 text-center">
@@ -659,7 +659,7 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-faint mb-1">{label}</label>
       {children}
     </div>
   )
@@ -668,9 +668,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Stat({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
     <div>
-      <div className="text-[11px] uppercase tracking-wide text-gray-500">{label}</div>
-      <div className={`text-lg font-semibold mt-0.5 ${highlight ? 'text-[#197A56]' : 'text-gray-900'}`}>{value}</div>
-      {sub && <div className="text-[11px] text-gray-400 mt-0.5">{sub}</div>}
+      <div className="text-[11px] uppercase tracking-wide text-faint">{label}</div>
+      <div className={`text-lg font-semibold mt-0.5 ${highlight ? 'text-accent' : 'text-ink'}`}>{value}</div>
+      {sub && <div className="text-[11px] text-faint mt-0.5">{sub}</div>}
     </div>
   )
 }

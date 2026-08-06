@@ -80,17 +80,17 @@ export default function ProcessesPage() {
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#197A56] focus:ring-1 focus:ring-[#197A56]'
-  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-[#197A56] bg-emerald-50'
+  const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
+  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-accent bg-emerald-50'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Süreç Kataloğu</h1>
-          <p className="text-gray-500 mt-1">Ana süreç tanımları (HAZ, ONB, ARB, MON, UKP...)</p>
+          <h1 className="text-2xl font-bold text-ink">Süreç Kataloğu</h1>
+          <p className="text-faint mt-1">Ana süreç tanımları (HAZ, ONB, ARB, MON, UKP...)</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] text-sm font-medium">
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
           {showForm ? 'İptal' : '+ Yeni Süreç'}
         </button>
       </div>
@@ -99,18 +99,18 @@ export default function ProcessesPage() {
       {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Kod</label>
+              <label className="block text-xs font-medium text-muted mb-1">Kod</label>
               <input className={inputClass} value={form.code} onChange={e => setForm(p => ({...p, code: e.target.value}))} placeholder="HAZ" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Ad</label>
+              <label className="block text-xs font-medium text-muted mb-1">Ad</label>
               <input className={inputClass} value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} placeholder="Hazırlık" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Grup</label>
+              <label className="block text-xs font-medium text-muted mb-1">Grup</label>
               <select className={inputClass} value={form.group_type} onChange={e => setForm(p => ({...p, group_type: e.target.value}))}>
                 <option value="Alt">Alt Grup</option>
                 <option value="Üst">Üst Grup</option>
@@ -118,35 +118,35 @@ export default function ProcessesPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Sıra No</label>
+              <label className="block text-xs font-medium text-muted mb-1">Sıra No</label>
               <input type="number" className={inputClass} value={form.sort_order} onChange={e => setForm(p => ({...p, sort_order: parseInt(e.target.value)||0}))} />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Açıklama</label>
+              <label className="block text-xs font-medium text-muted mb-1">Açıklama</label>
               <input className={inputClass} value={form.description} onChange={e => setForm(p => ({...p, description: e.target.value}))} placeholder="Parça hazırlama, ara işlemler" />
             </div>
           </div>
-          <button type="submit" disabled={loading} className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium disabled:opacity-50">
+          <button type="submit" disabled={loading} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Kaydet'}
           </button>
         </form>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-center text-gray-500 font-medium w-12">Sıra</th>
-              <th className="px-4 py-3 text-left text-gray-500 font-medium">Kod</th>
-              <th className="px-4 py-3 text-left text-gray-500 font-medium">Ad</th>
-              <th className="px-4 py-3 text-center text-gray-500 font-medium">Grup</th>
-              <th className="px-4 py-3 text-left text-gray-500 font-medium">Açıklama</th>
-              <th className="px-4 py-3 text-center text-gray-500 font-medium">İşlem</th>
+            <tr className="bg-canvas border-b border-line-soft">
+              <th className="px-4 py-3 text-center text-faint font-medium w-12">Sıra</th>
+              <th className="px-4 py-3 text-left text-faint font-medium">Kod</th>
+              <th className="px-4 py-3 text-left text-faint font-medium">Ad</th>
+              <th className="px-4 py-3 text-center text-faint font-medium">Grup</th>
+              <th className="px-4 py-3 text-left text-faint font-medium">Açıklama</th>
+              <th className="px-4 py-3 text-center text-faint font-medium">İşlem</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {processes.map(p => (
-              <tr key={p.id} className="hover:bg-gray-50">
+              <tr key={p.id} className="hover:bg-canvas">
                 {editingId === p.id ? (
                   <>
                     <td className="px-4 py-3 text-center">
@@ -169,23 +169,23 @@ export default function ProcessesPage() {
                       <input className={editInputClass} style={{width:200}} value={editForm.description} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} />
                     </td>
                     <td className="px-4 py-3 text-center space-x-2">
-                      <button onClick={() => handleEdit(p.id)} disabled={loading} className="text-xs text-[#197A56] font-medium hover:underline">Kaydet</button>
-                      <button onClick={() => setEditingId(null)} className="text-xs text-gray-500 hover:underline">İptal</button>
+                      <button onClick={() => handleEdit(p.id)} disabled={loading} className="text-xs text-accent font-medium hover:underline">Kaydet</button>
+                      <button onClick={() => setEditingId(null)} className="text-xs text-faint hover:underline">İptal</button>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="px-4 py-3 text-center text-gray-400">{p.sort_order}</td>
-                    <td className="px-4 py-3 text-[#197A56] font-bold">{p.code}</td>
-                    <td className="px-4 py-3 text-gray-900 font-medium">{p.name}</td>
+                    <td className="px-4 py-3 text-center text-faint">{p.sort_order}</td>
+                    <td className="px-4 py-3 text-accent font-bold">{p.code}</td>
+                    <td className="px-4 py-3 text-ink font-medium">{p.name}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         p.group_type === 'Alt' ? 'bg-blue-100 text-blue-700' :
                         p.group_type === 'Üst' ? 'bg-purple-100 text-purple-700' :
-                        'bg-gray-100 text-gray-600'
+                        'bg-gray-100 text-muted'
                       }`}>{p.group_type}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{p.description ?? '—'}</td>
+                    <td className="px-4 py-3 text-muted text-xs">{p.description ?? '—'}</td>
                     <td className="px-4 py-3 text-center space-x-2">
                       <button onClick={() => startEdit(p)} className="text-xs text-blue-600 hover:underline">Düzenle</button>
                       <button onClick={() => handleDelete(p.id, p.name)} className="text-xs text-red-500 hover:underline">Sil</button>

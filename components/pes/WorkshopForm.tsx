@@ -72,7 +72,7 @@ export default function WorkshopForm({ workshop }: Props) {
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#197A56] focus:ring-1 focus:ring-[#197A56]'
+  const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
   const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 
   return (
@@ -84,8 +84,8 @@ export default function WorkshopForm({ workshop }: Props) {
       )}
 
       {/* Temel Bilgiler */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Temel Bilgiler</h2>
+      <div className="bg-white border border-line-soft rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-ink mb-4">Temel Bilgiler</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Atölye Kodu *</label>
@@ -116,8 +116,8 @@ export default function WorkshopForm({ workshop }: Props) {
       </div>
 
       {/* Çalışan Bilgileri */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Çalışan Profili</h2>
+      <div className="bg-white border border-line-soft rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-ink mb-4">Çalışan Profili</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Dikim Operatörü</label>
@@ -147,8 +147,8 @@ export default function WorkshopForm({ workshop }: Props) {
       </div>
 
       {/* Üretim Bilgileri */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Üretim Bilgileri</h2>
+      <div className="bg-white border border-line-soft rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-ink mb-4">Üretim Bilgileri</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Bant Sayısı</label>
@@ -170,14 +170,14 @@ export default function WorkshopForm({ workshop }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+          className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
         >
           {loading ? 'Kaydediliyor...' : isEdit ? 'Güncelle' : 'Atölye Oluştur'}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+          className="px-6 py-2.5 border border-line text-gray-700 rounded-lg hover:bg-canvas transition-colors text-sm"
         >
           İptal
         </button>

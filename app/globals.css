@@ -6,24 +6,61 @@
 @import "./styles/vsim-theme.css";
 @import "./styles/vsim-bridge.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ---------------------------------------------------------------------------
+   PES arayüz token'ları. Elle yazılmış hex yerine BURASI tek kaynak.
+   Yeni renk eklemek gerekiyorsa önce burada tanımlanır, sonra kullanılır.
+   --------------------------------------------------------------------------- */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-pes-accent: #197A56;
-  --color-pes-accent-dark: #0E3E1B;
+  /* Nötr ölçek — tek ölçek. gray-* / slate-* karışımı artık kullanılmıyor. */
+  --color-canvas: #F6F8F9;      /* sayfa zemini */
+  --color-surface: #FFFFFF;     /* kart, tablo, panel */
+  --color-line: #D6DCE1;        /* görünür kenarlık, input çerçevesi */
+  --color-line-soft: #EEF1F3;   /* tablo satır ayracı */
+  --color-ink: #0F1720;         /* başlık, birincil değer */
+  --color-body: #3F4C59;        /* gövde metni */
+  --color-muted: #5B6874;       /* ikincil metin, ghost düğme */
+  --color-faint: #7A8894;       /* etiket, yardım metni */
+
+  /* Aksan — mevcut PES yeşili korunuyor. */
+  --color-accent: #197A56;
+  --color-accent-hover: #145E42;
+  --color-accent-soft: #EAF3EF;
+  --color-accent-ink: #14684A;  /* açık zemin üstünde okunur yeşil metin */
+
+  /* Durum — SADECE bir eşiğe göre iyi/kötü söylerken kullanılır. */
+  --color-warn: #96601A;
+  --color-warn-soft: #FEF4E5;
+  --color-danger: #A32B2B;
+  --color-danger-soft: #FBECEC;
+  --color-danger-line: #E8C9C9;
+
+  /* Geriye dönük uyum: eski sınıflar migrasyon bitene kadar çalışsın.
+     Tüm ekranlar dönüştükten sonra bu üç satır silinir. */
+  --color-pes-accent: var(--color-accent);
+  --color-pes-accent-dark: var(--color-accent-hover);
   --color-pes-accent-light: #21BF61;
 }
 
+:root {
+  --background: var(--color-canvas);
+  --foreground: var(--color-body);
+}
+
+/* DİKKAT: burada font-family TANIMLANMIYOR.
+   Eskiden `font-family: Arial, Helvetica, sans-serif` vardı ve layout.tsx'in
+   yüklediği Geist'i eziyordu. Yazı tipi artık layout.tsx'teki
+   `${geistSans.variable} font-sans` sınıfından gelir. */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sayısal hücrelerde basamaklar üst üste gelsin. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }

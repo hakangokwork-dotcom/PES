@@ -58,31 +58,31 @@ export default function ImportWorkshopsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <Link href="/pes/workshops" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/pes/workshops" className="text-sm text-faint hover:text-gray-700">
           ← Atölyeler
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">CSV Import</h1>
-        <p className="text-gray-500 mt-1">Atölye listesini CSV dosyasından toplu olarak yükleyin</p>
+        <h1 className="text-2xl font-bold text-ink mt-2">CSV Import</h1>
+        <p className="text-faint mt-1">Atölye listesini CSV dosyasından toplu olarak yükleyin</p>
       </div>
 
       {/* Upload */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+      <div className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">CSV Dosyası Seçin</label>
           <input
             type="file"
             accept=".csv,.txt"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-[#197A56] hover:file:bg-emerald-100"
+            className="block w-full text-sm text-faint file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-accent hover:file:bg-emerald-100"
           />
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-faint mt-2">
             Semicolon (;) ile ayrılmış CSV dosyası. İlk satır header olmalı.
           </p>
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <p className="text-xs font-medium text-gray-600 mb-2">Beklenen kolonlar:</p>
-          <p className="text-xs text-gray-500">
+        <div className="bg-canvas border border-line-soft rounded-lg p-4">
+          <p className="text-xs font-medium text-muted mb-2">Beklenen kolonlar:</p>
+          <p className="text-xs text-faint">
             ATÖLYE ADI ; BW ATÖLYE ADI ; T&apos;li KOD ; ... ; İL ; İLÇE ; ... ; AKTİF/PASİF ; CMT/UKP/DİKİM ; ...
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function ImportWorkshopsPage() {
         <button
           onClick={handleImport}
           disabled={!file || loading}
-          className="px-6 py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+          className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
         >
           {loading ? 'Import ediliyor...' : 'Import Başlat'}
         </button>
@@ -104,8 +104,8 @@ export default function ImportWorkshopsPage() {
 
       {/* Sonuç */}
       {result && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Import Sonucu</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-ink">Import Sonucu</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
@@ -124,9 +124,9 @@ export default function ImportWorkshopsPage() {
               <p className="text-xs text-amber-600">CSV Duplikatlar</p>
               <p className="text-xl font-bold text-amber-900">{result.stats.duplicates_in_csv}</p>
             </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <p className="text-xs text-gray-600">Atlanan Satır</p>
-              <p className="text-xl font-bold text-gray-900">{result.stats.skipped_rows}</p>
+            <div className="bg-canvas border border-line-soft rounded-lg p-3">
+              <p className="text-xs text-muted">Atlanan Satır</p>
+              <p className="text-xl font-bold text-ink">{result.stats.skipped_rows}</p>
             </div>
             {result.stats.failed > 0 && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -149,7 +149,7 @@ export default function ImportWorkshopsPage() {
 
           <button
             onClick={() => router.push('/pes/workshops')}
-            className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium"
           >
             Atölye Listesine Git →
           </button>

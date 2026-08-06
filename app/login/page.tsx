@@ -42,17 +42,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-[#197A56] rounded-xl flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white font-bold text-sm">PES</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900">PES Giriş</h1>
-          <p className="text-sm text-gray-500 mt-1">Atölye Verimlilik Sistemi</p>
+          <h1 className="text-xl font-bold text-ink">PES Giriş</h1>
+          <p className="text-sm text-faint mt-1">Atölye Verimlilik Sistemi</p>
         </div>
 
-        <form onSubmit={submit} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">
               {error}
@@ -71,7 +71,7 @@ export default function LoginPage() {
               required
               autoComplete="username"
               autoFocus
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56]"
+              className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
             />
           </div>
 
@@ -86,19 +86,19 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56]"
+              className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors font-medium text-sm disabled:opacity-50"
+            className="w-full py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors font-medium text-sm disabled:opacity-50"
           >
             {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </button>
 
-          <p className="text-xs text-gray-400 text-center pt-1">
+          <p className="text-xs text-faint text-center pt-1">
             Şifreni bilmiyorsan sistem yöneticisine sor.
           </p>
         </form>

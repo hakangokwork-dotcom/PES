@@ -46,7 +46,7 @@ const STATUS_STYLES: Record<string, string> = {
 const SEVERITY_STYLES: Record<string, string> = {
   error: 'text-red-700 bg-red-50 border-red-200',
   warn: 'text-amber-700 bg-amber-50 border-amber-200',
-  info: 'text-gray-600 bg-gray-50 border-gray-200',
+  info: 'text-muted bg-canvas border-line-soft',
 }
 
 const n = (v: string | number | null | undefined) => (v === null || v === undefined ? 0 : Number(v))
@@ -97,7 +97,7 @@ export default function QualityReport({
         <button
           onClick={rescore}
           disabled={busy}
-          className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
         >
           {busy ? 'Skorlanıyor…' : 'Tüm beyanları yeniden skorla'}
         </button>
@@ -108,51 +108,51 @@ export default function QualityReport({
         <>
           {/* Özet */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500">
+            <div className="bg-white border border-line-soft rounded-xl p-4">
+              <p className="text-xs text-faint">
                 <TermTip termKey="guven_skoru">Kullanılabilir Veri</TermTip>
               </p>
               <p className={`text-2xl font-bold ${scoreColor(usableRatio)}`}>
                 %{usableRatio.toFixed(0)}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">{accepted} / {total} beyan</p>
+              <p className="text-xs text-faint mt-0.5">{accepted} / {total} beyan</p>
             </div>
             {byStatus.map((s) => (
-              <div key={s.status} className="bg-white border border-gray-200 rounded-xl p-4">
-                <p className="text-xs text-gray-500">{STATUS_LABELS[s.status] ?? s.status}</p>
-                <p className="text-2xl font-bold text-gray-900">{s.n}</p>
-                <p className="text-xs text-gray-400 mt-0.5">ort. {n(s.avg_sc).toFixed(1)}</p>
+              <div key={s.status} className="bg-white border border-line-soft rounded-xl p-4">
+                <p className="text-xs text-faint">{STATUS_LABELS[s.status] ?? s.status}</p>
+                <p className="text-2xl font-bold text-ink">{s.n}</p>
+                <p className="text-xs text-faint mt-0.5">ort. {n(s.avg_sc).toFixed(1)}</p>
               </div>
             ))}
           </div>
 
           {/* Tablo */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
-                    <th className="px-4 py-3 text-left text-gray-500 font-medium">Dönem</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                  <tr className="bg-canvas border-b border-line-soft">
+                    <th className="px-4 py-3 text-left text-faint font-medium">Atölye</th>
+                    <th className="px-4 py-3 text-left text-faint font-medium">Dönem</th>
+                    <th className="px-4 py-3 text-right text-faint font-medium">
                       <TermTip termKey="doluluk_skoru">Doluluk</TermTip>
                     </th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                    <th className="px-4 py-3 text-right text-faint font-medium">
                       <TermTip termKey="tutarlilik_skoru">Tutarlılık</TermTip>
                     </th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                    <th className="px-4 py-3 text-right text-faint font-medium">
                       <TermTip termKey="makullük_skoru">Makullük</TermTip>
                     </th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                    <th className="px-4 py-3 text-right text-faint font-medium">
                       <TermTip termKey="capraz_kontrol_skoru">Çapraz</TermTip>
                     </th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">
+                    <th className="px-4 py-3 text-right text-faint font-medium">
                       <TermTip termKey="guven_skoru">Toplam</TermTip>
                     </th>
-                    <th className="px-4 py-3 text-center text-gray-500 font-medium">
+                    <th className="px-4 py-3 text-center text-faint font-medium">
                       <TermTip termKey="beyan_durumu">Durum</TermTip>
                     </th>
-                    <th className="px-4 py-3 text-center text-gray-500 font-medium">Bayrak</th>
+                    <th className="px-4 py-3 text-center text-faint font-medium">Bayrak</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -163,18 +163,18 @@ export default function QualityReport({
                     return (
                       <Fragment key={s.id}>
                         <tr
-                          className="hover:bg-gray-50 transition-colors cursor-pointer"
+                          className="hover:bg-canvas transition-colors cursor-pointer"
                           onClick={() => setExpanded(isOpen ? null : s.id)}
                         >
                           <td className="px-4 py-3">
-                            <span className="font-medium text-gray-900">{s.workshop_code}</span>
-                            <span className="text-gray-400 ml-2 hidden md:inline">{s.workshop_name}</span>
+                            <span className="font-medium text-ink">{s.workshop_code}</span>
+                            <span className="text-faint ml-2 hidden md:inline">{s.workshop_name}</span>
                           </td>
-                          <td className="px-4 py-3 text-gray-600">{s.donem}</td>
-                          <td className="px-4 py-3 text-right text-gray-600">{n(s.completeness_sc).toFixed(0)}</td>
-                          <td className="px-4 py-3 text-right text-gray-600">{n(s.consistency_sc).toFixed(0)}</td>
-                          <td className="px-4 py-3 text-right text-gray-600">{n(s.plausibility_sc).toFixed(0)}</td>
-                          <td className="px-4 py-3 text-right text-gray-600">{n(s.crosscheck_sc).toFixed(0)}</td>
+                          <td className="px-4 py-3 text-muted">{s.donem}</td>
+                          <td className="px-4 py-3 text-right text-muted">{n(s.completeness_sc).toFixed(0)}</td>
+                          <td className="px-4 py-3 text-right text-muted">{n(s.consistency_sc).toFixed(0)}</td>
+                          <td className="px-4 py-3 text-right text-muted">{n(s.plausibility_sc).toFixed(0)}</td>
+                          <td className="px-4 py-3 text-right text-muted">{n(s.crosscheck_sc).toFixed(0)}</td>
                           <td className={`px-4 py-3 text-right font-bold ${scoreColor(n(s.total_sc))}`}>
                             {n(s.total_sc).toFixed(1)}
                           </td>
@@ -183,7 +183,7 @@ export default function QualityReport({
                               {STATUS_LABELS[s.status]}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center text-gray-500">
+                          <td className="px-4 py-3 text-center text-faint">
                             {flags.length > 0 ? (
                               <span className={errors > 0 ? 'text-red-600 font-medium' : ''}>
                                 {flags.length}{errors > 0 && ` (${errors}!)`}
@@ -193,7 +193,7 @@ export default function QualityReport({
                         </tr>
                         {isOpen && flags.length > 0 && (
                           <tr>
-                            <td colSpan={9} className="px-4 py-3 bg-gray-50">
+                            <td colSpan={9} className="px-4 py-3 bg-canvas">
                               <div className="space-y-2">
                                 {flags.map((f, i) => (
                                   <div
@@ -223,7 +223,7 @@ export default function QualityReport({
               </table>
             </div>
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-faint">
             Satıra tıklayarak bayrakları açabilirsiniz. Bir tane bile <strong>error</strong>{' '}
             bayrağı varsa, toplam puan eşiği geçse dahi kayıt kabul edilmez.
           </p>

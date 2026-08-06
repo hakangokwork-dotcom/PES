@@ -73,7 +73,7 @@ const KIND_STYLES: Record<string, string> = {
   olay: 'bg-red-100 text-red-700',
   dmaic: 'bg-amber-100 text-amber-700',
   fiyat_revizyonu: 'bg-emerald-100 text-emerald-700',
-  not: 'bg-gray-100 text-gray-600',
+  not: 'bg-gray-100 text-muted',
 }
 
 function yearsSince(dateStr: string | null): string | null {
@@ -111,15 +111,15 @@ export default function WorkshopTabs({
 
   return (
     <div>
-      <div className="border-b border-gray-200 flex gap-1">
+      <div className="border-b border-line-soft flex gap-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
               tab === t
-                ? 'border-[#197A56] text-[#197A56]'
-                : 'border-transparent text-gray-500 hover:text-gray-800'
+                ? 'border-accent text-accent'
+                : 'border-transparent text-faint hover:text-gray-800'
             }`}
           >
             {t}
@@ -198,11 +198,11 @@ function KimlikTab({ workshopId, account }: { workshopId: number; account: Accou
           onChange={set('production_area_m2')}
         />
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1.5">Bina Durumu</label>
+          <label className="block text-xs font-medium text-muted mb-1.5">Bina Durumu</label>
           <select
             value={form.building_ownership ?? ''}
             onChange={(e) => set('building_ownership')(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56] outline-none"
+            className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none"
           >
             <option value="">—</option>
             <option value="kira">Kira</option>
@@ -210,11 +210,11 @@ function KimlikTab({ workshopId, account }: { workshopId: number; account: Accou
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1.5">Teşvik Bölgesi</label>
+          <label className="block text-xs font-medium text-muted mb-1.5">Teşvik Bölgesi</label>
           <select
             value={form.incentive_zone?.toString() ?? ''}
             onChange={(e) => set('incentive_zone')(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56] outline-none"
+            className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none"
           >
             <option value="">—</option>
             {[1, 2, 3, 4, 5, 6].map((z) => (
@@ -232,7 +232,7 @@ function KimlikTab({ workshopId, account }: { workshopId: number; account: Accou
       <button
         onClick={save}
         disabled={saving}
-        className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+        className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
       >
         {saving ? 'Kaydediliyor…' : 'Kaydet'}
       </button>
@@ -260,13 +260,13 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
     <div className="space-y-8">
       <section className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">Atölye Özeti</h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">Atölye Özeti</h3>
+          <p className="text-xs text-faint mt-0.5">
             Bantlardan türetilir — bir yetenek kaç bantta varsa o sayıyla görünür.
           </p>
         </div>
         {capabilities.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-faint">
             Bu atölyenin bantlarında henüz yetenek işaretlenmemiş. Aşağıdan başlayabilirsin.
           </p>
         ) : (
@@ -280,7 +280,7 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
                     className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"
                   >
                     {v.value_label ?? v.value_code}
-                    <span className="text-gray-400">{v.line_count} bant</span>
+                    <span className="text-faint">{v.line_count} bant</span>
                   </span>
                 ))}
               </div>
@@ -289,14 +289,14 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
         )}
       </section>
 
-      <section className="border-t border-gray-200 pt-6">
+      <section className="border-t border-line-soft pt-6">
         {lines.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-faint">
             Bu atölyede aktif bant yok. Yetenek girmek için önce bant eklenmeli.
           </p>
         ) : (
           <>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Bant Bazında Düzenle</h3>
+            <h3 className="text-sm font-semibold text-ink mb-3">Bant Bazında Düzenle</h3>
             <div className="flex flex-wrap gap-2 mb-5">
               {lines.map((l) => {
                 const aktif = l.id === seciliBant
@@ -306,8 +306,8 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
                     onClick={() => setSeciliBant(l.id)}
                     className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                       aktif
-                        ? 'bg-[#197A56] text-white border-[#197A56]'
-                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#197A56]'
+                        ? 'bg-accent text-white border-accent'
+                        : 'bg-white text-gray-700 border-line-soft hover:border-accent'
                     }`}
                   >
                     {l.name}
@@ -367,9 +367,9 @@ function IliskiTab({
   return (
     <div className="space-y-8">
       {relAge && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 inline-block">
-          <p className="text-xs text-gray-500">İlişki Yaşı</p>
-          <p className="text-xl font-bold text-gray-900">{relAge}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4 inline-block">
+          <p className="text-xs text-faint">İlişki Yaşı</p>
+          <p className="text-xl font-bold text-ink">{relAge}</p>
         </div>
       )}
 
@@ -377,14 +377,14 @@ function IliskiTab({
       <section>
         <div className="flex items-baseline justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-800">Müşteri Kapasite Paylaşımı</h3>
-          <span className={`text-xs ${totalPct > 100 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+          <span className={`text-xs ${totalPct > 100 ? 'text-red-600 font-medium' : 'text-faint'}`}>
             Toplam %{totalPct.toFixed(1)}
             {totalPct > 100 && ' — %100ü aşıyor'}
           </span>
         </div>
 
         {shares.length === 0 ? (
-          <p className="text-sm text-gray-500 mb-3">Kayıt yok.</p>
+          <p className="text-sm text-faint mb-3">Kayıt yok.</p>
         ) : (
           <div className="space-y-1.5 mb-3">
             {shares.map((s) => (
@@ -392,11 +392,11 @@ function IliskiTab({
                 <span className="text-sm text-gray-700 w-40 truncate">{s.customer_label}</span>
                 <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#197A56] rounded-full"
+                    className="h-full bg-accent rounded-full"
                     style={{ width: `${Math.min(Number(s.share_pct ?? 0), 100)}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-600 w-14 text-right">
+                <span className="text-sm text-muted w-14 text-right">
                   %{Number(s.share_pct ?? 0).toFixed(1)}
                 </span>
               </div>
@@ -409,14 +409,14 @@ function IliskiTab({
             placeholder="Müşteri etiketi"
             value={newShare.customer_label}
             onChange={(e) => setNewShare((s) => ({ ...s, customer_label: e.target.value }))}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+            className="flex-1 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <input
             placeholder="%"
             type="number"
             value={newShare.share_pct}
             onChange={(e) => setNewShare((s) => ({ ...s, share_pct: e.target.value }))}
-            className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+            className="w-24 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <button
             disabled={busy || !newShare.customer_label.trim()}
@@ -427,12 +427,12 @@ function IliskiTab({
                 () => setNewShare({ customer_label: '', share_pct: '' }),
               )
             }
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="px-3 py-2 border border-line rounded-lg text-sm hover:bg-canvas disabled:opacity-50"
           >
             Ekle
           </button>
         </div>
-        <p className="text-xs text-gray-400 mt-1.5">
+        <p className="text-xs text-faint mt-1.5">
           Aynı müşteri tekrar eklenirse önceki kayıt kapatılır, geçmiş silinmez.
         </p>
       </section>
@@ -441,7 +441,7 @@ function IliskiTab({
       <section>
         <h3 className="text-sm font-semibold text-gray-800 mb-3">İletişim Kişileri</h3>
         {contacts.length === 0 ? (
-          <p className="text-sm text-gray-500 mb-3">Kayıt yok.</p>
+          <p className="text-sm text-faint mb-3">Kayıt yok.</p>
         ) : (
           <div className="space-y-2 mb-3">
             {contacts.map((c) => (
@@ -450,8 +450,8 @@ function IliskiTab({
                 {c.is_primary && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Birincil</span>
                 )}
-                <span className="text-gray-500">{c.role}</span>
-                <span className="text-gray-400 ml-auto">{c.phone} {c.email}</span>
+                <span className="text-faint">{c.role}</span>
+                <span className="text-faint ml-auto">{c.phone} {c.email}</span>
               </div>
             ))}
           </div>
@@ -462,26 +462,26 @@ function IliskiTab({
             placeholder="İsim"
             value={newContact.name}
             onChange={(e) => setNewContact((c) => ({ ...c, name: e.target.value }))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+            className="border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <input
             placeholder="Görev"
             value={newContact.role}
             onChange={(e) => setNewContact((c) => ({ ...c, role: e.target.value }))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+            className="border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <input
             placeholder="Telefon"
             value={newContact.phone}
             onChange={(e) => setNewContact((c) => ({ ...c, phone: e.target.value }))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+            className="border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <div className="flex gap-2">
             <input
               placeholder="E-posta"
               value={newContact.email}
               onChange={(e) => setNewContact((c) => ({ ...c, email: e.target.value }))}
-              className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+              className="flex-1 min-w-0 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
             />
             <button
               disabled={busy || !newContact.name.trim()}
@@ -492,7 +492,7 @@ function IliskiTab({
                   () => setNewContact({ name: '', role: '', phone: '', email: '' }),
                 )
               }
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50"
+              className="px-3 py-2 border border-line rounded-lg text-sm hover:bg-canvas disabled:opacity-50"
             >
               Ekle
             </button>
@@ -548,7 +548,7 @@ function ZamanCizgisiTab({
         <select
           value={form.kind}
           onChange={(e) => setForm((f) => ({ ...f, kind: e.target.value }))}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+          className="border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
         >
           {Object.entries(KIND_LABELS).map(([k, label]) => (
             <option key={k} value={k}>{label}</option>
@@ -558,18 +558,18 @@ function ZamanCizgisiTab({
           type="date"
           value={form.occurred_at}
           onChange={(e) => setForm((f) => ({ ...f, occurred_at: e.target.value }))}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+          className="border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
         />
         <input
           placeholder="Özet"
           value={form.summary}
           onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
-          className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+          className="flex-1 min-w-[200px] border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
         />
         <button
           onClick={add}
           disabled={busy || !form.summary.trim()}
-          className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
         >
           Ekle
         </button>
@@ -578,9 +578,9 @@ function ZamanCizgisiTab({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {interactions.length === 0 ? (
-        <p className="text-sm text-gray-500">Henüz kayıt yok.</p>
+        <p className="text-sm text-faint">Henüz kayıt yok.</p>
       ) : (
-        <ol className="relative border-l border-gray-200 ml-2 space-y-5">
+        <ol className="relative border-l border-line-soft ml-2 space-y-5">
           {interactions.map((it) => (
             <li key={it.id} className="ml-5">
               <span className="absolute -left-1.5 w-3 h-3 rounded-full bg-gray-300" />
@@ -588,7 +588,7 @@ function ZamanCizgisiTab({
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${KIND_STYLES[it.kind] ?? KIND_STYLES.not}`}>
                   {KIND_LABELS[it.kind] ?? it.kind}
                 </span>
-                <time className="text-xs text-gray-400">
+                <time className="text-xs text-faint">
                   {new Date(it.occurred_at).toLocaleDateString('tr-TR')}
                 </time>
               </div>
@@ -619,12 +619,12 @@ function Field({
   hint?: string
 }) {
   const cls =
-    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#197A56]/30 focus:border-[#197A56] outline-none'
+    'w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none'
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1.5">
+      <label className="block text-xs font-medium text-muted mb-1.5">
         {label}
-        {hint && <span className="ml-2 text-gray-400 font-normal">{hint}</span>}
+        {hint && <span className="ml-2 text-faint font-normal">{hint}</span>}
       </label>
       {textarea ? (
         <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} className={cls} />

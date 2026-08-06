@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono, Quicksand, Source_Sans_3, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
+import { ToastProvider } from "@/components/ui"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className={`${geistSans.variable} ${geistMono.variable} ${vsimDisplay.variable} ${vsimSans.variable} ${vsimMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/* font-sans açıkça yazılı: globals.css'teki `font-family: Arial` satırı
+          kalktı, yazı tipi artık @theme'deki --font-sans üzerinden Geist. */}
+      <body className="min-h-full flex flex-col font-sans">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   )
 }

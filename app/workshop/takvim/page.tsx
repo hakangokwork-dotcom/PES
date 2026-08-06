@@ -74,7 +74,7 @@ function toISO(d: Date): string {
 }
 
 export default function Wrapper() {
-  return <Suspense fallback={<div className="p-6 text-gray-400">Yükleniyor...</div>}><TakvimPage /></Suspense>
+  return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><TakvimPage /></Suspense>
 }
 
 interface DragState {
@@ -335,7 +335,7 @@ function TakvimPage() {
   const dayColWidth = view === 'ay' ? 32 : view === 'hafta' ? 60 : 32
 
   if (!wid) {
-    return <div className="p-6 text-gray-400">Lütfen sol menüden bir atölye seçin.</div>
+    return <div className="p-6 text-faint">Lütfen sol menüden bir atölye seçin.</div>
   }
 
   const today = dateOnly(new Date())
@@ -345,19 +345,19 @@ function TakvimPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Bant Takvimi</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-semibold text-ink">Bant Takvimi</h1>
+          <p className="text-sm text-faint mt-1">
             Ay/hafta görünümü — bant doluluk + WO planı. Bar üzerine tıkla → iş emri detayına git.
           </p>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 flex items-center gap-2 flex-wrap">
+      <div className="bg-white border border-line-soft rounded-xl p-3 flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1">
-          <button onClick={() => shiftRange(-1)} className="px-2 py-1.5 text-sm border border-gray-200 rounded hover:bg-slate-50">‹</button>
-          <button onClick={() => setRefDate(new Date())} className="px-3 py-1.5 text-sm border border-gray-200 rounded hover:bg-slate-50">Bugün</button>
-          <button onClick={() => shiftRange(+1)} className="px-2 py-1.5 text-sm border border-gray-200 rounded hover:bg-slate-50">›</button>
+          <button onClick={() => shiftRange(-1)} className="px-2 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">‹</button>
+          <button onClick={() => setRefDate(new Date())} className="px-3 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">Bugün</button>
+          <button onClick={() => shiftRange(+1)} className="px-2 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">›</button>
         </div>
         <span className="text-sm font-semibold text-slate-800 px-2">
           {view === 'hafta'
@@ -370,7 +370,7 @@ function TakvimPage() {
         <div className="flex items-center gap-1 text-sm">
           {(['ay','hafta','asama'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
-              className={`px-3 py-1.5 rounded transition ${view === v ? 'bg-slate-900 text-white' : 'border border-gray-200 hover:bg-slate-50'}`}>
+              className={`px-3 py-1.5 rounded transition ${view === v ? 'bg-slate-900 text-white' : 'border border-line-soft hover:bg-canvas'}`}>
               {v === 'ay' ? 'Ay' : v === 'hafta' ? 'Hafta' : 'Aşama Detay'}
             </button>
           ))}
@@ -378,25 +378,25 @@ function TakvimPage() {
 
         <div className="h-6 w-px bg-slate-200 mx-1" />
 
-        <select value={colorMode} onChange={e => setColorMode(e.target.value as 'durum' | 'oncelik')} className="px-2 py-1.5 text-sm border border-gray-200 rounded">
+        <select value={colorMode} onChange={e => setColorMode(e.target.value as 'durum' | 'oncelik')} className="px-2 py-1.5 text-sm border border-line-soft rounded">
           <option value="oncelik">Renk: Önceliğe göre</option>
           <option value="durum">Renk: Duruma göre</option>
         </select>
-        <select value={filterDurum} onChange={e => setFilterDurum(e.target.value)} className="px-2 py-1.5 text-sm border border-gray-200 rounded">
+        <select value={filterDurum} onChange={e => setFilterDurum(e.target.value)} className="px-2 py-1.5 text-sm border border-line-soft rounded">
           <option value="">Tüm Durum</option>
           {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        <label className="flex items-center gap-1 text-xs text-slate-600 ml-2">
+        <label className="flex items-center gap-1 text-xs text-muted ml-2">
           <input type="checkbox" checked={showWeekends} onChange={e => setShowWeekends(e.target.checked)} />
           Hafta sonu
         </label>
 
-        <span className="ml-auto text-xs text-slate-500">{visibleOrders.length} WO görünür</span>
+        <span className="ml-auto text-xs text-faint">{visibleOrders.length} WO görünür</span>
         {savingDrag && <span className="text-xs text-purple-700 font-medium animate-pulse">⟳ Kaydediliyor...</span>}
       </div>
 
       {/* Drag ipucu */}
-      <div className="text-[11px] text-slate-500 px-1 flex items-center gap-3 flex-wrap">
+      <div className="text-[11px] text-faint px-1 flex items-center gap-3 flex-wrap">
         <span>💡 <b>Sürükle</b>: bar'ı tut → tarih kaydır veya banta taşı.</span>
         <span><b>Sağ kenar</b>: tutarak bitiş tarihini uzat/kısalt.</span>
         <span><b>Tıkla</b> (sürüklemeden): WO detay sayfasına git.</span>
@@ -404,7 +404,7 @@ function TakvimPage() {
       </div>
 
       {/* Lejant */}
-      <div className="text-[11px] text-slate-500 flex items-center gap-3 flex-wrap px-1">
+      <div className="text-[11px] text-faint flex items-center gap-3 flex-wrap px-1">
         <span><b className="text-slate-700">Renk lejantı:</b></span>
         {Object.entries(colorMode === 'durum' ? DURUM_RENK : ONCELIK_RENK).map(([k, v]) => (
           <span key={k} className="inline-flex items-center gap-1">
@@ -415,7 +415,7 @@ function TakvimPage() {
       </div>
 
       {/* Gantt grid */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+      <div className="bg-white border border-line-soft rounded-xl overflow-x-auto">
         <div
           className="grid text-xs"
           style={{
@@ -432,8 +432,8 @@ function TakvimPage() {
             const w = isWeekend(d)
             return (
               <div key={i}
-                className={`border-r border-b border-slate-200 text-center py-1 ${
-                  isToday ? 'bg-cyan-50 ring-1 ring-cyan-300' : w ? 'bg-slate-50 text-slate-400' : 'bg-white'
+                className={`border-r border-b border-line-soft text-center py-1 ${
+                  isToday ? 'bg-cyan-50 ring-1 ring-cyan-300' : w ? 'bg-canvas text-slate-400' : 'bg-white'
                 }`}>
                 <div className="font-mono font-semibold text-[11px]">{d.getDate()}</div>
                 <div className="text-[9px] text-slate-400">{TR_GUNLER[d.getDay()]}</div>
@@ -444,11 +444,11 @@ function TakvimPage() {
           {/* Atanmamış (line_id = null) */}
           {unassignedRow.length > 0 && (
             <>
-              <div className="sticky left-0 z-10 bg-amber-50 border-r border-b border-slate-200 px-3 py-2 flex flex-col">
+              <div className="sticky left-0 z-10 bg-amber-50 border-r border-b border-line-soft px-3 py-2 flex flex-col">
                 <span className="font-semibold text-amber-800 text-xs">⚠ Atanmamış</span>
                 <span className="text-[10px] text-amber-600">{unassignedRow.length} WO</span>
               </div>
-              <div className="border-b border-slate-200 bg-amber-50/30 relative" style={{ gridColumn: `2 / span ${days.length}`, minHeight: 50 }}>
+              <div className="border-b border-line-soft bg-amber-50/30 relative" style={{ gridColumn: `2 / span ${days.length}`, minHeight: 50 }}>
                 <div className="px-2 py-1 flex flex-wrap gap-1">
                   {unassignedRow.map(o => (
                     <Link key={o.id} href={`/workshop/is-emri/${o.id}?wid=${wid}`}
@@ -506,9 +506,9 @@ function TakvimPage() {
 
             return (
               <div key={line.id} className="contents">
-                <div className="sticky left-0 z-10 bg-white border-r border-b border-slate-200 px-3 py-2 flex flex-col justify-center">
-                  <div className="text-xs font-semibold text-slate-900">{line.code}</div>
-                  <div className="text-[10px] text-slate-500 truncate">{line.name}</div>
+                <div className="sticky left-0 z-10 bg-white border-r border-b border-line-soft px-3 py-2 flex flex-col justify-center">
+                  <div className="text-xs font-semibold text-ink">{line.code}</div>
+                  <div className="text-[10px] text-faint truncate">{line.name}</div>
                 </div>
                 <div
                   ref={el => { lineRowRefs.current.set(line.id, el) }}
@@ -520,7 +520,7 @@ function TakvimPage() {
                     const w = isWeekend(d)
                     return (
                       <div key={i} className={`border-r border-slate-100 ${
-                        isToday ? 'bg-cyan-50/50' : w ? 'bg-slate-50' : ''
+                        isToday ? 'bg-cyan-50/50' : w ? 'bg-canvas' : ''
                       }`} />
                     )
                   })}
@@ -598,7 +598,7 @@ function TakvimPage() {
       </div>
 
       {/* Bant doluluk özeti */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white border border-line-soft rounded-xl p-4">
         <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
           📊 Bant Doluluk Özeti ({TR_AYLAR[refDate.getMonth()]} {refDate.getFullYear()})
         </h3>
@@ -627,11 +627,11 @@ function TakvimPage() {
                 <span className="w-32 truncate font-medium">{line.code} · {line.name}</span>
                 <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative">
                   <div className={`h-full ${barColor}`} style={{ width: `${dolulukPct}%` }} />
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-semibold text-slate-900">
+                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-semibold text-ink">
                     %{dolulukPct} · {dolugun.size}/{totalDays} iş günü
                   </span>
                 </div>
-                <span className="w-16 text-right text-slate-500">{wos.length} WO</span>
+                <span className="w-16 text-right text-faint">{wos.length} WO</span>
               </div>
             )
           })}

@@ -50,7 +50,7 @@ export default async function YetenekRaporPage() {
   if (data.tableMissing) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">Yetenek Kirilim Raporu</h1>
+        <h1 className="text-2xl font-bold text-ink">Yetenek Kirilim Raporu</h1>
         <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
           Yetenek tablolari henuz olusturulmamis. Supabase SQL Editor&apos;da 014_bant_attribute.sql dosyasini calistirin.
         </div>
@@ -118,27 +118,27 @@ export default async function YetenekRaporPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Yetenek Kirilim Raporu</h1>
-        <p className="text-sm text-gray-500">Tum atolyelerin bant yetenek profilleri — kapasite dagilimi</p>
+        <h1 className="text-2xl font-bold text-ink">Yetenek Kirilim Raporu</h1>
+        <p className="text-sm text-faint">Tum atolyelerin bant yetenek profilleri — kapasite dagilimi</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-500">Profil Tanimli Bant</p>
-          <p className="text-2xl font-bold text-gray-900">{totalBant}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-xs text-faint">Profil Tanimli Bant</p>
+          <p className="text-2xl font-bold text-ink">{totalBant}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-500">Toplam Operator</p>
-          <p className="text-2xl font-bold text-gray-900">{fmt(totalOp)}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-xs text-faint">Toplam Operator</p>
+          <p className="text-2xl font-bold text-ink">{fmt(totalOp)}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-500">Gunluk Kapasite</p>
-          <p className="text-2xl font-bold text-gray-900">{fmt(totalHedef)}</p>
-          <p className="text-[10px] text-gray-400">adet/gun (aylik: {fmt(totalHedef * 22)})</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-xs text-faint">Gunluk Kapasite</p>
+          <p className="text-2xl font-bold text-ink">{fmt(totalHedef)}</p>
+          <p className="text-[10px] text-faint">adet/gun (aylik: {fmt(totalHedef * 22)})</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-500">Atolye Sayisi</p>
-          <p className="text-2xl font-bold text-gray-900">{Object.keys(atolyeKlasmanMap).length}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-xs text-faint">Atolye Sayisi</p>
+          <p className="text-2xl font-bold text-ink">{Object.keys(atolyeKlasmanMap).length}</p>
         </div>
       </div>
 
@@ -148,8 +148,8 @@ export default async function YetenekRaporPage() {
           if (items.length === 0) return null
           const maxBant = Math.max(...items.map(i => i.bant_sayisi), 1)
           return (
-            <div key={dimCode} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <div key={dimCode} className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 bg-canvas border-b border-gray-100">
                 <h3 className="text-sm font-semibold text-gray-700">{dim.label}</h3>
               </div>
               <div className="divide-y divide-gray-50">
@@ -162,8 +162,8 @@ export default async function YetenekRaporPage() {
                       </div>
                     </div>
                     <div className="text-right w-32 flex gap-2">
-                      <span className="text-xs text-gray-600 w-14">{item.bant_sayisi} bant</span>
-                      <span className="text-xs text-gray-400 w-18">{fmt(item.toplam_operator)} op</span>
+                      <span className="text-xs text-muted w-14">{item.bant_sayisi} bant</span>
+                      <span className="text-xs text-faint w-18">{fmt(item.toplam_operator)} op</span>
                     </div>
                   </div>
                 ))}
@@ -174,14 +174,14 @@ export default async function YetenekRaporPage() {
       </div>
 
       {allKlasmans.length > 0 && Object.keys(atolyeKlasmanMap).length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700">Atolye x Klasman Matrisi</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-gray-500 border-b border-gray-100">
+                <tr className="text-faint border-b border-gray-100">
                   <th className="text-left px-3 py-2 sticky left-0 bg-white">Atolye</th>
                   <th className="text-center px-1 py-2">Bant</th>
                   <th className="text-center px-1 py-2">Op</th>
@@ -193,8 +193,8 @@ export default async function YetenekRaporPage() {
               </thead>
               <tbody>
                 {Object.values(atolyeKlasmanMap).map(a => (
-                  <tr key={a.code} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="px-3 py-2 font-medium text-gray-900 sticky left-0 bg-white">{a.code} <span className="text-gray-400 font-normal">— {a.name}</span></td>
+                  <tr key={a.code} className="border-b border-gray-50 hover:bg-canvas">
+                    <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-white">{a.code} <span className="text-faint font-normal">— {a.name}</span></td>
                     <td className="text-center px-1 py-2">{a.bantSayisi}</td>
                     <td className="text-center px-1 py-2">{a.toplamOp}</td>
                     <td className="text-center px-1 py-2 font-mono">{fmt(a.toplamHedef)}</td>
@@ -216,7 +216,7 @@ export default async function YetenekRaporPage() {
       )}
 
       {lineData.length === 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400">
+        <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">
           Henuz bant yetenek profili tanimlanmamis. Atolye Profil sayfasindan bantlara yetenek atamasi yapin.
         </div>
       )}

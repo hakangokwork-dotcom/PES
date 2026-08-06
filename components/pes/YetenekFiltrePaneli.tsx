@@ -46,9 +46,9 @@ export default function YetenekFiltrePaneli({
   return (
     <div className={`space-y-4 ${bekliyor ? 'opacity-60' : ''}`}>
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-900">Yetenek Filtreleri</h2>
+        <h2 className="text-sm font-semibold text-ink">Yetenek Filtreleri</h2>
         {seciliSayisi > 0 && (
-          <button onClick={temizle} className="text-xs text-gray-500 hover:text-gray-800 underline">
+          <button onClick={temizle} className="text-xs text-faint hover:text-gray-800 underline">
             Temizle ({seciliSayisi})
           </button>
         )}
@@ -57,8 +57,8 @@ export default function YetenekFiltrePaneli({
       {bloklar.map((b) => {
         const seciliDegerler = new Set(secili[b.code] ?? [])
         return (
-          <div key={b.code} className="border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">
+          <div key={b.code} className="border border-line-soft rounded-lg overflow-hidden">
+            <div className="bg-canvas px-3 py-2 text-xs font-semibold text-gray-700 border-b border-line-soft">
               {b.label}
             </div>
             <div className="max-h-52 overflow-y-auto p-1">
@@ -69,7 +69,7 @@ export default function YetenekFiltrePaneli({
                   <label
                     key={d.code}
                     className={`flex items-center gap-2 px-2 py-1 rounded text-[13px] cursor-pointer transition-colors ${
-                      isaretli ? 'bg-emerald-50' : kapali ? 'opacity-40' : 'hover:bg-gray-50'
+                      isaretli ? 'bg-emerald-50' : kapali ? 'opacity-40' : 'hover:bg-canvas'
                     }`}
                   >
                     <input
@@ -80,7 +80,7 @@ export default function YetenekFiltrePaneli({
                       className="accent-[#197A56]"
                     />
                     <span className="flex-1 text-gray-700 truncate">{d.label}</span>
-                    <span className={`text-[11px] tabular-nums ${isaretli ? 'text-emerald-700 font-medium' : 'text-gray-400'}`}>
+                    <span className={`text-[11px] tabular-nums ${isaretli ? 'text-emerald-700 font-medium' : 'text-faint'}`}>
                       {d.adet}
                     </span>
                   </label>

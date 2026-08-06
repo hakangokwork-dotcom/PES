@@ -41,16 +41,16 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
   }, [open])
 
   if (!metric) {
-    return iconOnly ? null : <span className="text-xs text-gray-400">{metricKey}</span>
+    return iconOnly ? null : <span className="text-xs text-faint">{metricKey}</span>
   }
 
   return (
     <span ref={ref as React.MutableRefObject<HTMLSpanElement>} className="inline-flex items-center gap-1 relative">
-      {!iconOnly && <span className="text-xs text-gray-600">{metric.label}</span>}
+      {!iconOnly && <span className="text-xs text-muted">{metric.label}</span>}
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="inline-flex items-center justify-center rounded-full text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+        className="inline-flex items-center justify-center rounded-full text-faint hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
         style={{ width: size + 4, height: size + 4 }}
         title={`${metric.label} — formül & kaynak`}
         aria-label={`${metric.label} bilgisi`}
@@ -62,13 +62,13 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
 
       {open && (
         <div
-          className="absolute z-50 left-0 top-full mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-xl p-4 text-left"
+          className="absolute z-50 left-0 top-full mt-1 w-80 bg-white border border-line-soft rounded-lg shadow-xl p-4 text-left"
           style={{ minWidth: 320 }}
         >
           <div className="flex items-start justify-between gap-2 mb-2">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900">{metric.label}</h4>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+              <h4 className="text-sm font-semibold text-ink">{metric.label}</h4>
+              <p className="text-[10px] text-faint uppercase tracking-wider">
                 {METRIC_CATEGORIES[metric.category]} · {metric.unit}
                 {metric.direction && (
                   <span className="ml-1">
@@ -77,21 +77,21 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
                 )}
               </p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-700 text-sm">✕</button>
+            <button onClick={() => setOpen(false)} className="text-faint hover:text-gray-700 text-sm">✕</button>
           </div>
 
           {value !== undefined && value !== null && (
-            <div className="mb-3 px-3 py-2 bg-gray-50 rounded border border-gray-100">
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">Değer</div>
-              <div className="text-lg font-mono font-semibold text-gray-900">
+            <div className="mb-3 px-3 py-2 bg-canvas rounded border border-gray-100">
+              <div className="text-[10px] uppercase tracking-wider text-faint">Değer</div>
+              <div className="text-lg font-mono font-semibold text-ink">
                 {typeof value === 'number' ? value.toLocaleString('tr-TR') : value}
-                <span className="text-xs text-gray-400 ml-1">{metric.unit}</span>
+                <span className="text-xs text-faint ml-1">{metric.unit}</span>
               </div>
             </div>
           )}
 
           <Section title="Formül">
-            <code className="text-xs bg-gray-50 px-2 py-1.5 rounded block font-mono leading-relaxed">
+            <code className="text-xs bg-canvas px-2 py-1.5 rounded block font-mono leading-relaxed">
               {metric.formula}
             </code>
           </Section>
@@ -100,12 +100,12 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
             <ul className="text-xs space-y-1">
               {metric.sources.map((s, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-gray-400 mt-0.5">•</span>
+                  <span className="text-faint mt-0.5">•</span>
                   <div>
                     <span className="font-mono text-emerald-700">
                       {s.table}{s.column ? `.${s.column}` : ''}
                     </span>
-                    {s.label && <span className="text-gray-500 ml-1">— {s.label}</span>}
+                    {s.label && <span className="text-faint ml-1">— {s.label}</span>}
                   </div>
                 </li>
               ))}
@@ -132,12 +132,12 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
 
           {metric.example && (
             <Section title="Örnek">
-              <p className="text-xs text-gray-600">{metric.example}</p>
+              <p className="text-xs text-muted">{metric.example}</p>
             </Section>
           )}
 
           {metric.notes && (
-            <p className="text-[10px] text-gray-400 mt-3 pt-2 border-t border-gray-100 italic">
+            <p className="text-[10px] text-faint mt-3 pt-2 border-t border-gray-100 italic">
               {metric.notes}
             </p>
           )}
@@ -150,7 +150,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">{title}</div>
+      <div className="text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">{title}</div>
       {children}
     </div>
   )

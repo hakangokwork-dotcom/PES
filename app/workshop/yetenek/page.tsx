@@ -35,15 +35,15 @@ export default async function YetenekPage({ searchParams }: Props) {
   if (data.mode === 'atolyesiz') {
     return (
       <div className="max-w-2xl mx-auto pt-12 text-center space-y-3">
-        <h1 className="text-xl font-semibold text-gray-900">Yetenek Profili</h1>
-        <p className="text-gray-500">Önce bir atölye seçin.</p>
-        <Link href="/workshop" className="inline-block text-[#197A56] text-sm font-medium hover:underline">
+        <h1 className="text-xl font-semibold text-ink">Yetenek Profili</h1>
+        <p className="text-faint">Önce bir atölye seçin.</p>
+        <Link href="/workshop" className="inline-block text-accent text-sm font-medium hover:underline">
           Atölye listesine git →
         </Link>
       </div>
     )
   }
-  if (data.mode === 'yok') return <p className="text-gray-500">Atölye bulunamadı.</p>
+  if (data.mode === 'yok') return <p className="text-faint">Atölye bulunamadı.</p>
 
   const { w, bantlar } = data
   const secili = bantlar.find((b) => String(b.id) === bant) ?? bantlar[0]
@@ -51,12 +51,12 @@ export default async function YetenekPage({ searchParams }: Props) {
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{w.name as string}</h1>
-        <p className="text-gray-500">{w.code as string} · Bant yetenek profili</p>
+        <h1 className="text-2xl font-bold text-ink">{w.name as string}</h1>
+        <p className="text-faint">{w.code as string} · Bant yetenek profili</p>
       </div>
 
       {bantlar.length === 0 ? (
-        <p className="text-gray-500 bg-white border border-gray-200 rounded-xl p-6">
+        <p className="text-faint bg-white border border-line-soft rounded-xl p-6">
           Bu atölyede tanımlı bant yok. Yetenek girmek için önce bant eklenmeli.
         </p>
       ) : (
@@ -72,12 +72,12 @@ export default async function YetenekPage({ searchParams }: Props) {
                   href={`/workshop/yetenek?wid=${w.id}&bant=${b.id}`}
                   className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                     aktif
-                      ? 'bg-[#197A56] text-white border-[#197A56]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-[#197A56]'
+                      ? 'bg-accent text-white border-accent'
+                      : 'bg-white text-gray-700 border-line-soft hover:border-accent'
                   }`}
                 >
                   {b.name as string}
-                  <span className={`ml-2 text-xs ${aktif ? 'text-emerald-100' : 'text-gray-400'}`}>
+                  <span className={`ml-2 text-xs ${aktif ? 'text-emerald-100' : 'text-faint'}`}>
                     {b.yetenek as number}
                   </span>
                 </Link>

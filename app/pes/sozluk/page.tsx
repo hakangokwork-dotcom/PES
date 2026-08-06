@@ -20,8 +20,8 @@ export default function SozlukPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Hesaplama Sözlüğü</h1>
-        <p className="text-gray-500 mt-1 max-w-3xl">
+        <h1 className="text-2xl font-bold text-ink">Hesaplama Sözlüğü</h1>
+        <p className="text-faint mt-1 max-w-3xl">
           Sistemdeki her sayının ne anlama geldiği, hangi formülle hesaplandığı,
           hangi tablodan geldiği ve <strong>neden öyle tanımlandığı</strong>.
           Ekranlarda terimlerin üzerine geldiğinizde kısa tanım, tıkladığınızda

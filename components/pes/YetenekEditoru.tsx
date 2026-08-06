@@ -148,19 +148,19 @@ export default function YetenekEditoru({
     }
   }
 
-  if (yukleniyor) return <p className="text-gray-400 text-sm">Yetenekler yükleniyor…</p>
+  if (yukleniyor) return <p className="text-faint text-sm">Yetenekler yükleniyor…</p>
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4 sticky top-0 bg-gray-50 py-3 z-10">
+      <div className="flex items-center justify-between gap-4 sticky top-0 bg-canvas py-3 z-10">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{lineAdi} — Yetenek Profili</h2>
-          <p className="text-sm text-gray-500">{secimler.size} yetenek işaretli</p>
+          <h2 className="text-lg font-semibold text-ink">{lineAdi} — Yetenek Profili</h2>
+          <p className="text-sm text-faint">{secimler.size} yetenek işaretli</p>
         </div>
         <button
           onClick={kaydet}
           disabled={!degisti || kaydediliyor}
-          className="shrink-0 px-5 py-2 bg-[#197A56] text-white rounded-lg text-sm font-medium hover:bg-[#0E3E1B] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="shrink-0 px-5 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {kaydediliyor ? 'Kaydediliyor…' : degisti ? 'Kaydet' : 'Kaydedildi'}
         </button>
@@ -176,11 +176,11 @@ export default function YetenekEditoru({
       )}
 
       {boyutlar.map((b) => (
-        <section key={b.code} className="bg-white border border-gray-200 rounded-xl p-5">
+        <section key={b.code} className="bg-white border border-line-soft rounded-xl p-5">
           <div className="flex items-baseline justify-between gap-3 mb-3">
-            <h3 className="font-semibold text-gray-900">{b.label}</h3>
+            <h3 className="font-semibold text-ink">{b.label}</h3>
             {b.applies_to && (
-              <span className="text-xs text-gray-400">yalnız: {b.applies_to.replaceAll(',', ', ')}</span>
+              <span className="text-xs text-faint">yalnız: {b.applies_to.replaceAll(',', ', ')}</span>
             )}
           </div>
 
@@ -195,7 +195,7 @@ export default function YetenekEditoru({
                   <button
                     onClick={() => cevir(b.code, v.code)}
                     className={`px-3 py-1.5 text-sm transition-colors ${
-                      secili ? 'bg-[#197A56] text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                      secili ? 'bg-accent text-white' : 'bg-white text-gray-700 hover:bg-canvas'}`}
                   >
                     {v.label}
                   </button>
@@ -204,7 +204,7 @@ export default function YetenekEditoru({
                       value={seviye}
                       onChange={(e) => seviyeAyarla(b.code, v.code, Number(e.target.value))}
                       title="Yetkinlik seviyesi"
-                      className="bg-emerald-50 text-emerald-900 text-xs px-1.5 border-l border-[#197A56] focus:outline-none cursor-pointer"
+                      className="bg-emerald-50 text-emerald-900 text-xs px-1.5 border-l border-accent focus:outline-none cursor-pointer"
                     >
                       {[0, 1, 2, 3].map((s) => (
                         <option key={s} value={s}>{s} · {SEVIYE_ETIKET[s]}</option>
@@ -222,12 +222,12 @@ export default function YetenekEditoru({
               onChange={(e) => setYeniTerim((o) => ({ ...o, [b.code]: e.target.value }))}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); terimEkle(b.code) } }}
               placeholder={`Listede yoksa yeni ${b.label.toLocaleLowerCase('tr')} ekle…`}
-              className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#197A56]/20 focus:border-[#197A56]"
+              className="flex-1 px-3 py-1.5 border border-line-soft rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
             />
             <button
               onClick={() => terimEkle(b.code)}
               disabled={!(yeniTerim[b.code] ?? '').trim()}
-              className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-sm border border-line text-gray-700 rounded-lg hover:bg-canvas disabled:opacity-40 disabled:cursor-not-allowed"
             >
               + Ekle
             </button>

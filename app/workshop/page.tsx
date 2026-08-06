@@ -133,58 +133,58 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{w.name}</h1>
-          <p className="text-gray-500">{w.code} - {w.city} - Tip {w.type} - {sewingStaff} dikim - {pMonth}/{pYear}</p>
+          <h1 className="text-2xl font-bold text-ink">{w.name}</h1>
+          <p className="text-faint">{w.code} - {w.city} - Tip {w.type} - {sewingStaff} dikim - {pMonth}/{pYear}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <p className="text-xs text-gray-500">Verimlilik</p>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <p className="text-xs text-faint">Verimlilik</p>
           <p className={`text-3xl font-bold ${efficiency >= 90 ? 'text-green-600' : efficiency >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
             %{efficiency}
           </p>
-          <p className="text-xs text-gray-400 mt-1">H: {Number(prodKpi?.target ?? 0).toLocaleString('tr-TR')} G: {Number(prodKpi?.actual ?? 0).toLocaleString('tr-TR')}</p>
+          <p className="text-xs text-faint mt-1">H: {Number(prodKpi?.target ?? 0).toLocaleString('tr-TR')} G: {Number(prodKpi?.actual ?? 0).toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <p className="text-xs text-gray-500">TL/dk Maliyet</p>
-          <p className="text-3xl font-bold text-gray-900">{costPerMin} <span className="text-sm text-gray-400">TL</span></p>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <p className="text-xs text-faint">TL/dk Maliyet</p>
+          <p className="text-3xl font-bold text-ink">{costPerMin} <span className="text-sm text-faint">TL</span></p>
           {marginPct && <p className={`text-xs mt-1 ${Number(marginPct) >= 0 ? 'text-green-600' : 'text-red-600'}`}>Marj: %{marginPct}</p>}
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <p className="text-xs text-gray-500">Kalite (FPQ)</p>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <p className="text-xs text-faint">Kalite (FPQ)</p>
           <p className={`text-3xl font-bold ${fpq !== null ? (fpq >= 95 ? 'text-green-600' : fpq >= 90 ? 'text-amber-600' : 'text-red-600') : 'text-gray-300'}`}>
             {fpq !== null ? `%${fpq}` : '---'}
           </p>
           {Number(qualKpi?.rejected ?? 0) > 0 && <p className="text-xs text-red-400 mt-1">Red: {Number(qualKpi?.rejected)} Tamir: {Number(qualKpi?.rework)}</p>}
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <p className="text-xs text-gray-500">Durus</p>
-          <p className="text-3xl font-bold text-red-600">{downtimeKpi?.total_min ?? 0} <span className="text-sm text-gray-400">dk</span></p>
-          <p className="text-xs text-gray-400 mt-1">Kapasite etkisi: %{downtimePct}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <p className="text-xs text-faint">Durus</p>
+          <p className="text-3xl font-bold text-red-600">{downtimeKpi?.total_min ?? 0} <span className="text-sm text-faint">dk</span></p>
+          <p className="text-xs text-faint mt-1">Kapasite etkisi: %{downtimePct}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Model Degisim</p>
+        <div className="bg-canvas border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Model Degisim</p>
           <p className="text-lg font-bold text-gray-800">{changeKpi?.total_min ?? 0} dk</p>
-          <p className="text-xs text-gray-400">{changeKpi?.count ?? 0} degisim</p>
+          <p className="text-xs text-faint">{changeKpi?.count ?? 0} degisim</p>
         </div>
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Isgucudevir</p>
+        <div className="bg-canvas border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Isgucudevir</p>
           <p className="text-lg font-bold text-gray-800">%{wfKpi?.turnover_pct ?? 0}</p>
-          <p className="text-xs text-gray-400">Giden: {wfKpi?.left_count ?? 0} Gelen: {wfKpi?.joined_count ?? 0}</p>
+          <p className="text-xs text-faint">Giden: {wfKpi?.left_count ?? 0} Gelen: {wfKpi?.joined_count ?? 0}</p>
         </div>
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Toplam Gider</p>
+        <div className="bg-canvas border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Toplam Gider</p>
           <p className="text-lg font-bold text-gray-800">{totalExpense > 0 ? (totalExpense / 1000000).toFixed(2) + 'M' : '---'} TL</p>
-          <p className="text-xs text-gray-400">Gunluk: {workDays > 0 ? Math.round(totalExpense / workDays).toLocaleString('tr-TR') : '---'} TL</p>
+          <p className="text-xs text-faint">Gunluk: {workDays > 0 ? Math.round(totalExpense / workDays).toLocaleString('tr-TR') : '---'} TL</p>
         </div>
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Isinma Personel</p>
+        <div className="bg-canvas border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Isinma Personel</p>
           <p className="text-lg font-bold text-amber-600">{wfKpi?.in_warmup ?? 0} kisi</p>
-          <p className="text-xs text-gray-400">Toplam: {wfKpi?.total_staff ?? Number(w.total_staff)}</p>
+          <p className="text-xs text-faint">Toplam: {wfKpi?.total_staff ?? Number(w.total_staff)}</p>
         </div>
       </div>
 
@@ -197,22 +197,22 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         ].map(a => (
           <Link key={a.href} href={a.href}
             className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 hover:shadow-md hover:border-emerald-300 transition-all flex items-center gap-2.5">
-            <a.Icon className="w-5 h-5 text-[#197A56]" strokeWidth={1.9} />
+            <a.Icon className="w-5 h-5 text-accent" strokeWidth={1.9} />
             <span className="text-sm font-medium text-emerald-900">{a.label}</span>
           </Link>
         ))}
       </div>
 
       {effTrend.length > 1 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Verimlilik Trendi</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-2">Verimlilik Trendi</h2>
           <EffTrendChart data={effTrend as unknown as { year: number; month: number; eff: number }[]} />
         </div>
       )}
 
       {bandPerf.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Bant Performanslari</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Bant Performanslari</h2>
           <div className="space-y-3">
             {bandPerf.map((b) => {
               const bEff = Number(b.eff)
@@ -228,7 +228,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
                   <div className="w-full bg-gray-100 rounded-full h-2.5">
                     <div className={`h-2.5 rounded-full ${barColor}`} style={{ width: `${Math.min(bEff, 100)}%` }}></div>
                   </div>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-faint mt-0.5">
                     H: {Number(b.target).toLocaleString('tr-TR')} G: {Number(b.actual).toLocaleString('tr-TR')} Gunluk: {Number(b.daily_target).toLocaleString('tr-TR')}/gun
                   </p>
                 </div>

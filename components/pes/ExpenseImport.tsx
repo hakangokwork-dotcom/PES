@@ -88,24 +88,24 @@ export default function ExpenseImport() {
   return (
     <div className="space-y-6">
       {/* 1. Şablon */}
-      <section className="bg-white border border-gray-200 rounded-xl p-5">
+      <section className="bg-white border border-line-soft rounded-xl p-5">
         <h2 className="text-sm font-semibold text-gray-800">1 · Şablonu indirin</h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-faint mt-1">
           27 gider kalemini içeren boş şablon. Aktif atölyeler kod ve adlarıyla önceden
           doldurulur; her satıra dönem ve tutarları yazmanız yeterli.
         </p>
         <a
           href="/api/pes/expenses/template"
-          className="inline-block mt-3 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="inline-block mt-3 px-4 py-2 border border-line rounded-lg text-sm font-medium hover:bg-canvas transition-colors"
         >
           ↓ Şablonu indir (.xlsx)
         </a>
       </section>
 
       {/* 2. Yükle */}
-      <section className="bg-white border border-gray-200 rounded-xl p-5">
+      <section className="bg-white border border-line-soft rounded-xl p-5">
         <h2 className="text-sm font-semibold text-gray-800">2 · Doldurulmuş dosyayı yükleyin</h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-faint mt-1">
           Önce önizleme yapılır — hiçbir şey kaydedilmez. Sonucu görüp onayladıktan sonra
           içeri aktarılır.
         </p>
@@ -119,12 +119,12 @@ export default function ExpenseImport() {
               setCommitted(false)
               setError('')
             }}
-            className="text-sm file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-gray-300 file:bg-white file:text-sm file:font-medium hover:file:bg-gray-50"
+            className="text-sm file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-line file:bg-white file:text-sm file:font-medium hover:file:bg-canvas"
           />
           <button
             onClick={() => send('preview')}
             disabled={!file || busy}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+            className="px-4 py-2 border border-line rounded-lg text-sm font-medium hover:bg-canvas disabled:opacity-50"
           >
             {busy ? 'İşleniyor…' : 'Önizle'}
           </button>
@@ -135,9 +135,9 @@ export default function ExpenseImport() {
       {result && (
         <>
           {/* Başlık eşleme */}
-          <section className="bg-white border border-gray-200 rounded-xl p-5">
+          <section className="bg-white border border-line-soft rounded-xl p-5">
             <h2 className="text-sm font-semibold text-gray-800">Başlık eşlemesi</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-faint mt-1">
               <strong>{result.summary.sheet}</strong> sayfası ·{' '}
               {result.summary.recognized_fields}/{result.summary.total_fields} gider kalemi tanındı
             </p>
@@ -152,12 +152,12 @@ export default function ExpenseImport() {
 
             {result.mapping.unmatched.length > 0 && (
               <div className="mt-3">
-                <p className="text-xs text-gray-500 mb-1.5">
+                <p className="text-xs text-faint mb-1.5">
                   Tanınmayan sütunlar (yok sayıldı):
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {result.mapping.unmatched.map((h) => (
-                    <span key={h} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+                    <span key={h} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-faint">
                       {h}
                     </span>
                   ))}
@@ -175,29 +175,29 @@ export default function ExpenseImport() {
           </div>
 
           {/* Satır raporu */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-4 py-3 text-left text-gray-500 font-medium">Satır</th>
-                    <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
-                    <th className="px-4 py-3 text-left text-gray-500 font-medium">Dönem</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Doluluk</th>
-                    <th className="px-4 py-3 text-right text-gray-500 font-medium">Skor</th>
-                    <th className="px-4 py-3 text-left text-gray-500 font-medium">Durum / Sorun</th>
+                  <tr className="bg-canvas border-b border-line-soft">
+                    <th className="px-4 py-3 text-left text-faint font-medium">Satır</th>
+                    <th className="px-4 py-3 text-left text-faint font-medium">Atölye</th>
+                    <th className="px-4 py-3 text-left text-faint font-medium">Dönem</th>
+                    <th className="px-4 py-3 text-right text-faint font-medium">Doluluk</th>
+                    <th className="px-4 py-3 text-right text-faint font-medium">Skor</th>
+                    <th className="px-4 py-3 text-left text-faint font-medium">Durum / Sorun</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {result.reports.map((r) => (
                     <tr key={r.rowIndex} className={r.matched ? '' : 'bg-red-50/50'}>
-                      <td className="px-4 py-2.5 text-gray-400">{r.rowIndex}</td>
-                      <td className="px-4 py-2.5 text-gray-900">{r.workshop_code ?? '—'}</td>
-                      <td className="px-4 py-2.5 text-gray-600">{r.donem ?? '—'}</td>
-                      <td className="px-4 py-2.5 text-right text-gray-600">
+                      <td className="px-4 py-2.5 text-faint">{r.rowIndex}</td>
+                      <td className="px-4 py-2.5 text-ink">{r.workshop_code ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-muted">{r.donem ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-right text-muted">
                         {r.score ? `%${r.score.completeness_sc.toFixed(0)}` : '—'}
                       </td>
-                      <td className="px-4 py-2.5 text-right font-medium text-gray-900">
+                      <td className="px-4 py-2.5 text-right font-medium text-ink">
                         {r.score ? r.score.total_sc.toFixed(1) : '—'}
                       </td>
                       <td className="px-4 py-2.5">
@@ -223,16 +223,16 @@ export default function ExpenseImport() {
 
           {/* 3. Onay */}
           {result.mode === 'preview' && result.summary.matched > 0 && (
-            <section className="bg-white border border-gray-200 rounded-xl p-5">
+            <section className="bg-white border border-line-soft rounded-xl p-5">
               <h2 className="text-sm font-semibold text-gray-800">3 · İçeri aktar</h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-faint mt-1">
                 {result.summary.matched} satır kaydedilecek. Ham satırlar da saklanır
                 (izlenebilirlik), düzeltme gerektiren kayıtlar sonradan düzenlenebilir.
               </p>
               <button
                 onClick={() => send('commit')}
                 disabled={busy}
-                className="mt-3 px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+                className="mt-3 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
               >
                 {busy ? 'Aktarılıyor…' : `${result.summary.matched} satırı içeri aktar`}
               </button>
@@ -256,10 +256,10 @@ export default function ExpenseImport() {
 }
 
 function Stat({ label, value, tone = 'neutral' }: { label: string; value: number; tone?: 'good' | 'bad' | 'neutral' }) {
-  const color = tone === 'good' ? 'text-green-700' : tone === 'bad' ? 'text-red-700' : 'text-gray-900'
+  const color = tone === 'good' ? 'text-green-700' : tone === 'bad' ? 'text-red-700' : 'text-ink'
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4">
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="bg-white border border-line-soft rounded-xl p-4">
+      <p className="text-xs text-faint">{label}</p>
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
   )

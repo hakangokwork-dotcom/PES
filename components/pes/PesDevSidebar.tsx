@@ -103,16 +103,16 @@ export default function PesDevSidebar() {
   }, [search])
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-64 min-h-screen bg-white border-r border-line-soft flex flex-col">
       {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-gray-200 flex-shrink-0">
+      <div className="h-16 flex items-center px-4 border-b border-line-soft flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#197A56] to-[#125a40] rounded-md flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-md flex items-center justify-center shadow-sm">
             <span className="text-white font-bold text-[10px] tracking-wider">PES</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-900 text-sm block leading-tight">Merkez Paneli</span>
-            <span className="text-[10px] text-gray-400 leading-tight tracking-wide">Verimlilik Sistemi</span>
+            <span className="font-semibold text-ink text-sm block leading-tight">Merkez Paneli</span>
+            <span className="text-[10px] text-faint leading-tight tracking-wide">Verimlilik Sistemi</span>
           </div>
         </div>
       </div>
@@ -124,7 +124,7 @@ export default function PesDevSidebar() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="🔍 Sayfa ara..."
-          className="w-full px-2.5 py-1.5 text-xs border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-gray-400 focus:bg-white"
+          className="w-full px-2.5 py-1.5 text-xs border border-line-soft rounded-md bg-canvas focus:outline-none focus:border-gray-400 focus:bg-white"
         />
       </div>
 
@@ -137,7 +137,7 @@ export default function PesDevSidebar() {
             <div key={group.id} className={gi > 0 ? 'mt-3' : ''}>
               <button
                 onClick={() => toggleGroup(group.id)}
-                className="w-full flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-gray-400 hover:text-gray-600 transition-colors"
+                className="w-full flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-faint hover:text-muted transition-colors"
               >
                 <span>{group.title}</span>
                 <span className={`text-[8px] transition-transform ${isCollapsed ? '-rotate-90' : ''}`}>▼</span>
@@ -152,8 +152,8 @@ export default function PesDevSidebar() {
                         href={item.href}
                         className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
                           active
-                            ? 'bg-emerald-50 text-[#197A56] font-medium border-l-2 border-[#197A56] pl-[10px]'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-emerald-50 text-accent font-medium border-l-2 border-accent pl-[10px]'
+                            : 'text-muted hover:bg-canvas hover:text-ink'
                         }`}
                       >
                         <span className="text-sm w-4 inline-block text-center">{item.icon}</span>
@@ -170,21 +170,21 @@ export default function PesDevSidebar() {
           )
         })}
         {filteredGroups.length === 0 && (
-          <div className="px-3 py-4 text-xs text-gray-400 italic text-center">
+          <div className="px-3 py-4 text-xs text-faint italic text-center">
             "{search}" için sonuç yok
           </div>
         )}
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 px-3 py-2.5 flex-shrink-0 space-y-0.5">
+      <div className="border-t border-line-soft px-3 py-2.5 flex-shrink-0 space-y-0.5">
         <Link href="/workshop"
-          className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+          className="flex items-center gap-2 text-xs text-faint hover:text-ink hover:bg-canvas px-3 py-1.5 rounded transition-colors">
           <span>→</span>
           <span>Atölye Paneli</span>
         </Link>
         <p className="text-[9px] text-amber-600 font-medium px-3 py-0.5">Dev Mode</p>
-        <p className="text-[10px] text-gray-400 px-3 pt-0.5">{APP_VERSION}</p>
+        <p className="text-[10px] text-faint px-3 pt-0.5">{APP_VERSION}</p>
       </div>
     </aside>
   )

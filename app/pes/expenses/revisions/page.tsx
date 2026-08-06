@@ -25,11 +25,11 @@ export default async function RevisionsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
-        <Link href="/pes/veri-kalitesi" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/pes/veri-kalitesi" className="text-sm text-faint hover:text-gray-700">
           ← Veri Kalitesi
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Beyan Geçmişi</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-ink mt-2">Beyan Geçmişi</h1>
+        <p className="text-faint mt-1">
           Her gider beyanının tüm sürümleri. Bir atölye geçmiş dönemi düzeltip
           yeniden gönderdiğinde eski beyan silinmez — burada durur. Böylece
           &ldquo;gider arttı mı, yoksa beyan mı düzeltildi&rdquo; sorusu cevaplanabilir.

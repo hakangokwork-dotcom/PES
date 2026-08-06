@@ -25,7 +25,7 @@ const COLORS: Record<string, string> = {
 }
 
 export default function VeriYukleWrapper() {
-  return <Suspense fallback={<div className="p-6 text-gray-400">Yukleniyor...</div>}><VeriYuklePage /></Suspense>
+  return <Suspense fallback={<div className="p-6 text-faint">Yukleniyor...</div>}><VeriYuklePage /></Suspense>
 }
 
 function VeriYuklePage() {
@@ -59,30 +59,30 @@ function VeriYuklePage() {
     setUploading(null)
   }
 
-  if (!wid) return <div className="p-6 text-gray-400">Atolye secin</div>
+  if (!wid) return <div className="p-6 text-faint">Atolye secin</div>
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Veri Yukle / Indir</h1>
-        <p className="text-sm text-gray-500 mt-1">CSV sablonlarini indirin, doldurun ve sisteme yukleyin</p>
+        <h1 className="text-2xl font-bold text-ink">Veri Yukle / Indir</h1>
+        <p className="text-sm text-faint mt-1">CSV sablonlarini indirin, doldurun ve sisteme yukleyin</p>
       </div>
 
       {/* Donem Secimi */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex gap-4 items-end">
+      <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Yil</label>
-          <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm" value={year} onChange={e => setYear(Number(e.target.value))}>
+          <label className="block text-xs font-medium text-muted mb-1">Yil</label>
+          <select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(Number(e.target.value))}>
             <option value={2025}>2025</option><option value={2026}>2026</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Ay</label>
-          <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm" value={month} onChange={e => setMonth(Number(e.target.value))}>
+          <label className="block text-xs font-medium text-muted mb-1">Ay</label>
+          <select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(Number(e.target.value))}>
             {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}
           </select>
         </div>
-        <p className="text-sm text-gray-500 pb-2">Yuklenen veriler {month}/{year} donemine kaydedilir</p>
+        <p className="text-sm text-faint pb-2">Yuklenen veriler {month}/{year} donemine kaydedilir</p>
       </div>
 
       {/* Nasil Kullanilir */}
@@ -107,14 +107,14 @@ function VeriYuklePage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{t.icon}</span>
-                    <h3 className="font-semibold text-gray-900">{t.label}</h3>
+                    <h3 className="font-semibold text-ink">{t.label}</h3>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{t.desc}</p>
+                  <p className="text-xs text-faint mt-1">{t.desc}</p>
                 </div>
                 <a
                   href={`/api/pes/templates/${t.key}`}
                   download
-                  className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                  className="px-3 py-1.5 bg-white border border-line rounded-lg text-xs font-medium text-gray-700 hover:bg-canvas whitespace-nowrap"
                 >
                   Sablon Indir
                 </a>
@@ -125,7 +125,7 @@ function VeriYuklePage() {
                   type="file"
                   accept=".csv,.txt"
                   ref={el => { fileRefs.current[t.key] = el }}
-                  className="flex-1 text-sm text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-gray-300 file:text-xs file:font-medium file:bg-white file:text-gray-700 hover:file:bg-gray-50"
+                  className="flex-1 text-sm text-muted file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-line file:text-xs file:font-medium file:bg-white file:text-gray-700 hover:file:bg-canvas"
                 />
                 <button
                   onClick={() => handleUpload(t.key)}

@@ -68,11 +68,11 @@ export default function IndexManager({
   return (
     <div className="space-y-8">
       {/* Giriş */}
-      <section className="bg-white border border-gray-200 rounded-xl p-5">
+      <section className="bg-white border border-line-soft rounded-xl p-5">
         <h2 className="text-sm font-semibold text-gray-800">
           <TermTip termKey="fiyat_endeksi">Endeks</TermTip> değeri gir
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-faint mt-1">
           Her ay için ilgili serilerin değerini girin. Bir dönemin endeksi
           girilmemişse o dönemin{' '}
           <TermTip termKey="reel_deger">reel değeri</TermTip>{' '}
@@ -80,11 +80,11 @@ export default function IndexManager({
         </p>
         <div className="flex flex-wrap items-end gap-2 mt-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Seri</label>
+            <label className="block text-xs font-medium text-muted mb-1">Seri</label>
             <select
               value={form.series_code}
               onChange={(e) => setForm((f) => ({ ...f, series_code: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+              className="border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
             >
               {series.map((s) => (
                 <option key={s.code} value={s.code}>{s.label}</option>
@@ -92,28 +92,28 @@ export default function IndexManager({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Dönem</label>
+            <label className="block text-xs font-medium text-muted mb-1">Dönem</label>
             <input
               placeholder="2026-07"
               value={form.donem}
               onChange={(e) => setForm((f) => ({ ...f, donem: e.target.value }))}
-              className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+              className="w-32 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Değer</label>
+            <label className="block text-xs font-medium text-muted mb-1">Değer</label>
             <input
               type="number"
               step="0.0001"
               value={form.value}
               onChange={(e) => setForm((f) => ({ ...f, value: e.target.value }))}
-              className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#197A56]"
+              className="w-36 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
           <button
             onClick={add}
             disabled={busy || !form.donem || !form.value}
-            className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
           >
             Ekle
           </button>
@@ -128,12 +128,12 @@ export default function IndexManager({
           {series.map((s) => {
             const rows = bySeries[s.code] ?? []
             return (
-              <div key={s.code} className="bg-white border border-gray-200 rounded-xl p-4">
+              <div key={s.code} className="bg-white border border-line-soft rounded-xl p-4">
                 <div className="flex items-baseline justify-between">
-                  <h3 className="text-sm font-medium text-gray-900">{s.label}</h3>
-                  <span className="text-xs text-gray-400">{s.unit}</span>
+                  <h3 className="text-sm font-medium text-ink">{s.label}</h3>
+                  <span className="text-xs text-faint">{s.unit}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">{s.description}</p>
+                <p className="text-xs text-faint mt-0.5">{s.description}</p>
 
                 {rows.length === 0 ? (
                   <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mt-2">
@@ -143,14 +143,14 @@ export default function IndexManager({
                   <div className="mt-2 space-y-1">
                     {rows.map((v) => (
                       <div key={v.id} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{v.donem}</span>
-                        <span className="text-gray-900 font-medium">
+                        <span className="text-muted">{v.donem}</span>
+                        <span className="text-ink font-medium">
                           {Number(v.value).toLocaleString('tr-TR')}
                         </span>
                         <button
                           onClick={() => remove(v.id)}
                           disabled={busy}
-                          className="text-xs text-gray-400 hover:text-red-600 disabled:opacity-50"
+                          className="text-xs text-faint hover:text-red-600 disabled:opacity-50"
                         >
                           sil
                         </button>
@@ -170,28 +170,28 @@ export default function IndexManager({
           <TermTip termKey="gider_gruplari">Grup</TermTip> →{' '}
           <TermTip termKey="deflator">deflatör</TermTip> eşleştirmesi
         </h2>
-        <p className="text-sm text-gray-500 mb-3">
+        <p className="text-sm text-faint mb-3">
           Her gider grubu farklı bir seriyle düzeltilir. Doğalgazı TÜFE ile düzeltmek
           kur etkisini gerçek maliyet artışı gibi gösterirdi.{' '}
           <TermTip termKey="baz_donem">Baz dönem</TermTip> her serinin en güncel değeridir.
         </p>
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-2.5 text-left text-gray-500 font-medium">Grup</th>
-                <th className="px-4 py-2.5 text-left text-gray-500 font-medium">Deflatör</th>
-                <th className="px-4 py-2.5 text-left text-gray-500 font-medium">Gerekçe</th>
+              <tr className="bg-canvas border-b border-line-soft">
+                <th className="px-4 py-2.5 text-left text-faint font-medium">Grup</th>
+                <th className="px-4 py-2.5 text-left text-faint font-medium">Deflatör</th>
+                <th className="px-4 py-2.5 text-left text-faint font-medium">Gerekçe</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {map.map((m) => (
                 <tr key={m.group_code}>
-                  <td className="px-4 py-2.5 font-medium text-gray-900">
+                  <td className="px-4 py-2.5 font-medium text-ink">
                     {GROUP_LABELS[m.group_code] ?? m.group_code}
                   </td>
                   <td className="px-4 py-2.5 text-gray-700">{m.series_label}</td>
-                  <td className="px-4 py-2.5 text-gray-500 text-xs">{m.rationale}</td>
+                  <td className="px-4 py-2.5 text-faint text-xs">{m.rationale}</td>
                 </tr>
               ))}
             </tbody>

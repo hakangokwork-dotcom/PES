@@ -77,39 +77,39 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <Link href="/pes/workshops" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/pes/workshops" className="text-sm text-faint hover:text-gray-700">
           ← Atölyeler
         </Link>
         <div className="flex items-center gap-3 mt-2">
-          <h1 className="text-2xl font-bold text-gray-900">{w.name}</h1>
+          <h1 className="text-2xl font-bold text-ink">{w.name}</h1>
           <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
             Tip {w.type} — {TYPE_LABELS[w.type]}
           </span>
           {w.is_active ? (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">Aktif</span>
           ) : (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-500">Pasif</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-faint">Pasif</span>
           )}
         </div>
-        <p className="text-gray-500 mt-1">{w.code} · {w.city ?? ''} {w.district ?? ''}</p>
+        <p className="text-faint mt-1">{w.code} · {w.city ?? ''} {w.district ?? ''}</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Dikim Operatörü</p>
-          <p className="text-xl font-bold text-gray-900">{w.sewing_staff}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Dikim Operatörü</p>
+          <p className="text-xl font-bold text-ink">{w.sewing_staff}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Toplam Çalışan</p>
-          <p className="text-xl font-bold text-gray-900">{w.total_staff}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Toplam Çalışan</p>
+          <p className="text-xl font-bold text-ink">{w.total_staff}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Günlük Hedef</p>
-          <p className="text-xl font-bold text-gray-900">{w.daily_target.toLocaleString('tr-TR')}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Günlük Hedef</p>
+          <p className="text-xl font-bold text-ink">{w.daily_target.toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Bant Sayısı</p>
-          <p className="text-xl font-bold text-gray-900">{w.line_count}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Bant Sayısı</p>
+          <p className="text-xl font-bold text-ink">{w.line_count}</p>
         </div>
       </div>
 
@@ -130,7 +130,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
       <LineManager workshop={w} lines={lineList} />
 
       <details className="group">
-        <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 py-2">
+        <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-ink py-2">
           Atölye Bilgilerini Düzenle ▾
         </summary>
         <div className="mt-4">

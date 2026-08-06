@@ -71,8 +71,8 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
 
   if (groups.length === 0) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <p className="text-sm text-gray-500">
+      <div className="bg-white border border-line-soft rounded-xl p-5">
+        <p className="text-sm text-faint">
           Henüz içe aktarılmış beyan yok. Beyan yüklendikçe sürümleri burada birikir.
         </p>
       </div>
@@ -101,32 +101,32 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
           const hasRevisions = g.revisions.length > 1
 
           return (
-            <div key={g.key} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={g.key} className="bg-white border border-line-soft rounded-xl overflow-hidden">
               <button
                 onClick={() => setOpen(isOpen ? null : g.key)}
-                className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-canvas transition-colors text-left"
               >
-                <span className="font-medium text-gray-900">{g.workshop_code}</span>
-                <span className="text-gray-500">{g.donem}</span>
+                <span className="font-medium text-ink">{g.workshop_code}</span>
+                <span className="text-faint">{g.donem}</span>
 
                 {hasRevisions ? (
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700">
                     {g.revisions.length} sürüm
                   </span>
                 ) : (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-faint">
                     tek beyan
                   </span>
                 )}
 
-                <span className="ml-auto text-xs text-gray-400">
+                <span className="ml-auto text-xs text-faint">
                   son: {new Date(latest.submitted_at).toLocaleDateString('tr-TR')}
                 </span>
-                <span className="text-gray-400">{isOpen ? '▾' : '▸'}</span>
+                <span className="text-faint">{isOpen ? '▾' : '▸'}</span>
               </button>
 
               {isOpen && (
-                <div className="border-t border-gray-100 px-5 py-4 space-y-4 bg-gray-50">
+                <div className="border-t border-gray-100 px-5 py-4 space-y-4 bg-canvas">
                   {g.revisions.map((r, i) => {
                     const prev = i > 0 ? g.revisions[i - 1] : null
                     const changes = prev ? diff(prev.raw, r.raw) : []
@@ -140,38 +140,38 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                               geçerli
                             </span>
                           ) : (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-muted">
                               geçersiz kılındı
                             </span>
                           )}
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-faint">
                             {new Date(r.submitted_at).toLocaleString('tr-TR')}
                           </span>
                           {r.source_ref && (
-                            <code className="text-xs text-gray-400">{r.source_ref}</code>
+                            <code className="text-xs text-faint">{r.source_ref}</code>
                           )}
                           {r.total_sc !== null && (
-                            <span className="text-xs text-gray-500">skor {Number(r.total_sc).toFixed(1)}</span>
+                            <span className="text-xs text-faint">skor {Number(r.total_sc).toFixed(1)}</span>
                           )}
                         </div>
 
                         {r.revision_note && (
-                          <p className="text-xs text-gray-600 mt-1 italic">“{r.revision_note}”</p>
+                          <p className="text-xs text-muted mt-1 italic">“{r.revision_note}”</p>
                         )}
 
                         {prev && (
                           changes.length === 0 ? (
-                            <p className="text-xs text-gray-400 mt-1.5">
+                            <p className="text-xs text-faint mt-1.5">
                               Bir önceki sürümle aynı değerler.
                             </p>
                           ) : (
                             <div className="mt-2 space-y-1">
                               {changes.map((c) => (
                                 <div key={c.field} className="flex items-baseline gap-2 text-xs flex-wrap">
-                                  <span className="text-gray-600 min-w-[140px]">{c.field}</span>
-                                  <span className="text-gray-400 line-through">{fmt(c.from)}</span>
-                                  <span className="text-gray-400">→</span>
-                                  <span className="font-medium text-gray-900">{fmt(c.to)}</span>
+                                  <span className="text-muted min-w-[140px]">{c.field}</span>
+                                  <span className="text-faint line-through">{fmt(c.from)}</span>
+                                  <span className="text-faint">→</span>
+                                  <span className="font-medium text-ink">{fmt(c.to)}</span>
                                   {c.pct !== null && (
                                     <span className={c.pct > 0 ? 'text-red-600' : 'text-green-700'}>
                                       {c.pct > 0 ? '+' : ''}{c.pct.toFixed(1)}%
@@ -197,9 +197,9 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
 
 function Stat({ label, value, tone = 'neutral' }: { label: React.ReactNode; value: number; tone?: 'warn' | 'neutral' }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className={`text-2xl font-bold ${tone === 'warn' ? 'text-amber-700' : 'text-gray-900'}`}>{value}</p>
+    <div className="bg-white border border-line-soft rounded-xl p-4">
+      <p className="text-xs text-faint">{label}</p>
+      <p className={`text-2xl font-bold ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</p>
     </div>
   )
 }

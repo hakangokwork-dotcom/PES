@@ -59,8 +59,8 @@ export default function ReferansPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Konfeksiyon Referans Kutuphanesi</h1>
-        <p className="text-sm text-gray-500 mt-1">30K+ MTM operasyon zamani referans verisi</p>
+        <h1 className="text-2xl font-bold text-ink">Konfeksiyon Referans Kutuphanesi</h1>
+        <p className="text-sm text-faint mt-1">30K+ MTM operasyon zamani referans verisi</p>
       </div>
 
       {/* Istatistikler */}
@@ -75,9 +75,9 @@ export default function ReferansPage() {
             { l: 'Zaman Kaydi', v: stats.zaman_kaydi_sayisi },
             { l: 'Makine', v: stats.makine_sayisi },
           ].map(s => (
-            <div key={s.l} className="bg-white border border-gray-200 rounded-xl p-3 text-center">
-              <p className="text-xs text-gray-500">{s.l}</p>
-              <p className="text-xl font-bold text-gray-900">{s.v.toLocaleString('tr-TR')}</p>
+            <div key={s.l} className="bg-white border border-line-soft rounded-xl p-3 text-center">
+              <p className="text-xs text-faint">{s.l}</p>
+              <p className="text-xl font-bold text-ink">{s.v.toLocaleString('tr-TR')}</p>
             </div>
           ))}
         </div>
@@ -89,15 +89,15 @@ export default function ReferansPage() {
       )}
 
       {/* Excel Yukleme */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Referans Veri Yukle</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="bg-white border border-line-soft rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-ink mb-3">Referans Veri Yukle</h2>
+        <p className="text-sm text-faint mb-4">
           <strong>konfeksiyon_veri_modeli.xlsx</strong> dosyasini yukleyin. Sayfalar otomatik eslestirilir
           (urun_tipi, ek_parca_tipi, ek_parca_varyant, operasyon_grup, operasyon, makine_tipi, operasyon_zamani).
         </p>
         <div className="flex gap-3 items-center">
           <input type="file" accept=".xlsx,.xls" ref={fileRef}
-            className="flex-1 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-gray-300 file:text-sm file:font-medium file:bg-white file:text-gray-700 hover:file:bg-gray-50" />
+            className="flex-1 text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-line file:text-sm file:font-medium file:bg-white file:text-gray-700 hover:file:bg-canvas" />
           <button onClick={handleUpload} disabled={uploading}
             className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
             {uploading ? 'Yukleniyor... (bu islem uzun surebilir)' : 'Yukle'}
@@ -119,11 +119,11 @@ export default function ReferansPage() {
       </div>
 
       {/* Arama */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Urun Tipi Ara</h2>
+      <div className="bg-white border border-line-soft rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-ink mb-3">Urun Tipi Ara</h2>
         <div className="flex gap-2 mb-4">
           <input value={searchQ} onChange={e => setSearchQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            placeholder="orn. GOMLEK, PANTOLON, KEY DENIM..." className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            placeholder="orn. GOMLEK, PANTOLON, KEY DENIM..." className="flex-1 border border-line rounded-lg px-3 py-2 text-sm" />
           <button onClick={handleSearch} disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
             Ara
@@ -132,7 +132,7 @@ export default function ReferansPage() {
         {searchResults.length > 0 && (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-gray-500 border-b border-gray-100">
+              <tr className="text-xs text-faint border-b border-gray-100">
                 <th className="text-left px-3 py-2">Klasman</th>
                 <th className="text-center px-2 py-2">Segment</th>
                 <th className="text-center px-2 py-2">Kumas</th>
@@ -142,8 +142,8 @@ export default function ReferansPage() {
             </thead>
             <tbody>
               {searchResults.map((r, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="px-3 py-2 font-medium text-gray-900">{r.klasman_ad as string}</td>
+                <tr key={i} className="border-b border-gray-50 hover:bg-canvas">
+                  <td className="px-3 py-2 font-medium text-ink">{r.klasman_ad as string}</td>
                   <td className="text-center px-2 py-2 text-xs">{(r.segment as string) || '—'}</td>
                   <td className="text-center px-2 py-2 text-xs">{(r.kumas_grubu as string) || '—'}</td>
                   <td className="text-center px-2 py-2 text-xs">{(r.urun_grubu as string) || '—'}</td>

@@ -8,7 +8,7 @@ export default async function WorkshopLayout({ children }: { children: React.Rea
   await requireSession()
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-canvas">
       <WorkshopSidebar />
       <main className="flex-1 min-w-0 p-6 lg:p-8">
         {children}

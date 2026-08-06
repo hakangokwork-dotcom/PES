@@ -206,8 +206,8 @@ export default function ModelsPage() {
     return acc
   }, {} as Record<string, { name: string; template_code: string; category_name: string; items: ModelRow[] }>)
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#197A56] focus:ring-1 focus:ring-[#197A56]'
-  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-[#197A56] bg-emerald-50'
+  const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
+  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-accent bg-emerald-50'
 
   const totalFormSamSec = samEntries.reduce((sum, e) => sum + e.sam_minutes, 0)
   const totalFormSamMin = totalFormSamSec / 60
@@ -216,10 +216,10 @@ export default function ModelsPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Model / SAM Kütüphanesi</h1>
-          <p className="text-gray-500 mt-1">Model bazlı standart süre (SAM) verileri</p>
+          <h1 className="text-2xl font-bold text-ink">Model / SAM Kütüphanesi</h1>
+          <p className="text-faint mt-1">Model bazlı standart süre (SAM) verileri</p>
         </div>
-        <button onClick={() => { setShowForm(!showForm); if (!showForm) initSamEntries() }} className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium">
+        <button onClick={() => { setShowForm(!showForm); if (!showForm) initSamEntries() }} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium">
           {showForm ? 'İptal' : '+ Yeni Model'}
         </button>
       </div>
@@ -229,39 +229,39 @@ export default function ModelsPage() {
 
       {/* Yeni Model + Toplu SAM Girişi */}
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-          <h2 className="text-lg font-semibold text-gray-900">Model Bilgileri</h2>
+        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-5">
+          <h2 className="text-lg font-semibold text-ink">Model Bilgileri</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Model Kodu</label>
+              <label className="block text-xs font-medium text-muted mb-1">Model Kodu</label>
               <input className={inputClass} value={form.code} onChange={e => setForm(p => ({...p, code: e.target.value}))} placeholder="PNT-BAGGY-01" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Model Adı</label>
+              <label className="block text-xs font-medium text-muted mb-1">Model Adı</label>
               <input className={inputClass} value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} placeholder="Baggy Pantolon" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Kategori</label>
+              <label className="block text-xs font-medium text-muted mb-1">Kategori</label>
               <select className={inputClass} value={form.category_id} onChange={e => setForm(p => ({...p, category_id: e.target.value}))} required>
                 <option value="">Seçin...</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.code} — {c.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Şablon Kodu</label>
+              <label className="block text-xs font-medium text-muted mb-1">Şablon Kodu</label>
               <input className={inputClass} value={form.template_code} onChange={e => setForm(p => ({...p, template_code: e.target.value}))} placeholder="SABLON-PNT" required />
             </div>
           </div>
 
-          <h2 className="text-lg font-semibold text-gray-900 pt-2">Süreç Bazlı SAM Değerleri</h2>
-          <p className="text-xs text-gray-400">SAM değeri 0 olan süreçler kaydedilmez. Sadece ilgili süreçlerin SAM'ını girin.</p>
+          <h2 className="text-lg font-semibold text-ink pt-2">Süreç Bazlı SAM Değerleri</h2>
+          <p className="text-xs text-faint">SAM değeri 0 olan süreçler kaydedilmez. Sadece ilgili süreçlerin SAM'ını girin.</p>
 
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 text-left text-gray-500 font-medium">Süreç</th>
-                <th className="py-2 text-right text-gray-500 font-medium w-28">SAM (sn)</th>
-                <th className="py-2 text-center text-gray-500 font-medium w-24">Kaynak</th>
+              <tr className="border-b border-line-soft">
+                <th className="py-2 text-left text-faint font-medium">Süreç</th>
+                <th className="py-2 text-right text-faint font-medium w-28">SAM (sn)</th>
+                <th className="py-2 text-center text-faint font-medium w-24">Kaynak</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -269,11 +269,11 @@ export default function ModelsPage() {
                 <tr key={idx} className={entry.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
                   <td className="py-2 text-gray-700">{entry.process_name}</td>
                   <td className="py-2 text-right">
-                    <input type="number" className="w-24 px-2 py-1.5 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-[#197A56]"
+                    <input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right focus:outline-none focus:border-accent"
                       value={entry.sam_minutes || ''} onChange={e => updateSam(idx, 'sam_minutes', parseFloat(e.target.value) || 0)} step={0.1} min={0} placeholder="0" />
                   </td>
                   <td className="py-2 text-center">
-                    <select className="px-2 py-1 border border-gray-300 rounded text-sm" value={entry.source} onChange={e => updateSam(idx, 'source', e.target.value)}>
+                    <select className="px-2 py-1 border border-line rounded text-sm" value={entry.source} onChange={e => updateSam(idx, 'source', e.target.value)}>
                       <option value="Pratik">Pratik</option>
                       <option value="MTM">MTM</option>
                     </select>
@@ -282,15 +282,15 @@ export default function ModelsPage() {
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t-2 border-gray-300">
-                <td className="py-2 font-semibold text-gray-900">Toplam SAM</td>
-                <td className="py-2 text-right font-bold text-lg text-[#197A56]">{totalFormSamSec.toFixed(1)} sn <span className="text-sm text-gray-400 font-normal">({totalFormSamMin.toFixed(2)} dk)</span></td>
+              <tr className="border-t-2 border-line">
+                <td className="py-2 font-semibold text-ink">Toplam SAM</td>
+                <td className="py-2 text-right font-bold text-lg text-accent">{totalFormSamSec.toFixed(1)} sn <span className="text-sm text-faint font-normal">({totalFormSamMin.toFixed(2)} dk)</span></td>
                 <td></td>
               </tr>
             </tfoot>
           </table>
 
-          <button type="submit" disabled={loading} className="px-6 py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] text-sm font-medium disabled:opacity-50">
+          <button type="submit" disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Modeli Kaydet'}
           </button>
         </form>
@@ -303,25 +303,25 @@ export default function ModelsPage() {
             const totalSamSec = group.items.reduce((sum, m) => sum + Number(m.sam_minutes), 0)
             const totalSamMin = totalSamSec / 60
             return (
-              <div key={code} className="bg-white border border-gray-200 rounded-xl p-5">
+              <div key={code} className="bg-white border border-line-soft rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <span className="text-[#197A56] font-bold text-lg">{code}</span>
+                    <span className="text-accent font-bold text-lg">{code}</span>
                     <span className="text-gray-700 ml-2">{group.name}</span>
-                    <span className="text-xs text-gray-400 ml-2">{group.category_name} · {group.template_code}</span>
+                    <span className="text-xs text-faint ml-2">{group.category_name} · {group.template_code}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <span className="text-xs text-gray-500">Toplam SAM</span>
-                      <span className="text-xl font-bold text-gray-900 ml-2">{totalSamSec.toFixed(1)} sn</span>
-                      <span className="text-sm text-gray-400 ml-1">({totalSamMin.toFixed(2)} dk)</span>
+                      <span className="text-xs text-faint">Toplam SAM</span>
+                      <span className="text-xl font-bold text-ink ml-2">{totalSamSec.toFixed(1)} sn</span>
+                      <span className="text-sm text-faint ml-1">({totalSamMin.toFixed(2)} dk)</span>
                     </div>
                     {editingGroup === code ? (
                       <div className="flex gap-2">
-                        <button onClick={() => handleGroupSave(code, group)} disabled={loading} className="text-xs px-3 py-1.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B]">
+                        <button onClick={() => handleGroupSave(code, group)} disabled={loading} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg hover:bg-accent-hover">
                           {loading ? '...' : 'Tümünü Kaydet'}
                         </button>
-                        <button onClick={() => setEditingGroup(null)} className="text-xs px-3 py-1.5 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50">İptal</button>
+                        <button onClick={() => setEditingGroup(null)} className="text-xs px-3 py-1.5 border border-line text-muted rounded-lg hover:bg-canvas">İptal</button>
                       </div>
                     ) : (
                       <button onClick={() => startGroupEdit(code, group.items)} className="text-xs px-3 py-1.5 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">Düzenle</button>
@@ -333,10 +333,10 @@ export default function ModelsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      <th className="py-1.5 text-left text-gray-500 font-medium text-xs">Süreç</th>
-                      <th className="py-1.5 text-right text-gray-500 font-medium text-xs">SAM (sn)</th>
-                      <th className="py-1.5 text-center text-gray-500 font-medium text-xs">Kaynak</th>
-                      <th className="py-1.5 text-center text-gray-500 font-medium text-xs">İşlem</th>
+                      <th className="py-1.5 text-left text-faint font-medium text-xs">Süreç</th>
+                      <th className="py-1.5 text-right text-faint font-medium text-xs">SAM (sn)</th>
+                      <th className="py-1.5 text-center text-faint font-medium text-xs">Kaynak</th>
+                      <th className="py-1.5 text-center text-faint font-medium text-xs">İşlem</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -345,8 +345,8 @@ export default function ModelsPage() {
                         const hasSam = row.sam_minutes > 0
                         return (
                           <tr key={row.process_id} className={hasSam ? 'bg-emerald-50' : ''}>
-                            <td className="py-1.5 text-gray-600">
-                              <span className="text-xs text-gray-400 mr-1">{row.process_code}</span>
+                            <td className="py-1.5 text-muted">
+                              <span className="text-xs text-faint mr-1">{row.process_code}</span>
                               {row.process_name}
                             </td>
                             <td className="py-1.5 text-right">
@@ -359,7 +359,7 @@ export default function ModelsPage() {
                                 <option value="MTM">MTM</option>
                               </select>
                             </td>
-                            <td className="py-1.5 text-center text-xs text-gray-400">
+                            <td className="py-1.5 text-center text-xs text-faint">
                               {row.model_id ? 'mevcut' : hasSam ? 'yeni' : ''}
                             </td>
                           </tr>
@@ -367,11 +367,11 @@ export default function ModelsPage() {
                       })
                     ) : (
                       group.items.map(m => (
-                        <tr key={m.id} className="hover:bg-gray-50">
-                          <td className="py-1.5 text-gray-600">{m.process_name}</td>
-                          <td className="py-1.5 text-right font-medium text-gray-900">{Number(m.sam_minutes).toFixed(1)} sn</td>
+                        <tr key={m.id} className="hover:bg-canvas">
+                          <td className="py-1.5 text-muted">{m.process_name}</td>
+                          <td className="py-1.5 text-right font-medium text-ink">{Number(m.sam_minutes).toFixed(1)} sn</td>
                           <td className="py-1.5 text-center">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-500'}`}>{m.source}</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span>
                           </td>
                           <td className="py-1.5 text-center">
                             <button onClick={() => handleDelete(m.id, `${code}/${m.process_name}`)} className="text-xs text-red-500 hover:underline">Sil</button>
@@ -386,9 +386,9 @@ export default function ModelsPage() {
           })}
         </div>
       ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
-          <p className="text-gray-600">Henüz SAM verisi eklenmemiş</p>
-          <p className="text-sm text-gray-400 mt-1">&quot;+ Yeni Model&quot; ile tüm süreçlerin SAM değerlerini tek seferde girin</p>
+        <div className="bg-canvas border border-line-soft rounded-xl p-8 text-center">
+          <p className="text-muted">Henüz SAM verisi eklenmemiş</p>
+          <p className="text-sm text-faint mt-1">&quot;+ Yeni Model&quot; ile tüm süreçlerin SAM değerlerini tek seferde girin</p>
         </div>
       )}
     </div>
@@ -433,8 +433,8 @@ function BottleneckBar({ code, bn, onSave }: { code: string; bn?: Bottleneck; on
             <p className="text-lg font-bold text-amber-900">{maxDaily > 0 ? maxDaily.toLocaleString('tr-TR') : '—'}</p>
           </div>
           <div className="flex gap-1 pt-3">
-            <button onClick={save} disabled={saving} className="text-xs px-3 py-1.5 bg-[#197A56] text-white rounded-lg">Kaydet</button>
-            <button onClick={() => setEditing(false)} className="text-xs px-3 py-1.5 border border-gray-300 text-gray-600 rounded-lg">İptal</button>
+            <button onClick={save} disabled={saving} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">Kaydet</button>
+            <button onClick={() => setEditing(false)} className="text-xs px-3 py-1.5 border border-line text-muted rounded-lg">İptal</button>
           </div>
         </div>
       </div>
@@ -458,7 +458,7 @@ function BottleneckBar({ code, bn, onSave }: { code: string; bn?: Bottleneck; on
   }
 
   return (
-    <button onClick={() => setEditing(true)} className="mb-3 w-full text-left bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-sm text-gray-500 hover:bg-gray-100 transition-colors">
+    <button onClick={() => setEditing(true)} className="mb-3 w-full text-left bg-canvas border border-dashed border-line rounded-lg p-3 text-sm text-faint hover:bg-gray-100 transition-colors">
       + Darboğaz bilgisi ekle (çevrim süresi → maks günlük üretim hesabı)
     </button>
   )

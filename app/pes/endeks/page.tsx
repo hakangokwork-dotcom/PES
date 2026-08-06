@@ -24,8 +24,8 @@ export default async function EndeksPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Fiyat Endeksleri</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-ink">Fiyat Endeksleri</h1>
+        <p className="text-faint mt-1">
           Dönemler arası karşılaştırmanın enflasyondan arındırılması için kullanılır.
           Değerler <strong>elle girilir</strong> — sistem TÜİK/TCMB verisini kendiliğinden
           çekmez ve eksik dönem için tahmin üretmez.

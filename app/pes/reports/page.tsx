@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
+import { effTone, fpqTone, TONE_TEXT } from '@/lib/ui/tone'
 
 export const dynamic = 'force-dynamic'
 
@@ -86,57 +87,57 @@ export default async function ReportsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Raporlar ve Analiz</h1>
-        <p className="text-gray-500 mt-1">Sistem geneli performans özeti</p>
+        <h1 className="text-2xl font-bold text-ink">Raporlar ve Analiz</h1>
+        <p className="text-faint mt-1">Sistem geneli performans özeti</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Aktif Atölye</p>
-          <p className="text-2xl font-bold text-gray-900">{Number(totals.workshop_count)}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Aktif Atölye</p>
+          <p className="text-2xl font-bold text-ink">{Number(totals.workshop_count)}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Toplam Bant</p>
-          <p className="text-2xl font-bold text-gray-900">{Number(totals.total_lines)}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Toplam Bant</p>
+          <p className="text-2xl font-bold text-ink">{Number(totals.total_lines)}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Dikim Operatörü</p>
-          <p className="text-2xl font-bold text-gray-900">{Number(totals.total_sewing).toLocaleString('tr-TR')}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Dikim Operatörü</p>
+          <p className="text-2xl font-bold text-ink">{Number(totals.total_sewing).toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Toplam Çalışan</p>
-          <p className="text-2xl font-bold text-gray-900">{Number(totals.total_staff).toLocaleString('tr-TR')}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Toplam Çalışan</p>
+          <p className="text-2xl font-bold text-ink">{Number(totals.total_staff).toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Günlük Hedef</p>
-          <p className="text-2xl font-bold text-gray-900">{Number(totals.total_daily_target).toLocaleString('tr-TR')}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Günlük Hedef</p>
+          <p className="text-2xl font-bold text-ink">{Number(totals.total_daily_target).toLocaleString('tr-TR')}</p>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Atölye Profil Özeti</h2>
+      <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-line-soft">
+          <h2 className="text-lg font-semibold text-ink">Atölye Profil Özeti</h2>
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-left text-gray-500 font-medium">Kod</th>
-              <th className="px-4 py-3 text-left text-gray-500 font-medium">Ad</th>
-              <th className="px-4 py-3 text-center text-gray-500 font-medium">Tip</th>
-              <th className="px-4 py-3 text-left text-gray-500 font-medium">Şehir</th>
-              <th className="px-4 py-3 text-right text-gray-500 font-medium">Dikim</th>
-              <th className="px-4 py-3 text-right text-gray-500 font-medium">Toplam</th>
-              <th className="px-4 py-3 text-right text-gray-500 font-medium">Bant</th>
-              <th className="px-4 py-3 text-right text-gray-500 font-medium">G.Hedef</th>
+            <tr className="bg-canvas border-b border-line-soft">
+              <th className="px-4 py-3 text-left text-faint font-medium">Kod</th>
+              <th className="px-4 py-3 text-left text-faint font-medium">Ad</th>
+              <th className="px-4 py-3 text-center text-faint font-medium">Tip</th>
+              <th className="px-4 py-3 text-left text-faint font-medium">Şehir</th>
+              <th className="px-4 py-3 text-right text-faint font-medium">Dikim</th>
+              <th className="px-4 py-3 text-right text-faint font-medium">Toplam</th>
+              <th className="px-4 py-3 text-right text-faint font-medium">Bant</th>
+              <th className="px-4 py-3 text-right text-faint font-medium">G.Hedef</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {workshopSummary.map((w, i) => (
-              <tr key={i} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-[#197A56] font-medium">{String(w.code)}</td>
-                <td className="px-4 py-3 text-gray-900">{String(w.name)}</td>
+              <tr key={i} className="hover:bg-canvas">
+                <td className="px-4 py-3 text-accent font-medium">{String(w.code)}</td>
+                <td className="px-4 py-3 text-ink">{String(w.name)}</td>
                 <td className="px-4 py-3 text-center"><span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{String(w.type)}</span></td>
-                <td className="px-4 py-3 text-gray-600">{w.city ? String(w.city) : '—'}</td>
+                <td className="px-4 py-3 text-muted">{w.city ? String(w.city) : '—'}</td>
                 <td className="px-4 py-3 text-right">{String(w.sewing_staff)}</td>
                 <td className="px-4 py-3 text-right">{String(w.total_staff)}</td>
                 <td className="px-4 py-3 text-right">{String(w.line_count)}</td>
@@ -148,29 +149,29 @@ export default async function ReportsPage() {
       </div>
 
       {prodSummary.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Verimlilik Sıralaması</h2>
+        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-line-soft">
+            <h2 className="text-lg font-semibold text-ink">Verimlilik Sıralaması</h2>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-center text-gray-500 font-medium">#</th>
-                <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Hedef</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Gerçekleşen</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Verimlilik</th>
+              <tr className="bg-canvas border-b border-line-soft">
+                <th className="px-4 py-3 text-center text-faint font-medium">#</th>
+                <th className="px-4 py-3 text-left text-faint font-medium">Atölye</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Hedef</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Gerçekleşen</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Verimlilik</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {prodSummary.map((p, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-center text-gray-400">{i + 1}</td>
-                  <td className="px-4 py-3 text-gray-900">{String(p.code)} — {String(p.name)}</td>
+                <tr key={i} className="hover:bg-canvas">
+                  <td className="px-4 py-3 text-center text-faint">{i + 1}</td>
+                  <td className="px-4 py-3 text-ink">{String(p.code)} — {String(p.name)}</td>
                   <td className="px-4 py-3 text-right">{Number(p.total_target).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right">{Number(p.total_actual).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`font-bold ${Number(p.efficiency) >= 90 ? 'text-green-600' : Number(p.efficiency) >= 70 ? 'text-amber-600' : 'text-red-600'}`}>%{String(p.efficiency)}</span>
+                    <span className={`font-bold ${TONE_TEXT[effTone(Number(p.efficiency))]}`}>%{String(p.efficiency)}</span>
                   </td>
                 </tr>
               ))}
@@ -180,26 +181,26 @@ export default async function ReportsPage() {
       )}
 
       {expenseSummary.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Maliyet Analizi</h2>
+        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-line-soft">
+            <h2 className="text-lg font-semibold text-ink">Maliyet Analizi</h2>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
-                <th className="px-4 py-3 text-center text-gray-500 font-medium">Dönem</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Toplam Gider</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">TL/dk</th>
+              <tr className="bg-canvas border-b border-line-soft">
+                <th className="px-4 py-3 text-left text-faint font-medium">Atölye</th>
+                <th className="px-4 py-3 text-center text-faint font-medium">Dönem</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Toplam Gider</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">TL/dk</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {expenseSummary.map((e, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-900">{String(e.code)} — {String(e.name)}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{String(e.year)}/{String(e.month)}</td>
+                <tr key={i} className="hover:bg-canvas">
+                  <td className="px-4 py-3 text-ink">{String(e.code)} — {String(e.name)}</td>
+                  <td className="px-4 py-3 text-center text-muted">{String(e.year)}/{String(e.month)}</td>
                   <td className="px-4 py-3 text-right">{Number(e.total_expense).toLocaleString('tr-TR')} TL</td>
-                  <td className="px-4 py-3 text-right font-bold text-[#197A56]">{String(e.cost_per_min)} TL/dk</td>
+                  <td className="px-4 py-3 text-right font-bold text-accent">{String(e.cost_per_min)} TL/dk</td>
                 </tr>
               ))}
             </tbody>
@@ -208,29 +209,29 @@ export default async function ReportsPage() {
       )}
 
       {qualitySummary.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Kalite Analizi</h2>
+        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-line-soft">
+            <h2 className="text-lg font-semibold text-ink">Kalite Analizi</h2>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Kontrol</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">FPQ</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Red</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">FPQ %</th>
+              <tr className="bg-canvas border-b border-line-soft">
+                <th className="px-4 py-3 text-left text-faint font-medium">Atölye</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Kontrol</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">FPQ</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Red</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">FPQ %</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {qualitySummary.map((q, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-900">{String(q.code)} — {String(q.name)}</td>
+                <tr key={i} className="hover:bg-canvas">
+                  <td className="px-4 py-3 text-ink">{String(q.code)} — {String(q.name)}</td>
                   <td className="px-4 py-3 text-right">{Number(q.total_inspected).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right">{Number(q.total_fpq).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right text-red-600">{Number(q.total_rejected).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`font-bold ${Number(q.fpq_rate) >= 95 ? 'text-green-600' : Number(q.fpq_rate) >= 90 ? 'text-amber-600' : 'text-red-600'}`}>%{String(q.fpq_rate)}</span>
+                    <span className={`font-bold ${TONE_TEXT[fpqTone(Number(q.fpq_rate))]}`}>%{String(q.fpq_rate)}</span>
                   </td>
                 </tr>
               ))}
@@ -240,26 +241,26 @@ export default async function ReportsPage() {
       )}
 
       {scoreSummary.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Tedarikçi Skor Sıralaması</h2>
+        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-line-soft">
+            <h2 className="text-lg font-semibold text-ink">Tedarikçi Skor Sıralaması</h2>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-center text-gray-500 font-medium">#</th>
-                <th className="px-4 py-3 text-left text-gray-500 font-medium">Atölye</th>
-                <th className="px-4 py-3 text-right text-gray-500 font-medium">Bileşik</th>
-                <th className="px-4 py-3 text-center text-gray-500 font-medium">Kademe</th>
-                <th className="px-4 py-3 text-center text-gray-500 font-medium">Trend</th>
+              <tr className="bg-canvas border-b border-line-soft">
+                <th className="px-4 py-3 text-center text-faint font-medium">#</th>
+                <th className="px-4 py-3 text-left text-faint font-medium">Atölye</th>
+                <th className="px-4 py-3 text-right text-faint font-medium">Bileşik</th>
+                <th className="px-4 py-3 text-center text-faint font-medium">Kademe</th>
+                <th className="px-4 py-3 text-center text-faint font-medium">Trend</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {scoreSummary.map((s, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-center text-gray-400">{i + 1}</td>
-                  <td className="px-4 py-3 text-gray-900">{String(s.code)} — {String(s.name)}</td>
-                  <td className="px-4 py-3 text-right font-bold text-gray-900">{String(s.composite_sc)}</td>
+                <tr key={i} className="hover:bg-canvas">
+                  <td className="px-4 py-3 text-center text-faint">{i + 1}</td>
+                  <td className="px-4 py-3 text-ink">{String(s.code)} — {String(s.name)}</td>
+                  <td className="px-4 py-3 text-right font-bold text-ink">{String(s.composite_sc)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                       s.tier === 'Stratejik' ? 'bg-green-100 text-green-700' :

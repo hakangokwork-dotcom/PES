@@ -35,8 +35,8 @@ export default async function AtolyeProfilPage({
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Atölye Profili ve Denetimler</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-ink">Atölye Profili ve Denetimler</h1>
+          <p className="text-faint mt-1">
             {dbError
               ? 'Bağlantı hatası'
               : `${data.ozet?.profilli ?? 0} atölyede künye · ${data.ozet?.denetim ?? 0} denetim kaydı`}
@@ -44,7 +44,7 @@ export default async function AtolyeProfilPage({
         </div>
         <Link
           href={arsivDahil ? '/pes/atolye-profil' : '/pes/atolye-profil?arsiv=1'}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          className="px-4 py-2 border border-line text-gray-700 rounded-lg hover:bg-canvas transition-colors text-sm font-medium"
         >
           {arsivDahil ? 'Pasifleri gizle' : 'Pasifleri göster'}
         </Link>
@@ -59,7 +59,7 @@ export default async function AtolyeProfilPage({
       {/* Boş künye normal bir durum, hata değil: kullanıcılar zamanla
           doldurur. Bu yüzden uyarı tonunda değil, bilgi tonunda. */}
       {!dbError && (data.ozet?.eslesmeyen_satir ?? 0) > 0 && (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-faint">
           Künyesi boş atölyeler listede yer alır; alanları atölye sayfasındaki
           &quot;Profil &amp; Denetim&quot; sekmesinden doldurabilirsiniz. Kaynak
           Excel&apos;in bağlanmamış {data.ozet?.eslesmeyen_satir} satırı

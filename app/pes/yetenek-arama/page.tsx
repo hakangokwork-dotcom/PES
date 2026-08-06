@@ -183,8 +183,8 @@ export default async function YetenekAramaPage({
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Yetenek Arama</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-ink">Yetenek Arama</h1>
+        <p className="text-faint mt-1">
           {seciliBoyutlar.length === 0
             ? `${tumBantlar.length} aktif bant · filtre seçin`
             : `${sonuc.length} bant · ${atolyeListesi.length} atölye eşleşiyor`}
@@ -203,23 +203,23 @@ export default async function YetenekAramaPage({
           )}
 
           {atolyeListesi.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
-              <p className="text-gray-600">Bu koşulların hepsini birden sağlayan bant yok.</p>
-              <p className="text-xs text-gray-400 mt-1">
+            <div className="bg-canvas border border-line-soft rounded-xl p-8 text-center">
+              <p className="text-muted">Bu koşulların hepsini birden sağlayan bant yok.</p>
+              <p className="text-xs text-faint mt-1">
                 Filtrelerden birini kaldırıp tekrar deneyin — sayaçlar hangi seçimin daraltacağını gösterir.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               {atolyeListesi.map((a) => (
-                <div key={a.code} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50">
+                <div key={a.code} className="bg-white border border-line-soft rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-canvas">
                     <div className="min-w-0">
-                      <span className="text-[#197A56] font-semibold">{a.code}</span>
-                      <span className="text-gray-900 font-medium ml-2">{a.name}</span>
-                      {a.city && <span className="text-gray-500 text-sm ml-2">· {a.city}</span>}
+                      <span className="text-accent font-semibold">{a.code}</span>
+                      <span className="text-ink font-medium ml-2">{a.name}</span>
+                      {a.city && <span className="text-faint text-sm ml-2">· {a.city}</span>}
                     </div>
-                    <span className="text-xs text-gray-500 shrink-0 ml-3">
+                    <span className="text-xs text-faint shrink-0 ml-3">
                       {a.bantlar.length} bant eşleşti
                     </span>
                   </div>
@@ -227,10 +227,10 @@ export default async function YetenekAramaPage({
                     {a.bantlar.map((b) => (
                       <div key={b.id} className="px-5 py-2.5 flex items-center justify-between gap-4 text-sm">
                         <div className="min-w-0">
-                          <span className="text-gray-900">{b.name}</span>
-                          <span className="text-gray-400 text-xs ml-2">{b.code}</span>
+                          <span className="text-ink">{b.name}</span>
+                          <span className="text-faint text-xs ml-2">{b.code}</span>
                         </div>
-                        <div className="flex items-center gap-3 shrink-0 text-xs text-gray-500">
+                        <div className="flex items-center gap-3 shrink-0 text-xs text-faint">
                           {b.bantTuru && (
                             <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
                               {b.bantTuru}

@@ -68,10 +68,10 @@ export default function AtolyeTehlikeliIslemler({
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-5 space-y-4">
+    <div className="border border-line-soft rounded-xl p-5 space-y-4">
       <div>
-        <h2 className="text-sm font-semibold text-gray-900">Atölye durumu</h2>
-        <p className="text-xs text-gray-500 mt-1">
+        <h2 className="text-sm font-semibold text-ink">Atölye durumu</h2>
+        <p className="text-xs text-faint mt-1">
           Pasife alınan atölye listelerden, dashboard sayacından ve atölye
           seçicilerden düşer — raporlar yalnız aktifleri sayar. Verisi
           silinmez, istediğin zaman geri açarsın.
@@ -88,7 +88,7 @@ export default function AtolyeTehlikeliIslemler({
         <button
           onClick={arsivDegistir}
           disabled={bekliyor}
-          className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40"
+          className="text-sm font-medium px-4 py-2 rounded-lg border border-line text-gray-700 hover:bg-canvas transition-colors disabled:opacity-40"
         >
           {bekliyor ? '…' : aktif ? 'Pasife al' : 'Aktife al'}
         </button>
@@ -116,7 +116,7 @@ export default function AtolyeTehlikeliIslemler({
             <button
               onClick={() => setOnayIstendi(false)}
               disabled={bekliyor}
-              className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40"
+              className="text-sm font-medium px-4 py-2 rounded-lg border border-line text-gray-700 hover:bg-canvas transition-colors disabled:opacity-40"
             >
               Vazgeç
             </button>

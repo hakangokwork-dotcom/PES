@@ -65,7 +65,7 @@ export default function TermTip({
         aria-controls={open ? panelId : undefined}
         className={
           showIcon
-            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-gray-300 text-[10px] text-gray-500 hover:border-emerald-500 hover:text-emerald-600 transition-colors align-middle'
+            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[10px] text-faint hover:border-emerald-500 hover:text-emerald-600 transition-colors align-middle'
             : 'inline text-left underline decoration-dotted decoration-gray-400 underline-offset-2 hover:decoration-emerald-600 hover:text-emerald-700 transition-colors cursor-help'
         }
       >
@@ -80,7 +80,7 @@ export default function TermTip({
         >
           <span className="block font-semibold mb-0.5">{metric.label}</span>
           <span className="block text-gray-200 leading-snug">{short}</span>
-          <span className="block text-gray-400 mt-1 text-[10px]">Detay için tıklayın</span>
+          <span className="block text-faint mt-1 text-[10px]">Detay için tıklayın</span>
         </span>
       )}
 
@@ -88,18 +88,18 @@ export default function TermTip({
       {open && (
         <span
           id={panelId}
-          className="absolute z-50 left-0 top-full mt-1.5 w-96 max-w-[90vw] bg-white border border-gray-200 rounded-xl shadow-2xl p-4 text-left block"
+          className="absolute z-50 left-0 top-full mt-1.5 w-96 max-w-[90vw] bg-white border border-line-soft rounded-xl shadow-2xl p-4 text-left block"
         >
           <span className="flex items-start justify-between gap-2 mb-2">
             <span>
-              <span className="block text-sm font-semibold text-gray-900">{metric.label}</span>
-              <span className="block text-[10px] text-gray-400 uppercase tracking-wider">
+              <span className="block text-sm font-semibold text-ink">{metric.label}</span>
+              <span className="block text-[10px] text-faint uppercase tracking-wider">
                 {METRIC_CATEGORIES[metric.category]} · {metric.unit}
               </span>
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(false) }}
-              className="text-gray-400 hover:text-gray-700 text-sm leading-none"
+              className="text-faint hover:text-gray-700 text-sm leading-none"
               aria-label="Kapat"
             >
               ✕
@@ -107,13 +107,13 @@ export default function TermTip({
           </span>
 
           {metric.aliases && metric.aliases.length > 0 && (
-            <span className="block text-[11px] text-gray-500 mb-2">
+            <span className="block text-[11px] text-faint mb-2">
               Literatürde: {metric.aliases.join(' · ')}
             </span>
           )}
 
           <Block title="Formül">
-            <code className="text-xs bg-gray-50 px-2 py-1.5 rounded block font-mono leading-relaxed text-gray-800">
+            <code className="text-xs bg-canvas px-2 py-1.5 rounded block font-mono leading-relaxed text-gray-800">
               {metric.formula}
             </code>
           </Block>
@@ -125,7 +125,7 @@ export default function TermTip({
                   <span className="font-mono text-emerald-700">
                     {s.table}{s.column ? `.${s.column}` : ''}
                   </span>
-                  <span className="text-gray-500"> — {s.label}</span>
+                  <span className="text-faint"> — {s.label}</span>
                 </span>
               ))}
             </span>
@@ -150,18 +150,18 @@ export default function TermTip({
 
           {metric.example && (
             <Block title="Örnek">
-              <span className="block text-xs text-gray-600 leading-relaxed">{metric.example}</span>
+              <span className="block text-xs text-muted leading-relaxed">{metric.example}</span>
             </Block>
           )}
 
           {metric.notes && (
             <Block title="Neden böyle">
-              <span className="block text-xs text-gray-600 leading-relaxed">{metric.notes}</span>
+              <span className="block text-xs text-muted leading-relaxed">{metric.notes}</span>
             </Block>
           )}
 
           {metric.literature && (
-            <span className="block text-[10px] text-gray-400 pt-2 border-t border-gray-100 italic">
+            <span className="block text-[10px] text-faint pt-2 border-t border-gray-100 italic">
               Kaynak: {metric.literature}
             </span>
           )}
@@ -174,7 +174,7 @@ export default function TermTip({
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <span className="block mb-3">
-      <span className="block text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
+      <span className="block text-[10px] uppercase tracking-wider text-faint font-semibold mb-1">
         {title}
       </span>
       {children}

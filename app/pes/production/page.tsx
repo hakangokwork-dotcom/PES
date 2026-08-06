@@ -106,21 +106,21 @@ export default function ProductionPage() {
     if (!error) setMessage(`${saved} bant için üretim verisi kaydedildi`)
   }
 
-  const inputClass = 'w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-[#197A56] text-right'
+  const inputClass = 'w-full px-2 py-1.5 border border-line rounded text-sm focus:outline-none focus:border-accent text-right'
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Aylık Üretim Girişi</h1>
-        <p className="text-gray-500 mt-1">Bant bazlı aylık üretim verilerini girin</p>
+        <h1 className="text-2xl font-bold text-ink">Aylık Üretim Girişi</h1>
+        <p className="text-faint mt-1">Bant bazlı aylık üretim verilerini girin</p>
       </div>
 
       {/* Seçim */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <div className="bg-white border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Atölye</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
+            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
               <option value="">Seçin...</option>
               {workshops.map(w => (
                 <option key={w.id} value={w.id}>{w.code} — {w.name}</option>
@@ -129,14 +129,14 @@ export default function ProductionPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
+            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
               <option value={2025}>2025</option>
               <option value={2026}>2026</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Ay</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
+            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
               {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
                 <option key={m} value={m}>{m}</option>
               ))}
@@ -146,19 +146,19 @@ export default function ProductionPage() {
       </div>
 
       {workshopId && lines.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Bant Bazlı Üretim</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Bant Bazlı Üretim</h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="py-2 text-left text-gray-500 font-medium">Bant</th>
-                  <th className="py-2 text-left text-gray-500 font-medium">Model Kodu</th>
-                  <th className="py-2 text-right text-gray-500 font-medium">SAM (dk)</th>
-                  <th className="py-2 text-right text-gray-500 font-medium">Hedef</th>
-                  <th className="py-2 text-right text-gray-500 font-medium">Gerçekleşen</th>
-                  <th className="py-2 text-right text-gray-500 font-medium">Verimlilik</th>
+                <tr className="border-b border-line-soft">
+                  <th className="py-2 text-left text-faint font-medium">Bant</th>
+                  <th className="py-2 text-left text-faint font-medium">Model Kodu</th>
+                  <th className="py-2 text-right text-faint font-medium">SAM (dk)</th>
+                  <th className="py-2 text-right text-faint font-medium">Hedef</th>
+                  <th className="py-2 text-right text-faint font-medium">Gerçekleşen</th>
+                  <th className="py-2 text-right text-faint font-medium">Verimlilik</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -166,8 +166,8 @@ export default function ProductionPage() {
                   const eff = row.target_qty > 0 ? ((row.actual_qty / row.target_qty) * 100) : 0
                   return (
                     <tr key={row.line_id}>
-                      <td className="py-2 text-[#197A56] font-medium">{row.line_code}<br/><span className="text-xs text-gray-400">{row.line_name}</span></td>
-                      <td className="py-2"><input className="w-32 px-2 py-1.5 border border-gray-300 rounded text-sm" value={row.model_code} onChange={e => updateRow(idx, 'model_code', e.target.value)} placeholder="PNT-001" /></td>
+                      <td className="py-2 text-accent font-medium">{row.line_code}<br/><span className="text-xs text-faint">{row.line_name}</span></td>
+                      <td className="py-2"><input className="w-32 px-2 py-1.5 border border-line rounded text-sm" value={row.model_code} onChange={e => updateRow(idx, 'model_code', e.target.value)} placeholder="PNT-001" /></td>
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 80}} value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value) || 0)} min={0} step={0.1} /></td>
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 90}} value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value) || 0)} min={0} /></td>
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 90}} value={row.actual_qty} onChange={e => updateRow(idx, 'actual_qty', parseInt(e.target.value) || 0)} min={0} /></td>
@@ -189,7 +189,7 @@ export default function ProductionPage() {
           <button
             onClick={handleSave}
             disabled={loading}
-            className="mt-4 px-6 py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50"
+            className="mt-4 px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50"
           >
             {loading ? 'Kaydediliyor...' : 'Üretim Verilerini Kaydet'}
           </button>

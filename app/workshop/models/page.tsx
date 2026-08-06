@@ -13,7 +13,7 @@ interface SamEntry { process_id: number; process_name: string; sam_minutes: numb
 
 export default function WorkshopModelsWrapper() {
   return (
-    <Suspense fallback={<div className="p-6 text-gray-400">Yükleniyor...</div>}>
+    <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}>
       <WorkshopModelsPage />
     </Suspense>
   )
@@ -94,7 +94,7 @@ function WorkshopModelsPage() {
   }, {} as Record<string, { name: string; category_name: string; template_code: string; items: ModelRow[] }>)
 
   const totalFormSam = samEntries.reduce((s, e) => s + e.sam_minutes, 0)
-  const ic = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#197A56] focus:ring-1 focus:ring-[#197A56]'
+  const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
 
   if (!wid) return <p>Atölye seçin</p>
 
@@ -102,10 +102,10 @@ function WorkshopModelsPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop?wid=${wid}`} className="text-sm text-gray-500 hover:text-gray-700">← Dashboard</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">Model / SAM Kütüphanesi</h1>
+          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+          <h1 className="text-2xl font-bold text-ink mt-2">Model / SAM Kütüphanesi</h1>
         </div>
-        <button onClick={() => showForm ? setShowForm(false) : initForm()} className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] text-sm font-medium">
+        <button onClick={() => showForm ? setShowForm(false) : initForm()} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
           {showForm ? 'İptal' : '+ Yeni Model'}
         </button>
       </div>
@@ -115,29 +115,29 @@ function WorkshopModelsPage() {
 
       {/* Yeni Model Formu */}
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Model Bilgileri</h2>
+        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-ink">Model Bilgileri</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div><label className="block text-xs font-medium text-gray-600 mb-1">Model Kodu</label><input className={ic} value={form.code} onChange={e => setForm(p => ({...p, code: e.target.value}))} placeholder="PNT-BAGGY-01" required /></div>
-            <div><label className="block text-xs font-medium text-gray-600 mb-1">Model Adı</label><input className={ic} value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} placeholder="Baggy Pantolon" required /></div>
-            <div><label className="block text-xs font-medium text-gray-600 mb-1">Kategori</label><select className={ic} value={form.category_id} onChange={e => setForm(p => ({...p, category_id: e.target.value}))} required><option value="">Seçin</option>{categories.map(c => <option key={c.id} value={c.id}>{c.code} — {c.name}</option>)}</select></div>
-            <div><label className="block text-xs font-medium text-gray-600 mb-1">Şablon</label><input className={ic} value={form.template_code} onChange={e => setForm(p => ({...p, template_code: e.target.value}))} placeholder="SABLON-PNT" required /></div>
+            <div><label className="block text-xs font-medium text-muted mb-1">Model Kodu</label><input className={ic} value={form.code} onChange={e => setForm(p => ({...p, code: e.target.value}))} placeholder="PNT-BAGGY-01" required /></div>
+            <div><label className="block text-xs font-medium text-muted mb-1">Model Adı</label><input className={ic} value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} placeholder="Baggy Pantolon" required /></div>
+            <div><label className="block text-xs font-medium text-muted mb-1">Kategori</label><select className={ic} value={form.category_id} onChange={e => setForm(p => ({...p, category_id: e.target.value}))} required><option value="">Seçin</option>{categories.map(c => <option key={c.id} value={c.id}>{c.code} — {c.name}</option>)}</select></div>
+            <div><label className="block text-xs font-medium text-muted mb-1">Şablon</label><input className={ic} value={form.template_code} onChange={e => setForm(p => ({...p, template_code: e.target.value}))} placeholder="SABLON-PNT" required /></div>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 pt-2">Süreç Bazlı SAM (saniye)</h2>
+          <h2 className="text-lg font-semibold text-ink pt-2">Süreç Bazlı SAM (saniye)</h2>
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-gray-200"><th className="py-2 text-left text-gray-500">Süreç</th><th className="py-2 text-right text-gray-500 w-28">SAM (sn)</th><th className="py-2 text-center text-gray-500 w-24">Kaynak</th></tr></thead>
+            <thead><tr className="border-b border-line-soft"><th className="py-2 text-left text-faint">Süreç</th><th className="py-2 text-right text-faint w-28">SAM (sn)</th><th className="py-2 text-center text-faint w-24">Kaynak</th></tr></thead>
             <tbody className="divide-y divide-gray-100">
               {samEntries.map((e, i) => (
                 <tr key={i} className={e.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
                   <td className="py-2 text-gray-700">{e.process_name}</td>
-                  <td className="py-2 text-right"><input type="number" className="w-24 px-2 py-1.5 border border-gray-300 rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
-                  <td className="py-2 text-center"><select className="px-2 py-1 border border-gray-300 rounded text-sm" value={e.source} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, source: ev.target.value} : s))}><option value="Pratik">Pratik</option><option value="MTM">MTM</option></select></td>
+                  <td className="py-2 text-right"><input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
+                  <td className="py-2 text-center"><select className="px-2 py-1 border border-line rounded text-sm" value={e.source} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, source: ev.target.value} : s))}><option value="Pratik">Pratik</option><option value="MTM">MTM</option></select></td>
                 </tr>
               ))}
             </tbody>
-            <tfoot><tr className="border-t-2 border-gray-300"><td className="py-2 font-semibold">Toplam</td><td className="py-2 text-right font-bold text-[#197A56]">{totalFormSam.toFixed(1)} sn ({(totalFormSam/60).toFixed(2)} dk)</td><td></td></tr></tfoot>
+            <tfoot><tr className="border-t-2 border-line"><td className="py-2 font-semibold">Toplam</td><td className="py-2 text-right font-bold text-accent">{totalFormSam.toFixed(1)} sn ({(totalFormSam/60).toFixed(2)} dk)</td><td></td></tr></tfoot>
           </table>
-          <button type="submit" disabled={loading} className="px-6 py-2.5 bg-[#197A56] text-white rounded-lg text-sm font-medium disabled:opacity-50">{loading ? 'Kaydediliyor...' : 'Modeli Kaydet'}</button>
+          <button type="submit" disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">{loading ? 'Kaydediliyor...' : 'Modeli Kaydet'}</button>
         </form>
       )}
 
@@ -150,17 +150,17 @@ function WorkshopModelsPage() {
             const maxDaily = bn ? Math.floor((9 * 3600) / Number(bn.bottleneck_sec)) : 0
 
             return (
-              <div key={code} className="bg-white border border-gray-200 rounded-xl p-5">
+              <div key={code} className="bg-white border border-line-soft rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <span className="text-[#197A56] font-bold text-lg">{code}</span>
+                    <span className="text-accent font-bold text-lg">{code}</span>
                     <span className="text-gray-700 ml-2">{group.name}</span>
-                    <span className="text-xs text-gray-400 ml-2">{group.category_name}</span>
+                    <span className="text-xs text-faint ml-2">{group.category_name}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-gray-500">Toplam SAM</span>
-                    <span className="text-xl font-bold text-gray-900 ml-2">{totalSam.toFixed(1)} sn</span>
-                    <span className="text-sm text-gray-400 ml-1">({(totalSam/60).toFixed(2)} dk)</span>
+                    <span className="text-xs text-faint">Toplam SAM</span>
+                    <span className="text-xl font-bold text-ink ml-2">{totalSam.toFixed(1)} sn</span>
+                    <span className="text-sm text-faint ml-1">({(totalSam/60).toFixed(2)} dk)</span>
                   </div>
                 </div>
 
@@ -180,8 +180,8 @@ function WorkshopModelsPage() {
                       <p className="text-[10px] text-amber-600">adet/gün</p>
                     </div>
                     <div className="flex gap-1 pt-3">
-                      <button onClick={() => saveBn(code)} className="text-xs px-3 py-1.5 bg-[#197A56] text-white rounded-lg">Kaydet</button>
-                      <button onClick={() => setEditBnCode(null)} className="text-xs px-3 py-1.5 border border-gray-300 rounded-lg">İptal</button>
+                      <button onClick={() => saveBn(code)} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">Kaydet</button>
+                      <button onClick={() => setEditBnCode(null)} className="text-xs px-3 py-1.5 border border-line rounded-lg">İptal</button>
                     </div>
                   </div>
                 ) : bn ? (
@@ -196,20 +196,20 @@ function WorkshopModelsPage() {
                     </div>
                   </div>
                 ) : (
-                  <button onClick={() => { setEditBnCode(code); setBnOp(''); setBnSec(0) }} className="mb-3 w-full text-left bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-sm text-gray-500 hover:bg-gray-100">
+                  <button onClick={() => { setEditBnCode(code); setBnOp(''); setBnSec(0) }} className="mb-3 w-full text-left bg-canvas border border-dashed border-line rounded-lg p-3 text-sm text-faint hover:bg-gray-100">
                     + Darboğaz bilgisi ekle
                   </button>
                 )}
 
                 {/* SAM Tablosu */}
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b border-gray-100"><th className="py-1.5 text-left text-gray-500 text-xs">Süreç</th><th className="py-1.5 text-right text-gray-500 text-xs">SAM (sn)</th><th className="py-1.5 text-center text-gray-500 text-xs">Kaynak</th></tr></thead>
+                  <thead><tr className="border-b border-gray-100"><th className="py-1.5 text-left text-faint text-xs">Süreç</th><th className="py-1.5 text-right text-faint text-xs">SAM (sn)</th><th className="py-1.5 text-center text-faint text-xs">Kaynak</th></tr></thead>
                   <tbody className="divide-y divide-gray-50">
                     {group.items.map(m => (
-                      <tr key={m.id} className="hover:bg-gray-50">
-                        <td className="py-1.5 text-gray-600">{m.process_name}</td>
-                        <td className="py-1.5 text-right font-medium text-gray-900">{Number(m.sam_minutes).toFixed(1)} sn</td>
-                        <td className="py-1.5 text-center"><span className={`text-[10px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-500'}`}>{m.source}</span></td>
+                      <tr key={m.id} className="hover:bg-canvas">
+                        <td className="py-1.5 text-muted">{m.process_name}</td>
+                        <td className="py-1.5 text-right font-medium text-ink">{Number(m.sam_minutes).toFixed(1)} sn</td>
+                        <td className="py-1.5 text-center"><span className={`text-[10px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -223,7 +223,7 @@ function WorkshopModelsPage() {
                   >
                     Atölye Fiyatlama (Merkez) →
                   </Link>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-faint">
                     konfeksiyon_v3 veri modeli
                   </div>
                 </div>
@@ -232,9 +232,9 @@ function WorkshopModelsPage() {
           })}
         </div>
       ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
-          <p className="text-gray-600">Henüz model eklenmemiş</p>
-          <p className="text-sm text-gray-400 mt-1">&quot;+ Yeni Model&quot; ile modellerinizin SAM verilerini girin</p>
+        <div className="bg-canvas border border-line-soft rounded-xl p-8 text-center">
+          <p className="text-muted">Henüz model eklenmemiş</p>
+          <p className="text-sm text-faint mt-1">&quot;+ Yeni Model&quot; ile modellerinizin SAM verilerini girin</p>
         </div>
       )}
     </div>

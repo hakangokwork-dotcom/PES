@@ -123,12 +123,12 @@ function DenetimBlogu({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4">
+    <div className="bg-white border border-line-soft rounded-xl p-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-gray-900">{baslik}</h4>
+        <h4 className="font-medium text-ink">{baslik}</h4>
         <button
           onClick={() => setEkleAcik(!ekleAcik)}
-          className="text-xs px-2 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+          className="text-xs px-2 py-1 border border-line rounded-lg text-muted hover:bg-canvas"
         >
           {ekleAcik ? 'Vazgeç' : '+ Denetim ekle'}
         </button>
@@ -137,7 +137,7 @@ function DenetimBlogu({
       {son ? (
         <div className="mt-2">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-            kalan === null ? 'bg-gray-100 text-gray-500'
+            kalan === null ? 'bg-gray-100 text-faint'
             : kalan < 0 ? 'bg-red-100 text-red-700'
             : kalan <= 90 ? 'bg-amber-100 text-amber-700'
             : 'bg-green-100 text-green-700'
@@ -146,7 +146,7 @@ function DenetimBlogu({
               ? `Süresi ${Math.abs(kalan)} gün önce doldu`
               : `Geçerli · ${kalan} gün kaldı`}
           </span>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-muted mt-2">
             Son denetim <strong>{tarihTR(son.tarih)}</strong>
             {son.puan && ` · puan ${son.puan}`}
             {(son.sinif_hesap ?? son.sinif) && ` · sınıf ${son.sinif_hesap ?? son.sinif}`}
@@ -163,31 +163,31 @@ function DenetimBlogu({
           )}
         </div>
       ) : (
-        <p className="text-sm text-gray-400 mt-2">Denetim kaydı yok.</p>
+        <p className="text-sm text-faint mt-2">Denetim kaydı yok.</p>
       )}
 
       {ekleAcik && (
-        <div className="mt-3 p-3 bg-gray-50 rounded-lg space-y-2">
+        <div className="mt-3 p-3 bg-canvas rounded-lg space-y-2">
           <div className="flex flex-wrap gap-2">
             <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)}
-              className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm" />
+              className="px-2 py-1.5 border border-line rounded-lg text-sm" />
             <input value={puan} onChange={(e) => setPuan(e.target.value)} placeholder="Puan (0-100)"
-              className="w-32 px-2 py-1.5 border border-gray-300 rounded-lg text-sm" />
+              className="w-32 px-2 py-1.5 border border-line rounded-lg text-sm" />
             {/* Sosyalde sınıf puandan otomatik çıkar; elle girilen alan
                 yalnız "kaynak ne demiş" kaydı için. */}
             {tip === 'WKYS' && (
               <select value={sinif} onChange={(e) => setSinif(e.target.value)}
-                className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm bg-white">
+                className="px-2 py-1.5 border border-line rounded-lg text-sm bg-white">
                 <option value="">Sınıf yok</option>
                 {['A', 'B', 'C', 'D'].map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             )}
             <button onClick={ekle} disabled={bekliyor || !tarih}
-              className="px-3 py-1.5 bg-[#197A56] text-white rounded-lg text-sm font-medium disabled:opacity-40">
+              className="px-3 py-1.5 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-40">
               {bekliyor ? '…' : 'Kaydet'}
             </button>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-faint">
             {tip === 'WKYS'
               ? 'WKYS geçerliliği her zaman 12 ay.'
               : 'Sosyalde puandan otomatik: 90 üstü A / 12 ay · 75-90 B / 9 ay · '
@@ -199,12 +199,12 @@ function DenetimBlogu({
 
       {sirali.length > 1 && (
         <details className="mt-3">
-          <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+          <summary className="text-xs text-faint cursor-pointer hover:text-gray-700">
             Geçmiş ({sirali.length - 1} önceki kayıt)
           </summary>
           <ul className="mt-2 space-y-1">
             {sirali.slice(1).map((d) => (
-              <li key={d.id} className="text-xs text-gray-500 flex items-center justify-between">
+              <li key={d.id} className="text-xs text-faint flex items-center justify-between">
                 <span>
                   {tarihTR(d.tarih)}{d.puan && ` · ${d.puan}`}
                   {(d.sinif_hesap ?? d.sinif) && ` · ${d.sinif_hesap ?? d.sinif}`}
@@ -283,15 +283,15 @@ export default function AtolyeProfilSekmesi({
     <div className="space-y-4">
       {/* AKTİFLİK — künyenin bir alanı değil, canlı anahtar. Bu yüzden
           formun içinde değil, en üstte ayrı duruyor. */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+      <div className="bg-white border border-line-soft rounded-xl p-4 flex items-center justify-between">
         <div>
-          <p className="font-medium text-gray-900">
+          <p className="font-medium text-ink">
             Çalışma durumu:{' '}
-            <span className={isActive ? 'text-green-700' : 'text-gray-500'}>
+            <span className={isActive ? 'text-green-700' : 'text-faint'}>
               {isActive ? 'Aktif — şu anda çalışıyor' : 'Pasif — şu anda çalışmıyor'}
             </span>
           </p>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-faint mt-0.5">
             Raporlar varsayılan olarak yalnız aktif atölyeleri sayar.
           </p>
         </div>
@@ -300,8 +300,8 @@ export default function AtolyeProfilSekmesi({
           disabled={aktiflikBekliyor}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 ${
             isActive
-              ? 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-              : 'bg-[#197A56] text-white hover:bg-[#0E3E1B]'
+              ? 'border border-line text-gray-700 hover:bg-canvas'
+              : 'bg-accent text-white hover:bg-accent-hover'
           }`}
         >
           {aktiflikBekliyor ? '…' : isActive ? 'Pasife al' : 'Aktife al'}
@@ -315,12 +315,12 @@ export default function AtolyeProfilSekmesi({
           workshopId={workshopId} onDegisti={yenile} />
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white border border-line-soft rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h4 className="font-medium text-gray-900">Künye</h4>
+            <h4 className="font-medium text-ink">Künye</h4>
             {profil && (
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-faint mt-0.5">
                 kaynak: {profil.eslesme_yontemi === 'kesin' ? 'Excel eşleşmesi'
                   : profil.eslesme_yontemi === 'inceleme' ? 'elle onaylanmış eşleşme' : 'elle girildi'}
               </p>
@@ -329,17 +329,17 @@ export default function AtolyeProfilSekmesi({
           {duzenle ? (
             <div className="flex gap-2">
               <button onClick={() => setDuzenle(false)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                className="px-3 py-1.5 border border-line rounded-lg text-sm text-muted hover:bg-canvas">
                 Vazgeç
               </button>
               <button onClick={kaydet} disabled={kaydediyor}
-                className="px-3 py-1.5 bg-[#197A56] text-white rounded-lg text-sm font-medium disabled:opacity-40">
+                className="px-3 py-1.5 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-40">
                 {kaydediyor ? 'Kaydediliyor…' : 'Kaydet'}
               </button>
             </div>
           ) : (
             <button onClick={duzenlemeyeGec}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+              className="px-3 py-1.5 border border-line rounded-lg text-sm text-muted hover:bg-canvas">
               Düzenle
             </button>
           )}
@@ -348,7 +348,7 @@ export default function AtolyeProfilSekmesi({
         {hata && <p className="text-sm text-red-600 mb-2">{hata}</p>}
 
         {!profil && !duzenle && (
-          <p className="text-sm text-gray-400 mb-3">
+          <p className="text-sm text-faint mb-3">
             Künye henüz doldurulmadı. &quot;Düzenle&quot; ile girebilirsiniz.
           </p>
         )}
@@ -357,12 +357,12 @@ export default function AtolyeProfilSekmesi({
           <div className="grid sm:grid-cols-2 gap-3">
             {ALANLAR.map((a) => (
               <label key={a.ad} className="block">
-                <span className="text-xs text-gray-500">{a.etiket}</span>
+                <span className="text-xs text-faint">{a.etiket}</span>
                 {a.secenek ? (
                   <select
                     value={taslak[a.ad] ?? ''}
                     onChange={(e) => setTaslak({ ...taslak, [a.ad]: e.target.value })}
-                    className="mt-0.5 w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm bg-white"
+                    className="mt-0.5 w-full px-2 py-1.5 border border-line rounded-lg text-sm bg-white"
                   >
                     <option value="">—</option>
                     {a.secenek.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -376,18 +376,18 @@ export default function AtolyeProfilSekmesi({
                     value={taslak[a.ad] ?? ''}
                     inputMode={a.tip === 'sayi' ? 'numeric' : undefined}
                     onChange={(e) => setTaslak({ ...taslak, [a.ad]: e.target.value })}
-                    className="mt-0.5 w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm"
+                    className="mt-0.5 w-full px-2 py-1.5 border border-line rounded-lg text-sm"
                   />
                 )}
               </label>
             ))}
             <label className="block sm:col-span-2">
-              <span className="text-xs text-gray-500">Özel not</span>
+              <span className="text-xs text-faint">Özel not</span>
               <textarea
                 value={taslak.ozel_not ?? ''}
                 onChange={(e) => setTaslak({ ...taslak, ozel_not: e.target.value })}
                 rows={2}
-                className="mt-0.5 w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm"
+                className="mt-0.5 w-full px-2 py-1.5 border border-line rounded-lg text-sm"
               />
             </label>
           </div>
@@ -397,8 +397,8 @@ export default function AtolyeProfilSekmesi({
               const v = profil ? (profil[a.ad] as string | number | null) : null
               return (
                 <div key={a.ad} className="flex justify-between gap-3 text-sm border-b border-gray-50 py-1">
-                  <dt className="text-gray-500">{a.etiket}</dt>
-                  <dd className="text-gray-900 text-right truncate max-w-[55%]">
+                  <dt className="text-faint">{a.etiket}</dt>
+                  <dd className="text-ink text-right truncate max-w-[55%]">
                     {v === null || v === undefined || v === '' ? <span className="text-gray-300">—</span> : String(v)}
                   </dd>
                 </div>
@@ -406,8 +406,8 @@ export default function AtolyeProfilSekmesi({
             })}
             {profil?.ozel_not && (
               <div className="sm:col-span-2 text-sm pt-2">
-                <span className="text-gray-500">Özel not: </span>
-                <span className="text-gray-900">{profil.ozel_not}</span>
+                <span className="text-faint">Özel not: </span>
+                <span className="text-ink">{profil.ozel_not}</span>
               </div>
             )}
           </dl>

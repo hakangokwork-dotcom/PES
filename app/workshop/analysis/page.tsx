@@ -91,22 +91,22 @@ export default async function AnalysisPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-gray-500 hover:text-gray-700">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">{w.name} — Analiz</h1>
-        <p className="text-gray-500">{w.code} · Detaylı performans analizi</p>
+        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-gray-700">← Dashboard</Link>
+        <h1 className="text-2xl font-bold text-ink mt-2">{w.name} — Analiz</h1>
+        <p className="text-faint">{w.code} · Detaylı performans analizi</p>
       </div>
 
       {prodTrend.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Verimlilik Trendi</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Verimlilik Trendi</h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 text-left text-gray-500 font-medium">Dönem</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Hedef</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Gerçekleşen</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Verimlilik</th>
-                <th className="py-2 text-left text-gray-500 font-medium w-48">Grafik</th>
+              <tr className="border-b border-line-soft">
+                <th className="py-2 text-left text-faint font-medium">Dönem</th>
+                <th className="py-2 text-right text-faint font-medium">Hedef</th>
+                <th className="py-2 text-right text-faint font-medium">Gerçekleşen</th>
+                <th className="py-2 text-right text-faint font-medium">Verimlilik</th>
+                <th className="py-2 text-left text-faint font-medium w-48">Grafik</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -133,16 +133,16 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {costTrend.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Maliyet Trendi</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Maliyet Trendi</h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 text-left text-gray-500 font-medium">Dönem</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Toplam Gider</th>
-                <th className="py-2 text-right text-gray-500 font-medium">TL/dk</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Hedef Ciro</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Marj</th>
+              <tr className="border-b border-line-soft">
+                <th className="py-2 text-left text-faint font-medium">Dönem</th>
+                <th className="py-2 text-right text-faint font-medium">Toplam Gider</th>
+                <th className="py-2 text-right text-faint font-medium">TL/dk</th>
+                <th className="py-2 text-right text-faint font-medium">Hedef Ciro</th>
+                <th className="py-2 text-right text-faint font-medium">Marj</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -153,7 +153,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
                   <tr key={i}>
                     <td className="py-2 text-gray-700">{String(c.year)}/{String(c.month)}</td>
                     <td className="py-2 text-right">{(Number(c.total_expense) / 1000).toFixed(0)}K TL</td>
-                    <td className="py-2 text-right font-bold text-[#197A56]">{String(c.cost_per_min)} TL</td>
+                    <td className="py-2 text-right font-bold text-accent">{String(c.cost_per_min)} TL</td>
                     <td className="py-2 text-right">{Number(c.target_revenue) > 0 ? (Number(c.target_revenue) / 1000).toFixed(0) + 'K' : '—'}</td>
                     <td className={`py-2 text-right font-medium ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {marginPct !== '—' ? `%${marginPct}` : '—'}
@@ -167,19 +167,19 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {expenseItems.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Gider Dağılımı (Son Ay)</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Gider Dağılımı (Son Ay)</h2>
           <div className="space-y-2">
             {expenseItems.map((e, i) => {
               const pct = totalExpense > 0 ? (e.value / totalExpense * 100) : 0
               return (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-600 w-24 text-right">{e.label}</span>
+                  <span className="text-xs text-muted w-24 text-right">{e.label}</span>
                   <div className="flex-1 bg-gray-100 rounded-full h-4">
-                    <div className="h-4 rounded-full bg-[#197A56]" style={{ width: `${pct}%`, opacity: 0.4 + (pct / 100) * 0.6 }}></div>
+                    <div className="h-4 rounded-full bg-accent" style={{ width: `${pct}%`, opacity: 0.4 + (pct / 100) * 0.6 }}></div>
                   </div>
                   <span className="text-xs text-gray-700 w-20 text-right">{(e.value / 1000).toFixed(0)}K</span>
-                  <span className="text-xs text-gray-400 w-12 text-right">%{pct.toFixed(0)}</span>
+                  <span className="text-xs text-faint w-12 text-right">%{pct.toFixed(0)}</span>
                 </div>
               )
             })}
@@ -188,15 +188,15 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {qualTrend.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Kalite Trendi</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Kalite Trendi</h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 text-left text-gray-500 font-medium">Dönem</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Kontrol</th>
-                <th className="py-2 text-right text-gray-500 font-medium">FPQ %</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Red %</th>
+              <tr className="border-b border-line-soft">
+                <th className="py-2 text-left text-faint font-medium">Dönem</th>
+                <th className="py-2 text-right text-faint font-medium">Kontrol</th>
+                <th className="py-2 text-right text-faint font-medium">FPQ %</th>
+                <th className="py-2 text-right text-faint font-medium">Red %</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -214,18 +214,18 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {downtimeByType.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Duruş Analizi</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">Duruş Analizi</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {downtimeByType.map((d, i) => (
               <div key={i} className={`rounded-lg p-3 ${
                 d.downtime_type === 'Plansız' ? 'bg-red-50' :
                 d.downtime_type === 'Tedarik' ? 'bg-orange-50' :
-                d.downtime_type === 'Organizasyonel' ? 'bg-blue-50' : 'bg-gray-50'
+                d.downtime_type === 'Organizasyonel' ? 'bg-blue-50' : 'bg-canvas'
               }`}>
-                <p className="text-xs text-gray-600">{String(d.downtime_type)}</p>
-                <p className="text-xl font-bold text-gray-900">{String(d.total_min)} dk</p>
-                <p className="text-xs text-gray-400">{String(d.count)} kayıt</p>
+                <p className="text-xs text-muted">{String(d.downtime_type)}</p>
+                <p className="text-xl font-bold text-ink">{String(d.total_min)} dk</p>
+                <p className="text-xs text-faint">{String(d.count)} kayıt</p>
               </div>
             ))}
           </div>
@@ -233,16 +233,16 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {workforceTrend.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">İşgücü Devir Oranı</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink mb-4">İşgücü Devir Oranı</h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 text-left text-gray-500 font-medium">Dönem</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Toplam</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Giren</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Çıkan</th>
-                <th className="py-2 text-right text-gray-500 font-medium">Devir %</th>
+              <tr className="border-b border-line-soft">
+                <th className="py-2 text-left text-faint font-medium">Dönem</th>
+                <th className="py-2 text-right text-faint font-medium">Toplam</th>
+                <th className="py-2 text-right text-faint font-medium">Giren</th>
+                <th className="py-2 text-right text-faint font-medium">Çıkan</th>
+                <th className="py-2 text-right text-faint font-medium">Devir %</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -265,8 +265,8 @@ export default async function AnalysisPage({ searchParams }: Props) {
           <p className="text-amber-800 font-medium">Henüz analiz için yeterli veri yok</p>
           <p className="text-sm text-amber-600 mt-1">Üretim ve gider verisi girdikçe analizler otomatik oluşacak</p>
           <div className="flex gap-3 justify-center mt-4">
-            <Link href={`/workshop/production?wid=${wid}`} className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm">Üretim Girişi</Link>
-            <Link href={`/workshop/costs?wid=${wid}`} className="px-4 py-2 bg-[#197A56] text-white rounded-lg text-sm">Gider Girişi</Link>
+            <Link href={`/workshop/production?wid=${wid}`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Üretim Girişi</Link>
+            <Link href={`/workshop/costs?wid=${wid}`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Gider Girişi</Link>
           </div>
         </div>
       )}

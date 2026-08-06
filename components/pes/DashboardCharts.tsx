@@ -5,10 +5,17 @@ import {
   BarChart, Bar, Cell, PieChart, Pie, Area, AreaChart,
 } from 'recharts'
 
+import { effTone, type Tone } from '@/lib/ui/tone'
+
 const GREEN = '#197A56'
+
+/* Grafik kutuphanesi sinif degil renk istiyor; esikler yine tone.ts'te. */
+const TONE_HEX: Record<Tone, string> = {
+  neutral: '#5B6874', good: GREEN, warn: '#96601A', bad: '#A32B2B',
+}
 const AY = ['', 'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara']
 
-const effColor = (v: number) => (v >= 90 ? GREEN : v >= 75 ? '#d97706' : '#dc2626')
+const effColor = (v: number) => TONE_HEX[effTone(v)]
 
 const tooltipStyle = {
   contentStyle: { borderRadius: 10, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,.06)' },
@@ -74,9 +81,9 @@ export function TierDonut({ data }: { data: { tier: string; c: number }[] }) {
         {rows.map(r => (
           <div key={r.name} className="flex items-center gap-2 text-sm">
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: r.color }} />
-            <span className="text-gray-600">{r.name}</span>
-            <span className="text-gray-900 font-semibold ml-auto tabular-nums">{r.value}</span>
-            <span className="text-gray-400 text-xs w-9 text-right">%{total ? Math.round(r.value / total * 100) : 0}</span>
+            <span className="text-muted">{r.name}</span>
+            <span className="text-ink font-semibold ml-auto tabular-nums">{r.value}</span>
+            <span className="text-faint text-xs w-9 text-right">%{total ? Math.round(r.value / total * 100) : 0}</span>
           </div>
         ))}
       </div>

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import MetricInfo from '@/components/pes/MetricInfo'
+import { effTone, fpqTone, TONE_TEXT } from '@/lib/ui/tone'
 
 export const dynamic = 'force-dynamic'
 
@@ -107,43 +108,43 @@ export default async function ComparePage() {
     if (t === 'Izlemede') return 'bg-amber-100 text-amber-800'
     if (t === 'Risk') return 'bg-orange-100 text-orange-800'
     if (t === 'Kritik') return 'bg-red-100 text-red-800'
-    return 'bg-gray-100 text-gray-600'
+    return 'bg-gray-100 text-muted'
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Cross-Atolye Karsilastirma</h1>
-        <p className="text-sm text-gray-500 mt-1">Tum atolyeler - {pMonth}/{pYear} donemi</p>
+        <h1 className="text-2xl font-bold text-ink">Cross-Atolye Karsilastirma</h1>
+        <p className="text-sm text-faint mt-1">Tum atolyeler - {pMonth}/{pYear} donemi</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 inline-flex items-center gap-1">Ort. Verimlilik <MetricInfo metricKey="verimlilik" size={11} /></p>
-          <p className="text-2xl font-bold text-gray-900">%{rows.length > 0 ? (rows.reduce((s, r) => s + r.efficiency, 0) / rows.filter(r => r.efficiency > 0).length || 0).toFixed(1) : '0'}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint inline-flex items-center gap-1">Ort. Verimlilik <MetricInfo metricKey="verimlilik" size={11} /></p>
+          <p className="text-2xl font-bold text-ink">%{rows.length > 0 ? (rows.reduce((s, r) => s + r.efficiency, 0) / rows.filter(r => r.efficiency > 0).length || 0).toFixed(1) : '0'}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 inline-flex items-center gap-1">Ort. TL/dk <MetricInfo metricKey="tl_dk" size={11} /></p>
-          <p className="text-2xl font-bold text-gray-900">{rows.filter(r => r.costPerMin > 0).length > 0 ? (rows.filter(r => r.costPerMin > 0).reduce((s, r) => s + r.costPerMin, 0) / rows.filter(r => r.costPerMin > 0).length).toFixed(2) : '---'}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint inline-flex items-center gap-1">Ort. TL/dk <MetricInfo metricKey="tl_dk" size={11} /></p>
+          <p className="text-2xl font-bold text-ink">{rows.filter(r => r.costPerMin > 0).length > 0 ? (rows.filter(r => r.costPerMin > 0).reduce((s, r) => s + r.costPerMin, 0) / rows.filter(r => r.costPerMin > 0).length).toFixed(2) : '---'}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500 inline-flex items-center gap-1">Ort. FPQ <MetricInfo metricKey="fpq" size={11} /></p>
-          <p className="text-2xl font-bold text-gray-900">%{rows.filter(r => r.fpq > 0).length > 0 ? (rows.filter(r => r.fpq > 0).reduce((s, r) => s + r.fpq, 0) / rows.filter(r => r.fpq > 0).length).toFixed(1) : '0'}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint inline-flex items-center gap-1">Ort. FPQ <MetricInfo metricKey="fpq" size={11} /></p>
+          <p className="text-2xl font-bold text-ink">%{rows.filter(r => r.fpq > 0).length > 0 ? (rows.filter(r => r.fpq > 0).reduce((s, r) => s + r.fpq, 0) / rows.filter(r => r.fpq > 0).length).toFixed(1) : '0'}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <p className="text-xs text-gray-500">Toplam Atolye</p>
-          <p className="text-2xl font-bold text-gray-900">{rows.length}</p>
+        <div className="bg-white border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Toplam Atolye</p>
+          <p className="text-2xl font-bold text-ink">{rows.length}</p>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="px-4 py-3 bg-canvas border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-700">Performans Tablosu</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-gray-500 border-b border-gray-100">
+              <tr className="text-xs text-faint border-b border-gray-100">
                 <th className="text-left px-3 py-2">Atolye</th>
                 <th className="text-center px-2 py-2">Tip</th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">Verimlilik <MetricInfo metricKey="verimlilik" size={10} /></span></th>
@@ -158,20 +159,20 @@ export default async function ComparePage() {
             </thead>
             <tbody>
               {rows.map(r => (
-                <tr key={r.id as number} className="border-b border-gray-50 hover:bg-gray-50">
+                <tr key={r.id as number} className="border-b border-gray-50 hover:bg-canvas">
                   <td className="px-3 py-2">
                     <Link href={`/workshop?wid=${r.id}`} className="text-emerald-700 hover:underline font-medium">{r.code as string}</Link>
-                    <span className="text-gray-500 ml-1 text-xs">{r.name as string}</span>
+                    <span className="text-faint ml-1 text-xs">{r.name as string}</span>
                   </td>
-                  <td className="text-center px-2 py-2 text-xs text-gray-500">{r.type as string}</td>
-                  <td className={`text-right px-2 py-2 font-mono font-semibold ${r.efficiency >= 90 ? 'text-green-600' : r.efficiency >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
+                  <td className="text-center px-2 py-2 text-xs text-faint">{r.type as string}</td>
+                  <td className={`text-right px-2 py-2 font-mono font-semibold ${TONE_TEXT[effTone(r.efficiency)]}`}>
                     {r.efficiency > 0 ? `%${r.efficiency}` : '---'}
                   </td>
                   <td className="text-right px-2 py-2 font-mono">{r.costPerMin > 0 ? r.costPerMin.toFixed(2) : '---'}</td>
                   <td className={`text-right px-2 py-2 font-mono ${r.marginPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {r.marginPct !== 0 ? `%${r.marginPct}` : '---'}
                   </td>
-                  <td className={`text-right px-2 py-2 font-mono ${r.fpq >= 95 ? 'text-green-600' : r.fpq >= 90 ? 'text-amber-600' : r.fpq > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                  <td className={`text-right px-2 py-2 font-mono ${r.fpq > 0 ? TONE_TEXT[fpqTone(r.fpq)] : 'text-faint'}`}>
                     {r.fpq > 0 ? `%${r.fpq}` : '---'}
                   </td>
                   <td className="text-right px-2 py-2 font-mono text-red-600">{r.downtimeMin > 0 ? fmt(r.downtimeMin) : '---'}</td>
@@ -188,8 +189,8 @@ export default async function ComparePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700">Verimlilik Siralamasi</h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -199,14 +200,14 @@ export default async function ComparePage() {
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-amber-700' : 'bg-gray-300'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
-                <span className={`text-sm font-bold ${r.efficiency >= 90 ? 'text-green-600' : r.efficiency >= 70 ? 'text-amber-600' : 'text-red-600'}`}>%{r.efficiency}</span>
+                <span className={`text-sm font-bold ${TONE_TEXT[effTone(r.efficiency)]}`}>%{r.efficiency}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700">Maliyet Siralamasi (TL/dk - dusuk iyi)</h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -222,8 +223,8 @@ export default async function ComparePage() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700">Kalite Siralamasi (FPQ)</h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -233,14 +234,14 @@ export default async function ComparePage() {
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-blue-300' : 'bg-gray-300'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
-                <span className={`text-sm font-bold ${r.fpq >= 95 ? 'text-green-600' : 'text-amber-600'}`}>%{r.fpq}</span>
+                <span className={`text-sm font-bold ${TONE_TEXT[fpqTone(r.fpq)]}`}>%{r.fpq}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-canvas border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700">Genel Skor Siralamasi</h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -257,7 +258,7 @@ export default async function ComparePage() {
               </div>
             ))}
             {byScore.filter(r => r.compositeScore > 0).length === 0 && (
-              <p className="px-4 py-6 text-sm text-gray-400 text-center">Skor hesaplanmamis. Skorlama sayfasindan hesaplayin.</p>
+              <p className="px-4 py-6 text-sm text-faint text-center">Skor hesaplanmamis. Skorlama sayfasindan hesaplayin.</p>
             )}
           </div>
         </div>

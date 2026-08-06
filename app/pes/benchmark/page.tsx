@@ -62,7 +62,7 @@ export default async function BenchmarkPage() {
   if (data.tableMissing) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">Benchmark Yonetimi</h1>
+        <h1 className="text-2xl font-bold text-ink">Benchmark Yonetimi</h1>
         <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
           Benchmark tablosu henuz olusturulmamis. Supabase SQL Editor&apos;da <strong>010_benchmark.sql</strong> dosyasini calistirin.
         </div>
@@ -121,17 +121,17 @@ export default async function BenchmarkPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Benchmark Yonetimi</h1>
-        <p className="text-sm text-gray-500 mt-1">Merkezi hedefler ve atolye karsilastirmasi - {pMonth}/{pYear}</p>
+        <h1 className="text-2xl font-bold text-ink">Benchmark Yonetimi</h1>
+        <p className="text-sm text-faint mt-1">Merkezi hedefler ve atolye karsilastirmasi - {pMonth}/{pYear}</p>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="px-4 py-3 bg-canvas border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-700">Hedef Degerleri</h2>
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-xs text-gray-500 border-b border-gray-100">
+            <tr className="text-xs text-faint border-b border-gray-100">
               <th className="text-left px-4 py-2">Metrik</th>
               <th className="text-center px-2 py-2 bg-green-50">Hedef</th>
               <th className="text-center px-2 py-2 bg-amber-50">Uyari</th>
@@ -144,8 +144,8 @@ export default async function BenchmarkPage() {
             {benchmarks.map(bm => {
               const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
               return (
-              <tr key={bm.id as number} className="border-b border-gray-50 hover:bg-gray-50">
-                <td className="px-4 py-2 font-medium text-gray-900">
+              <tr key={bm.id as number} className="border-b border-gray-50 hover:bg-canvas">
+                <td className="px-4 py-2 font-medium text-ink">
                   <span className="inline-flex items-center gap-1">
                     {bm.metric_label as string}
                     {ontologyKey && <MetricInfo metricKey={ontologyKey} />}
@@ -154,8 +154,8 @@ export default async function BenchmarkPage() {
                 <td className="text-center px-2 py-2 font-mono font-bold text-green-700 bg-green-50">{String(bm.target_value)}</td>
                 <td className="text-center px-2 py-2 font-mono text-amber-700 bg-amber-50">{bm.warning_value != null ? String(bm.warning_value) : '---'}</td>
                 <td className="text-center px-2 py-2 font-mono text-red-700 bg-red-50">{bm.critical_value != null ? String(bm.critical_value) : '---'}</td>
-                <td className="text-center px-2 py-2 text-gray-500">{bm.unit as string}</td>
-                <td className="text-center px-2 py-2 text-xs text-gray-400">{(bm.direction as string) === 'higher_better' ? '↑ yuksek' : '↓ dusuk'}</td>
+                <td className="text-center px-2 py-2 text-faint">{bm.unit as string}</td>
+                <td className="text-center px-2 py-2 text-xs text-faint">{(bm.direction as string) === 'higher_better' ? '↑ yuksek' : '↓ dusuk'}</td>
               </tr>
               )
             })}
@@ -163,14 +163,14 @@ export default async function BenchmarkPage() {
         </table>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="px-4 py-3 bg-canvas border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-700">Atolye Benchmark Karsilastirmasi</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-gray-500 border-b border-gray-100">
+              <tr className="text-xs text-faint border-b border-gray-100">
                 <th className="text-left px-3 py-2 sticky left-0 bg-white">Atolye</th>
                 {benchmarks.map(bm => {
                   const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
@@ -180,7 +180,7 @@ export default async function BenchmarkPage() {
                       {bm.metric_label as string}
                       {ontologyKey && <MetricInfo metricKey={ontologyKey} size={11} />}
                     </div>
-                    <div className="text-[9px] text-gray-400">H: {String(bm.target_value)}</div>
+                    <div className="text-[9px] text-faint">H: {String(bm.target_value)}</div>
                   </th>
                   )
                 })}
@@ -189,11 +189,11 @@ export default async function BenchmarkPage() {
             <tbody>
               {wsMetrics.map(ws => (
                 <tr key={ws.id as number} className="border-b border-gray-50">
-                  <td className="px-3 py-2 font-medium text-gray-900 sticky left-0 bg-white">{ws.code}</td>
+                  <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-white">{ws.code}</td>
                   {benchmarks.map(bm => {
                     const key = bm.metric_key as string
                     const val = (ws as Record<string, unknown>)[key] as number ?? 0
-                    const color = val > 0 ? statusColor(bm, val) : 'bg-gray-50 text-gray-400'
+                    const color = val > 0 ? statusColor(bm, val) : 'bg-canvas text-faint'
                     return (
                       <td key={bm.id as number} className="text-center px-2 py-2">
                         <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-medium ${color}`}>

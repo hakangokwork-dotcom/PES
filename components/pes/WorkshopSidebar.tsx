@@ -114,29 +114,29 @@ export default function WorkshopSidebar() {
   }, [search])
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-64 min-h-screen bg-white border-r border-line-soft flex flex-col">
       {/* Logo */}
-      <div className="h-14 flex items-center px-4 border-b border-gray-200 flex-shrink-0">
+      <div className="h-14 flex items-center px-4 border-b border-line-soft flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#197A56] to-[#125a40] rounded-md flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-md flex items-center justify-center shadow-sm">
             <span className="text-white font-bold text-[10px] tracking-wider">PES</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-900 text-sm block leading-tight">Atölye Paneli</span>
-            <span className="text-[10px] text-gray-400 leading-tight tracking-wide">Verimlilik Sistemi</span>
+            <span className="font-semibold text-ink text-sm block leading-tight">Atölye Paneli</span>
+            <span className="text-[10px] text-faint leading-tight tracking-wide">Verimlilik Sistemi</span>
           </div>
         </div>
       </div>
 
       {/* Atölye Seçici */}
       <div className="px-3 py-3 border-b border-gray-100 flex-shrink-0">
-        <label className="text-[9px] uppercase tracking-wider text-gray-500 font-semibold mb-1 block px-1">
+        <label className="text-[9px] uppercase tracking-wider text-faint font-semibold mb-1 block px-1">
           Aktif Atölye
         </label>
         <select
           value={wid}
           onChange={e => switchWorkshop(e.target.value)}
-          className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:border-[#197A56] focus:ring-1 focus:ring-[#197A56] truncate"
+          className="w-full px-2.5 py-1.5 text-sm border border-line rounded-lg bg-canvas focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent truncate"
         >
           <option value="">Atölye seçin...</option>
           {workshops.map(w => (
@@ -144,7 +144,7 @@ export default function WorkshopSidebar() {
           ))}
         </select>
         {currentWs && (
-          <p className="text-[10px] text-gray-500 mt-1.5 px-1 truncate font-medium">📍 {currentWs.name}</p>
+          <p className="text-[10px] text-faint mt-1.5 px-1 truncate font-medium">📍 {currentWs.name}</p>
         )}
       </div>
 
@@ -155,7 +155,7 @@ export default function WorkshopSidebar() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="🔍 Sayfa ara..."
-          className="w-full px-2.5 py-1.5 text-xs border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:border-gray-400 focus:bg-white"
+          className="w-full px-2.5 py-1.5 text-xs border border-line-soft rounded-md bg-canvas focus:outline-none focus:border-gray-400 focus:bg-white"
         />
       </div>
 
@@ -169,7 +169,7 @@ export default function WorkshopSidebar() {
               {/* Group header */}
               <button
                 onClick={() => toggleGroup(group.id)}
-                className="w-full flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-gray-400 hover:text-gray-600 transition-colors"
+                className="w-full flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-faint hover:text-muted transition-colors"
               >
                 <span>{group.title}</span>
                 <span className={`text-[8px] transition-transform ${isCollapsed ? '-rotate-90' : ''}`}>▼</span>
@@ -184,8 +184,8 @@ export default function WorkshopSidebar() {
                         href={buildHref(item.href)}
                         className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
                           active
-                            ? 'bg-emerald-50 text-[#197A56] font-medium border-l-2 border-[#197A56] pl-[10px]'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-emerald-50 text-accent font-medium border-l-2 border-accent pl-[10px]'
+                            : 'text-muted hover:bg-canvas hover:text-ink'
                         }`}
                       >
                         <span className="text-sm w-4 inline-block text-center">{item.icon}</span>
@@ -202,20 +202,20 @@ export default function WorkshopSidebar() {
           )
         })}
         {filteredGroups.length === 0 && (
-          <div className="px-3 py-4 text-xs text-gray-400 italic text-center">
+          <div className="px-3 py-4 text-xs text-faint italic text-center">
             "{search}" için sonuç yok
           </div>
         )}
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 px-3 py-2.5 flex-shrink-0">
+      <div className="border-t border-line-soft px-3 py-2.5 flex-shrink-0">
         <Link href="/pes"
-          className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+          className="flex items-center gap-2 text-xs text-faint hover:text-ink hover:bg-canvas px-3 py-1.5 rounded transition-colors">
           <span>←</span>
           <span>Merkez Paneli</span>
         </Link>
-        <p className="text-[10px] text-gray-400 px-3 pt-1">{APP_VERSION}</p>
+        <p className="text-[10px] text-faint px-3 pt-1">{APP_VERSION}</p>
       </div>
     </aside>
   )

@@ -48,34 +48,34 @@ export default function QualityPage() {
     else setMessage('Kalite verisi kaydedildi')
   }
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#197A56] focus:ring-1 focus:ring-[#197A56] text-right'
+  const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-right'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Kalite Yönetimi</h1>
-        <p className="text-gray-500 mt-1">Aylık kalite verisi girişi</p>
+        <h1 className="text-2xl font-bold text-ink">Kalite Yönetimi</h1>
+        <p className="text-faint mt-1">Aylık kalite verisi girişi</p>
       </div>
 
       {/* Seçim */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <div className="bg-white border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Atölye</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
+            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={workshopId} onChange={e => setWorkshopId(e.target.value)}>
               <option value="">Seçin...</option>
               {workshops.map(w => <option key={w.id} value={w.id}>{w.code} — {w.name}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
+            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
               <option value={2025}>2025</option><option value={2026}>2026</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Ay</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
+            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
               {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
@@ -84,32 +84,32 @@ export default function QualityPage() {
 
       {workshopId && (
         <>
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Kalite Verileri</h2>
+          <div className="bg-white border border-line-soft rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-ink mb-4">Kalite Verileri</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Kontrol Edilen Adet</label>
+                <label className="block text-xs font-medium text-muted mb-1">Kontrol Edilen Adet</label>
                 <input type="number" className={inputClass} value={form.inspected_qty} onChange={e => setForm(p => ({...p, inspected_qty: parseInt(e.target.value)||0}))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">İlk Geçiş (FPQ)</label>
+                <label className="block text-xs font-medium text-muted mb-1">İlk Geçiş (FPQ)</label>
                 <input type="number" className={inputClass} value={form.first_pass_qty} onChange={e => setForm(p => ({...p, first_pass_qty: parseInt(e.target.value)||0}))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Red Edilen</label>
+                <label className="block text-xs font-medium text-muted mb-1">Red Edilen</label>
                 <input type="number" className={inputClass} value={form.rejected_qty} onChange={e => setForm(p => ({...p, rejected_qty: parseInt(e.target.value)||0}))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Yeniden İşlem</label>
+                <label className="block text-xs font-medium text-muted mb-1">Yeniden İşlem</label>
                 <input type="number" className={inputClass} value={form.rework_qty} onChange={e => setForm(p => ({...p, rework_qty: parseInt(e.target.value)||0}))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Müşteri İade</label>
+                <label className="block text-xs font-medium text-muted mb-1">Müşteri İade</label>
                 <input type="number" className={inputClass} value={form.customer_return} onChange={e => setForm(p => ({...p, customer_return: parseInt(e.target.value)||0}))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">En Sık Hata</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={form.top_defect_cat} onChange={e => setForm(p => ({...p, top_defect_cat: e.target.value}))}>
+                <label className="block text-xs font-medium text-muted mb-1">En Sık Hata</label>
+                <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={form.top_defect_cat} onChange={e => setForm(p => ({...p, top_defect_cat: e.target.value}))}>
                   <option value="">Seçin...</option>
                   {DEFECT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -117,7 +117,7 @@ export default function QualityPage() {
             </div>
 
             {/* Hesaplanan Metrikler */}
-            <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-3 gap-4">
+            <div className="mt-6 pt-4 border-t border-line-soft grid grid-cols-3 gap-4">
               <div className="bg-emerald-50 rounded-lg p-3 text-center">
                 <p className="text-xs text-emerald-600">FPQ</p>
                 <p className={`text-xl font-bold ${Number(fpq) >= 95 ? 'text-green-600' : Number(fpq) >= 90 ? 'text-amber-600' : 'text-red-600'}`}>%{fpq}</p>
@@ -136,7 +136,7 @@ export default function QualityPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
           {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
 
-          <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium disabled:opacity-50">
+          <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Kalite Verisini Kaydet'}
           </button>
         </>

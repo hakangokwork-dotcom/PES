@@ -6,6 +6,7 @@ import {
   BarChart3, Gauge, TrendingUp, TrendingDown, Minus, ArrowRight,
 } from 'lucide-react'
 import { EffTrendChart, WorkshopEffBar, TierDonut } from '@/components/pes/DashboardCharts'
+import { effTone, TONE_TEXT } from '@/lib/ui/tone'
 
 export const dynamic = 'force-dynamic'
 
@@ -78,10 +79,10 @@ export default async function PesDashboard() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Merkez Paneli</h1>
-          <p className="text-gray-500 mt-1">Atölye Verimlilik Değerlendirme Sistemi</p>
+          <h1 className="text-2xl font-bold text-ink">Merkez Paneli</h1>
+          <p className="text-faint mt-1">Atölye Verimlilik Değerlendirme Sistemi</p>
         </div>
-        <span className="text-xs text-gray-400 hidden sm:block">
+        <span className="text-xs text-faint hidden sm:block">
           {effTrend.length ? `Son dönem: ${effTrend.at(-1)!.month}/${effTrend.at(-1)!.year}` : ''}
         </span>
       </div>
@@ -90,12 +91,12 @@ export default async function PesDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map(s => (
           <Link key={s.label} href={s.href}
-            className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-[#197A56] hover:shadow-sm transition-all">
+            className="group bg-white border border-line-soft rounded-xl p-4 hover:border-accent hover:shadow-sm transition-all">
             <div className={`w-9 h-9 rounded-lg ${s.bg} flex items-center justify-center mb-3`}>
               <s.Icon className={`w-5 h-5 ${s.tint}`} strokeWidth={2} />
             </div>
-            <div className="text-2xl font-bold text-gray-900 tabular-nums">{s.value}</div>
-            <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">{s.label}
+            <div className="text-2xl font-bold text-ink tabular-nums">{s.value}</div>
+            <div className="text-xs text-faint mt-0.5 flex items-center gap-1">{s.label}
               <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
             </div>
           </Link>
@@ -105,13 +106,13 @@ export default async function PesDashboard() {
       {/* Grafikler */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Verimlilik trendi */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-5">
+        <div className="lg:col-span-2 bg-white border border-line-soft rounded-xl p-5">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="text-sm font-semibold text-gray-900">Ortalama Verimlilik Trendi</h2>
+            <h2 className="text-sm font-semibold text-ink">Ortalama Verimlilik Trendi</h2>
             {avgEff !== null && (
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-gray-900">%{avgEff}</span>
-                <span className={`flex items-center gap-0.5 text-xs font-medium ${trendDelta > 0 ? 'text-emerald-600' : trendDelta < 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                <span className="text-2xl font-bold text-ink">%{avgEff}</span>
+                <span className={`flex items-center gap-0.5 text-xs font-medium ${trendDelta > 0 ? 'text-emerald-600' : trendDelta < 0 ? 'text-red-600' : 'text-faint'}`}>
                   {trendDelta > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : trendDelta < 0 ? <TrendingDown className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
                   {trendDelta > 0 ? '+' : ''}{trendDelta.toFixed(1)}
                 </span>
@@ -124,8 +125,8 @@ export default async function PesDashboard() {
         </div>
 
         {/* Tedarikçi kademe dağılımı */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Tedarikçi Kademeleri</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-ink mb-3">Tedarikçi Kademeleri</h2>
           {tierDist.length > 0
             ? <TierDonut data={tierDist as unknown as { tier: string; c: number }[]} />
             : <EmptyMini text="Henüz skorlama yok" />}
@@ -134,24 +135,24 @@ export default async function PesDashboard() {
 
       {/* Atölye verimlilik sıralaması + son üretim */}
       <div className="grid lg:grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Atölye Verimlilik Sıralaması</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-ink mb-3">Atölye Verimlilik Sıralaması</h2>
           {wsEff.length > 0
             ? <WorkshopEffBar data={wsEff as unknown as { code: string; eff: number }[]} />
             : <EmptyMini text="Üretim verisi bekleniyor" />}
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Son Dönem Üretim</h2>
+        <div className="bg-white border border-line-soft rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-ink mb-3">Son Dönem Üretim</h2>
           <div className="space-y-1">
             {recentProd.map((r: Record<string, unknown>, i: number) => {
               const eff = Number(r.eff)
               return (
                 <div key={i} className="flex items-center gap-3 py-1.5 border-b border-gray-50 last:border-0">
-                  <span className="text-[#197A56] font-semibold text-sm w-14">{String(r.code)}</span>
-                  <span className="text-gray-600 text-sm truncate flex-1">{String(r.name)}</span>
-                  <span className="text-gray-400 text-xs tabular-nums hidden sm:block">{Number(r.total_actual).toLocaleString('tr-TR')}</span>
-                  <span className={`text-sm font-bold tabular-nums w-14 text-right ${eff >= 90 ? 'text-emerald-600' : eff >= 75 ? 'text-amber-600' : 'text-red-600'}`}>%{eff}</span>
+                  <span className="text-accent font-semibold text-sm w-14">{String(r.code)}</span>
+                  <span className="text-muted text-sm truncate flex-1">{String(r.name)}</span>
+                  <span className="text-faint text-xs tabular-nums hidden sm:block">{Number(r.total_actual).toLocaleString('tr-TR')}</span>
+                  <span className={`text-sm font-bold tabular-nums w-14 text-right ${TONE_TEXT[effTone(eff)]}`}>%{eff}</span>
                 </div>
               )
             })}
@@ -161,12 +162,12 @@ export default async function PesDashboard() {
 
       {/* Hızlı erişim */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-900 mb-2">Hızlı Erişim</h2>
+        <h2 className="text-sm font-semibold text-ink mb-2">Hızlı Erişim</h2>
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
           {quickActions.map(a => (
             <Link key={a.label} href={a.href}
-              className="bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center gap-1.5 hover:border-[#197A56] hover:bg-emerald-50/40 transition-colors">
-              <a.Icon className="w-5 h-5 text-gray-400" strokeWidth={1.8} />
+              className="bg-white border border-line-soft rounded-lg p-3 flex flex-col items-center gap-1.5 hover:border-accent hover:bg-emerald-50/40 transition-colors">
+              <a.Icon className="w-5 h-5 text-faint" strokeWidth={1.8} />
               <span className="text-xs text-gray-700">{a.label}</span>
             </Link>
           ))}
@@ -180,7 +181,7 @@ function EmptyMini({ text }: { text: string }) {
   return (
     <div className="h-[180px] flex flex-col items-center justify-center text-center">
       <BarChart3 className="w-8 h-8 text-gray-200 mb-2" />
-      <p className="text-sm text-gray-400">{text}</p>
+      <p className="text-sm text-faint">{text}</p>
     </div>
   )
 }

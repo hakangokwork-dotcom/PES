@@ -36,15 +36,15 @@ export default async function VeriKalitesiPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Veri Kalitesi</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-ink">Veri Kalitesi</h1>
+          <p className="text-faint mt-1">
             Gider beyanlarının güven skoru. Yalnız <strong>kabul edildi</strong> durumundaki
             kayıtlar peer benchmark havuzuna girer.
           </p>
         </div>
         <Link
           href="/pes/expenses/import"
-          className="px-4 py-2 bg-[#197A56] text-white rounded-lg hover:bg-[#0E3E1B] transition-colors text-sm font-medium whitespace-nowrap"
+          className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium whitespace-nowrap"
         >
           ↑ Gider Beyanı Yükle
         </Link>
@@ -68,10 +68,10 @@ export default async function VeriKalitesiPage() {
         />
       )}
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-faint">
         Kural seti: <code>lib/pes/validation-rules.ts</code> · Parametreler{' '}
         <code>validation_param</code> tablosunda dönem bazlı tutulur.{' '}
-        <Link href="/pes/workshops" className="text-[#197A56] hover:underline">
+        <Link href="/pes/workshops" className="text-accent hover:underline">
           Atölyeler
         </Link>
       </p>

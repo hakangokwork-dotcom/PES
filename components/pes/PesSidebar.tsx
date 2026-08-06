@@ -40,16 +40,16 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <aside className="w-60 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-60 min-h-screen bg-white border-r border-line-soft flex flex-col">
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-gray-200">
+      <div className="h-16 flex items-center px-5 border-b border-line-soft">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#197A56] rounded-md flex items-center justify-center">
+          <div className="w-7 h-7 bg-accent rounded-md flex items-center justify-center">
             <span className="text-white font-bold text-[10px]">PES</span>
           </div>
           <div>
-            <span className="font-semibold text-gray-900 text-sm block leading-tight">PES</span>
-            <span className="text-[10px] text-gray-400 leading-tight">Verimlilik Sistemi</span>
+            <span className="font-semibold text-ink text-sm block leading-tight">PES</span>
+            <span className="text-[10px] text-faint leading-tight">Verimlilik Sistemi</span>
           </div>
         </div>
       </div>
@@ -67,8 +67,8 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 active
-                  ? 'bg-emerald-50 text-[#197A56] font-medium'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-emerald-50 text-accent font-medium'
+                  : 'text-muted hover:bg-canvas hover:text-ink'
               }`}
             >
               <span className="text-base">{item.icon}</span>
@@ -79,19 +79,19 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
       </nav>
 
       {/* User */}
-      <div className="px-3 py-4 border-t border-gray-200">
+      <div className="px-3 py-4 border-t border-line-soft">
         <div className="flex items-center gap-3 px-3 py-2 mb-1">
-          <div className="w-7 h-7 rounded-full bg-[#197A56] flex items-center justify-center flex-shrink-0">
+          <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-medium">{initials}</span>
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
+            <p className="text-sm font-medium text-ink truncate">{displayName}</p>
             <p className="text-[10px] text-emerald-600 font-medium">{ROLE_LABELS[role]}</p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className="w-full text-left px-3 py-2 text-sm text-faint hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
           Çıkış Yap
         </button>

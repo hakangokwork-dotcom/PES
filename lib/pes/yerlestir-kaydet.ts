@@ -1,5 +1,8 @@
 import type postgres from 'postgres'
-import { bantPaylari, asamaGunu, geriyePlanla, type AsamaGirdi } from './yerlestirme'
+import {
+  bantPaylari, asamaGunu, geriyePlanla, bosPencereBul, gunEkle,
+  type AsamaGirdi, type Aralik,
+} from './yerlestirme'
 
 export type YerlestirIstek = {
   siparisNo: string
@@ -19,6 +22,8 @@ export type YerlestirSonuc = {
   workOrderId: number
   yetisiyor: boolean
   elleTarihGereken: string[]
+  /** Bant doluluğu yüzünden zincirin tamamı kaç gün geriye kaydı */
+  kaydirilanGun: number
 }
 
 /**
@@ -67,7 +72,34 @@ export async function yerlestir(
       : asamaGunu(istek.adet, r.gunluk_kapasite === null ? null : Number(r.gunluk_kapasite)),
   }))
 
-  const plan = geriyePlanla(istek.teslimTarihi, girdiler, istek.bugun)
+  let plan = geriyePlanla(istek.teslimTarihi, girdiler, istek.bugun)
+
+  /* 2b) BANT ÇAKIŞMA KONTROLÜ (tasarım §5.4).
+     Faz 1'de bu yoktu: tahsis mevcut tahsislere bakılmadan yazılıyordu,
+     iki sipariş aynı bandı aynı gün kullanabiliyordu.
+
+     Seçilen bantların HEPSİNİN meşgul aralıkları birleştirilir; dikim
+     tek parça çalıştığı için pencere hepsinde birden boş olmalı.
+     Çakışma varsa ZİNCİRİN TAMAMI aynı kadar geriye kayar — yalnız
+     dikimi kaydırmak kesim/UKP ile ilişkiyi bozardı. */
+  let kaydirilanGun = 0
+  const dikim = plan.pencereler.find(p => p.kod === 'DIKIM')
+  if (dikim?.baslangic && dikim.bitis) {
+    const dolu = await sql`
+      SELECT plan_baslangic::text AS baslangic, plan_bitis::text AS bitis
+      FROM work_order_stage_atama
+      WHERE line_id = ANY(${paylar.map(p => p.lineId)})
+      ORDER BY plan_baslangic` as unknown as Aralik[]
+
+    if (dolu.length > 0) {
+      const gun = Math.max(1, gunSayisi(dikim.baslangic, dikim.bitis))
+      const bos = bosPencereBul(dolu, gun, dikim.bitis)
+      kaydirilanGun = bos.kaydirilanGun
+      if (kaydirilanGun > 0) {
+        plan = geriyePlanla(gunEkle(istek.teslimTarihi, -kaydirilanGun), girdiler, istek.bugun)
+      }
+    }
+  }
 
   /* 3) Sipariş.
      work_order'ın NOT NULL kolonları (doğrulandı): is_emri_no,
@@ -123,5 +155,15 @@ export async function yerlestir(
     }
   }
 
-  return { workOrderId, yetisiyor: plan.yetisiyor, elleTarihGereken: plan.elleTarihGereken }
+  return {
+    workOrderId,
+    yetisiyor: plan.yetisiyor,
+    elleTarihGereken: plan.elleTarihGereken,
+    kaydirilanGun,
+  }
+}
+
+function gunSayisi(baslangic: string, bitis: string): number {
+  const t = (s: string) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10))
+  return Math.round((t(bitis) - t(baslangic)) / 86_400_000) + 1
 }

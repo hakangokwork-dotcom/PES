@@ -16,7 +16,10 @@ const uygulama = postgres(env.APP_DATABASE_URL, { max: 2, prepare: false, connec
 let defaultTenant: string
 let wsId: number
 let lineIds: number[]
-const KOD = 'ZZTESTYRL'
+/* Onek 'ZZTEST' OLMAMALI: workshop-baglantilar.test.ts 'ZZTEST%' ile
+   baslayan atolyeleri siliyor ve paralel kosarken bu dosyanin atolyesini
+   altindan aliyordu. Test yalitimi, isim secimiyle korunuyor. */
+const KOD = 'ZZYRLTST'
 
 async function temizle() {
   await yonetici`DELETE FROM work_order WHERE workshop_id IN (SELECT id FROM workshop WHERE code = ${KOD})`
@@ -121,4 +124,28 @@ test('bant başka atölyeye aitse hata verir', async () => {
     workshopId: wsId, lineIds: [baskaBant.id as number],
     asamaKodlari: ['DIKIM'],
   }))).rejects.toThrow('bu atölyede bulunamadı')
+})
+
+test('ikinci siparis ayni bandi ayni gun kullanamaz', async () => {
+  const ortak = {
+    musteri: 'Test', modelAdi: 'M1', adet: 3000,
+    teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    workshopId: wsId, lineIds: [lineIds[0]], asamaKodlari: ['DIKIM'],
+  }
+  const a = await tenantIcinde(sql => yerlestir(sql, defaultTenant, { ...ortak, siparisNo: 'ZZ-A' }))
+  const b = await tenantIcinde(sql => yerlestir(sql, defaultTenant, { ...ortak, siparisNo: 'ZZ-B' }))
+
+  const pencereler = await tenantIcinde(sql => sql`
+    SELECT wos.work_order_id, a.plan_baslangic::text, a.plan_bitis::text
+    FROM work_order_stage_atama a
+    JOIN work_order_stage wos ON wos.id = a.stage_row_id
+    WHERE wos.work_order_id IN (${a.workOrderId}, ${b.workOrderId})
+    ORDER BY a.plan_baslangic`)
+
+  expect(pencereler).toHaveLength(2)
+  const [ilk, ikinci] = pencereler
+  // Aralıklar ÇAKIŞMAMALI: ilkin bitişi ikincinin başlangıcından önce
+  expect(String(ilk.plan_bitis) < String(ikinci.plan_baslangic)).toBe(true)
+  // İkinci sipariş geriye kaymış olmalı
+  expect(b.kaydirilanGun).toBeGreaterThan(0)
 })

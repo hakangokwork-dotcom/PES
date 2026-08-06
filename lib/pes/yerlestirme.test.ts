@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { bantPaylari, asamaGunu, geriyePlanla, type AsamaGirdi } from './yerlestirme'
+import { bantPaylari, asamaGunu, geriyePlanla, bosPencereBul, type AsamaGirdi } from './yerlestirme'
 
 test('kapasiteye orantılı böler ve toplam adedi korur', () => {
   const paylar = bantPaylari(10_000, [
@@ -95,4 +95,40 @@ test('süresi bilinmeyen aşama pencere almaz', () => {
   expect(yikama.baslangic).toBeNull()
   expect(yikama.bitis).toBeNull()
   expect(p.elleTarihGereken).toEqual(['YIKAMA'])
+})
+
+// ---- Faz 2: bant çakışma kontrolü ----
+
+test('boş bantta istenen pencere aynen döner', () => {
+  expect(bosPencereBul([], 5, '2026-09-29')).toEqual({
+    baslangic: '2026-09-25', bitis: '2026-09-29', kaydirilanGun: 0,
+  })
+})
+
+test('çakışma varsa pencere geriye kayar', () => {
+  // 20-29 Eylül dolu; 5 günlük iş 29'da bitemez, 19'da bitmeli
+  const p = bosPencereBul(
+    [{ baslangic: '2026-09-20', bitis: '2026-09-29' }], 5, '2026-09-29')
+  expect(p.bitis).toBe('2026-09-19')
+  expect(p.baslangic).toBe('2026-09-15')
+  expect(p.kaydirilanGun).toBe(10)
+})
+
+test('birden fazla dolu aralık arasındaki boşluğa oturur', () => {
+  const p = bosPencereBul([
+    { baslangic: '2026-09-25', bitis: '2026-09-29' },
+    { baslangic: '2026-09-10', bitis: '2026-09-18' },
+  ], 3, '2026-09-29')
+  // 19-24 arası boş, 3 gün oraya sığar: 22-24
+  expect(p.bitis).toBe('2026-09-24')
+  expect(p.baslangic).toBe('2026-09-22')
+})
+
+test('kenarda bitisik aralik cakisma sayilmaz', () => {
+  // 25-29 dolu; 5 gunluk is 20-24'e tam oturur
+  const p = bosPencereBul(
+    [{ baslangic: '2026-09-25', bitis: '2026-09-29' }], 5, '2026-09-29')
+  expect(p.bitis).toBe('2026-09-24')
+  expect(p.baslangic).toBe('2026-09-20')
+  expect(p.kaydirilanGun).toBe(5)
 })

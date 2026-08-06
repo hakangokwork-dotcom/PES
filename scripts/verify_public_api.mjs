@@ -48,6 +48,11 @@ const UCLAR = [
   'v_atolye_denetim_durum',
   // 030 — sipariş yerleştirme
   'work_order_stage_atama', 'work_order_gunluk_uretim', 'workshop_stage_capacity',
+  // 031 — olgunluk kataloğu ve denetimi
+  'olgunluk_sablon', 'olgunluk_kategori', 'olgunluk_surec', 'olgunluk_kriter',
+  'olgunluk_denetim', 'olgunluk_denetim_kriter',
+  'v_olgunluk_surec_seviye', 'v_olgunluk_denetim_ozet',
+  'v_olgunluk_kategori', 'v_atolye_olgunluk',
 ]
 
 let sizan = 0

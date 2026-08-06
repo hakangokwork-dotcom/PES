@@ -1,0 +1,124 @@
+import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
+import postgres from 'postgres'
+import { readFileSync } from 'node:fs'
+import { yerlestir } from './yerlestir-kaydet'
+
+/* Gerçek veritabanına bağlanır. Kendi ZZTEST atölyesini ve bantlarını
+   açar, sonunda siler; gerçek atölyelere dokunmaz. */
+const env = Object.fromEntries(
+  readFileSync(new URL('../../.env.local', import.meta.url), 'utf8')
+    .split('\n').filter(l => l.includes('=') && !l.startsWith('#'))
+    .map(l => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim()] })
+)
+const yonetici = postgres(env.DATABASE_URL, { max: 1, prepare: false, connect_timeout: 15 })
+const uygulama = postgres(env.APP_DATABASE_URL, { max: 2, prepare: false, connect_timeout: 15 })
+
+let defaultTenant: string
+let wsId: number
+let lineIds: number[]
+const KOD = 'ZZTESTYRL'
+
+async function temizle() {
+  await yonetici`DELETE FROM work_order WHERE workshop_id IN (SELECT id FROM workshop WHERE code = ${KOD})`
+  await yonetici`DELETE FROM production_line WHERE code LIKE ${KOD + '%'}`
+  await yonetici`DELETE FROM workshop WHERE code = ${KOD}`
+}
+
+beforeAll(async () => {
+  const [d] = await yonetici`SELECT id FROM tenant WHERE slug = 'default'`
+  defaultTenant = d.id
+  await temizle()
+  const [w] = await yonetici`
+    INSERT INTO workshop (tenant_id, code, name, type, total_staff, sewing_staff, ukp_staff,
+                          cutting_staff, management, indirect, line_count, daily_target, net_hours_day)
+    VALUES (${defaultTenant}, ${KOD}, 'Yerlestirme Testi', 'X', 0,0,0,0,0,0,2,0,9)
+    RETURNING id`
+  wsId = w.id as number
+  const bantlar = await yonetici`
+    INSERT INTO production_line (tenant_id, workshop_id, code, name, daily_target, is_active)
+    VALUES (${defaultTenant}, ${wsId}, ${KOD + '-B1'}, 'B1', 1000, true),
+           (${defaultTenant}, ${wsId}, ${KOD + '-B2'}, 'B2', 500, true)
+    RETURNING id`
+  lineIds = bantlar.map(r => r.id as number)
+})
+
+afterEach(async () => {
+  await yonetici`DELETE FROM work_order WHERE workshop_id = ${wsId}`
+})
+
+afterAll(async () => {
+  await temizle()
+  await yonetici.end()
+  await uygulama.end()
+})
+
+function tenantIcinde<T>(fn: (sql: postgres.TransactionSql) => Promise<T>): Promise<T> {
+  return uygulama.begin(async (tx) => {
+    await tx`SELECT set_config('app.current_tenant_id', ${defaultTenant}, true)`
+    return fn(tx)
+  }) as Promise<T>
+}
+
+test('sipariş, zincir ve bant tahsisleri tek seferde yazılır', async () => {
+  const sonuc = await tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+    siparisNo: 'ZZ-001', musteri: 'Test', modelAdi: 'M1',
+    adet: 10_000, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    workshopId: wsId, lineIds,
+    asamaKodlari: ['KESIM', 'DIKIM', 'UKP'],
+  }))
+
+  expect(sonuc.workOrderId).toBeGreaterThan(0)
+  expect(sonuc.yetisiyor).toBe(true)
+
+  const asamalar = await tenantIcinde(sql =>
+    sql`SELECT ps.code FROM work_order_stage wos
+        JOIN production_stage ps ON ps.id = wos.stage_id
+        WHERE wos.work_order_id = ${sonuc.workOrderId} ORDER BY ps.sira_no`)
+  expect(asamalar.map(a => a.code)).toEqual(['KESIM', 'DIKIM', 'UKP'])
+
+  const tahsis = await tenantIcinde(sql =>
+    sql`SELECT a.adet FROM work_order_stage_atama a
+        JOIN work_order_stage wos ON wos.id = a.stage_row_id
+        WHERE wos.work_order_id = ${sonuc.workOrderId} ORDER BY a.adet DESC`)
+  expect(tahsis).toHaveLength(2)
+  expect(Number(tahsis[0].adet) + Number(tahsis[1].adet)).toBe(10_000)
+  expect(Number(tahsis[0].adet)).toBe(6667)
+})
+
+test('tarihler metin olarak döner, Date nesnesi değil', async () => {
+  const sonuc = await tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+    siparisNo: 'ZZ-002', musteri: 'Test', modelAdi: 'M1',
+    adet: 1000, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    workshopId: wsId, lineIds: [lineIds[0]],
+    asamaKodlari: ['DIKIM'],
+  }))
+  const [t] = await tenantIcinde(sql =>
+    sql`SELECT a.plan_baslangic::text, a.plan_bitis::text
+        FROM work_order_stage_atama a
+        JOIN work_order_stage wos ON wos.id = a.stage_row_id
+        WHERE wos.work_order_id = ${sonuc.workOrderId}`)
+  expect(typeof t.plan_baslangic).toBe('string')
+  expect(t.plan_baslangic).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+})
+
+test('yetişmeyen sipariş yine yazılır ama işaretli', async () => {
+  const sonuc = await tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+    siparisNo: 'ZZ-003', musteri: 'Test', modelAdi: 'M1',
+    adet: 100_000, teslimTarihi: '2026-08-10', bugun: '2026-08-06',
+    workshopId: wsId, lineIds,
+    asamaKodlari: ['DIKIM'],
+  }))
+  expect(sonuc.yetisiyor).toBe(false)
+  expect(sonuc.workOrderId).toBeGreaterThan(0)
+})
+
+test('bant başka atölyeye aitse hata verir', async () => {
+  const [baskaBant] = await yonetici`
+    SELECT id FROM production_line WHERE workshop_id <> ${wsId} AND is_active LIMIT 1`
+  await expect(tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+    siparisNo: 'ZZ-004', musteri: 'Test', modelAdi: 'M1',
+    adet: 1000, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    workshopId: wsId, lineIds: [baskaBant.id as number],
+    asamaKodlari: ['DIKIM'],
+  }))).rejects.toThrow('bu atölyede bulunamadı')
+})

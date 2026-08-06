@@ -56,7 +56,9 @@ export default function WorkshopsTable({ rows }: { rows: WorkshopRow[] }) {
       render: r => <Badge tone={r.is_active ? 'good' : 'neutral'}>{r.is_active ? 'AKTİF' : 'PASİF'}</Badge>,
     },
     {
-      key: 'actions', label: 'İşlem', align: 'right', sortable: false,
+      /* Sabit genişlik + nowrap: "Pasife al" dar sütunda iki satıra
+         kırılıyordu ve satır yüksekliği tabloda zıplıyordu. */
+      key: 'actions', label: 'İşlem', align: 'right', sortable: false, width: '104px',
       render: r => <AtolyeArsivDugmesi id={r.id} aktif={r.is_active} />,
     },
   ]

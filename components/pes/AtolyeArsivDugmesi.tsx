@@ -41,7 +41,7 @@ export default function AtolyeArsivDugmesi({ id, aktif }: { id: number; aktif: b
       <button
         onClick={degistir}
         disabled={bekliyor}
-        className="text-xs font-medium px-3 py-1 rounded-lg border border-line text-muted hover:bg-canvas transition-colors disabled:opacity-40"
+        className="text-xs font-medium px-3 py-1 rounded-lg border border-line text-muted hover:bg-canvas transition-colors disabled:opacity-40 whitespace-nowrap"
       >
         {bekliyor ? '…' : aktif ? 'Pasife al' : 'Aktife al'}
       </button>

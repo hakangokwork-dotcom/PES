@@ -359,24 +359,24 @@ function TakvimPage() {
           <button onClick={() => setRefDate(new Date())} className="px-3 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">Bugün</button>
           <button onClick={() => shiftRange(+1)} className="px-2 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">›</button>
         </div>
-        <span className="text-sm font-semibold text-slate-800 px-2">
+        <span className="text-sm font-semibold text-ink px-2">
           {view === 'hafta'
             ? `${fmt(range.start)} – ${fmt(range.end)} ${range.end.getFullYear()}`
             : `${TR_AYLAR[refDate.getMonth()]} ${refDate.getFullYear()}`}
         </span>
 
-        <div className="h-6 w-px bg-slate-200 mx-1" />
+        <div className="h-6 w-px bg-line-soft mx-1" />
 
         <div className="flex items-center gap-1 text-sm">
           {(['ay','hafta','asama'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
-              className={`px-3 py-1.5 rounded transition ${view === v ? 'bg-slate-900 text-white' : 'border border-line-soft hover:bg-canvas'}`}>
+              className={`px-3 py-1.5 rounded transition ${view === v ? 'bg-accent text-white' : 'border border-line-soft hover:bg-canvas'}`}>
               {v === 'ay' ? 'Ay' : v === 'hafta' ? 'Hafta' : 'Aşama Detay'}
             </button>
           ))}
         </div>
 
-        <div className="h-6 w-px bg-slate-200 mx-1" />
+        <div className="h-6 w-px bg-line-soft mx-1" />
 
         <select value={colorMode} onChange={e => setColorMode(e.target.value as 'durum' | 'oncelik')} className="px-2 py-1.5 text-sm border border-line-soft rounded">
           <option value="oncelik">Renk: Önceliğe göre</option>
@@ -392,7 +392,7 @@ function TakvimPage() {
         </label>
 
         <span className="ml-auto text-xs text-faint">{visibleOrders.length} WO görünür</span>
-        {savingDrag && <span className="text-xs text-purple-700 font-medium animate-pulse">⟳ Kaydediliyor...</span>}
+        {savingDrag && <span className="text-xs text-muted font-medium animate-pulse">⟳ Kaydediliyor...</span>}
       </div>
 
       {/* Drag ipucu */}
@@ -405,7 +405,7 @@ function TakvimPage() {
 
       {/* Lejant */}
       <div className="text-[11px] text-faint flex items-center gap-3 flex-wrap px-1">
-        <span><b className="text-slate-700">Renk lejantı:</b></span>
+        <span><b className="text-ink">Renk lejantı:</b></span>
         {Object.entries(colorMode === 'durum' ? DURUM_RENK : ONCELIK_RENK).map(([k, v]) => (
           <span key={k} className="inline-flex items-center gap-1">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: v }} />
@@ -424,7 +424,7 @@ function TakvimPage() {
           }}
         >
           {/* Header row: gun başlıkları */}
-          <div className="sticky left-0 z-10 bg-slate-100 border-r border-b border-slate-300 font-semibold py-2 px-3 text-slate-700 flex items-center">
+          <div className="sticky left-0 z-10 bg-canvas border-r border-b border-line font-semibold py-2 px-3 text-ink flex items-center">
             Bant ({lines.length})
           </div>
           {days.map((d, i) => {
@@ -433,10 +433,10 @@ function TakvimPage() {
             return (
               <div key={i}
                 className={`border-r border-b border-line-soft text-center py-1 ${
-                  isToday ? 'bg-cyan-50 ring-1 ring-cyan-300' : w ? 'bg-canvas text-slate-400' : 'bg-white'
+                  isToday ? 'bg-canvas ring-1 ring-accent' : w ? 'bg-canvas text-faint' : 'bg-white'
                 }`}>
                 <div className="font-mono font-semibold text-[11px]">{d.getDate()}</div>
-                <div className="text-[11px] text-slate-400">{TR_GUNLER[d.getDay()]}</div>
+                <div className="text-[11px] text-faint">{TR_GUNLER[d.getDay()]}</div>
               </div>
             )
           })}
@@ -512,15 +512,15 @@ function TakvimPage() {
                 </div>
                 <div
                   ref={el => { lineRowRefs.current.set(line.id, el) }}
-                  className="border-b border-slate-100 relative grid"
+                  className="border-b border-line-soft relative grid"
                   style={{ gridColumn: `2 / span ${days.length}`, gridTemplateColumns: `repeat(${days.length}, ${dayColWidth}px)`, minHeight: 50 }}>
                   {/* arka plan haftasonu sütunları */}
                   {days.map((d, i) => {
                     const isToday = dateOnly(d).getTime() === today.getTime()
                     const w = isWeekend(d)
                     return (
-                      <div key={i} className={`border-r border-slate-100 ${
-                        isToday ? 'bg-cyan-50/50' : w ? 'bg-canvas' : ''
+                      <div key={i} className={`border-r border-line-soft ${
+                        isToday ? 'bg-canvas/50' : w ? 'bg-canvas' : ''
                       }`} />
                     )
                   })}
@@ -536,7 +536,7 @@ function TakvimPage() {
                           title={it.tooltip}
                           className={`relative my-1.5 mx-0.5 rounded text-white text-[11px] flex items-center px-1.5 overflow-hidden shadow-sm ${
                             isDraggable ? 'cursor-grab' : 'cursor-pointer'
-                          } ${it.isDragging ? 'ring-2 ring-offset-1 ring-purple-500 cursor-grabbing z-20' : 'hover:ring-2 hover:ring-offset-1 hover:ring-slate-400'} transition-shadow`}
+                          } ${it.isDragging ? 'ring-2 ring-offset-1 ring-accent cursor-grabbing z-20' : 'hover:ring-2 hover:ring-offset-1 hover:ring-line'} transition-shadow`}
                           style={{
                             gridColumnStart: pos.gridColumnStart - 1,
                             gridColumnEnd: pos.gridColumnEnd - 1,
@@ -575,7 +575,7 @@ function TakvimPage() {
                           )}
                           {/* Drag preview tarih etiketi */}
                           {it.isDragging && (
-                            <div className="absolute -top-6 left-0 bg-purple-700 text-white text-[11px] px-1.5 py-0.5 rounded whitespace-nowrap z-30 shadow">
+                            <div className="absolute -top-6 left-0 bg-canvas text-white text-[11px] px-1.5 py-0.5 rounded whitespace-nowrap z-30 shadow">
                               {fmt(it.barStart)} → {fmt(it.barEnd)}
                             </div>
                           )}
@@ -590,7 +590,7 @@ function TakvimPage() {
 
           {/* Bant yoksa */}
           {lines.length === 0 && (
-            <div className="col-span-full py-10 text-center text-sm text-slate-400">
+            <div className="col-span-full py-10 text-center text-sm text-faint">
               Atölye için bant tanımlı değil. Önce <b>Profil</b> sayfasından bant ekleyin.
             </div>
           )}
@@ -599,7 +599,7 @@ function TakvimPage() {
 
       {/* Bant doluluk özeti */}
       <div className="bg-white border border-line-soft rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
           📊 Bant Doluluk Özeti ({TR_AYLAR[refDate.getMonth()]} {refDate.getFullYear()})
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -621,11 +621,11 @@ function TakvimPage() {
               }
             }
             const dolulukPct = totalDays > 0 ? Math.round((dolugun.size / totalDays) * 100) : 0
-            const barColor = dolulukPct >= 90 ? 'bg-red-500' : dolulukPct >= 70 ? 'bg-emerald-500' : dolulukPct >= 40 ? 'bg-amber-500' : 'bg-slate-300'
+            const barColor = dolulukPct >= 90 ? 'bg-red-500' : dolulukPct >= 70 ? 'bg-emerald-500' : dolulukPct >= 40 ? 'bg-amber-500' : 'bg-line'
             return (
               <div key={line.id} className="flex items-center gap-3 text-xs">
                 <span className="w-32 truncate font-medium">{line.code} · {line.name}</span>
-                <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative">
+                <div className="flex-1 h-4 bg-canvas rounded-full overflow-hidden relative">
                   <div className={`h-full ${barColor}`} style={{ width: `${dolulukPct}%` }} />
                   <span className="absolute inset-0 flex items-center justify-center text-[11px] font-mono font-semibold text-ink">
                     %{dolulukPct} · {dolugun.size}/{totalDays} iş günü

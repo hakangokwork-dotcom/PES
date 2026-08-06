@@ -16,12 +16,12 @@ const TEMPLATES = [
 
 const COLORS: Record<string, string> = {
   emerald: 'border-emerald-200 bg-emerald-50',
-  blue: 'border-blue-200 bg-blue-50',
-  purple: 'border-purple-200 bg-purple-50',
+  blue: 'border-line bg-canvas',
+  purple: 'border-line bg-canvas',
   red: 'border-red-200 bg-red-50',
   amber: 'border-amber-200 bg-amber-50',
-  indigo: 'border-indigo-200 bg-indigo-50',
-  teal: 'border-teal-200 bg-teal-50',
+  indigo: 'border-line bg-canvas',
+  teal: 'border-line bg-canvas',
 }
 
 export default function VeriYukleWrapper() {
@@ -86,15 +86,15 @@ function VeriYuklePage() {
       </div>
 
       {/* Nasil Kullanilir */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-blue-800 mb-2">Nasil Kullanilir?</h3>
-        <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+      <div className="bg-canvas border border-line rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-muted mb-2">Nasil Kullanilir?</h3>
+        <ol className="text-sm text-muted space-y-1 list-decimal list-inside">
           <li><strong>Sablon Indir</strong> butonuna tiklayin — ornek verili CSV dosyasi inecek</li>
           <li>Dosyayi Excel ile acin (ayirici: noktali virgul <code>;</code>)</li>
           <li>Ornek satirlari silin, kendi verilerinizi girin</li>
           <li>CSV olarak kaydedin ve <strong>Yukle</strong> butonuyla sisteme gonderin</li>
         </ol>
-        <p className="text-xs text-blue-500 mt-2">Not: Bant kodlari (BANT-01 vb.) sistemde tanimli olmalidir. Profil sayfasindan bantlarinizi kontrol edin.</p>
+        <p className="text-xs text-muted mt-2">Not: Bant kodlari (BANT-01 vb.) sistemde tanimli olmalidir. Profil sayfasindan bantlarinizi kontrol edin.</p>
       </div>
 
       {/* Sablon Kartlari */}

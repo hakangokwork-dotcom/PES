@@ -221,7 +221,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
               <div key={i} className={`rounded-lg p-3 ${
                 d.downtime_type === 'Plansız' ? 'bg-red-50' :
                 d.downtime_type === 'Tedarik' ? 'bg-orange-50' :
-                d.downtime_type === 'Organizasyonel' ? 'bg-blue-50' : 'bg-canvas'
+                d.downtime_type === 'Organizasyonel' ? 'bg-canvas' : 'bg-canvas'
               }`}>
                 <p className="text-xs text-muted">{String(d.downtime_type)}</p>
                 <p className="text-xl font-bold text-ink">{String(d.total_min)} dk</p>

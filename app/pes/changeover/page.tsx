@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { DataTable, EmptyState, type Column } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string }
@@ -10,6 +11,26 @@ export default function ChangeoverPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
   const [lines, setLines] = useState<Line[]>([])
   const [records, setRecords] = useState<ChangeoverRow[]>([])
+
+  const ortalama = useMemo(() => (
+    records.length ? Math.round(records.reduce((t, r) => t + Number(r.total_min || 0), 0) / records.length) : 0
+  ), [records])
+
+  /* Dakika kolonları numeric: sağa dayalı + tabular rakam, böylece
+     basamaklar üst üste gelir ve göz büyüğü hızlı bulur. */
+  const dk = (v: number) => `${v} dk`
+  const kolonlar: Column<ChangeoverRow>[] = [
+    { key: 'occurred_date', label: 'Tarih', width: '110px',
+      render: r => <span className="text-muted">{r.occurred_date}</span> },
+    { key: 'workshop_code', label: 'Atölye / Bant',
+      render: r => <span className="text-ink">{r.workshop_code} / {r.line_code}</span> },
+    { key: 'machine_adj_min', label: 'Makine', numeric: true, render: r => dk(r.machine_adj_min) },
+    { key: 'balancing_min', label: 'Dengeleme', numeric: true, render: r => dk(r.balancing_min) },
+    { key: 'first_batch_min', label: 'İlk Parti', numeric: true, render: r => dk(r.first_batch_min) },
+    { key: 'warmup_min', label: 'Isınma', numeric: true, render: r => dk(r.warmup_min) },
+    { key: 'total_min', label: 'Toplam', numeric: true,
+      render: r => <span className="font-semibold text-ink">{dk(r.total_min)}</span> },
+  ]
   const [workshopId, setWorkshopId] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -118,32 +139,14 @@ export default function ChangeoverPage() {
 
       {records.length > 0 && (
         <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-canvas border-b border-line-soft">
-                <th className="px-4 py-3 text-left text-faint font-medium">Tarih</th>
-                <th className="px-4 py-3 text-left text-faint font-medium">Atölye/Bant</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">Makine</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">Dengeleme</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">İlk Parti</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">Isınma</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">Toplam</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {records.map(r => (
-                <tr key={r.id} className="hover:bg-canvas">
-                  <td className="px-4 py-3 text-muted">{r.occurred_date}</td>
-                  <td className="px-4 py-3 text-ink">{r.workshop_code} / {r.line_code}</td>
-                  <td className="px-4 py-3 text-right text-muted">{r.machine_adj_min} dk</td>
-                  <td className="px-4 py-3 text-right text-muted">{r.balancing_min} dk</td>
-                  <td className="px-4 py-3 text-right text-muted">{r.first_batch_min} dk</td>
-                  <td className="px-4 py-3 text-right text-muted">{r.warmup_min} dk</td>
-                  <td className="px-4 py-3 text-right font-bold text-amber-600">{r.total_min} dk</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            columns={kolonlar}
+            rows={records}
+            rowKey={r => r.id}
+            initialSort={{ key: 'occurred_date', dir: 'desc' }}
+            empty={<EmptyState title="Changeover kaydı yok" description="Seçili atölye için bu dönemde model geçişi girilmemiş." />}
+            footer={<span className="num">{records.length} kayıt · ortalama {ortalama} dk</span>}
+          />
         </div>
       )}
     </div>

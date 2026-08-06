@@ -136,7 +136,7 @@ export default async function ReportsPage() {
               <tr key={i} className="hover:bg-canvas">
                 <td className="px-4 py-3 text-accent font-medium">{String(w.code)}</td>
                 <td className="px-4 py-3 text-ink">{String(w.name)}</td>
-                <td className="px-4 py-3 text-center"><span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{String(w.type)}</span></td>
+                <td className="px-4 py-3 text-center"><span className="text-xs px-2 py-0.5 rounded-full font-medium bg-canvas text-muted">{String(w.type)}</span></td>
                 <td className="px-4 py-3 text-muted">{w.city ? String(w.city) : '—'}</td>
                 <td className="px-4 py-3 text-right">{String(w.sewing_staff)}</td>
                 <td className="px-4 py-3 text-right">{String(w.total_staff)}</td>
@@ -264,7 +264,7 @@ export default async function ReportsPage() {
                   <td className="px-4 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                       s.tier === 'Stratejik' ? 'bg-green-100 text-green-700' :
-                      s.tier === 'Gelişen' ? 'bg-blue-100 text-blue-700' :
+                      s.tier === 'Gelişen' ? 'bg-canvas text-muted' :
                       s.tier === 'İzlemede' ? 'bg-amber-100 text-amber-700' :
                       s.tier === 'Risk' ? 'bg-orange-100 text-orange-700' :
                       'bg-red-100 text-red-700'

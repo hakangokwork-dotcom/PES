@@ -68,8 +68,8 @@ const KIND_LABELS: Record<string, string> = {
 }
 
 const KIND_STYLES: Record<string, string> = {
-  ziyaret: 'bg-blue-100 text-blue-700',
-  denetim: 'bg-purple-100 text-purple-700',
+  ziyaret: 'bg-canvas text-muted',
+  denetim: 'bg-canvas text-muted',
   olay: 'bg-red-100 text-red-700',
   dmaic: 'bg-amber-100 text-amber-700',
   fiyat_revizyonu: 'bg-emerald-100 text-emerald-700',

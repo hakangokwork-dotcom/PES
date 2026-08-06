@@ -42,25 +42,25 @@ interface WO {
 }
 
 const DURUM_RENK: Record<string, string> = {
-  'Taslak':       'bg-slate-100 text-slate-700',
-  'Planlandi':    'bg-blue-100 text-blue-800',
+  'Taslak':       'bg-canvas text-ink',
+  'Planlandi':    'bg-canvas text-muted',
   'Bekleniyor':   'bg-amber-100 text-amber-800',
   'Devam':        'bg-emerald-100 text-emerald-800',
   'Duraklatildi': 'bg-orange-100 text-orange-800',
   'Tamamlandi':   'bg-emerald-200 text-emerald-900',
   'İptal':        'bg-red-100 text-red-700',
-  'Sevk Edildi':  'bg-purple-100 text-purple-800',
+  'Sevk Edildi':  'bg-canvas text-muted',
 }
 const ONCELIK_RENK: Record<string, string> = {
   'Kritik': 'bg-red-600 text-white',
   'Yüksek': 'bg-amber-500 text-white',
-  'Normal': 'bg-slate-200 text-slate-700',
-  'Düşük':  'bg-slate-100 text-faint',
+  'Normal': 'bg-line-soft text-ink',
+  'Düşük':  'bg-canvas text-faint',
 }
 const ACILIYET_RENK: Record<string, string> = {
   'kritik': 'border-l-4 border-red-500 bg-red-50/30',
   'acil':   'border-l-4 border-amber-500 bg-amber-50/30',
-  'yakin':  'border-l-4 border-blue-300',
+  'yakin':  'border-l-4 border-line',
   'normal': '',
 }
 
@@ -242,7 +242,7 @@ function IsEmriPage() {
         </select>
         {(filter.q || filter.durum || filter.oncelik || filter.aciliyet) && (
           <button onClick={() => setFilter({ durum: '', oncelik: '', aciliyet: '', q: '' })}
-            className="text-xs text-faint hover:text-slate-700">Filtreyi temizle</button>
+            className="text-xs text-faint hover:text-ink">Filtreyi temizle</button>
         )}
         <span className="ml-auto text-xs text-faint">{filtered.length} / {orders.length}</span>
       </div>
@@ -315,13 +315,13 @@ function IsEmriPage() {
           </div>
 
           {/* Auto-plan suggestion box */}
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 space-y-2">
+          <div className="bg-canvas border border-line rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm">🪄</span>
-              <span className="text-sm font-semibold text-purple-900">Otomatik Plan Önerisi</span>
-              <span className="text-xs text-purple-700">— Adet ve teslim tarihi yeterli; bant + tarih önerilerini sistem hesaplar.</span>
+              <span className="text-sm font-semibold text-muted">Otomatik Plan Önerisi</span>
+              <span className="text-xs text-muted">— Adet ve teslim tarihi yeterli; bant + tarih önerilerini sistem hesaplar.</span>
               <button onClick={autoSuggest} disabled={suggesting || !form.siparis_miktari || !form.teslim_tarihi}
-                className="ml-auto text-xs px-3 py-1.5 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-40">
+                className="ml-auto text-xs px-3 py-1.5 bg-canvas text-white rounded hover:bg-canvas disabled:opacity-40">
                 {suggesting ? 'Hesaplanıyor...' : (suggestions ? 'Tekrar Hesapla' : '🪄 Plan Öner')}
               </button>
             </div>
@@ -337,11 +337,11 @@ function IsEmriPage() {
                   return (
                     <div key={i}
                       className={`bg-white border rounded-lg p-3 transition cursor-pointer ${
-                        isSelected ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-purple-200 hover:border-purple-400'
+                        isSelected ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-line hover:border-line'
                       }`}
                       onClick={() => applySuggestion(s)}>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {i === 0 && <span className="text-[11px] px-1.5 py-0.5 bg-purple-600 text-white rounded font-semibold">EN İYİ</span>}
+                        {i === 0 && <span className="text-[11px] px-1.5 py-0.5 bg-canvas text-white rounded font-semibold">EN İYİ</span>}
                         <span className="font-semibold text-sm">{s.line_code} — {s.line_name}</span>
                         <span className="ml-auto text-xs font-mono text-faint">skor {s.score}</span>
                       </div>
@@ -360,15 +360,15 @@ function IsEmriPage() {
                         </div>
                       )}
                       <div className="mt-2 flex items-center gap-2">
-                        <span className="text-[11px] text-slate-400 uppercase tracking-wider">Bant Yükü</span>
-                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <span className="text-[11px] text-faint uppercase tracking-wider">Bant Yükü</span>
+                        <div className="flex-1 h-1.5 bg-canvas rounded-full overflow-hidden">
                           <div className={`h-full ${s.capacity_pct >= 90 ? 'bg-red-500' : s.capacity_pct >= 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                             style={{ width: `${s.capacity_pct}%` }} />
                         </div>
                         <span className="text-[11px] font-mono text-muted">%{s.capacity_pct}</span>
                       </div>
                       <div className="mt-2 text-center">
-                        <span className={`text-xs font-medium ${isSelected ? 'text-emerald-700' : 'text-purple-600'}`}>
+                        <span className={`text-xs font-medium ${isSelected ? 'text-emerald-700' : 'text-muted'}`}>
                           {isSelected ? '✓ Seçili' : 'Bunu seç →'}
                         </span>
                       </div>
@@ -407,8 +407,8 @@ function IsEmriPage() {
               <div className="flex-1 min-w-[260px]">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-ink text-sm">{o.is_emri_no}</span>
-                  <Badge cls={DURUM_RENK[o.durum] || 'bg-slate-100 text-slate-700'}>{o.durum}</Badge>
-                  <Badge cls={ONCELIK_RENK[o.oncelik] || 'bg-slate-100 text-faint'}>{o.oncelik}</Badge>
+                  <Badge cls={DURUM_RENK[o.durum] || 'bg-canvas text-ink'}>{o.durum}</Badge>
+                  <Badge cls={ONCELIK_RENK[o.oncelik] || 'bg-canvas text-faint'}>{o.oncelik}</Badge>
                   {o.aciliyet === 'kritik' && <Badge cls="bg-red-600 text-white">⚠ Teslim Geçti</Badge>}
                   {o.aciliyet === 'acil'  && <Badge cls="bg-amber-500 text-white">⏰ Acil</Badge>}
                   {!o.sample_onaylandi && <Badge cls="bg-orange-100 text-orange-700">Numune onayı bekliyor</Badge>}
@@ -437,7 +437,7 @@ function IsEmriPage() {
                 <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Aşamalar</div>
                 <div className="text-sm font-mono">
                   <span className="text-emerald-700 font-semibold">{o.tamamlanan_asama}</span>
-                  <span className="text-slate-400"> / {o.toplam_asama}</span>
+                  <span className="text-faint"> / {o.toplam_asama}</span>
                 </div>
                 {o.acik_problem > 0 && (
                   <div className="text-[11px] text-red-700 font-medium">⚠ {o.acik_problem} açık problem</div>
@@ -455,7 +455,7 @@ function IsEmriPage() {
           font-size: 0.875rem; outline: none;
         }
         :global(.input:focus) {
-          border-color: #197A56;
+          border-color: var(--color-accent);
           box-shadow: 0 0 0 2px rgba(25, 122, 86, 0.15);
         }
       `}</style>
@@ -488,17 +488,17 @@ function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
 }
 
 function ProgressBox({ label, pct, sub }: { label: string; pct: number; sub: string }) {
-  const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-blue-500' : 'bg-slate-300'
+  const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-canvas' : 'bg-line'
   return (
     <div className="text-xs">
       <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-faint font-semibold">
         <span>{label}</span>
-        <span className="font-mono text-slate-700">%{pct}</span>
+        <span className="font-mono text-ink">%{pct}</span>
       </div>
-      <div className="h-2 bg-slate-100 rounded-full overflow-hidden mt-0.5">
+      <div className="h-2 bg-canvas rounded-full overflow-hidden mt-0.5">
         <div className={`h-full ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
-      <div className="text-[11px] text-slate-400 mt-0.5 truncate">{sub}</div>
+      <div className="text-[11px] text-faint mt-0.5 truncate">{sub}</div>
     </div>
   )
 }

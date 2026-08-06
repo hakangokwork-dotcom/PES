@@ -7,7 +7,7 @@ interface KaizenItem { id: number; baslik: string; kategori: string; hedef_metri
 
 const KATEGORILER = ['DARBOGAZ', 'WIP', 'KALITE', 'MALIYET', 'CHANGEOVER', 'GENEL']
 const DURUMLAR = ['PLAN', 'UYGULA', 'KONTROL', 'STANDART', 'IPTAL']
-const durumColor: Record<string, string> = { PLAN: 'bg-blue-100 text-blue-800', UYGULA: 'bg-amber-100 text-amber-800', KONTROL: 'bg-purple-100 text-purple-800', STANDART: 'bg-green-100 text-green-800', IPTAL: 'bg-gray-100 text-faint' }
+const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-amber-100 text-amber-800', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-green-100 text-green-800', IPTAL: 'bg-gray-100 text-faint' }
 const durumLabel: Record<string, string> = { PLAN: 'Plan', UYGULA: 'Uygula', KONTROL: 'Kontrol', STANDART: 'Standart', IPTAL: 'Iptal' }
 
 export default function Wrapper() {
@@ -64,17 +64,17 @@ function KaizenPage() {
 
       {/* PDCA Ozet */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-blue-800">{planCount}</p>
-          <p className="text-xs text-blue-600">PLAN</p>
+        <div className="bg-canvas border border-line rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-muted">{planCount}</p>
+          <p className="text-xs text-muted">PLAN</p>
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
           <p className="text-3xl font-bold text-amber-800">{uygulaCount}</p>
           <p className="text-xs text-amber-600">UYGULA (DO)</p>
         </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-purple-800">{kontrolCount}</p>
-          <p className="text-xs text-purple-600">KONTROL (CHECK)</p>
+        <div className="bg-canvas border border-line rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-muted">{kontrolCount}</p>
+          <p className="text-xs text-muted">KONTROL (CHECK)</p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
           <p className="text-3xl font-bold text-green-800">{standartCount}</p>

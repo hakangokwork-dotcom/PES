@@ -77,38 +77,38 @@ interface Journal {
 interface Line { id: number; code: string; name: string }
 
 const DURUM_RENK: Record<string, string> = {
-  'Taslak': 'bg-slate-100 text-slate-700',
-  'Planlandi': 'bg-blue-100 text-blue-800',
+  'Taslak': 'bg-canvas text-ink',
+  'Planlandi': 'bg-canvas text-muted',
   'Bekleniyor': 'bg-amber-100 text-amber-800',
   'Devam': 'bg-emerald-100 text-emerald-800',
   'Duraklatildi': 'bg-orange-100 text-orange-800',
   'Tamamlandi': 'bg-emerald-200 text-emerald-900',
   'İptal': 'bg-red-100 text-red-700',
-  'Sevk Edildi': 'bg-purple-100 text-purple-800',
+  'Sevk Edildi': 'bg-canvas text-muted',
 }
 const STAGE_DURUM_RENK: Record<string, string> = {
-  'Beklemede':    'bg-slate-100 text-muted',
-  'Hazır':        'bg-blue-100 text-blue-700',
+  'Beklemede':    'bg-canvas text-muted',
+  'Hazır':        'bg-canvas text-muted',
   'Devam':        'bg-emerald-100 text-emerald-700',
   'Duraklatildi': 'bg-amber-100 text-amber-700',
   'Tamamlandi':   'bg-emerald-200 text-emerald-900',
   'İptal':        'bg-red-100 text-red-700',
 }
 const MATERIAL_DURUM_RENK: Record<string, string> = {
-  'Bekleniyor':     'bg-slate-100 text-muted',
-  'Sipariş Verildi':'bg-blue-100 text-blue-700',
+  'Bekleniyor':     'bg-canvas text-muted',
+  'Sipariş Verildi':'bg-canvas text-muted',
   'Yolda':          'bg-amber-100 text-amber-700',
   'Geldi':          'bg-emerald-100 text-emerald-800',
   'Eksik':          'bg-red-100 text-red-700',
   'İade':           'bg-red-50 text-red-600',
 }
 const JOURNAL_TIP_RENK: Record<string, { bg: string; text: string; icon: string }> = {
-  'NOT':     { bg: 'bg-slate-100', text: 'text-slate-700', icon: '📝' },
+  'NOT':     { bg: 'bg-canvas', text: 'text-ink', icon: '📝' },
   'PROBLEM': { bg: 'bg-red-100',   text: 'text-red-800',   icon: '⚠️' },
-  'KAIZEN':  { bg: 'bg-cyan-100',  text: 'text-cyan-800',  icon: '💡' },
+  'KAIZEN':  { bg: 'bg-canvas',  text: 'text-muted',  icon: '💡' },
   'UYARI':   { bg: 'bg-amber-100', text: 'text-amber-800', icon: '🔔' },
   'BAŞARI':  { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: '✅' },
-  'BLOKAJ':  { bg: 'bg-purple-100', text: 'text-purple-800', icon: '🚧' },
+  'BLOKAJ':  { bg: 'bg-canvas', text: 'text-muted', icon: '🚧' },
 }
 
 export default function Wrapper() {
@@ -170,7 +170,7 @@ function WoDetailPage() {
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (
             <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'malzemeler'|'gunluk'|'gecmis')}
-              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-faint hover:text-slate-800'}`}>
+              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
               <span className="mr-1">{icon}</span>{label}
             </button>
           ))}
@@ -186,9 +186,9 @@ function WoDetailPage() {
 
       <style jsx>{`
         :global(.input) { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; }
-        :global(.input:focus) { border-color: #197A56; box-shadow: 0 0 0 2px rgba(25, 122, 86, 0.15); }
+        :global(.input:focus) { border-color: var(--color-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 18%, transparent); }
         :global(.input-sm) { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 12px; }
-        :global(.input-sm:focus) { outline: none; border-color: #197A56; }
+        :global(.input-sm:focus) { outline: none; border-color: var(--color-accent); }
       `}</style>
     </div>
   )
@@ -211,14 +211,14 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
         <div className="flex-1 min-w-[300px]">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs uppercase tracking-wider text-faint font-semibold">{order.is_emri_no}</span>
-            <Badge cls={DURUM_RENK[order.durum] || 'bg-slate-100 text-slate-700'}>{order.durum}</Badge>
+            <Badge cls={DURUM_RENK[order.durum] || 'bg-canvas text-ink'}>{order.durum}</Badge>
             {order.aciliyet === 'kritik' && <Badge cls="bg-red-600 text-white">⚠ Teslim Geçti ({Math.abs(order.teslim_kalan_gun || 0)}g)</Badge>}
             {order.aciliyet === 'acil' && <Badge cls="bg-amber-500 text-white">⏰ {order.teslim_kalan_gun}g kaldı</Badge>}
             <Badge cls={
               order.oncelik === 'Kritik' ? 'bg-red-600 text-white' :
               order.oncelik === 'Yüksek' ? 'bg-amber-500 text-white' :
-              order.oncelik === 'Düşük' ? 'bg-slate-100 text-faint' :
-              'bg-slate-200 text-slate-700'
+              order.oncelik === 'Düşük' ? 'bg-canvas text-faint' :
+              'bg-line-soft text-ink'
             }>{order.oncelik}</Badge>
           </div>
           <h1 className="text-2xl font-semibold text-ink mt-1">{order.model_adi}</h1>
@@ -254,7 +254,7 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
             <span className={order.sample_onaylandi ? 'text-emerald-700' : 'text-amber-700'}>
               {order.sample_onaylandi ? '✓' : '○'} Numune onaylandı
             </span>
-            <span className={order.paylasim_admin ? 'text-blue-700' : 'text-slate-400'}>
+            <span className={order.paylasim_admin ? 'text-muted' : 'text-faint'}>
               {order.paylasim_admin ? '✓' : '○'} Admin ile paylaşımda
             </span>
           </div>
@@ -283,7 +283,7 @@ function OzetTab({ order, lines, onRefresh }: { order: WO; lines: Line[]; onRefr
       <div className="space-y-4">
         <div className="flex items-center justify-end">
           <button onClick={() => { setForm({ ...order }); setEditing(true) }}
-            className="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg">✎ Düzenle</button>
+            className="text-xs px-3 py-1.5 bg-canvas hover:bg-line-soft rounded-lg">✎ Düzenle</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <DataRow label="İş Emri No" value={order.is_emri_no} />
@@ -428,7 +428,7 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
     <div className="space-y-3">
       {/* Kullanıcı talimat satırı */}
       <div className="bg-canvas border border-line-soft rounded-lg p-3 text-xs text-muted flex items-start gap-2">
-        <span className="text-blue-500">💡</span>
+        <span className="text-muted">💡</span>
         <span>
           Her aşama bir kart. <b>"Plan tarihi"</b> ve <b>"Süre"</b> birinden biri girince diğeri otomatik hesaplanır.
           Aşama başladığında <b>"Başlat"</b>, bittiğinde <b>"Bitir"</b> butonu tek tıkla durum + tarihi günceller.
@@ -447,12 +447,12 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
       <div className="flex items-center gap-2">
         {!showAdd ? (
           <button onClick={() => setShowAdd(true)}
-            className="text-sm px-4 py-2 bg-white border border-dashed border-slate-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50/30 text-muted flex items-center gap-2">
+            className="text-sm px-4 py-2 bg-white border border-dashed border-line rounded-lg hover:border-emerald-400 hover:bg-emerald-50/30 text-muted flex items-center gap-2">
             <span className="text-lg leading-none">+</span> Opsiyonel Aşama Ekle
           </button>
         ) : (
           <div className="flex-1 bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-slate-700 font-medium">Hangi aşama eklensin?</span>
+            <span className="text-xs text-ink font-medium">Hangi aşama eklensin?</span>
             {eklenebilir.length === 0 ? (
               <span className="text-xs text-faint italic">Tüm katalog aşamaları zaten eklenmiş.</span>
             ) : (
@@ -580,7 +580,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100" style={{ backgroundColor: (stage.stage_renk || '#94a3b8') + '15' }}>
         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stage.stage_renk || '#94a3b8' }} />
         <span className="font-semibold text-base">{stage.stage_name}</span>
-        <Badge cls={STAGE_DURUM_RENK[stage.durum] || 'bg-slate-100'}>{stage.durum}</Badge>
+        <Badge cls={STAGE_DURUM_RENK[stage.durum] || 'bg-canvas'}>{stage.durum}</Badge>
         {stage.gecikme_gun != null && stage.gecikme_gun > 0 && (
           <Badge cls="bg-red-100 text-red-700">+{stage.gecikme_gun}g gecikme</Badge>
         )}
@@ -611,12 +611,12 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               <button onClick={quickPause} className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded hover:bg-amber-200">⏸</button>
             )}
             <button onClick={quickFinish}
-              className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-1">
+              className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover flex items-center gap-1">
               ✓ Bitir
             </button>
           </>
         )}
-        <button onClick={onDelete} className="text-xs text-slate-400 hover:text-red-600 px-1" title="Aşamayı sil">🗑</button>
+        <button onClick={onDelete} className="text-xs text-faint hover:text-red-600 px-1" title="Aşamayı sil">🗑</button>
       </div>
 
       {/* Body — 2 kolon: Plan / Gerçek */}
@@ -624,26 +624,26 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* PLAN kolonu */}
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-blue-700 font-semibold">📅 Plan</span>
+            <span className="text-[11px] uppercase tracking-wider text-muted font-semibold">📅 Plan</span>
             {!editPlan && (
               <button onClick={() => setEditPlan(true)}
-                className="text-xs text-blue-600 hover:text-blue-800">✏ Değiştir</button>
+                className="text-xs text-accent hover:text-accent-hover">✏ Değiştir</button>
             )}
           </div>
           {!editPlan ? (
             <div>
               <div className="text-sm font-medium text-ink">
-                {isPlanned ? rangeLabel(stage.plan_baslangic, stage.plan_bitis) : <span className="text-slate-400 italic">henüz plan yok</span>}
+                {isPlanned ? rangeLabel(stage.plan_baslangic, stage.plan_bitis) : <span className="text-faint italic">henüz plan yok</span>}
               </div>
               {!isPlanned && (
                 <div className="flex gap-1.5 mt-2">
-                  <button onClick={quickPlanBugun} className="text-[11px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100">Bugün başla</button>
-                  <button onClick={quickPlanFromYesterday} className="text-[11px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100">Bu hafta (7 gün)</button>
+                  <button onClick={quickPlanBugun} className="text-[11px] px-2 py-1 bg-canvas text-muted rounded hover:bg-line-soft">Bugün başla</button>
+                  <button onClick={quickPlanFromYesterday} className="text-[11px] px-2 py-1 bg-canvas text-muted rounded hover:bg-line-soft">Bu hafta (7 gün)</button>
                 </div>
               )}
             </div>
           ) : (
-            <div className="space-y-2 bg-blue-50 -m-1 p-3 rounded">
+            <div className="space-y-2 bg-canvas -m-1 p-3 rounded">
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="text-[11px] text-muted block">Başlangıç</label>
@@ -660,7 +660,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               </div>
               <div className="text-[11px] text-faint italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
               <div className="flex gap-2">
-                <button onClick={savePlan} className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Kaydet</button>
+                <button onClick={savePlan} className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover">Kaydet</button>
                 <button onClick={() => setEditPlan(false)} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
               </div>
             </div>
@@ -681,7 +681,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               <div className="text-sm font-medium text-ink">
                 {(stage.gercek_baslangic || stage.gercek_bitis)
                   ? rangeLabel(stage.gercek_baslangic, stage.gercek_bitis)
-                  : <span className="text-slate-400 italic">henüz başlamadı</span>}
+                  : <span className="text-faint italic">henüz başlamadı</span>}
               </div>
             </div>
           ) : (
@@ -713,16 +713,16 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         <div>
           <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-faint font-semibold mb-1">
             <span>📊 İlerleme</span>
-            <span className="font-mono text-slate-700">%{stage.ilerleme_pct}</span>
+            <span className="font-mono text-ink">%{stage.ilerleme_pct}</span>
           </div>
-          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className={`h-full transition-all ${stage.ilerleme_pct === 100 ? 'bg-emerald-500' : stage.ilerleme_pct >= 50 ? 'bg-blue-500' : 'bg-amber-500'}`}
+          <div className="h-2.5 bg-canvas rounded-full overflow-hidden">
+            <div className={`h-full transition-all ${stage.ilerleme_pct === 100 ? 'bg-emerald-500' : stage.ilerleme_pct >= 50 ? 'bg-canvas' : 'bg-amber-500'}`}
               style={{ width: `${stage.ilerleme_pct}%` }} />
           </div>
           <div className="flex gap-1 mt-1.5">
             {[0, 25, 50, 75, 100].map(p => (
               <button key={p} onClick={() => setProgress(p)}
-                className={`text-[11px] px-1.5 py-0.5 rounded ${stage.ilerleme_pct === p ? 'bg-slate-800 text-white' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}>
+                className={`text-[11px] px-1.5 py-0.5 rounded ${stage.ilerleme_pct === p ? 'bg-accent text-white' : 'bg-canvas text-muted hover:bg-line-soft'}`}>
                 %{p}
               </button>
             ))}
@@ -734,13 +734,13 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           <div className="flex items-center justify-between">
             <span className="text-[11px] uppercase tracking-wider text-faint font-semibold">🎯 Üretim</span>
             {!editAdet && (
-              <button onClick={() => setEditAdet(true)} className="text-xs text-faint hover:text-slate-800">✏</button>
+              <button onClick={() => setEditAdet(true)} className="text-xs text-faint hover:text-ink">✏</button>
             )}
           </div>
           {!editAdet ? (
             <div className="text-sm mt-1">
               <span className="font-semibold text-ink">{stage.uretilen_adet}</span>
-              <span className="text-slate-400"> adet</span>
+              <span className="text-faint"> adet</span>
               {stage.hatali_adet > 0 && (
                 <span className="text-red-600 ml-2 text-xs">· {stage.hatali_adet} hatalı</span>
               )}
@@ -748,7 +748,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           ) : (
             <div className="flex items-center gap-1.5 mt-1">
               <input type="number" className="w-16 text-sm px-1.5 py-0.5 border border-line rounded" value={uretilen} onChange={e => setUretilen(e.target.value)} placeholder="adet" />
-              <span className="text-xs text-slate-400">/</span>
+              <span className="text-xs text-faint">/</span>
               <input type="number" className="w-14 text-sm px-1.5 py-0.5 border border-line rounded" value={hatali} onChange={e => setHatali(e.target.value)} placeholder="hatalı" />
               <button onClick={saveAdet} className="text-xs px-2 py-0.5 bg-emerald-600 text-white rounded">✓</button>
               <button onClick={() => setEditAdet(false)} className="text-xs text-faint">×</button>
@@ -761,12 +761,12 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           <div className="flex items-center justify-between">
             <span className="text-[11px] uppercase tracking-wider text-faint font-semibold">📝 Not</span>
             {!editNot && (
-              <button onClick={() => setEditNot(true)} className="text-xs text-faint hover:text-slate-800">✏</button>
+              <button onClick={() => setEditNot(true)} className="text-xs text-faint hover:text-ink">✏</button>
             )}
           </div>
           {!editNot ? (
             <div className="text-xs text-muted mt-1 italic">
-              {stage.notlar || <span className="text-slate-300">— not yok —</span>}
+              {stage.notlar || <span className="text-faint">— not yok —</span>}
             </div>
           ) : (
             <div className="space-y-1 mt-1">
@@ -833,7 +833,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
         </div>
       )}
 
-      {materials.length === 0 && <div className="text-xs text-slate-400 italic text-center py-6">Henüz malzeme kaydı yok.</div>}
+      {materials.length === 0 && <div className="text-xs text-faint italic text-center py-6">Henüz malzeme kaydı yok.</div>}
 
       <table className="w-full text-xs">
         <thead className="bg-canvas text-faint uppercase tracking-wider text-[11px]">
@@ -951,7 +951,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
         </div>
       )}
 
-      {journal.length === 0 && <div className="text-xs text-slate-400 italic text-center py-6">Henüz günlük kaydı yok.</div>}
+      {journal.length === 0 && <div className="text-xs text-faint italic text-center py-6">Henüz günlük kaydı yok.</div>}
 
       <div className="space-y-2">
         {journal.map(j => {
@@ -963,24 +963,24 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                   <span className="text-lg">{meta.icon}</span>
                   <Badge cls={`${meta.bg} ${meta.text}`}>{j.tip}</Badge>
                   {j.kategori && <Badge cls="bg-white text-muted border border-line-soft">{j.kategori}</Badge>}
-                  {j.stage_name && <Badge cls="bg-slate-100 text-muted">📊 {j.stage_name}</Badge>}
+                  {j.stage_name && <Badge cls="bg-canvas text-muted">📊 {j.stage_name}</Badge>}
                   <span className="text-xs text-faint">{j.tarih} · {j.vardiya}</span>
-                  {j.paylasim_admin && <Badge cls="bg-blue-100 text-blue-700">🔗 Admin paylaşımda</Badge>}
+                  {j.paylasim_admin && <Badge cls="bg-canvas text-muted">🔗 Admin paylaşımda</Badge>}
                   {j.resolved && <Badge cls="bg-emerald-100 text-emerald-700">✓ Çözüldü</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
                   {!j.resolved && j.tip === 'PROBLEM' && (
                     <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200">Çözüldü</button>
                   )}
-                  <button onClick={() => togglePaylasim(j)} className="text-xs px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded" title="Admin paylaşımını aç/kapat">🔗</button>
+                  <button onClick={() => togglePaylasim(j)} className="text-xs px-2 py-0.5 bg-canvas hover:bg-line-soft rounded" title="Admin paylaşımını aç/kapat">🔗</button>
                   <button onClick={() => del(j.id)} className="text-xs text-red-500 px-1">×</button>
                 </div>
               </div>
               {j.baslik && <div className="font-semibold text-sm mt-2">{j.baslik}</div>}
-              <div className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">{j.aciklama}</div>
+              <div className="text-sm text-ink mt-1 whitespace-pre-wrap">{j.aciklama}</div>
               {j.oneri && (
-                <div className="mt-2 pl-3 border-l-2 border-cyan-400 text-xs text-slate-700">
-                  <span className="font-semibold text-cyan-700">Öneri/Çözüm: </span>{j.oneri}
+                <div className="mt-2 pl-3 border-l-2 border-line text-xs text-ink">
+                  <span className="font-semibold text-muted">Öneri/Çözüm: </span>{j.oneri}
                 </div>
               )}
               {j.resolved && j.resolved_notlar && (
@@ -988,7 +988,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                   <span className="font-semibold text-emerald-700">Çözüm Notu: </span>{j.resolved_notlar}
                 </div>
               )}
-              {j.yazan && <div className="text-[11px] text-slate-400 mt-2">— {j.yazan}</div>}
+              {j.yazan && <div className="text-[11px] text-faint mt-2">— {j.yazan}</div>}
             </div>
           )
         })}
@@ -999,12 +999,12 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
 
 /* ───────── Geçmiş Tab ───────── */
 function GecmisTab({ history }: { history: { tarih: string; eski_durum: string; yeni_durum: string }[] }) {
-  if (history.length === 0) return <div className="text-xs text-slate-400 italic text-center py-6">Durum geçmişi henüz yok.</div>
+  if (history.length === 0) return <div className="text-xs text-faint italic text-center py-6">Durum geçmişi henüz yok.</div>
   return (
     <div className="space-y-2">
       {history.map((h, i) => (
-        <div key={i} className="flex items-center gap-3 text-xs border-b border-slate-100 py-2">
-          <span className="text-slate-400 font-mono">{new Date(h.tarih).toLocaleString('tr-TR')}</span>
+        <div key={i} className="flex items-center gap-3 text-xs border-b border-line-soft py-2">
+          <span className="text-faint font-mono">{new Date(h.tarih).toLocaleString('tr-TR')}</span>
           <span className="text-muted">{h.eski_durum || '—'}</span>
           <span>→</span>
           <span className="font-medium">{h.yeni_durum}</span>
@@ -1020,7 +1020,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 function DataRow({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) {
   return (
-    <div className="flex items-baseline gap-3 border-b border-slate-100 pb-2">
+    <div className="flex items-baseline gap-3 border-b border-line-soft pb-2">
       <div className="w-32 text-[11px] uppercase tracking-wider text-faint font-semibold">{label}</div>
       <div className={`flex-1 ${highlight ? 'font-bold text-accent' : 'text-ink'}`}>{value || '—'}</div>
     </div>
@@ -1030,7 +1030,7 @@ function Cell({ label, value, highlight }: { label: string; value: string | numb
   return (
     <div>
       <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">{label}</div>
-      <div className={`mt-0.5 font-mono ${highlight ? 'text-accent font-bold' : 'text-slate-700'}`}>{value || '—'}</div>
+      <div className={`mt-0.5 font-mono ${highlight ? 'text-accent font-bold' : 'text-ink'}`}>{value || '—'}</div>
     </div>
   )
 }
@@ -1038,14 +1038,14 @@ function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
   return <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider ${cls}`}>{children}</span>
 }
 function ProgressMini({ label, pct, sub }: { label: string; pct: number; sub: string }) {
-  const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-blue-500' : 'bg-slate-300'
+  const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-canvas' : 'bg-line'
   return (
     <div>
       <div className="flex items-baseline justify-between text-[11px]">
         <span className="uppercase tracking-wider text-faint font-semibold">{label}</span>
         <span className="font-mono font-semibold">%{pct}</span>
       </div>
-      <div className="h-2 bg-slate-100 rounded-full overflow-hidden mt-1">
+      <div className="h-2 bg-canvas rounded-full overflow-hidden mt-1">
         <div className={`h-full ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
       <div className="text-[11px] text-faint mt-0.5 truncate">{sub}</div>

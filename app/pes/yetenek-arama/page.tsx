@@ -232,7 +232,7 @@ export default async function YetenekAramaPage({
                         </div>
                         <div className="flex items-center gap-3 shrink-0 text-xs text-faint">
                           {b.bantTuru && (
-                            <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
+                            <span className="px-2 py-0.5 rounded-full bg-canvas text-muted font-medium">
                               {b.bantTuru}
                             </span>
                           )}

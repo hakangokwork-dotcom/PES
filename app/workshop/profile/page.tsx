@@ -17,9 +17,9 @@ interface Line {
 
 const LINE_TYPES = [
   { value: 'Dikim', label: 'Dikim', color: 'bg-emerald-100 text-emerald-700' },
-  { value: 'Kesim', label: 'Kesim', color: 'bg-blue-100 text-blue-700' },
+  { value: 'Kesim', label: 'Kesim', color: 'bg-canvas text-muted' },
   { value: 'UKP', label: 'UKP', color: 'bg-amber-100 text-amber-700' },
-  { value: 'Yikama', label: 'Yıkama', color: 'bg-purple-100 text-purple-700' },
+  { value: 'Yikama', label: 'Yıkama', color: 'bg-canvas text-muted' },
 ]
 
 function getLineTypeColor(lt: string) {
@@ -319,7 +319,7 @@ function WorkshopProfilePage() {
                     <td className="py-2 text-right">{l.daily_target.toLocaleString('tr-TR')}</td>
                     <td className="py-2 text-right text-muted">{l.max_cycle_sec ?? '—'}</td>
                     <td className="py-2 text-center space-x-2">
-                      <button onClick={() => { setEditLineId(l.id); setEditLine({ name: l.name, line_type: effectiveType(l.line_type), operator_count: l.operator_count, daily_target: l.daily_target, max_cycle_sec: l.max_cycle_sec ?? '' }) }} className="text-xs text-blue-600 hover:underline">Düzenle</button>
+                      <button onClick={() => { setEditLineId(l.id); setEditLine({ name: l.name, line_type: effectiveType(l.line_type), operator_count: l.operator_count, daily_target: l.daily_target, max_cycle_sec: l.max_cycle_sec ?? '' }) }} className="text-xs text-accent hover:underline">Düzenle</button>
                       <button onClick={() => openCapabilities(l.id)} className={`text-xs ${capLineId === l.id ? 'text-emerald-700 font-medium' : 'text-emerald-600'} hover:underline`}>Yetenekler</button>
                       <button onClick={() => deleteLine(l.id, l.code)} className="text-xs text-red-500 hover:underline">Sil</button>
                     </td>
@@ -396,20 +396,20 @@ function WorkshopProfilePage() {
             <p className="text-xl font-bold text-emerald-700">{staffFromLines.dikimOp}</p>
             <p className="text-[11px] text-emerald-400">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
           </div>
-          <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <p className="text-[11px] text-blue-600 font-medium">Kesim Operatörü</p>
-            <p className="text-xl font-bold text-blue-700">{staffFromLines.kesimOp}</p>
-            <p className="text-[11px] text-blue-400">{lines.filter(l => effectiveType(l.line_type) === 'Kesim').length} bant</p>
+          <div className="bg-canvas rounded-lg p-3 text-center">
+            <p className="text-[11px] text-muted font-medium">Kesim Operatörü</p>
+            <p className="text-xl font-bold text-ink">{staffFromLines.kesimOp}</p>
+            <p className="text-[11px] text-muted">{lines.filter(l => effectiveType(l.line_type) === 'Kesim').length} bant</p>
           </div>
           <div className="bg-amber-50 rounded-lg p-3 text-center">
             <p className="text-[11px] text-amber-600 font-medium">UKP Operatörü</p>
             <p className="text-xl font-bold text-amber-700">{staffFromLines.ukpOp}</p>
             <p className="text-[11px] text-amber-400">{lines.filter(l => effectiveType(l.line_type) === 'UKP').length} bant</p>
           </div>
-          <div className="bg-purple-50 rounded-lg p-3 text-center">
-            <p className="text-[11px] text-purple-600 font-medium">Yıkama Operatörü</p>
-            <p className="text-xl font-bold text-purple-700">{staffFromLines.yikamaOp}</p>
-            <p className="text-[11px] text-purple-400">{lines.filter(l => effectiveType(l.line_type) === 'Yikama').length} bant</p>
+          <div className="bg-canvas rounded-lg p-3 text-center">
+            <p className="text-[11px] text-muted font-medium">Yıkama Operatörü</p>
+            <p className="text-xl font-bold text-ink">{staffFromLines.yikamaOp}</p>
+            <p className="text-[11px] text-muted">{lines.filter(l => effectiveType(l.line_type) === 'Yikama').length} bant</p>
           </div>
         </div>
 
@@ -422,7 +422,7 @@ function WorkshopProfilePage() {
         {/* Hesaplanan özet */}
         <div className="pt-3 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-emerald-50 rounded-lg px-4 py-2"><span className="text-xs text-emerald-600">Verimli Çalışan Oranı</span><p className="text-lg font-bold text-emerald-700">%{verimliOran}</p></div>
-          <div className="bg-blue-50 rounded-lg px-4 py-2"><span className="text-xs text-blue-600">Üretim Personeli</span><p className="text-lg font-bold text-blue-700">{productive}</p></div>
+          <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-muted">Üretim Personeli</span><p className="text-lg font-bold text-ink">{productive}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Endirekt</span><p className="text-lg font-bold text-gray-700">{mgmt}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Toplam Çalışan</span><p className="text-lg font-bold text-gray-700">{totalStaff}</p></div>
         </div>
@@ -436,7 +436,7 @@ function WorkshopProfilePage() {
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Net Çalışma (dk/gün)</p><p className="text-lg font-bold text-gray-700">{(w.net_hours_day * 60).toFixed(0)} dk</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Bant Sayısı</p><p className="text-lg font-bold text-gray-700">{staffFromLines.bantSayisi}</p></div>
           <div className="bg-emerald-50 rounded-lg p-3"><p className="text-xs text-emerald-600">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-emerald-700">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
-          <div className="bg-blue-50 rounded-lg p-3"><p className="text-xs text-blue-600">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-blue-700">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[11px] text-blue-400">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
+          <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-muted">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-ink">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[11px] text-muted">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
         </div>
       </div>
 

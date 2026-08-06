@@ -324,7 +324,7 @@ export default function ModelsPage() {
                         <button onClick={() => setEditingGroup(null)} className="text-xs px-3 py-1.5 border border-line text-muted rounded-lg hover:bg-canvas">İptal</button>
                       </div>
                     ) : (
-                      <button onClick={() => startGroupEdit(code, group.items)} className="text-xs px-3 py-1.5 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">Düzenle</button>
+                      <button onClick={() => startGroupEdit(code, group.items)} className="text-xs px-3 py-1.5 border border-line text-muted rounded-lg hover:bg-canvas">Düzenle</button>
                     )}
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export default function ModelsPage() {
                           <td className="py-1.5 text-muted">{m.process_name}</td>
                           <td className="py-1.5 text-right font-medium text-ink">{Number(m.sam_minutes).toFixed(1)} sn</td>
                           <td className="py-1.5 text-center">
-                            <span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span>
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-canvas text-muted' : 'bg-canvas text-faint'}`}>{m.source}</span>
                           </td>
                           <td className="py-1.5 text-center">
                             <button onClick={() => handleDelete(m.id, `${code}/${m.process_name}`)} className="text-xs text-red-500 hover:underline">Sil</button>

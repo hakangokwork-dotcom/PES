@@ -82,7 +82,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
         </Link>
         <div className="flex items-center gap-3 mt-2">
           <h1 className="text-2xl font-bold text-ink">{w.name}</h1>
-          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-canvas text-muted">
             Tip {w.type} — {TYPE_LABELS[w.type]}
           </span>
           {w.is_active ? (

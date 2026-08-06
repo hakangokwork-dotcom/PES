@@ -209,7 +209,7 @@ function WorkshopModelsPage() {
                       <tr key={m.id} className="hover:bg-canvas">
                         <td className="py-1.5 text-muted">{m.process_name}</td>
                         <td className="py-1.5 text-right font-medium text-ink">{Number(m.sam_minutes).toFixed(1)} sn</td>
-                        <td className="py-1.5 text-center"><span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-blue-50 text-blue-600' : 'bg-canvas text-faint'}`}>{m.source}</span></td>
+                        <td className="py-1.5 text-center"><span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-canvas text-muted' : 'bg-canvas text-faint'}`}>{m.source}</span></td>
                       </tr>
                     ))}
                   </tbody>

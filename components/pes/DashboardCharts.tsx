@@ -5,17 +5,13 @@ import {
   BarChart, Bar, Cell, PieChart, Pie, Area, AreaChart,
 } from 'recharts'
 
-import { effTone, type Tone } from '@/lib/ui/tone'
+import { effTone, GRAFIK_AKSAN, GRAFIK_RENK } from '@/lib/ui/tone'
 
-const GREEN = '#197A56'
-
-/* Grafik kutuphanesi sinif degil renk istiyor; esikler yine tone.ts'te. */
-const TONE_HEX: Record<Tone, string> = {
-  neutral: '#5B6874', good: GREEN, warn: '#96601A', bad: '#A32B2B',
-}
+/* Renkler ve eşikler tone.ts'te; burada elle yazılmış hex yok. */
+const GREEN = GRAFIK_AKSAN
 const AY = ['', 'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara']
 
-const effColor = (v: number) => TONE_HEX[effTone(v)]
+const effColor = (v: number) => GRAFIK_RENK[effTone(v)]
 
 const tooltipStyle = {
   contentStyle: { borderRadius: 10, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,.06)' },

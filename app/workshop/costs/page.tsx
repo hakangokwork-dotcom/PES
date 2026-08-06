@@ -152,7 +152,7 @@ function WorkshopCostsPage() {
 
         {/* Diğer Giderler Alt Kalemleri */}
         <div className="mt-4">
-          <button onClick={() => setShowOtherDetails(!showOtherDetails)} className="text-xs text-blue-600 hover:underline">
+          <button onClick={() => setShowOtherDetails(!showOtherDetails)} className="text-xs text-accent hover:underline">
             {showOtherDetails ? '▾ Diğer gider detaylarını gizle' : '▸ Diğer giderlerin alt kalemlerini göster'}
           </button>
           {showOtherDetails && (
@@ -204,9 +204,9 @@ function WorkshopCostsPage() {
             <p className="text-xl font-bold text-accent">{costPerMin.toFixed(2)} TL/dk</p>
             <p className="text-[11px] text-emerald-400">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
           </div>
-          <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <p className="text-xs text-blue-600">Kişi Başı Aylık Gider</p>
-            <p className="text-xl font-bold text-blue-700">{perPersonExpense.toLocaleString('tr-TR')} TL</p>
+          <div className="bg-canvas rounded-lg p-4 text-center">
+            <p className="text-xs text-muted">Kişi Başı Aylık Gider</p>
+            <p className="text-xl font-bold text-ink">{perPersonExpense.toLocaleString('tr-TR')} TL</p>
           </div>
           <div className={`rounded-lg p-4 text-center ${netMargin >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
             <p className="text-xs text-faint">Net Marj</p>
@@ -261,9 +261,9 @@ function WorkshopCostsPage() {
                 <p className="text-xs text-amber-600">Adet Başı Gider</p>
                 <p className="text-lg font-bold text-amber-700">{costPerPiece.toLocaleString('tr-TR')} TL</p>
               </div>
-              <div className="bg-blue-50 rounded-lg p-3 text-center">
-                <p className="text-xs text-blue-600">Adet Başı Ciro</p>
-                <p className="text-lg font-bold text-blue-700">{revenuePerPiece > 0 ? revenuePerPiece.toLocaleString('tr-TR') : '—'} TL</p>
+              <div className="bg-canvas rounded-lg p-3 text-center">
+                <p className="text-xs text-muted">Adet Başı Ciro</p>
+                <p className="text-lg font-bold text-ink">{revenuePerPiece > 0 ? revenuePerPiece.toLocaleString('tr-TR') : '—'} TL</p>
               </div>
               <div className={`rounded-lg p-3 text-center ${revenuePerPiece > costPerPiece ? 'bg-green-50' : 'bg-red-50'}`}>
                 <p className="text-xs text-faint">Adet Kârı</p>

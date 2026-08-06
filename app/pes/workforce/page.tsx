@@ -133,9 +133,9 @@ export default function WorkforcePage() {
                   %{turnoverRate}
                 </p>
               </div>
-              <div className="bg-blue-50 rounded-lg p-3 text-center">
+              <div className="bg-canvas rounded-lg p-3 text-center">
                 <p className="text-xs text-faint">Isınma Sürecinde</p>
-                <p className="text-xl font-bold text-blue-600">{form.in_warmup}</p>
+                <p className="text-xl font-bold text-ink">{form.in_warmup}</p>
               </div>
             </div>
           </div>

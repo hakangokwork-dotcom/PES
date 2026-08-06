@@ -110,7 +110,7 @@ export default async function ComparePage({
   const fmt = (n: number) => n.toLocaleString('tr-TR')
   const tierColor = (t: string) => {
     if (t === 'Stratejik') return 'bg-emerald-100 text-emerald-800'
-    if (t === 'Gelisen') return 'bg-blue-100 text-blue-800'
+    if (t === 'Gelisen') return 'bg-canvas text-muted'
     if (t === 'Izlemede') return 'bg-amber-100 text-amber-800'
     if (t === 'Risk') return 'bg-orange-100 text-orange-800'
     if (t === 'Kritik') return 'bg-red-100 text-red-800'
@@ -237,7 +237,7 @@ export default async function ComparePage({
             {byFpq.filter(r => r.fpq > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-blue-300' : 'bg-gray-300'}`}>{i + 1}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-canvas' : i === 1 ? 'bg-canvas' : i === 2 ? 'bg-canvas' : 'bg-gray-300'}`}>{i + 1}</span>
                   <span className="text-sm text-gray-800">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className={`text-sm font-bold ${TONE_TEXT[fpqTone(r.fpq)]}`}>%{r.fpq}</span>

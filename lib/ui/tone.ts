@@ -50,6 +50,21 @@ export const TONE_TEXT: Record<Tone, string> = {
   bad: 'text-danger font-semibold',
 }
 
+/* GRAFİK RENKLERİ — recharts sınıf değil, somut renk dizesi istiyor;
+   CSS değişkeni SSR'da çözülmüyor. Bu yüzden token'ların hex karşılığı
+   BURADA, tek yerde durur. app/ ve components/ altında elle yazılmış
+   marka hex'i kalmadı; değişiklik gerekirse globals.css ile birlikte
+   burası güncellenir. */
+export const GRAFIK_RENK: Record<Tone, string> = {
+  neutral: '#5B6874',
+  good: '#197A56',
+  warn: '#96601A',
+  bad: '#A32B2B',
+}
+
+/** Grafiklerde marka yeşili (çizgi, alan, bar). */
+export const GRAFIK_AKSAN = GRAFIK_RENK.good
+
 /** Satır işareti — satırın tamamı boyanmaz, ince bir sol şerit gelir */
 export const TONE_ROW: Record<Tone, string> = {
   neutral: '',

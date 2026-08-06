@@ -60,11 +60,11 @@ const BOLGE_NAMES: Record<number, string> = {
 
 const ANA_GRUP_SIRA = ['Ön Bant', 'Arka Bant', 'Montaj', 'UKP', 'Yıkama', 'Son Montaj']
 const ANA_GRUP_RENK: Record<string, string> = {
-  'Ön Bant':    'bg-blue-50    border-blue-200   text-blue-900',
-  'Arka Bant':  'bg-purple-50  border-purple-200 text-purple-900',
+  'Ön Bant':    'bg-canvas    border-line   text-muted',
+  'Arka Bant':  'bg-canvas  border-line text-muted',
   'Montaj':     'bg-emerald-50 border-emerald-200 text-emerald-900',
   'UKP':        'bg-amber-50   border-amber-200  text-amber-900',
-  'Yıkama':     'bg-cyan-50    border-cyan-200   text-cyan-900',
+  'Yıkama':     'bg-canvas    border-line   text-muted',
   'Son Montaj': 'bg-rose-50    border-rose-200   text-rose-900',
 }
 
@@ -557,7 +557,7 @@ function EderMaliyetPage() {
           outline: none;
         }
         .input:focus {
-          border-color: #197A56;
+          border-color: var(--color-accent);
           box-shadow: 0 0 0 2px rgba(25, 122, 86, 0.15);
         }
         .input-sm {
@@ -571,7 +571,7 @@ function EderMaliyetPage() {
         }
         .input-sm:focus {
           outline: none;
-          border-color: #197A56;
+          border-color: var(--color-accent);
         }
       `}</style>
     </div>

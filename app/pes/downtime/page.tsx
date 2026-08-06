@@ -1,10 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { Badge, DataTable, EmptyState, type Column } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string }
 interface DowntimeRow { id: number; line_code: string; workshop_code: string; occurred_at: string; duration_min: number; downtime_type: string; reason: string | null; affected_ops: number }
+
+/* Duruş türü bir SINIFLANDIRMA değil, ciddiyet göstergesi: plansız duruş
+   üretimi durdurur, planlı olan planın parçasıdır. O yüzden ton taşıyor. */
+const DURUM_TONU: Record<string, 'bad' | 'warn' | 'neutral'> = {
+  'Plansız': 'bad',
+  'Tedarik': 'warn',
+  'Organizasyonel': 'neutral',
+  'Planlı': 'neutral',
+}
 
 const DOWNTIME_TYPES = ['Planlı', 'Plansız', 'Organizasyonel', 'Tedarik']
 
@@ -12,6 +22,32 @@ export default function DowntimePage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
   const [lines, setLines] = useState<Line[]>([])
   const [records, setRecords] = useState<DowntimeRow[]>([])
+
+  const toplamDk = useMemo(() => records.reduce((t, r) => t + Number(r.duration_min || 0), 0), [records])
+
+  const kolonlar: Column<DowntimeRow>[] = [
+    {
+      key: 'occurred_at', label: 'Tarih', width: '160px',
+      render: r => <span className="text-muted">{new Date(r.occurred_at).toLocaleString('tr-TR')}</span>,
+    },
+    {
+      key: 'workshop_code', label: 'Atölye / Bant',
+      render: r => <span className="text-ink">{r.workshop_code} / {r.line_code}</span>,
+    },
+    {
+      key: 'duration_min', label: 'Süre', numeric: true,
+      render: r => <span className="font-medium text-danger">{r.duration_min} dk</span>,
+    },
+    {
+      key: 'downtime_type', label: 'Tür', align: 'center',
+      render: r => <Badge tone={DURUM_TONU[r.downtime_type] ?? 'neutral'}>{r.downtime_type}</Badge>,
+    },
+    {
+      key: 'reason', label: 'Neden',
+      render: r => <span className="block max-w-[220px] truncate text-muted">{r.reason ?? '—'}</span>,
+    },
+    { key: 'affected_ops', label: 'Etk. Op.', numeric: true },
+  ]
   const [workshopId, setWorkshopId] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -134,37 +170,15 @@ export default function DowntimePage() {
 
       {records.length > 0 && (
         <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-canvas border-b border-line-soft">
-                <th className="px-4 py-3 text-left text-faint font-medium">Tarih</th>
-                <th className="px-4 py-3 text-left text-faint font-medium">Atölye/Bant</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">Süre</th>
-                <th className="px-4 py-3 text-center text-faint font-medium">Tür</th>
-                <th className="px-4 py-3 text-left text-faint font-medium">Neden</th>
-                <th className="px-4 py-3 text-right text-faint font-medium">Etk. Op.</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {records.map(r => (
-                <tr key={r.id} className="hover:bg-canvas">
-                  <td className="px-4 py-3 text-muted">{new Date(r.occurred_at).toLocaleString('tr-TR')}</td>
-                  <td className="px-4 py-3 text-ink">{r.workshop_code} / {r.line_code}</td>
-                  <td className="px-4 py-3 text-right font-medium text-red-600">{r.duration_min} dk</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      r.downtime_type === 'Plansız' ? 'bg-red-100 text-red-700' :
-                      r.downtime_type === 'Tedarik' ? 'bg-orange-100 text-orange-700' :
-                      r.downtime_type === 'Organizasyonel' ? 'bg-blue-100 text-blue-700' :
-                      'bg-gray-100 text-muted'
-                    }`}>{r.downtime_type}</span>
-                  </td>
-                  <td className="px-4 py-3 text-muted max-w-[200px] truncate">{r.reason ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-ink">{r.affected_ops}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            columns={kolonlar}
+            rows={records}
+            rowKey={r => r.id}
+            initialSort={{ key: 'occurred_at', dir: 'desc' }}
+            rowTone={r => (r.downtime_type === 'Plansız' ? 'bad' : 'neutral')}
+            empty={<EmptyState title="Duruş kaydı yok" description="Seçili atölye için bu dönemde kayıt girilmemiş." />}
+            footer={<span className="num">{records.length} kayıt · toplam {toplamDk} dk</span>}
+          />
         </div>
       )}
     </div>

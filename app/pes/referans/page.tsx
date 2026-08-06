@@ -125,7 +125,7 @@ export default function ReferansPage() {
           <input value={searchQ} onChange={e => setSearchQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
             placeholder="orn. GOMLEK, PANTOLON, KEY DENIM..." className="flex-1 border border-line rounded-lg px-3 py-2 text-sm" />
           <button onClick={handleSearch} disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+            className="px-4 py-2 bg-canvas text-white rounded-lg text-sm font-medium hover:bg-canvas disabled:opacity-50">
             Ara
           </button>
         </div>

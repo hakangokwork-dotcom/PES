@@ -77,7 +77,7 @@ export default function YetenekFiltrePaneli({
                       checked={isaretli}
                       disabled={kapali}
                       onChange={(e) => degistir(b.code, d.code, e.target.checked)}
-                      className="accent-[#197A56]"
+                      className="accent-accent"
                     />
                     <span className="flex-1 text-gray-700 truncate">{d.label}</span>
                     <span className={`text-[11px] tabular-nums ${isaretli ? 'text-emerald-700 font-medium' : 'text-faint'}`}>

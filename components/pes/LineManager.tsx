@@ -176,7 +176,7 @@ export default function LineManager({ workshop, lines }: Props) {
                     <td className="py-2 text-right text-ink">{line.daily_target.toLocaleString('tr-TR')}</td>
                     <td className="py-2 text-right text-muted">{line.max_cycle_sec ?? '—'}</td>
                     <td className="py-2 text-center space-x-2">
-                      <button onClick={() => startEdit(line)} className="text-xs text-blue-600 hover:underline">Düzenle</button>
+                      <button onClick={() => startEdit(line)} className="text-xs text-accent hover:underline">Düzenle</button>
                       <button onClick={() => handleDelete(line)} className="text-xs text-red-500 hover:underline">Sil</button>
                     </td>
                   </>

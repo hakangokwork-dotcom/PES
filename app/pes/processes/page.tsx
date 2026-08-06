@@ -180,14 +180,14 @@ export default function ProcessesPage() {
                     <td className="px-4 py-3 text-ink font-medium">{p.name}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        p.group_type === 'Alt' ? 'bg-blue-100 text-blue-700' :
-                        p.group_type === 'Üst' ? 'bg-purple-100 text-purple-700' :
+                        p.group_type === 'Alt' ? 'bg-canvas text-muted' :
+                        p.group_type === 'Üst' ? 'bg-canvas text-muted' :
                         'bg-gray-100 text-muted'
                       }`}>{p.group_type}</span>
                     </td>
                     <td className="px-4 py-3 text-muted text-xs">{p.description ?? '—'}</td>
                     <td className="px-4 py-3 text-center space-x-2">
-                      <button onClick={() => startEdit(p)} className="text-xs text-blue-600 hover:underline">Düzenle</button>
+                      <button onClick={() => startEdit(p)} className="text-xs text-accent hover:underline">Düzenle</button>
                       <button onClick={() => handleDelete(p.id, p.name)} className="text-xs text-red-500 hover:underline">Sil</button>
                     </td>
                   </>

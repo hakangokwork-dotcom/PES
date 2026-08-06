@@ -191,7 +191,7 @@ export default function YetenekEditoru({
               const seviye = secimler.get(k) ?? 1
               return (
                 <span key={v.code} className="inline-flex items-stretch rounded-full overflow-hidden border transition-colors"
-                  style={{ borderColor: secili ? '#197A56' : '#e5e7eb' }}>
+                  style={{ borderColor: secili ? 'var(--color-accent)' : 'var(--color-line-soft)' }}>
                   <button
                     onClick={() => cevir(b.code, v.code)}
                     className={`px-3 py-1.5 text-sm transition-colors ${

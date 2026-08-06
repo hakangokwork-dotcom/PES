@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import MetricInfo from '@/components/pes/MetricInfo'
+import { donemCoz } from '@/lib/pes/donem'
 
 // Benchmark tablosundaki metric_key (DB) → ontology key map
 const METRIC_KEY_MAP: Record<string, string> = {
@@ -16,7 +17,11 @@ const METRIC_KEY_MAP: Record<string, string> = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function BenchmarkPage() {
+export default async function BenchmarkPage({
+  searchParams,
+}: { searchParams: Promise<{ donem?: string }> }) {
+  const secilen = donemCoz((await searchParams).donem)
+
   const data = await withServerTenant(async (sql) => {
     let benchmarks: Record<string, unknown>[] = []
     let tableMissing = false
@@ -28,8 +33,8 @@ export default async function BenchmarkPage() {
     }
 
     const [lastPeriod] = await sql`SELECT year, month FROM monthly_production ORDER BY year DESC, month DESC LIMIT 1`
-    const pYear = lastPeriod?.year ?? 2026
-    const pMonth = lastPeriod?.month ?? 1
+    const pYear = secilen?.yil ?? lastPeriod?.year ?? 2026
+    const pMonth = secilen?.ay ?? lastPeriod?.month ?? 1
 
     const workshops = await sql`
       SELECT w.id, w.code, w.name, w.type, w.sewing_staff, w.net_hours_day FROM workshop w WHERE w.is_active = true ORDER BY w.code

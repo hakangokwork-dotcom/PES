@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { tierColor, trendIcon } from '@/lib/pes/scoring'
 import type { ScoreTier, TrendDirection } from '@/types/pes'
+import { useDonem } from '@/lib/pes/useDonem'
 
 interface ScoreRow {
   workshop_id: number
@@ -26,8 +27,9 @@ interface Workshop { id: number; code: string; name: string }
 export default function ScoringPage() {
   const [scores, setScores] = useState<ScoreRow[]>([])
   const [workshops, setWorkshops] = useState<Workshop[]>([])
-  const [year, setYear] = useState(2026)
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  /* Dönem artık ekranın kendi state'i değil; üst bardaki seçim URL'de
+     tutulur ve tüm /pes ekranları aynı dönemi gösterir. */
+  const { yil: year, ay: month } = useDonem()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -67,13 +69,6 @@ export default function ScoringPage() {
           <p className="text-faint mt-1">Atölye performans değerlendirmesi</p>
         </div>
         <div className="flex items-center gap-3">
-          <select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
-            <option value={2025}>2025</option>
-            <option value={2026}>2026</option>
-          </select>
-          <select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
-            {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
           <button
             onClick={calculateAll}
             disabled={loading}

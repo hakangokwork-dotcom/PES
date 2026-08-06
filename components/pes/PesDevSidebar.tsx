@@ -3,195 +3,153 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import {
+  LayoutDashboard, Factory, ShieldCheck, CalendarDays,
+  Boxes, CircleCheck, CirclePause, RefreshCw, Users, Wallet, Upload,
+  Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
+  Shapes, Workflow, Waypoints, Calculator,
+  BookOpen, Table2, TrendingUp, History, ChartColumn,
+  ArrowRight,
+} from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
+import {
+  NavGroupBlock, SidebarIdentity, type NavGroup,
+} from '@/components/pes/SidebarParts'
 
-type NavItem = { label: string; href: string; icon: string }
-type NavGroup = { id: string; title: string; items: NavItem[] }
-
+/* GRUPLAMA — iş akışına göre, konu başlığına göre değil.
+   Eskiden "Performans & Karşılaştırma" 10 madde taşıyordu ve içine ait
+   olmayanları (Gider Yükle, Sözlük, Beyan Geçmişi) almıştı; kullanıcı
+   aradığını orada bulamıyordu. Yeni ayrım kullanıcının ne YAPTIĞINA göre:
+   günlük operasyon / veri girme / analiz etme / modelleme / başvurma. */
 const NAV_GROUPS: NavGroup[] = [
   {
-    id: 'genel',
-    title: 'Genel',
+    id: 'operasyon',
+    title: 'Operasyon',
     items: [
-      { label: 'Dashboard', href: '/pes', icon: '▦' },
+      { label: 'Dashboard',        href: '/pes',               icon: LayoutDashboard },
+      { label: 'Atölyeler',        href: '/pes/workshops',     icon: Factory },
+      { label: 'Profil & Denetim', href: '/pes/atolye-profil', icon: ShieldCheck },
+      { label: 'Atölye Takvimleri', href: '/pes/takvim',       icon: CalendarDays },
     ],
   },
   {
-    id: 'atolyeler',
-    title: 'Atölyeler & Plan',
+    id: 'veri_girisi',
+    title: 'Veri girişi',
     items: [
-      { label: 'Atölyeler',         href: '/pes/workshops', icon: '⚙' },
-      { label: 'Profil & Denetim',  href: '/pes/atolye-profil', icon: '🛡' },
-      { label: 'Atölye Takvimleri', href: '/pes/takvim',    icon: '🗓' },
+      { label: 'Üretim',      href: '/pes/production',      icon: Boxes },
+      { label: 'Kalite',      href: '/pes/quality',         icon: CircleCheck },
+      { label: 'Duruş',       href: '/pes/downtime',        icon: CirclePause },
+      { label: 'Changeover',  href: '/pes/changeover',      icon: RefreshCw },
+      { label: 'İşgücü',      href: '/pes/workforce',       icon: Users },
+      { label: 'Maliyet',     href: '/pes/costs',           icon: Wallet },
+      { label: 'Gider Yükle', href: '/pes/expenses/import', icon: Upload },
     ],
   },
   {
-    id: 'siparis_uretim',
-    title: 'Sipariş & Üretim',
+    id: 'analiz',
+    title: 'Analiz',
     items: [
-      { label: 'Üretim',           href: '/pes/production',    icon: '⊞' },
-      { label: 'Atölye Fiyatlama', href: '/pes/eder-maliyet',  icon: '⊕' },
-      { label: 'VSM / Simülasyon', href: '/pes/uretim-simulasyon', icon: '⊿' },
+      { label: 'Skorlama',       href: '/pes/scoring',       icon: Star },
+      { label: 'Karşılaştırma',  href: '/pes/compare',       icon: ArrowLeftRight },
+      { label: 'Benchmark',      href: '/pes/benchmark',     icon: Gauge },
+      { label: 'Yetenek Raporu', href: '/pes/yetenek-rapor', icon: ClipboardList },
+      { label: 'Yetenek Arama',  href: '/pes/yetenek-arama', icon: Search },
+      { label: 'Veri Kalitesi',  href: '/pes/veri-kalitesi', icon: CircleCheckBig },
     ],
   },
   {
     id: 'modelleme',
     title: 'Modelleme',
     items: [
-      { label: 'Modeller',  href: '/pes/models',    icon: '◫' },
-      { label: 'Süreçler',  href: '/pes/processes', icon: '⇄' },
+      { label: 'Modeller',         href: '/pes/models',            icon: Shapes },
+      { label: 'Süreçler',         href: '/pes/processes',         icon: Workflow },
+      { label: 'VSM / Simülasyon', href: '/pes/uretim-simulasyon', icon: Waypoints },
+      { label: 'Atölye Fiyatlama', href: '/pes/eder-maliyet',      icon: Calculator },
     ],
   },
   {
-    id: 'verimlilik',
-    title: 'Verimlilik & Kalite',
+    id: 'referans',
+    title: 'Referans',
     items: [
-      { label: 'Kalite',     href: '/pes/quality',    icon: '◎' },
-      { label: 'Duruş',      href: '/pes/downtime',   icon: '⏸' },
-      { label: 'Changeover', href: '/pes/changeover', icon: '↻' },
-    ],
-  },
-  {
-    id: 'ik_maliyet',
-    title: 'İK & Maliyet',
-    items: [
-      { label: 'İşgücü',  href: '/pes/workforce', icon: '👥' },
-      { label: 'Maliyet', href: '/pes/costs',     icon: '₺' },
-    ],
-  },
-  {
-    id: 'performans',
-    title: 'Performans & Karşılaştırma',
-    items: [
-      { label: 'Skorlama',        href: '/pes/scoring',       icon: '★' },
-      { label: 'Karşılaştırma',   href: '/pes/compare',       icon: '⇔' },
-      { label: 'Benchmark',       href: '/pes/benchmark',     icon: '◈' },
-      { label: 'Yetenek Raporu',  href: '/pes/yetenek-rapor', icon: '◇' },
-      { label: 'Yetenek Arama',   href: '/pes/yetenek-arama', icon: '⌕' },
-      { label: 'Veri Kalitesi',   href: '/pes/veri-kalitesi', icon: '✓' },
-      { label: 'Gider Yükle',     href: '/pes/expenses/import', icon: '↑' },
-      { label: 'Beyan Geçmişi',   href: '/pes/expenses/revisions', icon: '⟲' },
-      { label: 'Fiyat Endeksleri', href: '/pes/endeks',        icon: '₺' },
-      { label: 'Sözlük',          href: '/pes/sozluk',        icon: '?' },
-    ],
-  },
-  {
-    id: 'referans_rapor',
-    title: 'Referans & Raporlar',
-    items: [
-      { label: 'Referans',  href: '/pes/referans', icon: '▤' },
-      { label: 'Raporlar',  href: '/pes/reports',  icon: '📊' },
+      { label: 'Sözlük',           href: '/pes/sozluk',             icon: BookOpen },
+      { label: 'Referans',         href: '/pes/referans',           icon: Table2 },
+      { label: 'Fiyat Endeksleri', href: '/pes/endeks',             icon: TrendingUp },
+      { label: 'Beyan Geçmişi',    href: '/pes/expenses/revisions', icon: History },
+      { label: 'Raporlar',         href: '/pes/reports',            icon: ChartColumn },
     ],
   },
 ]
 
-export default function PesDevSidebar() {
+export default function PesDevSidebar({
+  eposta = null, tenantAdi = null,
+}: { eposta?: string | null; tenantAdi?: string | null }) {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
-  const [search, setSearch] = useState('')
+  const [arama, setArama] = useState('')
 
-  function toggleGroup(id: string) {
-    setCollapsed(c => ({ ...c, [id]: !c[id] }))
-  }
-
-  const filteredGroups = useMemo(() => {
-    if (!search.trim()) return NAV_GROUPS
-    const q = search.toLowerCase()
+  const gruplar = useMemo(() => {
+    const q = arama.trim().toLocaleLowerCase('tr-TR')
+    if (!q) return NAV_GROUPS
     return NAV_GROUPS
-      .map(g => ({ ...g, items: g.items.filter(i => i.label.toLowerCase().includes(q)) }))
+      .map(g => ({ ...g, items: g.items.filter(i => i.label.toLocaleLowerCase('tr-TR').includes(q)) }))
       .filter(g => g.items.length > 0)
-  }, [search])
+  }, [arama])
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-line-soft flex flex-col">
-      {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-line-soft flex-shrink-0">
+    <aside className="flex min-h-screen w-64 flex-col border-r border-line-soft bg-surface">
+      <div className="flex h-16 shrink-0 items-center border-b border-line-soft px-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-md flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-[10px] tracking-wider">PES</span>
-          </div>
-          <div>
-            <span className="font-semibold text-ink text-sm block leading-tight">Merkez Paneli</span>
-            <span className="text-[10px] text-faint leading-tight tracking-wide">Verimlilik Sistemi</span>
-          </div>
+          <span className="flex size-8 items-center justify-center rounded-md bg-accent text-[10px] font-bold tracking-wider text-white">
+            PES
+          </span>
+          <span>
+            <span className="block text-sm font-semibold leading-tight text-ink">Merkez Paneli</span>
+            <span className="block text-[10px] leading-tight tracking-wide text-faint">Verimlilik Sistemi</span>
+          </span>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="px-3 py-2 border-b border-gray-100 flex-shrink-0">
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="🔍 Sayfa ara..."
-          className="w-full px-2.5 py-1.5 text-xs border border-line-soft rounded-md bg-canvas focus:outline-none focus:border-gray-400 focus:bg-white"
-        />
+      <div className="shrink-0 border-b border-line-soft px-3 py-2">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-faint" strokeWidth={1.8} />
+          <input
+            value={arama}
+            onChange={e => setArama(e.target.value)}
+            placeholder="Sayfa ara"
+            className="w-full rounded-md border border-line-soft bg-canvas py-1.5 pl-7 pr-2.5 text-xs text-ink placeholder:text-faint focus:border-line focus:bg-surface focus:outline-none"
+          />
+        </div>
       </div>
 
-      {/* Navigation — Grouped */}
-      <nav className="flex-1 px-2 py-2 overflow-y-auto">
-        {filteredGroups.map((group, gi) => {
-          const isCollapsed = collapsed[group.id]
-          const hasActive = group.items.some(i => isItemActive(pathname, i.href))
-          return (
-            <div key={group.id} className={gi > 0 ? 'mt-3' : ''}>
-              <button
-                onClick={() => toggleGroup(group.id)}
-                className="w-full flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-faint hover:text-muted transition-colors"
-              >
-                <span>{group.title}</span>
-                <span className={`text-[8px] transition-transform ${isCollapsed ? '-rotate-90' : ''}`}>▼</span>
-              </button>
-              {!isCollapsed && (
-                <div className="space-y-px mt-0.5">
-                  {group.items.map(item => {
-                    const active = isItemActive(pathname, item.href)
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
-                          active
-                            ? 'bg-emerald-50 text-accent font-medium border-l-2 border-accent pl-[10px]'
-                            : 'text-muted hover:bg-canvas hover:text-ink'
-                        }`}
-                      >
-                        <span className="text-sm w-4 inline-block text-center">{item.icon}</span>
-                        <span className="truncate">{item.label}</span>
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
-              {isCollapsed && hasActive && (
-                <div className="text-[9px] text-emerald-600 px-3 italic">aktif sayfa</div>
-              )}
-            </div>
-          )
-        })}
-        {filteredGroups.length === 0 && (
-          <div className="px-3 py-4 text-xs text-faint italic text-center">
-            "{search}" için sonuç yok
-          </div>
+      <nav className="flex-1 overflow-y-auto px-2 py-2">
+        {gruplar.map((g, i) => (
+          <NavGroupBlock key={g.id} group={g} pathname={pathname} kokRota="/pes" ilk={i === 0} />
+        ))}
+        {gruplar.length === 0 && (
+          <p className="px-3 py-4 text-center text-xs italic text-faint">
+            “{arama}” için sonuç yok
+          </p>
         )}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-line-soft px-3 py-2.5 flex-shrink-0 space-y-0.5">
-        <Link href="/workshop"
-          className="flex items-center gap-2 text-xs text-faint hover:text-ink hover:bg-canvas px-3 py-1.5 rounded transition-colors">
-          <span>→</span>
-          <span>Atölye Paneli</span>
+      <div className="shrink-0 border-t border-line-soft px-3 py-2">
+        <Link
+          href="/workshop"
+          className="flex items-center gap-2 rounded px-3 py-1.5 text-xs text-faint transition-colors hover:bg-canvas hover:text-ink"
+        >
+          <ArrowRight className="size-3.5" strokeWidth={1.8} />
+          Atölye Paneli
         </Link>
-        <p className="text-[9px] text-amber-600 font-medium px-3 py-0.5">Dev Mode</p>
-        <p className="text-[10px] text-faint px-3 pt-0.5">{APP_VERSION}</p>
+      </div>
+
+      <SidebarIdentity eposta={eposta} tenantAdi={tenantAdi} />
+
+      <div className="shrink-0 px-3 pb-2 text-[10px] text-faint">
+        {/* Dev Mode rozeti üretimde görünmemeli — kullanıcıya bir şey söylemiyor. */}
+        {process.env.NODE_ENV !== 'production' && (
+          <span className="mr-2 font-medium text-warn">Dev Mode</span>
+        )}
+        {APP_VERSION}
       </div>
     </aside>
   )
-}
-
-function isItemActive(pathname: string, href: string): boolean {
-  if (pathname === href) return true
-  if (href === '/pes') return false
-  return pathname.startsWith(href + '/')
 }

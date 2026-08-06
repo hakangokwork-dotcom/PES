@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useDonem } from '@/lib/pes/useDonem'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string; daily_target: number }
@@ -10,8 +11,9 @@ export default function ProductionPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
   const [lines, setLines] = useState<Line[]>([])
   const [workshopId, setWorkshopId] = useState('')
-  const [year, setYear] = useState(2026)
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  /* Dönem artık ekranın kendi state'i değil; üst bardaki seçim URL'de
+     tutulur ve tüm /pes ekranları aynı dönemi gösterir. */
+  const { yil: year, ay: month } = useDonem()
   const [rows, setRows] = useState<ProdRow[]>([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -124,21 +126,6 @@ export default function ProductionPage() {
               <option value="">Seçin...</option>
               {workshops.map(w => (
                 <option key={w.id} value={w.id}>{w.code} — {w.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
-            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}>
-              <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ay</label>
-            <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>
-              {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
-                <option key={m} value={m}>{m}</option>
               ))}
             </select>
           </div>

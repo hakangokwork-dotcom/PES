@@ -3,226 +3,192 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import {
+  LayoutDashboard, Factory, ClipboardList, CalendarDays,
+  Boxes, Shapes, Droplets, Gauge, Waypoints,
+  CircleCheck, CirclePause, Lightbulb,
+  Users, Wallet, Calculator,
+  ChartColumn, Upload, Search, ArrowLeft, MapPin,
+} from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
+import {
+  NavGroupBlock, SidebarIdentity, type NavGroup,
+} from '@/components/pes/SidebarParts'
 
-type NavItem = { label: string; href: string; icon: string }
-type NavGroup = { id: string; title: string; items: NavItem[] }
-
+/* Merkez paneliyle AYNI tipi, aynı satır bileşenini ve aynı kimlik bloğunu
+   kullanır (SidebarParts). Eskiden ikisi kendi kopyasını taşıyordu ve biri
+   düzeltilince diğeri geride kalıyordu. */
 const NAV_GROUPS: NavGroup[] = [
   {
     id: 'genel',
     title: 'Atölye Yönetimi',
     items: [
-      { label: 'Dashboard', href: '/workshop',         icon: '▦' },
-      { label: 'Profil',    href: '/workshop/profile', icon: '⚙' },
+      { label: 'Dashboard', href: '/workshop',         icon: LayoutDashboard },
+      { label: 'Profil',    href: '/workshop/profile', icon: Factory },
     ],
   },
   {
     id: 'siparis',
     title: 'Sipariş & Plan',
     items: [
-      { label: 'İş Emri',     href: '/workshop/is-emri', icon: '▣' },
-      { label: 'Bant Takvimi', href: '/workshop/takvim', icon: '🗓' },
+      { label: 'İş Emri',      href: '/workshop/is-emri', icon: ClipboardList },
+      { label: 'Bant Takvimi', href: '/workshop/takvim',  icon: CalendarDays },
     ],
   },
   {
     id: 'uretim',
     title: 'Üretim',
     items: [
-      { label: 'Üretim',      href: '/workshop/production', icon: '⊞' },
-      { label: 'Modeller',    href: '/workshop/models',     icon: '◫' },
-      { label: 'Yıkama / UKP', href: '/workshop/yikama-ukp', icon: '♨' },
-      { label: 'Yetenek',     href: '/workshop/yetenek',    icon: '◈' },
-      { label: 'VSM Analiz',  href: '/workshop/vsm',        icon: '⊿' },
+      { label: 'Üretim',       href: '/workshop/production', icon: Boxes },
+      { label: 'Modeller',     href: '/workshop/models',     icon: Shapes },
+      { label: 'Yıkama / UKP', href: '/workshop/yikama-ukp', icon: Droplets },
+      { label: 'Yetenek',      href: '/workshop/yetenek',    icon: Gauge },
+      { label: 'VSM Analiz',   href: '/workshop/vsm',        icon: Waypoints },
     ],
   },
   {
     id: 'verimlilik',
     title: 'Verimlilik & Kalite',
     items: [
-      { label: 'Kalite',  href: '/workshop/quality',  icon: '◎' },
-      { label: 'Duruş',   href: '/workshop/downtime', icon: '⏸' },
-      { label: 'Kaizen',  href: '/workshop/kaizen',   icon: '↻' },
+      { label: 'Kalite', href: '/workshop/quality',  icon: CircleCheck },
+      { label: 'Duruş',  href: '/workshop/downtime', icon: CirclePause },
+      { label: 'Kaizen', href: '/workshop/kaizen',   icon: Lightbulb },
     ],
   },
   {
     id: 'ik_maliyet',
     title: 'İK & Maliyet',
     items: [
-      { label: 'İşgücü',  href: '/workshop/workforce', icon: '👥' },
-      { label: 'Maliyet', href: '/workshop/costs',     icon: '₺' },
-      { label: 'Eder Maliyet', href: '/workshop/eder-maliyet', icon: '⊕' },
+      { label: 'İşgücü',       href: '/workshop/workforce',    icon: Users },
+      { label: 'Maliyet',      href: '/workshop/costs',        icon: Wallet },
+      { label: 'Eder Maliyet', href: '/workshop/eder-maliyet', icon: Calculator },
     ],
   },
   {
     id: 'veri',
     title: 'Analiz & Veri',
     items: [
-      { label: 'Analiz',     href: '/workshop/analysis',  icon: '📊' },
-      { label: 'Veri Yükle', href: '/workshop/veri-yukle', icon: '↑' },
+      { label: 'Analiz',     href: '/workshop/analysis',   icon: ChartColumn },
+      { label: 'Veri Yükle', href: '/workshop/veri-yukle', icon: Upload },
     ],
   },
 ]
 
 interface WsItem { id: number; code: string; name: string }
 
-export default function WorkshopSidebar() {
+export default function WorkshopSidebar({
+  eposta = null, tenantAdi = null,
+}: { eposta?: string | null; tenantAdi?: string | null }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
   const wid = searchParams.get('wid') ?? ''
 
   const [workshops, setWorkshops] = useState<WsItem[]>([])
-  const [currentWs, setCurrentWs] = useState<WsItem | null>(null)
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
-  const [search, setSearch] = useState('')
+  const [arama, setArama] = useState('')
 
   useEffect(() => {
     fetch('/api/pes/workshops')
       .then(r => r.json())
-      .then(d => {
-        const list: WsItem[] = (d.workshops ?? []).map((w: Record<string, unknown>) => ({
-          id: w.id as number, code: w.code as string, name: w.name as string,
-        }))
-        setWorkshops(list)
-        if (wid) setCurrentWs(list.find(w => w.id === Number(wid)) ?? null)
-      })
+      .then(d => setWorkshops((d.workshops ?? []).map((w: Record<string, unknown>) => ({
+        id: w.id as number, code: w.code as string, name: w.name as string,
+      }))))
       .catch(() => {})
-  }, [wid])
+  }, [])
+
+  const currentWs = workshops.find(w => w.id === Number(wid)) ?? null
 
   function switchWorkshop(newWid: string) {
     if (!newWid) { router.push('/workshop'); return }
-    const target = pathname === '/workshop' ? '/workshop' : pathname
-    router.push(`${target}?wid=${newWid}`)
+    router.push(`${pathname}?wid=${newWid}`)
   }
 
-  function buildHref(base: string) {
-    return wid ? `${base}?wid=${wid}` : base
-  }
-
-  function toggleGroup(id: string) {
-    setCollapsed(c => ({ ...c, [id]: !c[id] }))
-  }
-
-  // Search filter
-  const filteredGroups = useMemo(() => {
-    if (!search.trim()) return NAV_GROUPS
-    const q = search.toLowerCase()
+  /* Seçili atölye her bağlantıda taşınır; aksi halde sayfa değişince
+     kullanıcı hangi atölyeye baktığını kaybediyor. */
+  const gruplar = useMemo(() => {
+    const q = arama.trim().toLocaleLowerCase('tr-TR')
     return NAV_GROUPS
-      .map(g => ({ ...g, items: g.items.filter(i => i.label.toLowerCase().includes(q)) }))
+      .map(g => ({
+        ...g,
+        items: g.items
+          .filter(i => !q || i.label.toLocaleLowerCase('tr-TR').includes(q))
+          .map(i => (wid ? { ...i, href: `${i.href}?wid=${wid}` } : i)),
+      }))
       .filter(g => g.items.length > 0)
-  }, [search])
+  }, [arama, wid])
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-line-soft flex flex-col">
-      {/* Logo */}
-      <div className="h-14 flex items-center px-4 border-b border-line-soft flex-shrink-0">
+    <aside className="flex min-h-screen w-64 flex-col border-r border-line-soft bg-surface">
+      <div className="flex h-14 shrink-0 items-center border-b border-line-soft px-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-md flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-[10px] tracking-wider">PES</span>
-          </div>
-          <div>
-            <span className="font-semibold text-ink text-sm block leading-tight">Atölye Paneli</span>
-            <span className="text-[10px] text-faint leading-tight tracking-wide">Verimlilik Sistemi</span>
-          </div>
+          <span className="flex size-8 items-center justify-center rounded-md bg-accent text-[10px] font-bold tracking-wider text-white">
+            PES
+          </span>
+          <span>
+            <span className="block text-sm font-semibold leading-tight text-ink">Atölye Paneli</span>
+            <span className="block text-[10px] leading-tight tracking-wide text-faint">Verimlilik Sistemi</span>
+          </span>
         </div>
       </div>
 
-      {/* Atölye Seçici */}
-      <div className="px-3 py-3 border-b border-gray-100 flex-shrink-0">
-        <label className="text-[9px] uppercase tracking-wider text-faint font-semibold mb-1 block px-1">
+      <div className="shrink-0 border-b border-line-soft px-3 py-3">
+        <label className="mb-1 block px-1 text-[10px] font-semibold uppercase tracking-wider text-faint">
           Aktif Atölye
         </label>
         <select
           value={wid}
           onChange={e => switchWorkshop(e.target.value)}
-          className="w-full px-2.5 py-1.5 text-sm border border-line rounded-lg bg-canvas focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent truncate"
+          className="w-full truncate rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
         >
-          <option value="">Atölye seçin...</option>
+          <option value="">Atölye seçin…</option>
           {workshops.map(w => (
             <option key={w.id} value={w.id}>{w.code} — {w.name}</option>
           ))}
         </select>
         {currentWs && (
-          <p className="text-[10px] text-faint mt-1.5 px-1 truncate font-medium">📍 {currentWs.name}</p>
+          <p className="mt-1.5 flex items-center gap-1 px-1 text-[10px] font-medium text-faint">
+            <MapPin className="size-3" strokeWidth={1.8} />
+            <span className="truncate">{currentWs.name}</span>
+          </p>
         )}
       </div>
 
-      {/* Search */}
-      <div className="px-3 py-2 border-b border-gray-100 flex-shrink-0">
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="🔍 Sayfa ara..."
-          className="w-full px-2.5 py-1.5 text-xs border border-line-soft rounded-md bg-canvas focus:outline-none focus:border-gray-400 focus:bg-white"
-        />
+      <div className="shrink-0 border-b border-line-soft px-3 py-2">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-faint" strokeWidth={1.8} />
+          <input
+            value={arama}
+            onChange={e => setArama(e.target.value)}
+            placeholder="Sayfa ara"
+            className="w-full rounded-md border border-line-soft bg-canvas py-1.5 pl-7 pr-2.5 text-xs text-ink placeholder:text-faint focus:border-line focus:bg-surface focus:outline-none"
+          />
+        </div>
       </div>
 
-      {/* Navigation — Grouped */}
-      <nav className="flex-1 px-2 py-2 overflow-y-auto">
-        {filteredGroups.map((group, gi) => {
-          const isCollapsed = collapsed[group.id]
-          const hasActive = group.items.some(i => isItemActive(pathname, i.href))
-          return (
-            <div key={group.id} className={gi > 0 ? 'mt-3' : ''}>
-              {/* Group header */}
-              <button
-                onClick={() => toggleGroup(group.id)}
-                className="w-full flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-faint hover:text-muted transition-colors"
-              >
-                <span>{group.title}</span>
-                <span className={`text-[8px] transition-transform ${isCollapsed ? '-rotate-90' : ''}`}>▼</span>
-              </button>
-              {!isCollapsed && (
-                <div className="space-y-px mt-0.5">
-                  {group.items.map(item => {
-                    const active = isItemActive(pathname, item.href)
-                    return (
-                      <Link
-                        key={item.href}
-                        href={buildHref(item.href)}
-                        className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
-                          active
-                            ? 'bg-emerald-50 text-accent font-medium border-l-2 border-accent pl-[10px]'
-                            : 'text-muted hover:bg-canvas hover:text-ink'
-                        }`}
-                      >
-                        <span className="text-sm w-4 inline-block text-center">{item.icon}</span>
-                        <span className="truncate">{item.label}</span>
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
-              {isCollapsed && hasActive && (
-                <div className="text-[9px] text-emerald-600 px-3 italic">aktif sayfa</div>
-              )}
-            </div>
-          )
-        })}
-        {filteredGroups.length === 0 && (
-          <div className="px-3 py-4 text-xs text-faint italic text-center">
-            "{search}" için sonuç yok
-          </div>
+      <nav className="flex-1 overflow-y-auto px-2 py-2">
+        {gruplar.map((g, i) => (
+          <NavGroupBlock key={g.id} group={g} pathname={pathname} kokRota="/workshop" ilk={i === 0} />
+        ))}
+        {gruplar.length === 0 && (
+          <p className="px-3 py-4 text-center text-xs italic text-faint">
+            “{arama}” için sonuç yok
+          </p>
         )}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-line-soft px-3 py-2.5 flex-shrink-0">
-        <Link href="/pes"
-          className="flex items-center gap-2 text-xs text-faint hover:text-ink hover:bg-canvas px-3 py-1.5 rounded transition-colors">
-          <span>←</span>
-          <span>Merkez Paneli</span>
+      <div className="shrink-0 border-t border-line-soft px-3 py-2">
+        <Link
+          href="/pes"
+          className="flex items-center gap-2 rounded px-3 py-1.5 text-xs text-faint transition-colors hover:bg-canvas hover:text-ink"
+        >
+          <ArrowLeft className="size-3.5" strokeWidth={1.8} />
+          Merkez Paneli
         </Link>
-        <p className="text-[10px] text-faint px-3 pt-1">{APP_VERSION}</p>
       </div>
+
+      <SidebarIdentity eposta={eposta} tenantAdi={tenantAdi} />
+
+      <div className="shrink-0 px-3 pb-2 text-[10px] text-faint">{APP_VERSION}</div>
     </aside>
   )
-}
-
-function isItemActive(pathname: string, href: string): boolean {
-  if (pathname === href) return true
-  if (href === '/workshop') return false   // dashboard'u sadece tam eşleşmede aktif say
-  return pathname.startsWith(href + '/')
 }

@@ -3,10 +3,16 @@ import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import MetricInfo from '@/components/pes/MetricInfo'
 import { effTone, fpqTone, TONE_TEXT } from '@/lib/ui/tone'
+import { donemCoz } from '@/lib/pes/donem'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ComparePage() {
+export default async function ComparePage({
+  searchParams,
+}: { searchParams: Promise<{ donem?: string }> }) {
+  /* Dönem üst bardan geliyor; yoksa veride bulunan en yeni döneme düşer. */
+  const secilen = donemCoz((await searchParams).donem)
+
   const data = await withServerTenant(async (sql) => {
     const workshops = await sql`
       SELECT w.id, w.code, w.name, w.type, w.city, w.sewing_staff, w.total_staff, w.net_hours_day
@@ -16,8 +22,8 @@ export default async function ComparePage() {
     const [lastPeriod] = await sql`
       SELECT year, month FROM monthly_production ORDER BY year DESC, month DESC LIMIT 1
     `
-    const pYear = lastPeriod?.year ?? 2026
-    const pMonth = lastPeriod?.month ?? 1
+    const pYear = secilen?.yil ?? lastPeriod?.year ?? 2026
+    const pMonth = secilen?.ay ?? lastPeriod?.month ?? 1
 
     const prodData = await sql`
       SELECT workshop_id,

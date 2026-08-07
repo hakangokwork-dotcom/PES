@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import PlanGercekSekmesi from '@/components/pes/PlanGercekSekmesi'
 
 interface WO {
   id: number
@@ -127,7 +128,7 @@ function WoDetailPage() {
   const [journal, setJournal] = useState<Journal[]>([])
   const [history, setHistory] = useState<{ tarih: string; eski_durum: string; yeni_durum: string }[]>([])
   const [lines, setLines] = useState<Line[]>([])
-  const [tab, setTab] = useState<'ozet'|'asamalar'|'malzemeler'|'gunluk'|'gecmis'>('ozet')
+  const [tab, setTab] = useState<'ozet'|'asamalar'|'plangercek'|'malzemeler'|'gunluk'|'gecmis'>('ozet')
   const [loading, setLoading] = useState(true)
 
   const reload = useCallback(async () => {
@@ -165,11 +166,12 @@ function WoDetailPage() {
           {[
             ['ozet','Özet','📋'],
             ['asamalar',`Aşamalar (${stages.length})`,'📊'],
+            ['plangercek','Plan / Gerçek','📈'],
             ['malzemeler',`Malzemeler (${materials.length})`,'📦'],
             ['gunluk',`Günlük (${journal.length})`,'📝'],
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (
-            <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'malzemeler'|'gunluk'|'gecmis')}
+            <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'plangercek'|'malzemeler'|'gunluk'|'gecmis')}
               className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
               <span className="mr-1">{icon}</span>{label}
             </button>
@@ -178,6 +180,7 @@ function WoDetailPage() {
         <div className="p-4">
           {tab === 'ozet'      && <OzetTab order={order} lines={lines} onRefresh={reload} />}
           {tab === 'asamalar'  && <AsamalarTab stages={stages} lines={lines} onRefresh={reload} woId={id} />}
+          {tab === 'plangercek'&& <PlanGercekSekmesi workOrderId={id} />}
           {tab === 'malzemeler'&& <MalzemelerTab materials={materials} onRefresh={reload} woId={id} />}
           {tab === 'gunluk'    && <GunlukTab journal={journal} stages={stages} onRefresh={reload} woId={id} />}
           {tab === 'gecmis'    && <GecmisTab history={history} />}

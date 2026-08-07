@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Check, AlertTriangle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -66,8 +66,13 @@ function Row({ toast, onClose }: { toast: Toast; onClose: () => void }) {
 export function useToast() {
   const ctx = useContext(Ctx)
   if (!ctx) throw new Error('useToast, ToastProvider içinde kullanılmalı (app/layout.tsx)')
-  return {
-    success: (text: string) => ctx.push('success', text),
-    error: (text: string) => ctx.push('error', text),
-  }
+  /* Dönen nesne SABİT olmalı: her render'da yenisi üretilirse
+     useEffect(..., [toast]) yazan her ekran sonsuz döngüye girer
+     (fetch → setState → render → yeni toast → fetch). Bu, günlük
+     üretim ekranında "Yükleniyor…" hiç bitmeyerek ortaya çıktı. */
+  const { push } = ctx
+  return useMemo(() => ({
+    success: (text: string) => push('success', text),
+    error: (text: string) => push('error', text),
+  }), [push])
 }

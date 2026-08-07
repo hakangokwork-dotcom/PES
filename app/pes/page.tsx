@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { EffTrendChart, WorkshopEffBar, TierDonut } from '@/components/pes/DashboardCharts'
 import { effTone, TONE_TEXT } from '@/lib/ui/tone'
+import { malzemeGecikenSiparisler } from '@/lib/pes/malzeme-uyari'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,6 +68,10 @@ export default async function PesDashboard() {
         AND teslim_tarihi IS NOT NULL
         AND teslim_tarihi <= CURRENT_DATE + 7`
 
+    /* Malzemesi üretim başlangıcına yetişmeyen siparişler (K3).
+       Engellenmiyor, işaretleniyor — panonun işi bunu görünür kılmak. */
+    const malzemeGeciken = await malzemeGecikenSiparisler(sql)
+
     const [dusukVerim] = await sql`
       SELECT count(*)::int AS c FROM (
         SELECT mp.workshop_id,
@@ -89,12 +94,12 @@ export default async function PesDashboard() {
       GROUP BY w.code, w.name, mp.year, mp.month, ss.tier
       ORDER BY eff DESC LIMIT 8`
 
-    return { denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff: eff?.avg_eff ?? null, effTrend, wsEff, tierDist, recentProd }
+    return { malzemeGeciken, denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff: eff?.avg_eff ?? null, effTrend, wsEff, tierDist, recentProd }
   })
 
   if (!data) redirect('/login')
 
-  const { denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff, effTrend, wsEff, tierDist, recentProd } = data
+  const { malzemeGeciken, denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff, effTrend, wsEff, tierDist, recentProd } = data
 
   const trendDelta = effTrend.length >= 2 ? Number(effTrend.at(-1)!.eff) - Number(effTrend.at(-2)!.eff) : 0
 
@@ -126,6 +131,12 @@ export default async function PesDashboard() {
       sayi: dusukVerim?.c ?? 0,
       metin: 'atölye son dönemde %75 verimliliğin altında',
       href: '/pes/compare',
+      agir: true,
+    },
+    {
+      sayi: malzemeGeciken?.length ?? 0,
+      metin: 'siparişin malzemesi üretim başlangıcından sonra geliyor',
+      href: '/workshop/is-emri',
       agir: true,
     },
     {

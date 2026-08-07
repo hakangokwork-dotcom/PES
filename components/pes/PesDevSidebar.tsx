@@ -4,11 +4,11 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Factory, ShieldCheck, CalendarDays,
+  LayoutDashboard, Factory, ShieldCheck, CalendarDays, PackagePlus,
   Boxes, CircleCheck, CirclePause, RefreshCw, Users, Wallet, Upload,
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
   Shapes, Workflow, Waypoints, Calculator,
-  BookOpen, Table2, TrendingUp, History, ChartColumn,
+  BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
   ArrowRight,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
@@ -30,6 +30,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Atölyeler',        href: '/pes/workshops',     icon: Factory },
       { label: 'Profil & Denetim', href: '/pes/atolye-profil', icon: ShieldCheck },
       { label: 'Atölye Takvimleri', href: '/pes/takvim',       icon: CalendarDays },
+      { label: 'Sipariş Yerleştir', href: '/pes/siparis-yerlestir', icon: PackagePlus },
     ],
   },
   {
@@ -71,8 +72,9 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'referans',
     title: 'Referans',
     items: [
-      { label: 'Sözlük',           href: '/pes/sozluk',             icon: BookOpen },
-      { label: 'Referans',         href: '/pes/referans',           icon: Table2 },
+      { label: 'Sözlük',            href: '/pes/sozluk',             icon: BookOpen },
+      { label: 'Referans',          href: '/pes/referans',           icon: Table2 },
+      { label: 'Olgunluk Kataloğu', href: '/pes/olgunluk/katalog',   icon: ListChecks },
       { label: 'Fiyat Endeksleri', href: '/pes/endeks',             icon: TrendingUp },
       { label: 'Beyan Geçmişi',    href: '/pes/expenses/revisions', icon: History },
       { label: 'Raporlar',         href: '/pes/reports',            icon: ChartColumn },

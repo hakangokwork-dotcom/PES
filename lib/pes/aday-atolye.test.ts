@@ -28,13 +28,25 @@ function tenantIcinde<T>(fn: (sql: postgres.TransactionSql) => Promise<T>): Prom
   }) as Promise<T>
 }
 
-test('aday listesi döner ve puana göre sıralı', async () => {
+test('aday listesi döner: kapasitesizler en altta, her grup puana göre sıralı', async () => {
+  /* Sıralama düz puan sırası DEĞİL: kapasitesi olmayan atölye puanı
+     yüksek olsa da (çok yetenek kaydı) en alta düşer — oraya sipariş
+     konamaz. Bu testin ilk hâli düz sıra iddia ediyordu ve yalnızca
+     veri öyle denk geldiği için geçiyordu. */
   const adaylar = await tenantIcinde(sql =>
     adayAtolyeler(sql, { adet: 5000, teslimTarihi: '2026-12-31', bugun: '2026-08-06' }))
 
   expect(adaylar.length).toBeGreaterThan(0)
+
+  const kapasiteli = adaylar.map(a => a.gerekenGun !== null)
+  const ilkKapasitesiz = kapasiteli.indexOf(false)
+  if (ilkKapasitesiz >= 0) {
+    expect(kapasiteli.slice(ilkKapasitesiz).some(Boolean)).toBe(false)
+  }
+
   for (let i = 1; i < adaylar.length; i++) {
-    expect(adaylar[i - 1].puan).toBeGreaterThanOrEqual(adaylar[i].puan)
+    const ayniGrup = (adaylar[i - 1].gerekenGun !== null) === (adaylar[i].gerekenGun !== null)
+    if (ayniGrup) expect(adaylar[i - 1].puan).toBeGreaterThanOrEqual(adaylar[i].puan)
   }
 })
 

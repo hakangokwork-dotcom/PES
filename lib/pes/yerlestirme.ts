@@ -78,6 +78,53 @@ export function gunEkle(tarih: string, gun: number): string {
   return d.toISOString().slice(0, 10)
 }
 
+export type Aralik = { baslangic: string; bitis: string }
+export type BosPencere = Aralik & {
+  /** İstenen bitişten kaç gün geriye kaymak zorunda kalındı */
+  kaydirilanGun: number
+}
+
+/**
+ * Bir bantta, istenen bitiş tarihinde veya ondan GERİYE doğru,
+ * `gerekenGun` uzunluğunda ilk boş pencereyi bulur (tasarım §5.4).
+ *
+ * Faz 1'de bu kontrol YOKTU: tahsis mevcut tahsislere bakılmadan
+ * yazılıyordu, yani iki sipariş aynı bandı aynı gün kullanabiliyordu.
+ *
+ * Bitişik aralıklar çakışma sayılmaz: 25-29 doluysa 20-24 geçerlidir.
+ * Geriye doğru arar çünkü planlama teslimden geriye (K8) — ileriye
+ * kaydırmak teslim tarihini aşardı.
+ */
+export function bosPencereBul(
+  mesgul: Aralik[],
+  gerekenGun: number,
+  enGecBitis: string,
+): BosPencere {
+  const istenenBitis = enGecBitis
+  let bitis = enGecBitis
+
+  /* En fazla 5 yıl geriye bak. Sınırsız döngü, bozuk veride (ör. 2099'a
+     kadar dolu bir bant) sonsuza kadar dönerdi. */
+  const enErken = gunEkle(enGecBitis, -365 * 5)
+
+  while (bitis >= enErken) {
+    const baslangic = gunEkle(bitis, -(gerekenGun - 1))
+    const carpan = mesgul.find(m => m.baslangic <= bitis && m.bitis >= baslangic)
+    if (!carpan) {
+      return { baslangic, bitis, kaydirilanGun: gunFarkiGun(bitis, istenenBitis) }
+    }
+    // Çakışan aralığın hemen öncesine atla — gün gün gerilemek gereksiz
+    bitis = gunEkle(carpan.baslangic, -1)
+  }
+
+  throw new Error('Bantta uygun boş pencere bulunamadı (5 yıl geriye bakıldı)')
+}
+
+function gunFarkiGun(a: string, b: string): number {
+  const t = (s: string) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10))
+  return Math.round((t(b) - t(a)) / 86_400_000)
+}
+
 /**
  * Zinciri TESLİM TARİHİNDEN GERİYE kurar (tasarım K8).
  *

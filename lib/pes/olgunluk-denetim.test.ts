@@ -49,7 +49,21 @@ async function geriAlinan(fn: (sql: postgres.TransactionSql) => Promise<void>) {
   }
 }
 
-/** Yayında sürüm + açık denetim hazırlar; üç seviyesi de dolu bir süreç seçer. */
+/* ÜRETİM VERİSİNDEN YALITIM — 2026-08-07'de bu iki noktadan kırıldı:
+
+   1) Tarih: (workshop_id, sablon_id, tarih) benzersiz. Test bugünün
+      tarihiyle denetim açınca kullanıcının aynı gün açtığı gerçek
+      denetimle çakıştı. Uzak gelecekteki sabit bir gün hem çakışmayı
+      hem de "en son denetim" sıralamasını deterministik yapar.
+
+   2) Atölye: hiç olgunluk denetimi OLMAYAN bir atölye seçilir. Aksi
+      halde kullanıcının o atölyedeki açık taslağı, testin "tamamlayınca
+      taslak kalmamalı" beklentisini bozar.
+
+   Transaction geri alındığı için ikisi de veriye hiç yazılmaz. */
+const TEST_TARIH = '2099-12-31'
+
+/** Yayında sürüm + temiz atölyede açık denetim; üç seviyesi de dolu bir süreç. */
 async function kurulum(sql: postgres.TransactionSql) {
   const hepsi = await sablonlar(sql)
   const sablon = varsayilanSablon(hepsi)!
@@ -59,10 +73,16 @@ async function kurulum(sql: postgres.TransactionSql) {
   await sql`
     UPDATE olgunluk_sablon SET durum = 'yayinda', yayin_tarihi = now() WHERE id = ${sablon.id}`
 
-  const [w] = await sql`SELECT id, code FROM workshop WHERE is_active ORDER BY id LIMIT 1`
+  const [w] = await sql`
+    SELECT w.id, w.code FROM workshop w
+     WHERE w.is_active
+       AND NOT EXISTS (SELECT 1 FROM olgunluk_denetim d WHERE d.workshop_id = w.id)
+     ORDER BY w.id LIMIT 1`
+  if (!w) throw new Error('Denetimi hiç olmayan aktif atölye bulunamadı')
+
   const [denetim] = await sql`
     INSERT INTO olgunluk_denetim (tenant_id, workshop_id, sablon_id, tarih, denetci)
-    VALUES (${defaultTenant}, ${w.id}, ${sablon.id}, CURRENT_DATE, 'test')
+    VALUES (${defaultTenant}, ${w.id}, ${sablon.id}, ${TEST_TARIH}, 'test')
     RETURNING id`
 
   const [surec] = await sql`
@@ -103,7 +123,7 @@ test('uygulama rolü denetim açıp madde işaretleyebiliyor', async () => {
   })
 })
 
-test('hepsi Var işaretlenince süreç seviye 3 olur, puan paydası o süreçten gelir', async () => {
+test('hepsi Sağlanıyor işaretlenince süreç seviye 3 olur, payda o süreçten gelir', async () => {
   await geriAlinan(async (sql) => {
     const { denetimId, surec } = await kurulum(sql)
     await isaretle(sql, denetimId, surec.id, 'EVET')
@@ -153,7 +173,7 @@ test('taslak denetim filo görünümüne girmez, tamamlanınca girer', async () 
   })
 })
 
-test('bir madde Yok olunca seviye düşer ve yüzde geriler', async () => {
+test('bir madde Sağlanmıyor olunca seviye düşer ve yüzde geriler', async () => {
   await geriAlinan(async (sql) => {
     const { denetimId, surec } = await kurulum(sql)
     await isaretle(sql, denetimId, surec.id, 'EVET')

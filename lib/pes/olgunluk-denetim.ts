@@ -15,9 +15,14 @@ import type { Kategori, Kriter, Surec, Taraf } from './olgunluk'
 export type Sonuc = 'EVET' | 'HAYIR' | 'KAPSAM_DISI'
 export type DenetimDurum = 'taslak' | 'tamamlandi'
 
+/* "Var/Yok" DEĞİL. Kriter bir varlık değil bir ÖNERMEDİR; sorulan şey
+   "bu şey var mı" değil, "bu önerme bu atölye için doğru mu".
+   Olumsuz kurulmuş maddelerde fark kritik: "Atölyede çocuk işçi
+   çalıştırılmaz" + "Var" okunduğunda tam tersi anlaşılıyordu.
+   DB değerleri (EVET/HAYIR) değişmedi — bunlar yalnız ekran etiketi. */
 export const SONUC_ETIKET: Record<Sonuc, string> = {
-  EVET: 'Var',
-  HAYIR: 'Yok',
+  EVET: 'Sağlanıyor',
+  HAYIR: 'Sağlanmıyor',
   KAPSAM_DISI: 'Kapsam dışı',
 }
 

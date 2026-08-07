@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Check, Lock, Unlock } from 'lucide-react'
 import { Button, Badge, Card, CardHeader, CardBody, useToast } from '@/components/ui'
 import { SEVIYE_ETIKET } from '@/lib/pes/olgunluk'
+import { SONUC_ETIKET } from '@/lib/pes/olgunluk-denetim'
 import type { DenetimDetay, DenetimOzet, Sonuc } from '@/lib/pes/olgunluk-denetim'
 
 /* SAHA EKRANI. İki tasarım kararı:
@@ -19,10 +20,13 @@ import type { DenetimDetay, DenetimOzet, Sonuc } from '@/lib/pes/olgunluk-deneti
 
 const BEKLEME_MS = 700
 
-const SECENEKLER: { deger: Sonuc; etiket: string; sinif: string }[] = [
-  { deger: 'EVET', etiket: 'Var', sinif: 'bg-accent-soft text-accent-ink border-accent/40' },
-  { deger: 'HAYIR', etiket: 'Yok', sinif: 'bg-danger-soft text-danger border-danger-line' },
-  { deger: 'KAPSAM_DISI', etiket: 'Kapsam dışı', sinif: 'bg-canvas text-muted border-line' },
+/* Etiketler SONUC_ETIKET'ten gelir — "Var/Yok" değil "Sağlanıyor/Sağlanmıyor".
+   Gerekçe orada yazılı: madde bir varlık değil bir önerme; olumsuz kurulmuş
+   maddelerde "Var" tam tersini okutuyordu. */
+const SECENEKLER: { deger: Sonuc; sinif: string }[] = [
+  { deger: 'EVET', sinif: 'bg-accent-soft text-accent-ink border-accent/40' },
+  { deger: 'HAYIR', sinif: 'bg-danger-soft text-danger border-danger-line' },
+  { deger: 'KAPSAM_DISI', sinif: 'bg-canvas text-muted border-line' },
 ]
 
 function seviyeTonu(seviye: number | null): 'good' | 'warn' | 'bad' | 'neutral' {
@@ -286,7 +290,7 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
                                 }
                               >
                                 {aktif && <Check className="size-3" strokeWidth={3} />}
-                                {o.etiket}
+                                {SONUC_ETIKET[o.deger]}
                               </button>
                             )
                           })}
@@ -300,7 +304,10 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
 
             <p className="text-xs text-faint">
               Seviye {seciliSurec.kod} için otomatik hesaplanır: bir seviyeye ulaşmak için o
-              seviyenin ve altındakilerin tüm zorunlu atölye maddeleri &quot;Var&quot; olmalı.
+              seviyenin ve altındakilerin tüm zorunlu atölye maddeleri &quot;Sağlanıyor&quot;
+              olmalı. Her madde bir önermedir; olumsuz kurulmuş maddelerde de
+              &quot;Sağlanıyor&quot; o önermenin doğru olduğu anlamına gelir — örneğin
+              &quot;çocuk işçi çalıştırılmaz&quot; maddesinde çocuk işçi olmadığını.
               Cevapsız madde seviyeyi düşürür; &quot;Kapsam dışı&quot; maddeler hesaba katılmaz.
             </p>
           </div>

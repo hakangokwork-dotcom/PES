@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
 import { adayAtolyeler } from '@/lib/pes/aday-atolye'
 import { yerlestir } from '@/lib/pes/yerlestir-kaydet'
+import { asamaYapabilirMi } from '@/lib/pes/atolye-yetenek'
 
 /**
  * GET  /api/pes/work-orders/yerlestir?adet=10000&teslim=2026-12-31
@@ -32,7 +33,22 @@ export const GET = withTenantRoute(async (req, { sql }) => {
     bugun: bugun(),
     tedarikMudurlugu: u.searchParams.get('tedarik'),
   })
-  return NextResponse.json({ adaylar })
+
+  /* ?asama=UKP verilirse yalnız o aşamayı YAPABİLEN atölyeler döner —
+     dış atölye seçiminde kullanılıyor (K5: sistem eler, kullanıcı seçer).
+     Üretim tipi bilinmeyen atölye elenmez: emin olmadan aday listesinden
+     çıkarmak, kullanıcıya olmayan bir kesinlik göstermek olurdu. */
+  const asama = u.searchParams.get('asama')
+  if (!asama) return NextResponse.json({ adaylar })
+
+  const tipler = await sql`
+    SELECT workshop_id, uretim_tipi FROM workshop_profil`
+  const tipHarita = new Map(tipler.map(t => [Number(t.workshop_id), t.uretim_tipi as string | null]))
+
+  const suzulmus = adaylar.filter(a =>
+    asamaYapabilirMi(tipHarita.get(a.workshopId) ?? null, asama) !== false)
+
+  return NextResponse.json({ adaylar: suzulmus })
 })
 
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
@@ -64,6 +80,9 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
       workshopId: Number(b.workshopId),
       lineIds: b.lineIds.map(Number),
       asamaKodlari: b.asamaKodlari.map(String),
+      disAtolye: b.disAtolye && typeof b.disAtolye === 'object'
+        ? Object.fromEntries(Object.entries(b.disAtolye).map(([k, v]) => [k, Number(v)]))
+        : undefined,
     })
     return NextResponse.json(sonuc)
   } catch (err) {

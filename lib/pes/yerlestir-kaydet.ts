@@ -16,6 +16,9 @@ export type YerlestirIstek = {
   lineIds: number[]
   /** İşaretlenen zincir, ör. ['KESIM','DIKIM','YIKAMA','UKP','SEVK'] */
   asamaKodlari: string[]
+  /** Aşama kodu → o aşamayı yapacak DIŞ atölye (tasarım K4).
+      Verilmeyen aşama siparişin atölyesinde yapılır. */
+  disAtolye?: Record<string, number>
 }
 
 export type YerlestirSonuc = {
@@ -51,26 +54,50 @@ export async function yerlestir(
   })))
   const dikimGunu = asamaGunu(istek.adet, paylar.reduce((t, p) => t + p.gunlukHedef, 0))
 
-  // 2) Aşama tanımları + bu atölyenin aşama kapasiteleri
+  /* 2) Aşama tanımları + HER AŞAMANIN KENDİ ATÖLYESİNİN kapasitesi.
+     UKP dışarıda yapılıyorsa süre DIŞ atölyenin kapasitesinden çıkar;
+     sipariş atölyesininkine bakmak yanlış tarih üretirdi. */
+  const disAtolye = istek.disAtolye ?? {}
+  const asamaAtolyesi = (kod: string) => disAtolye[kod] ?? istek.workshopId
+
+  const disIdler = [...new Set(Object.values(disAtolye))]
+  if (disIdler.length > 0) {
+    const gecerli = await sql`
+      SELECT id FROM workshop WHERE id = ANY(${disIdler}) AND is_active`
+    if (gecerli.length !== disIdler.length) {
+      throw new Error('Seçilen dış atölyelerden biri bulunamadı veya pasif')
+    }
+  }
+
   const stageRows = await sql`
-    SELECT ps.id, ps.code, ps.sira_no, c.gunluk_kapasite
+    SELECT ps.id, ps.code, ps.sira_no
     FROM production_stage ps
-    LEFT JOIN workshop_stage_capacity c
-           ON c.stage_id = ps.id AND c.workshop_id = ${istek.workshopId}
     WHERE ps.code = ANY(${istek.asamaKodlari})
     ORDER BY ps.sira_no`
   if (stageRows.length !== istek.asamaKodlari.length) {
     throw new Error('Bilinmeyen aşama kodu var')
   }
 
-  const girdiler: AsamaGirdi[] = stageRows.map(r => ({
-    stageId: r.id as number,
-    kod: r.code as string,
-    siraNo: Number(r.sira_no),
-    gun: r.code === 'DIKIM'
-      ? dikimGunu
-      : asamaGunu(istek.adet, r.gunluk_kapasite === null ? null : Number(r.gunluk_kapasite)),
-  }))
+  const ilgiliAtolyeler = [...new Set([istek.workshopId, ...disIdler])]
+  const kapasiteSatirlari = await sql`
+    SELECT workshop_id, stage_id, gunluk_kapasite
+    FROM workshop_stage_capacity
+    WHERE workshop_id = ANY(${ilgiliAtolyeler})`
+  const kapasite = new Map(
+    kapasiteSatirlari.map(k => [`${k.workshop_id}:${k.stage_id}`, Number(k.gunluk_kapasite)]),
+  )
+
+  const girdiler: AsamaGirdi[] = stageRows.map(r => {
+    const kod = r.code as string
+    const stageId = r.id as number
+    const kap = kapasite.get(`${asamaAtolyesi(kod)}:${stageId}`) ?? null
+    return {
+      stageId,
+      kod,
+      siraNo: Number(r.sira_no),
+      gun: kod === 'DIKIM' ? dikimGunu : asamaGunu(istek.adet, kap),
+    }
+  })
 
   let plan = geriyePlanla(istek.teslimTarihi, girdiler, istek.bugun)
 
@@ -134,7 +161,8 @@ export async function yerlestir(
         tenant_id: tenantId,
         stage_id: p.stageId,
         sira_no: p.siraNo,
-        workshop_id: istek.workshopId,
+        /* Aşamanın KENDİ atölyesi: dış atölyeye çıkanlar için farklı (K4). */
+        workshop_id: asamaAtolyesi(p.kod),
         plan_baslangic: p.baslangic,
         plan_bitis: p.bitis,
         durum: 'Beklemede',

@@ -187,3 +187,65 @@ test('kapasite tanimliysa asama tarih alir, tanimsizsa almaz', async () => {
     await yonetici`DELETE FROM workshop_stage_capacity WHERE workshop_id = ${wsId}`
   }
 })
+
+test('dis atolyeye cikan asama o atolyeye yazilir', async () => {
+  const [disAtolye] = await yonetici`
+    SELECT id, code FROM workshop WHERE is_active AND id <> ${wsId} ORDER BY code LIMIT 1`
+  const disId = disAtolye.id as number
+
+  const sonuc = await tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+    siparisNo: 'ZZ-DIS', musteri: 'Test', modelAdi: 'M1',
+    adet: 1000, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    workshopId: wsId, lineIds: [lineIds[0]],
+    asamaKodlari: ['DIKIM', 'UKP'],
+    disAtolye: { UKP: disId },
+  }))
+
+  const asamalar = await tenantIcinde(sql => sql`
+    SELECT ps.code, s.workshop_id
+    FROM work_order_stage s JOIN production_stage ps ON ps.id = s.stage_id
+    WHERE s.work_order_id = ${sonuc.workOrderId} ORDER BY ps.sira_no`)
+
+  const dikim = asamalar.find(a => a.code === 'DIKIM')!
+  const ukp = asamalar.find(a => a.code === 'UKP')!
+  expect(Number(dikim.workshop_id)).toBe(wsId)
+  expect(Number(ukp.workshop_id)).toBe(disId)   // DIS atolye
+})
+
+test('dis atolyenin kapasitesi o asamanin suresini belirler', async () => {
+  /* UKP disarida yapiliyorsa sure DIS atolyenin kapasitesinden cikmali;
+     siparis atolyesinin kapasitesine bakmak yanlis tarih uretirdi. */
+  const [dis] = await yonetici`
+    SELECT id FROM workshop WHERE is_active AND id <> ${wsId} ORDER BY code LIMIT 1`
+  const disId = dis.id as number
+  const [ukpAsama] = await yonetici`SELECT id FROM production_stage WHERE code='UKP'`
+
+  await yonetici`
+    INSERT INTO workshop_stage_capacity ${yonetici({
+      workshop_id: disId, stage_id: ukpAsama.id as number,
+      tenant_id: defaultTenant, gunluk_kapasite: 500,
+    })}
+    ON CONFLICT (workshop_id, stage_id) DO UPDATE SET gunluk_kapasite = 500`
+
+  try {
+    const sonuc = await tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+      siparisNo: 'ZZ-DIS2', musteri: 'Test', modelAdi: 'M1',
+      adet: 1000, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+      workshopId: wsId, lineIds: [lineIds[0]],
+      asamaKodlari: ['DIKIM', 'UKP'],
+      disAtolye: { UKP: disId },
+    }))
+    // 1000 / 500 = 2 gun -> UKP tarih ALMALI, elleTarihGereken'de OLMAMALI
+    expect(sonuc.elleTarihGereken).not.toContain('UKP')
+
+    const [ukp] = await tenantIcinde(sql => sql`
+      SELECT s.plan_baslangic::text, s.plan_bitis::text
+      FROM work_order_stage s JOIN production_stage ps ON ps.id = s.stage_id
+      WHERE s.work_order_id = ${sonuc.workOrderId} AND ps.code = 'UKP'`)
+    expect(ukp.plan_baslangic).not.toBeNull()
+    expect(ukp.plan_bitis).toBe('2026-12-31')
+    expect(ukp.plan_baslangic).toBe('2026-12-30')   // 2 gun
+  } finally {
+    await yonetici`DELETE FROM workshop_stage_capacity WHERE workshop_id = ${disId}`
+  }
+})

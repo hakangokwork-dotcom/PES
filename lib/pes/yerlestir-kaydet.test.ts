@@ -149,3 +149,41 @@ test('ikinci siparis ayni bandi ayni gun kullanamaz', async () => {
   // İkinci sipariş geriye kaymış olmalı
   expect(b.kaydirilanGun).toBeGreaterThan(0)
 })
+
+test('kapasite tanimliysa asama tarih alir, tanimsizsa almaz', async () => {
+  /* Kapasite ekraninin asil isi bu: tanimsiz asama zincirde TARIHSIZ
+     kaliyor. Kesim'e kapasite verildiginde tarih uretilmeli, UKP
+     tanimsiz kaldigi icin uretilmemeli. */
+  const [kesim] = await yonetici`SELECT id FROM production_stage WHERE code='KESIM'`
+  await yonetici`
+    INSERT INTO workshop_stage_capacity ${yonetici({
+      workshop_id: wsId, stage_id: kesim.id as number,
+      tenant_id: defaultTenant, gunluk_kapasite: 2500,
+    })}
+    ON CONFLICT (workshop_id, stage_id) DO UPDATE SET gunluk_kapasite = 2500`
+
+  try {
+    const sonuc = await tenantIcinde(sql => yerlestir(sql, defaultTenant, {
+      siparisNo: 'ZZ-KAP', musteri: 'Test', modelAdi: 'M1',
+      adet: 10_000, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+      workshopId: wsId, lineIds, asamaKodlari: ['KESIM', 'DIKIM', 'UKP'],
+    }))
+
+    const asamalar = await tenantIcinde(sql => sql`
+      SELECT ps.code, s.plan_baslangic::text, s.plan_bitis::text
+      FROM work_order_stage s JOIN production_stage ps ON ps.id = s.stage_id
+      WHERE s.work_order_id = ${sonuc.workOrderId} ORDER BY ps.sira_no`)
+
+    const k = asamalar.find(a => a.code === 'KESIM')!
+    const u = asamalar.find(a => a.code === 'UKP')!
+
+    // 10.000 / 2500 = 4 gun
+    expect(k.plan_baslangic).not.toBeNull()
+    expect(k.plan_bitis).not.toBeNull()
+    expect(sonuc.elleTarihGereken).toContain('UKP')
+    expect(sonuc.elleTarihGereken).not.toContain('KESIM')
+    expect(u.plan_baslangic).toBeNull()
+  } finally {
+    await yonetici`DELETE FROM workshop_stage_capacity WHERE workshop_id = ${wsId}`
+  }
+})

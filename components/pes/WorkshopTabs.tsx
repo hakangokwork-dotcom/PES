@@ -6,6 +6,7 @@ import YetenekEditoru from '@/components/pes/YetenekEditoru'
 import AtolyeProfilSekmesi, {
   type ProfilKaydi, type DenetimKaydi,
 } from '@/components/pes/AtolyeProfilSekmesi'
+import AtolyeKapasiteSekmesi from '@/components/pes/AtolyeKapasiteSekmesi'
 
 type Account = {
   workshop_id: number
@@ -55,7 +56,7 @@ type Capability = {
 /* Yetenek editörü bant bazlı çalışır; sekme atölyenin bantlarını listeler. */
 type Line = { id: number; code: string; name: string }
 
-const TABS = ['Kimlik', 'Profil & Denetim', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
+const TABS = ['Kimlik', 'Profil & Denetim', 'Kapasite', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
 type Tab = (typeof TABS)[number]
 
 const KIND_LABELS: Record<string, string> = {
@@ -137,6 +138,7 @@ export default function WorkshopTabs({
             denetimler={denetimler}
           />
         )}
+        {tab === 'Kapasite' && <AtolyeKapasiteSekmesi workshopId={workshopId} />}
         {tab === 'Yetenek' && <YetenekTab capabilities={capabilities} lines={lines} />}
         {tab === 'İlişki' && (
           <IliskiTab workshopId={workshopId} account={account} contacts={contacts} shares={shares} />

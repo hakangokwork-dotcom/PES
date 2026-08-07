@@ -39,5 +39,13 @@ ekip.csv
 # doldurulup eslestirme_uygula.mjs ile tuketilir. Surumlenmesi anlamsiz.
 /atolye_eslestirme_incelemesi.xlsx
 
+# Olgunluk katalog taslagi: kaynak Excel'den uretilir, import_olgunluk_katalog.mjs
+# ile bir kez tuketilir. Ondan sonra katalogun tek kaynagi veritabani ve
+# /pes/olgunluk/katalog panelidir.
+/olgunluk_katalog_taslak.xlsx
+
+# Excel'in acik dosya kilitleri
+~$*.xlsx
+
 # Playwright ile alinan inceleme ekran goruntuleri (gecici)
 /*.png

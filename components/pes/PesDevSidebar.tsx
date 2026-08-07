@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Factory, ShieldCheck, CalendarDays, PackagePlus,
+  LayoutDashboard, Factory, ShieldCheck, CalendarDays, PackagePlus, Radar,
   Boxes, CircleCheck, CirclePause, RefreshCw, Users, Wallet, Upload,
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
   Shapes, Workflow, Waypoints, Calculator,
@@ -29,6 +29,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Dashboard',        href: '/pes',               icon: LayoutDashboard },
       { label: 'Atölyeler',        href: '/pes/workshops',     icon: Factory },
       { label: 'Profil & Denetim', href: '/pes/atolye-profil', icon: ShieldCheck },
+      { label: 'Olgunluk Durumu', href: '/pes/olgunluk',       icon: Radar },
       { label: 'Atölye Takvimleri', href: '/pes/takvim',       icon: CalendarDays },
       { label: 'Sipariş Yerleştir', href: '/pes/siparis-yerlestir', icon: PackagePlus },
     ],

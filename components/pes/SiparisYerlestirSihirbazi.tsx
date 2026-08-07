@@ -21,7 +21,7 @@ type Aday = {
 
 type Bant = { id: number; code: string; name: string; daily_target: number | null }
 
-const ADIMLAR = ['Sipariş', 'Aşamalar', 'Atölye', 'Bantlar', 'Özet'] as const
+const ADIMLAR = ['Sipariş', 'Aşamalar', 'Atölye', 'Bantlar', 'Dış atölye', 'Özet'] as const
 
 export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: AsamaSecenegi[] }) {
   const router = useRouter()
@@ -49,6 +49,11 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
   // 4. adım — bantId -> adet
   const [bantlar, setBantlar] = useState<Bant[]>([])
   const [dagilim, setDagilim] = useState<Record<number, number>>({})
+
+  // 5. adım — aşama kodu -> dış atölye id
+  const [disariCikanlar, setDisariCikanlar] = useState<string[]>([])
+  const [disAdaylar, setDisAdaylar] = useState<Record<string, Aday[]>>({})
+  const [disAtolye, setDisAtolye] = useState<Record<string, number>>({})
 
   const adetSayi = Number(adet) || 0
   const dagilimToplam = Object.values(dagilim).reduce((t, v) => t + (Number(v) || 0), 0)
@@ -98,8 +103,33 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
     } catch { toast.error('Bant listesi alınamadı'); return false } finally { setBekliyor(false) }
   }
 
+  /* Seçilen atölye zincirdeki hangi aşamaları yapamıyor? Yapamadığı
+     her aşama için o aşamayı yapabilen atölyeler ayrıca çekilir. */
+  async function disAtolyeKontrolu() {
+    if (!secilenAtolye) return true
+    setBekliyor(true)
+    try {
+      const r = await fetch(
+        `/api/pes/workshops/${secilenAtolye.workshopId}/yetenek?asamalar=${secilenAsamalar.join(',')}`)
+      const d = await r.json()
+      const cikanlar: string[] = d.disariCikanlar ?? []
+      setDisariCikanlar(cikanlar)
+
+      const harita: Record<string, Aday[]> = {}
+      for (const kod of cikanlar) {
+        const ar = await fetch(
+          `/api/pes/work-orders/yerlestir?adet=${adetSayi}&teslim=${teslimTarihi}&asama=${kod}`)
+        const ad = await ar.json()
+        harita[kod] = ad.adaylar ?? []
+      }
+      setDisAdaylar(harita)
+      return true
+    } catch { toast.error('Yetenek kontrolü yapılamadı'); return false } finally { setBekliyor(false) }
+  }
+
   async function ileri() {
     if (adim === 1) { if (await adaylariGetir()) setAdim(2); return }
+    if (adim === 3) { if (await disAtolyeKontrolu()) setAdim(4); return }
     setAdim(a => Math.min(a + 1, ADIMLAR.length - 1))
   }
 
@@ -121,6 +151,7 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
           workshopId: secilenAtolye!.workshopId,
           lineIds: Object.entries(dagilim).filter(([, v]) => Number(v) > 0).map(([k]) => Number(k)),
           asamaKodlari: secilenAsamalar,
+          disAtolye,
         }),
       })
       const d = await r.json()
@@ -299,6 +330,56 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
         )}
 
         {adim === 4 && secilenAtolye && (
+          <div>
+            {disariCikanlar.length === 0 ? (
+              <p className="text-[13px] text-muted">
+                <strong className="text-ink">{secilenAtolye.kod}</strong> seçilen zincirin
+                tamamını yapabiliyor — dışarı çıkacak aşama yok.
+                {' '}Atölyenin üretim tipi bilinmiyorsa da burası boş görünür; sistem emin
+                olmadan dış atölye seçmeye zorlamaz.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <p className="text-[13px] text-muted">
+                  <strong className="text-ink">{secilenAtolye.kod}</strong> şu aşamaları
+                  yapamıyor. Her biri için yapabilen bir atölye seçin.
+                </p>
+                {disariCikanlar.map(kod => {
+                  const ad = asamalar.find(a => a.code === kod)?.name ?? kod
+                  const secili = disAtolye[kod]
+                  return (
+                    <div key={kod} className="rounded-lg border border-line-soft p-3">
+                      <p className="mb-2 text-[13px] font-medium text-ink">{ad}</p>
+                      <div className="max-h-48 overflow-y-auto rounded-md border border-line-soft">
+                        {(disAdaylar[kod] ?? []).slice(0, 25).map(a => (
+                          <button
+                            key={a.workshopId}
+                            onClick={() => setDisAtolye(d => ({ ...d, [kod]: a.workshopId }))}
+                            className={cn(
+                              'flex w-full items-center gap-3 border-b border-line-soft px-3 py-2 text-left text-[13px] last:border-0',
+                              secili === a.workshopId ? 'bg-accent-soft text-ink' : 'hover:bg-canvas',
+                            )}
+                          >
+                            <span className="w-8 shrink-0 text-right tabular-nums text-faint">{a.puan}</span>
+                            <span className="min-w-0 flex-1 truncate">{a.kod} · {a.ad}</span>
+                            {secili === a.workshopId && <Check className="size-4 shrink-0 text-accent" strokeWidth={2.5} />}
+                          </button>
+                        ))}
+                        {(disAdaylar[kod] ?? []).length === 0 && (
+                          <p className="px-3 py-4 text-center text-[13px] text-faint">
+                            Bu aşamayı yapabilen atölye bulunamadı.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {adim === 5 && secilenAtolye && (
           <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
             {[
               ['Sipariş', `${siparisNo}${musteri ? ` · ${musteri}` : ''}`],
@@ -308,6 +389,11 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
               ['Atölye', `${secilenAtolye.kod} · ${secilenAtolye.ad}`],
               ['Bant', `${secilenBantSayisi} bant`],
               ['Zincir', secilenAsamaAdlari.join(' → ')],
+              ...(disariCikanlar.length > 0
+                ? [['Dış atölye', disariCikanlar.map(k =>
+                    `${k}: ${disAdaylar[k]?.find(a => a.workshopId === disAtolye[k])?.kod ?? 'seçilmedi'}`
+                  ).join(' · ')] as [string, string]]
+                : []),
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between gap-3 border-b border-line-soft py-1.5 text-[13px]">
                 <dt className="text-faint">{k}</dt>
@@ -329,7 +415,7 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
           <ArrowLeft className="size-4" strokeWidth={1.8} /> Geri
         </Button>
 
-        {adim < 4 ? (
+        {adim < 5 ? (
           <Button
             variant="primary"
             onClick={ileri}
@@ -338,7 +424,8 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
               (adim === 0 && !adim1Gecerli) ||
               (adim === 1 && !adim2Gecerli) ||
               (adim === 2) ||               /* atölye satıra tıklanarak seçilir */
-              (adim === 3 && !adim4Gecerli)
+              (adim === 3 && !adim4Gecerli) ||
+              (adim === 4 && disariCikanlar.some(k => !disAtolye[k]))
             }
           >
             İleri <ArrowRight className="size-4" strokeWidth={1.8} />

@@ -43,6 +43,49 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   if (!kaynak) return NextResponse.json({ error: 'Şablon bulunamadı' }, { status: 404 })
 
   try {
+    /* Tek tıkla düzenlemeye geçiş.
+       Yayındaki sürüm kilitli (031) ve öyle kalmalı — tamamlanmış denetimler
+       o soruları kullanıyor. Ama kullanıcı katalogu CANLI yazıyor; her
+       seferinde "kod gir, ad gir, klonla" akışı yazımı kesiyordu. Bu işlem
+       sürüm kodunu kendi üretir ve zaten açık bir taslak kopya varsa yenisini
+       açmak yerine ona götürür. */
+    if (islem === 'duzenlemeyeBasla') {
+      if (kaynak.durum === 'taslak') {
+        return NextResponse.json({ sablon_id: kaynak.id, zaten_taslak: true })
+      }
+
+      const [mevcutTaslak] = await sql`
+        SELECT id, kod FROM olgunluk_sablon
+         WHERE tenant_id = ${tenant.tenantId} AND durum = 'taslak' AND klon_kaynak_id = ${kaynak.id}
+         ORDER BY id DESC LIMIT 1`
+      if (mevcutTaslak) {
+        return NextResponse.json({ sablon_id: mevcutTaslak.id, mevcut_kod: mevcutTaslak.kod })
+      }
+
+      // v4 -> v5. Sayı ile bitmiyorsa "-taslak" eklenir ve çakışırsa artar.
+      const kodlar = (await sql`
+        SELECT kod FROM olgunluk_sablon WHERE tenant_id = ${tenant.tenantId}`)
+        .map((r) => String(r.kod))
+      const m = /^(.*?)(\d+)$/.exec(String(kaynak.kod))
+      let yeniKod: string
+      if (m) {
+        let n = parseInt(m[2]) + 1
+        while (kodlar.includes(`${m[1]}${n}`)) n++
+        yeniKod = `${m[1]}${n}`
+      } else {
+        let n = 2
+        yeniKod = `${kaynak.kod}-taslak`
+        while (kodlar.includes(yeniKod)) { yeniKod = `${kaynak.kod}-taslak${n}`; n++ }
+      }
+
+      const yeniId = await sablonKlonla(sql, {
+        kaynakId: kaynak.id as number,
+        tenantId: tenant.tenantId,
+        kod: yeniKod,
+      })
+      return NextResponse.json({ sablon_id: yeniId, yeni_kod: yeniKod })
+    }
+
     if (islem === 'klonla') {
       const kod = String(body.kod ?? '').trim()
       if (!kod) return NextResponse.json({ error: 'Yeni sürüm kodu gerekli' }, { status: 400 })

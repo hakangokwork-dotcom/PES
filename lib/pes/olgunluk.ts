@@ -67,6 +67,52 @@ export interface Kriter {
   aktif: boolean
   /** Kaç denetimde cevaplanmış. >0 ise silinemez, yalnız pasife alınır. */
   cevap_adedi: number
+  /** Kaç kez düzenlenmiş (032 revizyon geçmişi). 0 ise geçmiş bağlantısı gösterilmez. */
+  revizyon_adedi: number
+}
+
+/** Bir katalog satırının önceki hali (032). */
+export interface Revizyon {
+  id: number
+  tur: 'kategori' | 'surec' | 'kriter'
+  kayit_id: number
+  degisen: string[]
+  onceki: Record<string, unknown>
+  kayit_at: string
+  kaydeden_eposta: string | null
+}
+
+export const REVIZYON_ALAN_ETIKET: Record<string, string> = {
+  kod: 'Kod',
+  ad: 'Ad',
+  metin: 'Madde metni',
+  taraf: 'Taraf',
+  zorunlu: 'Zorunluluk',
+  aktif: 'Aktiflik',
+  seviye: 'Seviye',
+  agirlik: 'Ağırlık',
+  kategori_id: 'Kategori',
+  not_metni: 'Not',
+}
+
+/** Tek bir satırın geçmişi, en yeniden eskiye. */
+export async function revizyonlar(
+  sql: postgres.TransactionSql,
+  tur: Revizyon['tur'],
+  kayitId: number
+): Promise<Revizyon[]> {
+  /* auth.users'a JOIN YOK — uygulama pes_app rolüyle bağlanıyor ve o rolün
+     auth şemasında yetkisi yok ("permission denied for schema auth").
+     E-posta 032b ile yazma anında kopyalanıyor. */
+  const rows = await sql`
+    SELECT r.id, r.tur, r.kayit_id, r.degisen, r.onceki,
+           r.kayit_at::text AS kayit_at,
+           r.kaydeden_eposta
+      FROM olgunluk_revizyon r
+     WHERE r.tur = ${tur} AND r.kayit_id = ${kayitId}
+     ORDER BY r.kayit_at DESC, r.id DESC
+     LIMIT 50`
+  return rows as unknown as Revizyon[]
 }
 
 export interface Katalog {
@@ -135,7 +181,9 @@ export async function katalog(
   const kriterler = await sql`
     SELECT k.id, k.surec_id, k.seviye, k.sira, k.metin, k.taraf, k.zorunlu, k.aktif,
            (SELECT count(*)::int FROM olgunluk_denetim_kriter dk
-             WHERE dk.kriter_id = k.id) AS cevap_adedi
+             WHERE dk.kriter_id = k.id) AS cevap_adedi,
+           (SELECT count(*)::int FROM olgunluk_revizyon r
+             WHERE r.tur = 'kriter' AND r.kayit_id = k.id) AS revizyon_adedi
       FROM olgunluk_kriter k
      WHERE k.sablon_id = ${sablonId}
      ORDER BY k.seviye, k.sira, k.id`

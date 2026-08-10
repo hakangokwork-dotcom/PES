@@ -28,12 +28,17 @@ export function katalogYetkisi(rol: string): NextResponse | null {
 export async function taslakSablon(
   sql: postgres.TransactionSql,
   sablonId: number,
-  rol: string
+  tenant: { role: string; userId: string; userEmail: string | null }
 ): Promise<{ hata: NextResponse } | { sablonId: number }> {
   // Rol kontrolü BURADA: her katalog yazma yolu zaten bu kapıdan geçiyor,
   // dolayısıyla yeni bir uç eklendiğinde kontrolü unutmak mümkün değil.
-  const yetkiHatasi = katalogYetkisi(rol)
+  const yetkiHatasi = katalogYetkisi(tenant.role)
   if (yetkiHatasi) return { hata: yetkiHatasi }
+
+  // 032/032b revizyon trigger'ı "kim değiştirdi"yi bu ayarlardan okur.
+  // Aynı yerde olması şart: kontrolle birlikte geçilen tek kapı burası.
+  await sql`SELECT set_config('app.current_user_id', ${tenant.userId}, true)`
+  await sql`SELECT set_config('app.current_user_email', ${tenant.userEmail ?? ''}, true)`
 
   if (!Number.isInteger(sablonId)) {
     return { hata: NextResponse.json({ error: 'Geçersiz şablon' }, { status: 400 }) }

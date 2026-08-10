@@ -9,6 +9,9 @@ const TENANT_HEADER = 'x-tenant-id'
 export type TenantContext = {
   tenantId: string
   userId: string
+  /** Denetim/geçmiş kayıtlarında "kim yaptı" yazabilmek için. pes_app rolü
+      auth şemasını okuyamaz, dolayısıyla e-posta sonradan join'lenemez. */
+  userEmail: string | null
   role: 'owner' | 'admin' | 'editor' | 'viewer'
   tenantType: 'individual' | 'parent' | 'internal'
   isInternalAdmin: boolean
@@ -61,6 +64,7 @@ export async function getTenantContext(req?: NextRequest | null): Promise<Tenant
   return {
     tenantId: tenant_id,
     userId: user.id,
+    userEmail: user.email ?? null,
     role,
     tenantType: tenant_type,
     isInternalAdmin: tenant_type === 'internal' && (role === 'owner' || role === 'admin'),

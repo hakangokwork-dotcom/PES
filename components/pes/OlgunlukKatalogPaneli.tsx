@@ -1,12 +1,14 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronUp, ChevronDown, Plus, Trash2, Copy, Send, EyeOff, Eye } from 'lucide-react'
+import {
+  ChevronUp, ChevronDown, Plus, Trash2, Copy, Send, EyeOff, Eye, PencilLine, History,
+} from 'lucide-react'
 import { Button, Field, Input, Select, Badge, Card, CardHeader, CardBody, useToast } from '@/components/ui'
 import {
-  SEVIYE_ETIKET, SABLON_DURUM_ETIKET, duzenlenebilir,
-  type Katalog, type Sablon, type Surec, type Kriter,
+  SEVIYE_ETIKET, SABLON_DURUM_ETIKET, REVIZYON_ALAN_ETIKET, duzenlenebilir,
+  type Katalog, type Sablon, type Surec, type Kriter, type Revizyon,
 } from '@/lib/pes/olgunluk'
 
 /* PANELİN TEK KURALI: yalnız TASLAK sürüm düzenlenir.
@@ -92,6 +94,28 @@ export default function OlgunlukKatalogPaneli({
       router.push(`/pes/olgunluk/katalog?sablon=${j.sablon_id}`)
       router.refresh()
       return true
+    } finally {
+      setBekliyor(false)
+    }
+  }
+
+  /* Kilitli sürümden düzenlemeye tek tıkla geçiş: kod üretimi ve zaten
+     açık bir taslak varsa ona yönlendirme sunucuda (bkz. sablon route). */
+  async function duzenlemeyeBasla() {
+    setBekliyor(true)
+    try {
+      const r = await fetch('/api/pes/olgunluk/sablon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ islem: 'duzenlemeyeBasla', sablon_id: veri.sablon.id }),
+      })
+      const j = await r.json().catch(() => ({}))
+      if (!r.ok) { toast.error(j.error ?? 'Taslak açılamadı'); return }
+      toast.success(j.mevcut_kod
+        ? `Açık taslağa geçildi: ${j.mevcut_kod}`
+        : `${j.yeni_kod} taslağı oluşturuldu`)
+      router.push(`/pes/olgunluk/katalog?sablon=${j.sablon_id}`)
+      router.refresh()
     } finally {
       setBekliyor(false)
     }
@@ -271,15 +295,20 @@ export default function OlgunlukKatalogPaneli({
       )}
 
       {yetkili && !duzenlenebilir(veri.sablon) && (
-        <p className="rounded-lg border border-line-soft bg-canvas px-4 py-3 text-[13px] text-muted">
-          Bu sürüm {veri.sablon.durum === 'yayinda' ? 'yayında' : 'arşivde'} ve salt okunur.
-          {veri.sablon.tamamlanan_adedi > 0
-            ? ` ${veri.sablon.tamamlanan_adedi} tamamlanmış denetim bu soruları kullanıyor;
-                metni değiştirmek o denetimlerin puanını açıklanamaz hale getirirdi.`
-            : ' Denetimler bu sürüme açılıyor.'}
-          {' '}Düzenlemek için <strong>Yeni versiyon</strong> ile kopyalayın: eski denetimler
-          kendi sorularıyla kalır, düzenleme kopyada yapılır.
-        </p>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line-soft bg-canvas px-4 py-3">
+          <p className="min-w-[280px] flex-1 text-[13px] text-muted">
+            Bu sürüm {veri.sablon.durum === 'yayinda' ? 'yayında' : 'arşivde'} ve salt okunur.
+            {veri.sablon.tamamlanan_adedi > 0
+              ? ` ${veri.sablon.tamamlanan_adedi} tamamlanmış denetim bu soruları kullanıyor;
+                  metni değiştirmek o denetimlerin puanını açıklanamaz hale getirirdi.`
+              : ' Denetimler bu sürüme açılıyor.'}
+            {' '}Düzenleme, sürümün bir kopyasında yapılır — eski denetimler kendi sorularıyla kalır.
+          </p>
+          <Button size="sm" icon={<PencilLine className="size-3.5" />}
+                  onClick={duzenlemeyeBasla} loading={bekliyor}>
+            Düzenlemeye başla
+          </Button>
+        </div>
       )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr] items-start">
@@ -292,9 +321,20 @@ export default function OlgunlukKatalogPaneli({
               return (
                 <div key={kat.id}>
                   <div className="flex items-center gap-2 px-1 pb-1.5">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-faint">
-                      {kat.kod} · {kat.ad}
-                    </span>
+                    {acik ? (
+                      <KategoriBasligi
+                        kategori={kat}
+                        bekliyor={bekliyor}
+                        onKaydet={async (ad) => {
+                          if (await istek('/api/pes/olgunluk/kategori', 'PATCH',
+                            { id: kat.id, ad }, 'Kategori adı kaydedildi')) await yenile()
+                        }}
+                      />
+                    ) : (
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-faint">
+                        {kat.kod} · {kat.ad}
+                      </span>
+                    )}
                     <span className="num text-[11px] text-faint">{ici.length}</span>
                     {acik && (
                       <button
@@ -552,6 +592,14 @@ function SurecDetay({
                       onClick={() => onKaydet({ kod, ad, kategori_id: kategoriId, agirlik })}>
                 Kaydet
               </Button>
+              {degisti && (
+                <Button size="sm" variant="ghost" onClick={() => {
+                  setKod(surec.kod); setAd(surec.ad)
+                  setKategoriId(surec.kategori_id); setAgirlik(surec.agirlik)
+                }}>
+                  Yoksay
+                </Button>
+              )}
               <Button size="sm" variant="secondary" loading={bekliyor}
                       icon={surec.aktif ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                       onClick={() => onKaydet({ aktif: !surec.aktif })}>
@@ -618,6 +666,13 @@ function SurecDetay({
 
 /* ---------------------------------------------------------------- */
 
+/* MADDE SATIRI — canlı yazım için.
+
+   Eskiden metin bir textarea'ydı ve odak çıkınca sessizce kaydediliyordu.
+   Katalogu canlı yazarken bu yanlış: yarım yazılmış bir cümle yanlışlıkla
+   başka yere tıklayınca kaydediliyordu ve "kaydettim mi" belirsizdi.
+   Artık düzenleme açık bir kip: Kaydet ya da Yoksay. Yoksay orijinali
+   geri getirir, sunucuya hiçbir şey gitmez. */
 function KriterSatiri({
   kriter, acik, ilk, son, onTasi, onYaz, onSil,
 }: {
@@ -630,78 +685,252 @@ function KriterSatiri({
   onSil: () => void
 }) {
   const marka = kriter.taraf === 'MARKA'
+  const [duzenle, setDuzenle] = useState(false)
+  const [metin, setMetin] = useState(kriter.metin)
+  const [gecmisAcik, setGecmisAcik] = useState(false)
+
+  const degisti = metin.trim() !== kriter.metin && metin.trim().length > 0
+
+  function yoksay() {
+    setMetin(kriter.metin)
+    setDuzenle(false)
+  }
+  async function kaydet() {
+    if (!degisti) { setDuzenle(false); return }
+    await onYaz({ metin: metin.trim() }, 'Madde kaydedildi')
+    setDuzenle(false)
+  }
+
   return (
     <div className={
-      'flex items-start gap-2 rounded border border-line-soft px-2 py-1.5 ' +
+      'rounded border border-line-soft px-2 py-1.5 ' +
       (kriter.aktif ? 'bg-surface' : 'bg-canvas')
     }>
-      {acik && (
-        <span className="flex shrink-0 flex-col pt-0.5">
-          <button onClick={() => onTasi(-1)} disabled={ilk}
-                  className="text-faint hover:text-ink disabled:opacity-30" title="Yukarı">
-            <ChevronUp className="size-3.5" />
-          </button>
-          <button onClick={() => onTasi(1)} disabled={son}
-                  className="text-faint hover:text-ink disabled:opacity-30" title="Aşağı">
-            <ChevronDown className="size-3.5" />
-          </button>
-        </span>
-      )}
-
-      <textarea
-        defaultValue={kriter.metin}
-        readOnly={!acik}
-        rows={Math.min(4, Math.ceil(kriter.metin.length / 78) || 1)}
-        onBlur={(e) => {
-          const v = e.target.value.trim()
-          if (acik && v && v !== kriter.metin) onYaz({ metin: v }, 'Madde güncellendi')
-        }}
-        className={
-          'min-w-0 flex-1 resize-y rounded border-0 bg-transparent px-1 py-0.5 text-[13px] leading-snug outline-none ' +
-          'focus:bg-canvas ' + (kriter.aktif ? 'text-ink' : 'text-faint line-through')
-        }
-      />
-
-      <div className="flex shrink-0 items-center gap-1.5">
-        {/* Marka maddeleri atölye puanına girmez — kaynak metinlerdeki "X" öneki. */}
-        <button
-          disabled={!acik}
-          onClick={() => onYaz({ taraf: marka ? 'ATOLYE' : 'MARKA' })}
-          title={marka
-            ? 'Marka/tedarik sorumluluğu — atölye puanına girmez'
-            : 'Atölye sorumluluğu — puana girer'}
-          className="disabled:pointer-events-none"
-        >
-          <Badge tone="neutral">{marka ? 'MARKA' : 'ATÖLYE'}</Badge>
-        </button>
-
-        {!kriter.zorunlu && (
-          <button disabled={!acik} onClick={() => onYaz({ zorunlu: true })}
-                  title="Bilgi amaçlı — seviyeyi bloklamaz" className="disabled:pointer-events-none">
-            <Badge tone="neutral">BİLGİ</Badge>
-          </button>
-        )}
-
+      <div className="flex items-start gap-2">
         {acik && (
-          <>
-            {kriter.zorunlu && (
-              <button onClick={() => onYaz({ zorunlu: false })}
-                      className="text-[11px] text-faint hover:text-ink" title="Bilgi amaçlı yap">
-                zorunlu
-              </button>
-            )}
-            <button onClick={() => onYaz({ aktif: !kriter.aktif })}
-                    className="text-faint hover:text-ink"
-                    title={kriter.aktif ? 'Pasife al' : 'Aktife al'}>
-              {kriter.aktif ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+          <span className="flex shrink-0 flex-col pt-0.5">
+            <button onClick={() => onTasi(-1)} disabled={ilk}
+                    className="text-faint hover:text-ink disabled:opacity-30" title="Yukarı">
+              <ChevronUp className="size-3.5" />
             </button>
-            <button onClick={onSil} className="text-faint hover:text-danger"
-                    title={kriter.cevap_adedi > 0 ? 'Cevaplanmış — silinemez' : 'Sil'}>
-              <Trash2 className="size-3.5" />
+            <button onClick={() => onTasi(1)} disabled={son}
+                    className="text-faint hover:text-ink disabled:opacity-30" title="Aşağı">
+              <ChevronDown className="size-3.5" />
             </button>
-          </>
+          </span>
         )}
+
+        {duzenle ? (
+          <div className="min-w-0 flex-1">
+            <textarea
+              autoFocus
+              value={metin}
+              onChange={(e) => setMetin(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') { e.preventDefault(); yoksay() }
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); void kaydet() }
+              }}
+              rows={Math.min(6, Math.ceil(metin.length / 78) + 1)}
+              className="w-full resize-y rounded-md border border-line bg-surface px-2 py-1.5 text-[13px] leading-snug text-ink outline-none focus:border-accent focus:ring-3 focus:ring-accent/15"
+            />
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <Button size="sm" onClick={kaydet} disabled={!degisti}>Kaydet</Button>
+              <Button size="sm" variant="ghost" onClick={yoksay}>Yoksay</Button>
+              <span className="ml-1 text-[11px] text-faint">Ctrl+Enter kaydeder · Esc vazgeçer</span>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => acik && setDuzenle(true)}
+            disabled={!acik}
+            title={acik ? 'Düzenlemek için tıklayın' : undefined}
+            className={
+              'min-w-0 flex-1 rounded px-1 py-0.5 text-left text-[13px] leading-snug ' +
+              (acik ? 'hover:bg-canvas cursor-text ' : 'cursor-default ') +
+              (kriter.aktif ? 'text-ink' : 'text-faint line-through')
+            }
+          >
+            {kriter.metin}
+          </button>
+        )}
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          {/* Marka maddeleri atölye puanına girmez — kaynak metinlerdeki "X" öneki. */}
+          <button
+            disabled={!acik}
+            onClick={() => onYaz({ taraf: marka ? 'ATOLYE' : 'MARKA' })}
+            title={marka
+              ? 'Marka/tedarik sorumluluğu — atölye puanına girmez'
+              : 'Atölye sorumluluğu — puana girer'}
+            className="disabled:pointer-events-none"
+          >
+            <Badge tone="neutral">{marka ? 'MARKA' : 'ATÖLYE'}</Badge>
+          </button>
+
+          {!kriter.zorunlu && (
+            <button disabled={!acik} onClick={() => onYaz({ zorunlu: true })}
+                    title="Bilgi amaçlı — seviyeyi bloklamaz" className="disabled:pointer-events-none">
+              <Badge tone="neutral">BİLGİ</Badge>
+            </button>
+          )}
+
+          {acik && (
+            <>
+              {kriter.zorunlu && (
+                <button onClick={() => onYaz({ zorunlu: false })}
+                        className="text-[11px] text-faint hover:text-ink" title="Bilgi amaçlı yap">
+                  zorunlu
+                </button>
+              )}
+              <button onClick={() => onYaz({ aktif: !kriter.aktif })}
+                      className="text-faint hover:text-ink"
+                      title={kriter.aktif ? 'Pasife al' : 'Aktife al'}>
+                {kriter.aktif ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+              </button>
+              <button onClick={onSil} className="text-faint hover:text-danger"
+                      title={kriter.cevap_adedi > 0 ? 'Cevaplanmış — silinemez' : 'Sil'}>
+                <Trash2 className="size-3.5" />
+              </button>
+            </>
+          )}
+        </div>
       </div>
+
+      {kriter.revizyon_adedi > 0 && (
+        <div className="pl-1 pt-1">
+          <button onClick={() => setGecmisAcik((v) => !v)}
+                  className="inline-flex items-center gap-1 text-[11px] text-faint hover:text-ink">
+            <History className="size-3" />
+            {kriter.revizyon_adedi} düzenleme
+          </button>
+          {gecmisAcik && (
+            <Gecmis tur="kriter" kayitId={kriter.id}
+                    onGeriGetir={acik ? (m) => { setMetin(m); setDuzenle(true) } : undefined} />
+          )}
+        </div>
+      )}
     </div>
   )
+}
+
+/** Kategori adı — tıkla, düzenle, Kaydet/Yoksay. Kod değişmez: süreçlerin
+    ve ısı haritası kolonlarının bağlandığı anahtar odur. */
+function KategoriBasligi({
+  kategori, bekliyor, onKaydet,
+}: {
+  kategori: { id: number; kod: string; ad: string }
+  bekliyor: boolean
+  onKaydet: (ad: string) => Promise<void>
+}) {
+  const [duzenle, setDuzenle] = useState(false)
+  const [ad, setAd] = useState(kategori.ad)
+  const degisti = ad.trim() !== kategori.ad && ad.trim().length > 0
+
+  if (!duzenle) {
+    return (
+      <button
+        onClick={() => { setAd(kategori.ad); setDuzenle(true) }}
+        title="Kategori adını düzenle"
+        className="rounded px-0.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-faint hover:bg-canvas hover:text-ink"
+      >
+        {kategori.kod} · {kategori.ad}
+      </button>
+    )
+  }
+
+  return (
+    <span className="flex min-w-0 flex-1 items-center gap-1">
+      <span className="num shrink-0 text-[11px] text-faint">{kategori.kod}</span>
+      <input
+        autoFocus
+        value={ad}
+        onChange={(e) => setAd(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') setDuzenle(false)
+          if (e.key === 'Enter' && degisti) {
+            void onKaydet(ad.trim()).then(() => setDuzenle(false))
+          }
+        }}
+        className="min-w-0 flex-1 rounded border border-line bg-surface px-1.5 py-0.5 text-[12px] text-ink outline-none focus:border-accent"
+      />
+      <button disabled={!degisti || bekliyor}
+              onClick={() => onKaydet(ad.trim()).then(() => setDuzenle(false))}
+              className="shrink-0 text-[11px] text-accent-ink hover:underline disabled:opacity-40">
+        Kaydet
+      </button>
+      <button onClick={() => setDuzenle(false)}
+              className="shrink-0 text-[11px] text-faint hover:text-ink">
+        Yoksay
+      </button>
+    </span>
+  )
+}
+
+/* ----------------------------------------------------------------
+   GEÇMİŞ — salt okunur.
+   "Geri getir" eski metni FORMA doldurur, doğrudan kaydetmez: sessiz bir
+   geri yazma, araya girmiş başka bir düzenlemeyi habersiz ezerdi. Kullanıcı
+   görür, isterse Kaydet'e basar.
+   ---------------------------------------------------------------- */
+function Gecmis({
+  tur, kayitId, onGeriGetir,
+}: {
+  tur: 'kategori' | 'surec' | 'kriter'
+  kayitId: number
+  onGeriGetir?: (metin: string) => void
+}) {
+  const [kayitlar, setKayitlar] = useState<Revizyon[] | null>(null)
+
+  useEffect(() => {
+    let iptal = false
+    fetch(`/api/pes/olgunluk/revizyon?tur=${tur}&id=${kayitId}`)
+      .then((r) => r.json())
+      .then((j) => { if (!iptal) setKayitlar(j.revizyonlar ?? []) })
+      .catch(() => { if (!iptal) setKayitlar([]) })
+    return () => { iptal = true }
+  }, [tur, kayitId])
+
+  if (kayitlar === null) {
+    return <p className="py-1 text-[11px] text-faint">yükleniyor…</p>
+  }
+  if (kayitlar.length === 0) {
+    return <p className="py-1 text-[11px] text-faint">Kayıt yok.</p>
+  }
+
+  return (
+    <ul className="mt-1 space-y-1 border-l-2 border-line-soft pl-2.5">
+      {kayitlar.map((r) => {
+        const eskiMetin = typeof r.onceki.metin === 'string' ? r.onceki.metin : null
+        const eskiAd = typeof r.onceki.ad === 'string' ? r.onceki.ad : null
+        const gosterilecek = eskiMetin ?? eskiAd
+        return (
+          <li key={r.id} className="text-[11px] leading-snug">
+            <div className="flex flex-wrap items-center gap-x-2 text-faint">
+              <span className="num">{zamanTR(r.kayit_at)}</span>
+              <span>{r.degisen.map((a) => REVIZYON_ALAN_ETIKET[a] ?? a).join(', ')} değişti</span>
+              {r.kaydeden_eposta && <span>· {r.kaydeden_eposta}</span>}
+            </div>
+            {gosterilecek && (
+              <div className="flex items-start gap-2">
+                <span className="min-w-0 flex-1 text-muted line-through">{gosterilecek}</span>
+                {onGeriGetir && eskiMetin && (
+                  <button onClick={() => onGeriGetir(eskiMetin)}
+                          className="shrink-0 text-accent-ink hover:underline"
+                          title="Eski metni forma doldurur; kaydetmek sana kalır">
+                    geri getir
+                  </button>
+                )}
+              </div>
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function zamanTR(s: string) {
+  const [tarih, saat] = s.split(/[ T]/)
+  const [y, a, g] = (tarih ?? '').split('-')
+  return `${g}.${a}.${y} ${(saat ?? '').slice(0, 5)}`
 }

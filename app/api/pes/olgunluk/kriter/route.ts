@@ -25,7 +25,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   }
   const [surec] = await sql`SELECT id, sablon_id FROM olgunluk_surec WHERE id = ${surecId}`
   if (!surec) return NextResponse.json({ error: 'Süreç bulunamadı' }, { status: 404 })
-  const g = await taslakSablon(sql, surec.sablon_id as number, tenant.role)
+  const g = await taslakSablon(sql, surec.sablon_id as number, tenant)
   if ('hata' in g) return g.hata
 
   const seviye = Number(body.seviye)
@@ -63,7 +63,7 @@ export const PATCH = withTenantRoute(async (req, { sql, tenant }) => {
 
   const [mevcut] = await sql`SELECT sablon_id, surec_id FROM olgunluk_kriter WHERE id = ${id}`
   if (!mevcut) return NextResponse.json({ error: 'Madde bulunamadı' }, { status: 404 })
-  const g = await taslakSablon(sql, mevcut.sablon_id as number, tenant.role)
+  const g = await taslakSablon(sql, mevcut.sablon_id as number, tenant)
   if ('hata' in g) return g.hata
 
   const alanlar: Record<string, string | number | boolean> = {}
@@ -116,7 +116,7 @@ export const PUT = withTenantRoute(async (req, { sql, tenant }) => {
   }
   const [surec] = await sql`SELECT sablon_id FROM olgunluk_surec WHERE id = ${surecId}`
   if (!surec) return NextResponse.json({ error: 'Süreç bulunamadı' }, { status: 404 })
-  const g = await taslakSablon(sql, surec.sablon_id as number, tenant.role)
+  const g = await taslakSablon(sql, surec.sablon_id as number, tenant)
   if ('hata' in g) return g.hata
 
   const idler = siraDogrula(body)
@@ -143,7 +143,7 @@ export const DELETE = withTenantRoute(async (req, { sql, tenant }) => {
 
   const [mevcut] = await sql`SELECT sablon_id FROM olgunluk_kriter WHERE id = ${id}`
   if (!mevcut) return NextResponse.json({ error: 'Madde bulunamadı' }, { status: 404 })
-  const g = await taslakSablon(sql, mevcut.sablon_id as number, tenant.role)
+  const g = await taslakSablon(sql, mevcut.sablon_id as number, tenant)
   if ('hata' in g) return g.hata
 
   try {

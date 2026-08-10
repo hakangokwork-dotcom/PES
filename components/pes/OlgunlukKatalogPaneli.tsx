@@ -194,48 +194,60 @@ export default function OlgunlukKatalogPaneli({
 
   return (
     <div className="space-y-4">
-      {/* Sürüm şeridi */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line-soft bg-surface px-4 py-3">
-        <Select
-          className="w-56"
-          value={veri.sablon.id}
-          onChange={(e) => {
-            router.push(`/pes/olgunluk/katalog?sablon=${e.target.value}`)
-            router.refresh()
-          }}
-        >
-          {sablonlar.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.kod} — {SABLON_DURUM_ETIKET[s.durum]}
-            </option>
-          ))}
-        </Select>
+      {/* Sürüm şeridi — kimlik üstte, sayılar altta; hepsi tek satırda
+          sıkışınca hangisinin ne olduğu okunmuyordu. */}
+      <div className="rounded-lg border border-line-soft bg-surface">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <Select
+              className="w-52"
+              value={veri.sablon.id}
+              onChange={(e) => {
+                router.push(`/pes/olgunluk/katalog?sablon=${e.target.value}`)
+                router.refresh()
+              }}
+            >
+              {sablonlar.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.kod} — {SABLON_DURUM_ETIKET[s.durum]}
+                </option>
+              ))}
+            </Select>
+            <Badge tone={veri.sablon.durum === 'yayinda' ? 'good' : 'neutral'}>
+              {SABLON_DURUM_ETIKET[veri.sablon.durum]}
+            </Badge>
+          </div>
 
-        <Badge tone={veri.sablon.durum === 'yayinda' ? 'good' : 'neutral'}>
-          {SABLON_DURUM_ETIKET[veri.sablon.durum]}
-        </Badge>
-
-        <span className="num text-[13px] text-muted">
-          {kategoriler.length} kategori · {surecler.length} süreç · {toplamMadde} madde
-          {veri.sablon.denetim_adedi > 0 && ` · ${veri.sablon.denetim_adedi} denetim`}
-        </span>
-
-        <span className="text-[11px] text-faint">rol: {rol}</span>
-
-        <div className="ml-auto flex items-center gap-2">
-          {yetkili && (
-            <Button variant="secondary" size="sm" icon={<Copy className="size-3.5" />}
-                    onClick={() => setVersiyonFormu((v) => !v)} loading={bekliyor}>
-              Yeni versiyon
-            </Button>
-          )}
-          {acik && (
-            <Button size="sm" icon={<Send className="size-3.5" />}
-                    onClick={yayinla} loading={bekliyor}>
-              Yayınla
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {yetkili && (
+              <Button variant="secondary" size="sm" icon={<Copy className="size-3.5" />}
+                      onClick={() => setVersiyonFormu((v) => !v)} loading={bekliyor}>
+                Yeni versiyon
+              </Button>
+            )}
+            {acik && (
+              <Button size="sm" icon={<Send className="size-3.5" />}
+                      onClick={yayinla} loading={bekliyor}>
+                Yayınla
+              </Button>
+            )}
+          </div>
         </div>
+
+        <dl className="flex flex-wrap items-end gap-x-10 gap-y-3 border-t border-line-soft px-4 py-3">
+          {[
+            ['Kategori', String(kategoriler.length)],
+            ['Süreç', String(surecler.length)],
+            ['Madde', String(toplamMadde)],
+            ['Denetim', `${veri.sablon.tamamlanan_adedi} tamamlandı / ${veri.sablon.denetim_adedi}`],
+            ['Rolünüz', rol],
+          ].map(([etiket, deger]) => (
+            <div key={etiket}>
+              <dt className="text-[11px] uppercase tracking-[0.06em] text-faint">{etiket}</dt>
+              <dd className="num text-[15px] leading-snug tracking-tight text-ink">{deger}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
       {versiyonFormu && yetkili && (

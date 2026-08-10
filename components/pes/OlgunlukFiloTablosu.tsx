@@ -131,13 +131,17 @@ export default function OlgunlukFiloTablosu({
                 </td>
                 {kategoriKodlari.map((k) => {
                   const v = s.kategoriler[k.kod]
+                  const bos = v === null || v === undefined
                   return (
-                    <td key={k.kod} className="px-1 py-1.5 text-center">
-                      <span className={
-                        'num inline-block min-w-[30px] rounded px-1 py-0.5 text-[12px] ' +
-                        seviyeRengi(v)
-                      }>
-                        {v === null || v === undefined ? '·' : v.toFixed(1)}
+                    <td key={k.kod} className="p-0.5 text-center">
+                      <span
+                        title={`${k.ad}${bos ? ' — değerlendirilmedi' : `: ${v.toFixed(1)} / 3`}`}
+                        className={
+                          'num inline-flex h-6 w-10 items-center justify-center rounded text-[12px] ' +
+                          seviyeRengi(v)
+                        }
+                      >
+                        {bos ? '·' : v.toFixed(1)}
                       </span>
                     </td>
                   )
@@ -163,10 +167,28 @@ export default function OlgunlukFiloTablosu({
         </table>
       </div>
 
+      {/* Ölçek, tablonun altında bir kez: her hücreye açıklama sığmaz. */}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-faint">
+        <span className="uppercase tracking-[0.06em]">Kategori seviyesi</span>
+        {[
+          [0, '0 — kötü'], [1, '1 — gelişime açık'],
+          [2, '2 — iyi'], [3, '3 — mükemmel'], [null, 'değerlendirilmedi'],
+        ].map(([v, etiket]) => (
+          <span key={String(etiket)} className="inline-flex items-center gap-1.5">
+            <span className={
+              'num inline-flex h-5 w-8 items-center justify-center rounded text-[11px] ' +
+              seviyeRengi(v as number | null)
+            }>
+              {v === null ? '·' : v}
+            </span>
+            {etiket}
+          </span>
+        ))}
+      </div>
+
       <p className="text-xs text-faint">
-        Hücreler kategorinin ağırlıklı ortalama seviyesi (0-3). Nokta, o kategoride
-        değerlendirilmiş süreç olmadığını gösterir. Kolon başlıkları yayındaki sürümün
-        kategorileridir; eski sürümle yapılmış denetimlerin hücresi boş kalır.
+        Hücre, kategorinin ağırlıklı ortalama seviyesi. Kolon başlıkları yayındaki sürümün
+        kategorileridir; eski bir sürümle yapılmış denetimlerin hücresi boş kalır.
       </p>
     </div>
   )

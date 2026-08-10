@@ -91,14 +91,21 @@ export const PUT = withTenantRoute(async (req, { sql, tenant }) => {
           SET sonuc = EXCLUDED.sonuc, not_metni = EXCLUDED.not_metni, updated_at = now()`
     }
 
-    // Yazdıktan sonra türetilmiş seviyeler geri döner: ekran kendi
-    // hesabını yapmasın, kuralın tek kaynağı view olsun.
+    // Yazdıktan sonra türetilmiş değerler geri döner: ekran kendi hesabını
+    // yapmasın, kuralın tek kaynağı view olsun. Kategori kırılımı da burada
+    // — radar tarayıcıda yeniden hesaplansaydı ağırlıklı ortalama formülü
+    // iki yerde yaşar ve zamanla ayrışırdı.
     const seviyeler = await sql`
       SELECT surec_id, seviye FROM v_olgunluk_surec_seviye WHERE denetim_id = ${denetimId}`
     const [ozet] = await sql`
       SELECT puan::text, max_puan::text, yuzde::text, degerlendirilen, degerlendirilmeyen
         FROM v_olgunluk_denetim_ozet WHERE denetim_id = ${denetimId}`
-    return NextResponse.json({ seviyeler, ozet: ozet ?? null })
+    const kategoriler = await sql`
+      SELECT kategori_id, kategori_kod, kategori_adi, sira, surec_adedi,
+             ortalama_seviye::text AS ortalama_seviye, en_zayif_seviye
+        FROM v_olgunluk_kategori WHERE denetim_id = ${denetimId}
+       ORDER BY sira`
+    return NextResponse.json({ seviyeler, ozet: ozet ?? null, kategoriler })
   } catch (e) {
     return dbHata(e)
   }

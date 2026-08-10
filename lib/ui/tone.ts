@@ -65,6 +65,12 @@ export const GRAFIK_RENK: Record<Tone, string> = {
 /** Grafiklerde marka yeşili (çizgi, alan, bar). */
 export const GRAFIK_AKSAN = GRAFIK_RENK.good
 
+/* Grafik kromu — ızgara ve eksen etiketi. globals.css'teki --color-line ve
+   --color-faint'in hex karşılığı; recharts CSS değişkeni kabul etmiyor.
+   Elle #f0f0f0 / #9ca3af yazmak yerine buradan alınır. */
+export const GRAFIK_IZGARA = '#D6DCE1'
+export const GRAFIK_ETIKET = '#7A8894'
+
 /** Satır işareti — satırın tamamı boyanmaz, ince bir sol şerit gelir */
 export const TONE_ROW: Record<Tone, string> = {
   neutral: '',

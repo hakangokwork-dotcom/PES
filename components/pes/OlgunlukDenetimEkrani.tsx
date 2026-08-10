@@ -8,7 +8,10 @@ import { Button, Badge, Card, CardBody, useToast } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { SEVIYE_ETIKET } from '@/lib/pes/olgunluk'
 import { SONUC_ETIKET } from '@/lib/pes/olgunluk-denetim'
-import type { DenetimDetay, DenetimOzet, Sonuc } from '@/lib/pes/olgunluk-denetim'
+import type {
+  DenetimDetay, DenetimOzet, KategoriSeviye, Sonuc,
+} from '@/lib/pes/olgunluk-denetim'
+import OlgunlukRadar from '@/components/pes/OlgunlukRadar'
 
 /* SAHA EKRANI.
 
@@ -75,9 +78,12 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
     return m
   })
   const [ozet, setOzet] = useState<DenetimOzet | null>(detay.ozet)
+  const [kategoriSeviyeleri, setKategoriSeviyeleri] =
+    useState<KategoriSeviye[]>(detay.kategoriSeviyeleri)
   const [secili, setSecili] = useState<number | null>(detay.surecler[0]?.id ?? null)
   const [kaydediliyor, setKaydediliyor] = useState(false)
   const [bekliyor, setBekliyor] = useState(false)
+  const [radarAcik, setRadarAcik] = useState(true)
 
   const kuyruk = useRef<Map<number, Sonuc | null>>(new Map())
   const zamanlayici = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -101,6 +107,7 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
       }
       setSeviyeler(yeni)
       setOzet(j.ozet)
+      if (j.kategoriler) setKategoriSeviyeleri(j.kategoriler as KategoriSeviye[])
     } catch {
       toast.error('Bağlantı hatası — işaretleme kaydedilemedi')
     } finally {
@@ -225,6 +232,25 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
           Düzeltmek için <strong>Taslağa al</strong> deyin.
         </p>
       )}
+
+      {/* Kategori profili. Denetim doldurulurken canlı güncellenir:
+          kaydetme yanıtı kategori kırılımını da döndürüyor. */}
+      <Card>
+        <div className="flex items-center justify-between border-b border-line-soft px-4 py-2.5">
+          <span className="text-[13px] font-semibold text-ink">Kategori profili</span>
+          <button
+            onClick={() => setRadarAcik((v) => !v)}
+            className="text-[11px] text-faint hover:text-ink"
+          >
+            {radarAcik ? 'Gizle' : 'Göster'}
+          </button>
+        </div>
+        {radarAcik && (
+          <CardBody>
+            <OlgunlukRadar kategoriler={kategoriSeviyeleri} />
+          </CardBody>
+        )}
+      </Card>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(280px,340px)_1fr]">
         {/* ---- Süreçler ---- */}

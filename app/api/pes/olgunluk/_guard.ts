@@ -1,5 +1,22 @@
 import { NextResponse } from 'next/server'
 import postgres from 'postgres'
+import { katalogDuzenleyebilir } from '@/lib/pes/olgunluk'
+
+/**
+ * Rol kapısı. Kural lib/pes/olgunluk.ts'te tek listede; burada yalnız
+ * uygulanır. Şu an dört rolü de kapsıyor (kullanıcı kararı: "şimdilik
+ * herkese açık"), ama kanca yerinde: kısıtlamak için o listeden rol
+ * çıkarmak yeterli, uçlara dokunmaya gerek yok.
+ *
+ * Ekran tarafındaki karşılığı katalog sayfasının `yetkili` prop'u —
+ * ikisi de aynı fonksiyondan besleniyor, biri açık biri kapalı kalamaz.
+ */
+export function katalogYetkisi(rol: string): NextResponse | null {
+  if (katalogDuzenleyebilir(rol)) return null
+  return NextResponse.json({
+    error: 'Katalogu düzenleme yetkiniz yok. Sistem yöneticisine başvurun.',
+  }, { status: 403 })
+}
 
 /**
  * Katalog yazma işlemlerinin ortak kapısı.
@@ -10,8 +27,14 @@ import postgres from 'postgres'
  */
 export async function taslakSablon(
   sql: postgres.TransactionSql,
-  sablonId: number
+  sablonId: number,
+  rol: string
 ): Promise<{ hata: NextResponse } | { sablonId: number }> {
+  // Rol kontrolü BURADA: her katalog yazma yolu zaten bu kapıdan geçiyor,
+  // dolayısıyla yeni bir uç eklendiğinde kontrolü unutmak mümkün değil.
+  const yetkiHatasi = katalogYetkisi(rol)
+  if (yetkiHatasi) return { hata: yetkiHatasi }
+
   if (!Number.isInteger(sablonId)) {
     return { hata: NextResponse.json({ error: 'Geçersiz şablon' }, { status: 400 }) }
   }

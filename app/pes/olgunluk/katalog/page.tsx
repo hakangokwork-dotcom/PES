@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
+import { getTenantContext } from '@/lib/auth/tenant-context'
 import { PageHeader } from '@/components/ui'
 import {
   sablonlar as sablonlariOku, katalog as katalogOku, varsayilanSablon,
+  katalogDuzenleyebilir,
 } from '@/lib/pes/olgunluk'
 import OlgunlukKatalogPaneli from '@/components/pes/OlgunlukKatalogPaneli'
 
@@ -20,6 +22,13 @@ export default async function OlgunlukKatalogPage({
   searchParams: Promise<{ sablon?: string }>
 }) {
   const { sablon: sablonParam } = await searchParams
+
+  /* Rol ekranda da gerekli: yetkisiz kullanıcıya tıklanınca 403 verecek
+     düğmeler gösterilmemeli. Kural API ile aynı fonksiyondan geliyor
+     (katalogDuzenleyebilir), ikisi ayrışamaz. */
+  const ctx = await getTenantContext()
+  const rol = ctx?.role ?? 'viewer'
+  const yetkili = katalogDuzenleyebilir(rol)
 
   let dbError = ''
   const data = await withServerTenant(async (sql) => {
@@ -67,7 +76,12 @@ export default async function OlgunlukKatalogPage({
       )}
 
       {!dbError && data?.katalog && (
-        <OlgunlukKatalogPaneli katalog={data.katalog} sablonlar={data.hepsi} />
+        <OlgunlukKatalogPaneli
+          katalog={data.katalog}
+          sablonlar={data.hepsi}
+          yetkili={yetkili}
+          rol={rol}
+        />
       )}
     </div>
   )

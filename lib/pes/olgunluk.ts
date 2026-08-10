@@ -30,6 +30,10 @@ export interface Sablon {
   yayin_tarihi: string | null
   klon_kaynak_id: number | null
   denetim_adedi: number
+  /** Kaçı TAMAMLANMIŞ. Kilidin neden açılamayacağını ekranda söylemek için:
+      tamamlanmış denetim varsa kriter metnini değiştirmek o denetimin
+      skorunu açıklanamaz kılar, tek doğru yol yeni sürüm klonlamaktır. */
+  tamamlanan_adedi: number
 }
 
 export interface Kategori {
@@ -85,7 +89,9 @@ export async function sablonlar(sql: postgres.TransactionSql): Promise<Sablon[]>
     SELECT s.id, s.kod, s.ad, s.aciklama, s.durum,
            s.yayin_tarihi::text AS yayin_tarihi,
            s.klon_kaynak_id,
-           (SELECT count(*)::int FROM olgunluk_denetim d WHERE d.sablon_id = s.id) AS denetim_adedi
+           (SELECT count(*)::int FROM olgunluk_denetim d WHERE d.sablon_id = s.id) AS denetim_adedi,
+           (SELECT count(*)::int FROM olgunluk_denetim d
+             WHERE d.sablon_id = s.id AND d.durum = 'tamamlandi') AS tamamlanan_adedi
       FROM olgunluk_sablon s
      ORDER BY s.created_at DESC, s.id DESC`
   return rows as unknown as Sablon[]
@@ -104,7 +110,9 @@ export async function katalog(
     SELECT s.id, s.kod, s.ad, s.aciklama, s.durum,
            s.yayin_tarihi::text AS yayin_tarihi,
            s.klon_kaynak_id,
-           (SELECT count(*)::int FROM olgunluk_denetim d WHERE d.sablon_id = s.id) AS denetim_adedi
+           (SELECT count(*)::int FROM olgunluk_denetim d WHERE d.sablon_id = s.id) AS denetim_adedi,
+           (SELECT count(*)::int FROM olgunluk_denetim d
+             WHERE d.sablon_id = s.id AND d.durum = 'tamamlandi') AS tamamlanan_adedi
       FROM olgunluk_sablon s
      WHERE s.id = ${sablonId}`
   if (!sablon) return null
@@ -155,6 +163,32 @@ export function varsayilanSablon(hepsi: Sablon[]): Sablon | null {
 /** Yalnız taslak şablon düzenlenebilir — 031'deki kilit trigger'ın arayüz karşılığı. */
 export function duzenlenebilir(sablon: Sablon): boolean {
   return sablon.durum === 'taslak'
+}
+
+/* ============================================================
+   KATALOG DÜZENLEME YETKİSİ
+   ============================================================
+   Kullanıcı kararı (2026-08-10): "şimdilik herkese açık olsun, sonra
+   admine veya kullanıcı bazlı ayırt ederiz."
+
+   Bu yüzden liste şu an DÖRT ROLÜ DE içeriyor — yani pratikte giriş yapan
+   herkes düzenleyebilir. Kısıtlamak için tek yapılacak, aşağıdaki listeden
+   rol çıkarmak; hem API uçları hem ekran aynı listeden besleniyor, iki
+   yerde ayrı ayrı güncellenmesi gereken bir kural yok.
+
+     Yalnız yönetim düzenlesin  ->  ['owner', 'admin']
+     Editörler de düzenlesin    ->  ['owner', 'admin', 'editor']
+
+   Mevcut roller (tenant 'default'): hakan.gok ve admin owner, ekipten
+   8 kişi admin. Yani listeyi ['owner','admin'] yapmak bugün kimseyi
+   dışarıda bırakmaz — viewer/editor rolü henüz kimseye verilmemiş.
+   ============================================================ */
+export type Rol = 'owner' | 'admin' | 'editor' | 'viewer'
+
+export const KATALOG_DUZENLEYEBILEN: Rol[] = ['owner', 'admin', 'editor', 'viewer']
+
+export function katalogDuzenleyebilir(rol: Rol | string): boolean {
+  return (KATALOG_DUZENLEYEBILEN as string[]).includes(rol)
 }
 
 /**

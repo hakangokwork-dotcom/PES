@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
 import { sablonlar, katalog, sablonKlonla } from '@/lib/pes/olgunluk'
-import { dbHata } from '../_guard'
+import { dbHata, katalogYetkisi } from '../_guard'
 
 /**
  * Olgunluk katalog sürümleri.
@@ -27,6 +27,11 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 })
 
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
+  // Sürüm işlemleri taslakSablon()'dan geçmiyor (klonlama kaynağı yayında
+  // olabilir), o yüzden rol kapısı burada ayrıca çağrılır.
+  const yetkiHatasi = katalogYetkisi(tenant.role)
+  if (yetkiHatasi) return yetkiHatasi
+
   const body = (await req.json()) as Record<string, unknown>
   const islem = String(body.islem ?? '')
   const kaynakId = Number(body.sablon_id)

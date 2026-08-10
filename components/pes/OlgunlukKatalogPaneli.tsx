@@ -17,10 +17,13 @@ import {
 const SEVIYELER = [1, 2, 3] as const
 
 export default function OlgunlukKatalogPaneli({
-  katalog, sablonlar,
+  katalog, sablonlar, yetkili, rol,
 }: {
   katalog: Katalog
   sablonlar: Sablon[]
+  /** Rol kapısı (lib/pes/olgunluk.ts). Şu an herkes true — bkz. oradaki not. */
+  yetkili: boolean
+  rol: string
 }) {
   const router = useRouter()
   const toast = useToast()
@@ -28,7 +31,14 @@ export default function OlgunlukKatalogPaneli({
   const [secili, setSecili] = useState<number | null>(veri.surecler[0]?.id ?? null)
   const [bekliyor, setBekliyor] = useState(false)
 
-  const acik = duzenlenebilir(veri.sablon)
+  // Hangi ekleme formu açık: sürüm, kategori, kategori-içi süreç (kategori id)
+  const [versiyonFormu, setVersiyonFormu] = useState(false)
+  const [kategoriFormu, setKategoriFormu] = useState(false)
+  const [surecFormu, setSurecFormu] = useState<number | null>(null)
+
+  /* Düzenleme iki koşula bağlı ve ikisi farklı şeyler söylüyor:
+     sürüm taslak olmalı (031 kilidi) VE kullanıcının rolü yetmeli. */
+  const acik = duzenlenebilir(veri.sablon) && yetkili
 
   const yenile = useCallback(async (sablonId = veri.sablon.id) => {
     const r = await fetch(`/api/pes/olgunluk/sablon?id=${sablonId}`)
@@ -68,21 +78,20 @@ export default function OlgunlukKatalogPaneli({
 
   /* ---------- Sürüm işlemleri ---------- */
 
-  async function versiyonAc() {
-    const kod = window.prompt('Yeni sürüm kodu (ör. v5):')?.trim()
-    if (!kod) return
+  async function versiyonAc(d: Record<string, string>) {
     setBekliyor(true)
     try {
       const r = await fetch('/api/pes/olgunluk/sablon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ islem: 'klonla', sablon_id: veri.sablon.id, kod }),
+        body: JSON.stringify({ islem: 'klonla', sablon_id: veri.sablon.id, kod: d.kod, ad: d.ad }),
       })
       const j = await r.json().catch(() => ({}))
-      if (!r.ok) { toast.error(j.error ?? 'Kopyalanamadı'); return }
-      toast.success(`${kod} oluşturuldu — düzenlemeye açık`)
+      if (!r.ok) { toast.error(j.error ?? 'Kopyalanamadı'); return false }
+      toast.success(`${d.kod} oluşturuldu — düzenlemeye açık`)
       router.push(`/pes/olgunluk/katalog?sablon=${j.sablon_id}`)
       router.refresh()
+      return true
     } finally {
       setBekliyor(false)
     }
@@ -131,24 +140,19 @@ export default function OlgunlukKatalogPaneli({
 
   /* ---------- Ekle / sil ---------- */
 
-  async function surecEkle(kategoriId: number) {
-    const kod = window.prompt('Süreç kodu (ör. 3.5):')?.trim()
-    if (!kod) return
-    const ad = window.prompt('Süreç adı:')?.trim()
-    if (!ad) return
-    if (await istek('/api/pes/olgunluk/surec', 'POST',
-      { sablon_id: veri.sablon.id, kategori_id: kategoriId, kod, ad }, 'Süreç eklendi')) {
-      await yenile()
-    }
+  async function surecEkle(kategoriId: number, d: Record<string, string>) {
+    const ok = await istek('/api/pes/olgunluk/surec', 'POST',
+      { sablon_id: veri.sablon.id, kategori_id: kategoriId, kod: d.kod, ad: d.ad },
+      'Süreç eklendi')
+    if (ok) await yenile()
+    return ok
   }
 
-  async function kategoriEkle() {
-    const kod = window.prompt('Kategori kodu (ör. K11):')?.trim()
-    if (!kod) return
-    const ad = window.prompt('Kategori adı:')?.trim()
-    if (!ad) return
-    if (await istek('/api/pes/olgunluk/kategori', 'POST',
-      { sablon_id: veri.sablon.id, kod, ad }, 'Kategori eklendi')) await yenile()
+  async function kategoriEkle(d: Record<string, string>) {
+    const ok = await istek('/api/pes/olgunluk/kategori', 'POST',
+      { sablon_id: veri.sablon.id, kod: d.kod, ad: d.ad }, 'Kategori eklendi')
+    if (ok) await yenile()
+    return ok
   }
 
   async function surecSil(s: Surec) {
@@ -159,12 +163,12 @@ export default function OlgunlukKatalogPaneli({
     }
   }
 
-  async function kriterEkle(seviye: number) {
-    if (!seciliSurec) return
-    const metin = window.prompt(`Seviye ${seviye} — yeni madde:`)?.trim()
-    if (!metin) return
-    if (await istek('/api/pes/olgunluk/kriter', 'POST',
-      { surec_id: seciliSurec.id, seviye, metin }, 'Madde eklendi')) await yenile()
+  async function kriterEkle(seviye: number, d: Record<string, string>) {
+    if (!seciliSurec) return false
+    const ok = await istek('/api/pes/olgunluk/kriter', 'POST',
+      { surec_id: seciliSurec.id, seviye, metin: d.metin }, 'Madde eklendi')
+    if (ok) await yenile()
+    return ok
   }
 
   async function kriterSil(k: Kriter) {
@@ -216,11 +220,15 @@ export default function OlgunlukKatalogPaneli({
           {veri.sablon.denetim_adedi > 0 && ` · ${veri.sablon.denetim_adedi} denetim`}
         </span>
 
+        <span className="text-[11px] text-faint">rol: {rol}</span>
+
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="secondary" size="sm" icon={<Copy className="size-3.5" />}
-                  onClick={versiyonAc} loading={bekliyor}>
-            Yeni versiyon
-          </Button>
+          {yetkili && (
+            <Button variant="secondary" size="sm" icon={<Copy className="size-3.5" />}
+                    onClick={() => setVersiyonFormu((v) => !v)} loading={bekliyor}>
+              Yeni versiyon
+            </Button>
+          )}
           {acik && (
             <Button size="sm" icon={<Send className="size-3.5" />}
                     onClick={yayinla} loading={bekliyor}>
@@ -230,11 +238,35 @@ export default function OlgunlukKatalogPaneli({
         </div>
       </div>
 
-      {!acik && (
+      {versiyonFormu && yetkili && (
+        <SatirEkleme
+          alanlar={[
+            { ad: 'kod', etiket: 'Sürüm kodu' },
+            { ad: 'ad', etiket: 'Ad (isteğe bağlı)', genis: true },
+          ]}
+          onEkle={versiyonAc}
+          onKapat={() => setVersiyonFormu(false)}
+          bekliyor={bekliyor}
+          gonderEtiketi="Kopyala"
+        />
+      )}
+
+      {!yetkili && (
+        <p className="rounded-lg border border-line-soft bg-canvas px-4 py-3 text-[13px] text-muted">
+          Katalogu görüntüleyebilirsiniz ama düzenleme yetkiniz yok
+          (rolünüz: <strong>{rol}</strong>).
+        </p>
+      )}
+
+      {yetkili && !duzenlenebilir(veri.sablon) && (
         <p className="rounded-lg border border-line-soft bg-canvas px-4 py-3 text-[13px] text-muted">
           Bu sürüm {veri.sablon.durum === 'yayinda' ? 'yayında' : 'arşivde'} ve salt okunur.
-          Denetimler bu soruları kullanıyor; değiştirmek geçmiş denetimlerin skorunu
-          anlamsız kılardı. Düzenlemek için <strong>Yeni versiyon</strong> oluşturun.
+          {veri.sablon.tamamlanan_adedi > 0
+            ? ` ${veri.sablon.tamamlanan_adedi} tamamlanmış denetim bu soruları kullanıyor;
+                metni değiştirmek o denetimlerin puanını açıklanamaz hale getirirdi.`
+            : ' Denetimler bu sürüme açılıyor.'}
+          {' '}Düzenlemek için <strong>Yeni versiyon</strong> ile kopyalayın: eski denetimler
+          kendi sorularıyla kalır, düzenleme kopyada yapılır.
         </p>
       )}
 
@@ -254,7 +286,7 @@ export default function OlgunlukKatalogPaneli({
                     <span className="num text-[11px] text-faint">{ici.length}</span>
                     {acik && (
                       <button
-                        onClick={() => surecEkle(kat.id)}
+                        onClick={() => setSurecFormu(surecFormu === kat.id ? null : kat.id)}
                         className="ml-auto text-faint hover:text-ink"
                         title="Bu kategoriye süreç ekle"
                       >
@@ -262,6 +294,20 @@ export default function OlgunlukKatalogPaneli({
                       </button>
                     )}
                   </div>
+
+                  {acik && surecFormu === kat.id && (
+                    <div className="pb-1.5">
+                      <SatirEkleme
+                        alanlar={[
+                          { ad: 'kod', etiket: 'Kod' },
+                          { ad: 'ad', etiket: 'Süreç adı', genis: true },
+                        ]}
+                        onEkle={(d) => surecEkle(kat.id, d)}
+                        onKapat={() => setSurecFormu(null)}
+                        bekliyor={bekliyor}
+                      />
+                    </div>
+                  )}
 
                   <ul className="space-y-px">
                     {ici.map((s, i) => (
@@ -308,12 +354,22 @@ export default function OlgunlukKatalogPaneli({
               )
             })}
 
-            {acik && (
-              <button onClick={kategoriEkle}
+            {acik && (kategoriFormu ? (
+              <SatirEkleme
+                alanlar={[
+                  { ad: 'kod', etiket: 'Kod' },
+                  { ad: 'ad', etiket: 'Kategori adı', genis: true },
+                ]}
+                onEkle={kategoriEkle}
+                onKapat={() => setKategoriFormu(false)}
+                bekliyor={bekliyor}
+              />
+            ) : (
+              <button onClick={() => setKategoriFormu(true)}
                       className="flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-[13px] text-muted hover:bg-canvas hover:text-ink">
                 <Plus className="size-3.5" /> Kategori ekle
               </button>
-            )}
+            ))}
           </CardBody>
         </Card>
 
@@ -348,6 +404,79 @@ export default function OlgunlukKatalogPaneli({
   )
 }
 
+/* ----------------------------------------------------------------
+   Satır içi ekleme formu.
+
+   Eskiden window.prompt kullanılıyordu: iki alan iki ayrı kutu demekti,
+   birinciyi doldurup ikinciyi iptal edince yarım kayıt riski vardı,
+   metin uzunsa tek satırlık kutuya sığmıyordu ve tarayıcı prompt'u
+   mobilde/tablette kullanılabilir değil. Bu form aynı yerde açılır,
+   Enter ile gönderir, Esc ile kapanır.
+   ---------------------------------------------------------------- */
+
+type AlanTanim = { ad: string; etiket: string; genis?: boolean; cokSatir?: boolean }
+
+function SatirEkleme({
+  alanlar, onEkle, onKapat, bekliyor, gonderEtiketi = 'Ekle',
+}: {
+  alanlar: AlanTanim[]
+  onEkle: (degerler: Record<string, string>) => Promise<boolean | undefined>
+  onKapat: () => void
+  bekliyor: boolean
+  gonderEtiketi?: string
+}) {
+  const [degerler, setDegerler] = useState<Record<string, string>>({})
+
+  // İlk alan zorunlu; gerisi (ör. sürüm adı) boş bırakılabilir.
+  const gecerli = (degerler[alanlar[0].ad] ?? '').trim().length > 0
+
+  async function gonder() {
+    if (!gecerli || bekliyor) return
+    const ok = await onEkle(degerler)
+    if (ok !== false) { setDegerler({}); onKapat() }
+  }
+
+  return (
+    <div
+      className="flex flex-wrap items-end gap-2 rounded border border-line bg-canvas p-2"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onKapat()
+        // Çok satırlı alanda Enter yeni satır açar; gönderim Ctrl/Cmd+Enter.
+        if (e.key === 'Enter' && (!alanlar.some((a) => a.cokSatir) || e.ctrlKey || e.metaKey)) {
+          e.preventDefault()
+          void gonder()
+        }
+      }}
+    >
+      {alanlar.map((a, i) => (
+        <Field key={a.ad} label={a.etiket} className={a.genis ? 'min-w-[220px] flex-1' : 'w-28'}>
+          {a.cokSatir ? (
+            <textarea
+              autoFocus={i === 0}
+              rows={2}
+              value={degerler[a.ad] ?? ''}
+              onChange={(e) => setDegerler((p) => ({ ...p, [a.ad]: e.target.value }))}
+              className="w-full resize-y rounded-md border border-line bg-surface px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-accent focus:ring-3 focus:ring-accent/15"
+            />
+          ) : (
+            <Input
+              autoFocus={i === 0}
+              value={degerler[a.ad] ?? ''}
+              onChange={(e) => setDegerler((p) => ({ ...p, [a.ad]: e.target.value }))}
+            />
+          )}
+        </Field>
+      ))}
+      <div className="flex gap-1.5 pb-0.5">
+        <Button size="sm" onClick={gonder} loading={bekliyor} disabled={!gecerli}>
+          {gonderEtiketi}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onKapat}>Vazgeç</Button>
+      </div>
+    </div>
+  )
+}
+
 /* ---------------------------------------------------------------- */
 
 function SurecDetay({
@@ -361,7 +490,7 @@ function SurecDetay({
   bekliyor: boolean
   onKaydet: (alanlar: Record<string, unknown>) => Promise<void>
   onSil: () => void
-  onKriterEkle: (seviye: number) => void
+  onKriterEkle: (seviye: number, degerler: Record<string, string>) => Promise<boolean | undefined>
   onKriterSil: (k: Kriter) => void
   onKriterYaz: (k: Kriter, alanlar: Record<string, unknown>, basari?: string) => Promise<void>
   onKriterTasi: (liste: Kriter[], i: number, yon: -1 | 1, seviye: number) => void
@@ -370,6 +499,7 @@ function SurecDetay({
   const [ad, setAd] = useState(surec.ad)
   const [kategoriId, setKategoriId] = useState(surec.kategori_id)
   const [agirlik, setAgirlik] = useState(surec.agirlik)
+  const [maddeFormu, setMaddeFormu] = useState<number | null>(null)
 
   const degisti = kod !== surec.kod || ad !== surec.ad
     || kategoriId !== surec.kategori_id || agirlik !== surec.agirlik
@@ -453,12 +583,19 @@ function SurecDetay({
                 />
               ))}
 
-              {acik && (
-                <button onClick={() => onKriterEkle(seviye)}
+              {acik && (maddeFormu === seviye ? (
+                <SatirEkleme
+                  alanlar={[{ ad: 'metin', etiket: `Seviye ${seviye} maddesi`, genis: true, cokSatir: true }]}
+                  onEkle={(d) => onKriterEkle(seviye, d)}
+                  onKapat={() => setMaddeFormu(null)}
+                  bekliyor={bekliyor}
+                />
+              ) : (
+                <button onClick={() => setMaddeFormu(seviye)}
                         className="flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-[13px] text-muted hover:bg-canvas hover:text-ink">
                   <Plus className="size-3.5" /> Madde ekle
                 </button>
-              )}
+              ))}
             </CardBody>
           </Card>
         )

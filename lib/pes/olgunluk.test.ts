@@ -1,7 +1,10 @@
 import { afterAll, beforeAll, expect, test } from 'vitest'
 import postgres from 'postgres'
 import { readFileSync } from 'node:fs'
-import { katalog, sablonlar, sablonKlonla, varsayilanSablon } from './olgunluk'
+import {
+  katalog, sablonlar, sablonKlonla, varsayilanSablon,
+  katalogDuzenleyebilir, KATALOG_DUZENLEYEBILEN,
+} from './olgunluk'
 
 /* Gerçek veritabanına, UYGULAMANIN ROLÜYLE bağlanır.
    Sebep: 031 altı yeni tablo ekledi. Bir GRANT ya da RLS politikası
@@ -55,6 +58,23 @@ async function geriAlinan(fn: (sql: postgres.TransactionSql) => Promise<void>) {
     if ((e as Error).message !== GERI_AL) throw e
   }
 }
+
+/* Yetki kapısı ŞU AN dört rolü de geçiriyor (kullanıcı kararı: "şimdilik
+   herkese açık"). Bu iki test o kararı belgeler ve kapının gerçekten bir
+   kapı olduğunu kanıtlar: tanımsız rol reddedilmezse kısıtlama gününde
+   listeyi daraltmak da hiçbir şeyi engellemezdi. */
+test('katalog yetkisi: tanımlı roller geçer', () => {
+  for (const rol of KATALOG_DUZENLEYEBILEN) {
+    expect(katalogDuzenleyebilir(rol)).toBe(true)
+  }
+  expect(KATALOG_DUZENLEYEBILEN).toContain('owner')
+  expect(KATALOG_DUZENLEYEBILEN).toContain('admin')
+})
+
+test('katalog yetkisi: listede olmayan rol reddedilir', () => {
+  expect(katalogDuzenleyebilir('misafir')).toBe(false)
+  expect(katalogDuzenleyebilir('')).toBe(false)
+})
 
 test('uygulama rolü katalog tablolarını okuyabiliyor', async () => {
   const hepsi = await tenantIcinde((sql) => sablonlar(sql))

@@ -24,7 +24,7 @@ function agirlikCoz(v: unknown): number | { hata: string } {
 
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   const body = (await req.json()) as Record<string, unknown>
-  const g = await taslakSablon(sql, Number(body.sablon_id))
+  const g = await taslakSablon(sql, Number(body.sablon_id), tenant.role)
   if ('hata' in g) return g.hata
 
   const kod = String(body.kod ?? '').trim()
@@ -57,14 +57,14 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   }
 })
 
-export const PATCH = withTenantRoute(async (req, { sql }) => {
+export const PATCH = withTenantRoute(async (req, { sql, tenant }) => {
   const body = (await req.json()) as Record<string, unknown>
   const id = Number(body.id)
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'Geçersiz süreç' }, { status: 400 })
 
   const [mevcut] = await sql`SELECT sablon_id FROM olgunluk_surec WHERE id = ${id}`
   if (!mevcut) return NextResponse.json({ error: 'Süreç bulunamadı' }, { status: 404 })
-  const g = await taslakSablon(sql, mevcut.sablon_id as number)
+  const g = await taslakSablon(sql, mevcut.sablon_id as number, tenant.role)
   if ('hata' in g) return g.hata
 
   const alanlar: Record<string, string | number | boolean | null> = {}
@@ -105,9 +105,9 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
   }
 })
 
-export const PUT = withTenantRoute(async (req, { sql }) => {
+export const PUT = withTenantRoute(async (req, { sql, tenant }) => {
   const body = (await req.json()) as Record<string, unknown>
-  const g = await taslakSablon(sql, Number(body.sablon_id))
+  const g = await taslakSablon(sql, Number(body.sablon_id), tenant.role)
   if ('hata' in g) return g.hata
 
   const idler = siraDogrula(body)
@@ -130,13 +130,13 @@ export const PUT = withTenantRoute(async (req, { sql }) => {
   return NextResponse.json({ ok: true })
 })
 
-export const DELETE = withTenantRoute(async (req, { sql }) => {
+export const DELETE = withTenantRoute(async (req, { sql, tenant }) => {
   const id = parseInt(new URL(req.url).searchParams.get('id') ?? '')
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'Geçersiz süreç' }, { status: 400 })
 
   const [mevcut] = await sql`SELECT sablon_id FROM olgunluk_surec WHERE id = ${id}`
   if (!mevcut) return NextResponse.json({ error: 'Süreç bulunamadı' }, { status: 404 })
-  const g = await taslakSablon(sql, mevcut.sablon_id as number)
+  const g = await taslakSablon(sql, mevcut.sablon_id as number, tenant.role)
   if ('hata' in g) return g.hata
 
   try {

@@ -172,6 +172,19 @@ export default function OlgunlukKatalogPaneli({
     return ok
   }
 
+  async function kategoriTasi(i: number, yon: -1 | 1) {
+    const yeni = tasinmis(kategoriler, i, yon)
+    if (!yeni) return
+    if (await istek('/api/pes/olgunluk/kategori', 'PUT',
+      { sablon_id: veri.sablon.id, sira: yeni })) await yenile()
+  }
+
+  async function kategoriSil(kat: { id: number; kod: string; ad: string }) {
+    if (!window.confirm(`"${kat.kod} · ${kat.ad}" ana başlığı silinecek. Emin misiniz?`)) return
+    if (await istek(`/api/pes/olgunluk/kategori?id=${kat.id}`, 'DELETE',
+      undefined, 'Ana başlık silindi')) await yenile()
+  }
+
   async function kategoriEkle(d: Record<string, string>) {
     const ok = await istek('/api/pes/olgunluk/kategori', 'POST',
       { sablon_id: veri.sablon.id, kod: d.kod, ad: d.ad }, 'Kategori eklendi')
@@ -316,7 +329,7 @@ export default function OlgunlukKatalogPaneli({
         <Card>
           <CardHeader title="Kategoriler ve süreçler" aside={`${surecler.length} süreç`} />
           <CardBody className="space-y-4 p-3">
-            {kategoriler.map((kat) => {
+            {kategoriler.map((kat, ki) => {
               const ici = surecler.filter((s) => s.kategori_id === kat.id)
               return (
                 <div key={kat.id}>
@@ -325,10 +338,15 @@ export default function OlgunlukKatalogPaneli({
                       <KategoriBasligi
                         kategori={kat}
                         bekliyor={bekliyor}
-                        onKaydet={async (ad) => {
+                        ilk={ki === 0}
+                        son={ki === kategoriler.length - 1}
+                        surecAdedi={ici.length}
+                        onKaydet={async (alanlar) => {
                           if (await istek('/api/pes/olgunluk/kategori', 'PATCH',
-                            { id: kat.id, ad }, 'Kategori adı kaydedildi')) await yenile()
+                            { id: kat.id, ...alanlar }, 'Ana başlık kaydedildi')) await yenile()
                         }}
+                        onTasi={(yon) => kategoriTasi(ki, yon)}
+                        onSil={() => kategoriSil(kat)}
                       />
                     ) : (
                       <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-faint">
@@ -755,6 +773,31 @@ function KriterSatiri({
         )}
 
         <div className="flex shrink-0 items-center gap-1.5">
+          {/* SEVİYE TAŞIMA. Katalog yazarken en sık yapılan iş bir maddenin
+              yanlış basamakta olduğunu görüp indirmek/çıkarmak; bunun için
+              maddeyi silip yeniden yazmak gerekiyordu. */}
+          {acik && (
+            <span className="inline-flex overflow-hidden rounded border border-line">
+              {[1, 2, 3].map((sv) => (
+                <button
+                  key={sv}
+                  disabled={sv === kriter.seviye}
+                  onClick={() => onYaz({ seviye: sv }, `Seviye ${sv}'e taşındı`)}
+                  title={sv === kriter.seviye ? 'Bu seviyede' : `Seviye ${sv}'e taşı`}
+                  className={
+                    'num h-5 w-5 text-[11px] leading-none transition-colors ' +
+                    (sv > 1 ? 'border-l border-line ' : '') +
+                    (sv === kriter.seviye
+                      ? 'bg-accent-soft font-semibold text-accent-ink'
+                      : 'bg-surface text-faint hover:bg-canvas hover:text-ink')
+                  }
+                >
+                  {sv}
+                </button>
+              ))}
+            </span>
+          )}
+
           {/* Marka maddeleri atölye puanına girmez — kaynak metinlerdeki "X" öneki. */}
           <button
             disabled={!acik}
@@ -813,53 +856,86 @@ function KriterSatiri({
   )
 }
 
-/** Kategori adı — tıkla, düzenle, Kaydet/Yoksay. Kod değişmez: süreçlerin
-    ve ısı haritası kolonlarının bağlandığı anahtar odur. */
+/** Ana başlık — kod ve ad birlikte düzenlenir, sıralanır, boşsa silinir. */
 function KategoriBasligi({
-  kategori, bekliyor, onKaydet,
+  kategori, bekliyor, ilk, son, surecAdedi, onKaydet, onTasi, onSil,
 }: {
   kategori: { id: number; kod: string; ad: string }
   bekliyor: boolean
-  onKaydet: (ad: string) => Promise<void>
+  ilk: boolean
+  son: boolean
+  surecAdedi: number
+  onKaydet: (alanlar: { kod?: string; ad?: string }) => Promise<void>
+  onTasi: (yon: -1 | 1) => void
+  onSil: () => void
 }) {
   const [duzenle, setDuzenle] = useState(false)
+  const [kod, setKod] = useState(kategori.kod)
   const [ad, setAd] = useState(kategori.ad)
-  const degisti = ad.trim() !== kategori.ad && ad.trim().length > 0
+  const degisti = (ad.trim() !== kategori.ad || kod.trim() !== kategori.kod)
+    && ad.trim().length > 0 && kod.trim().length > 0
+
+  function yoksay() {
+    setKod(kategori.kod); setAd(kategori.ad); setDuzenle(false)
+  }
 
   if (!duzenle) {
     return (
-      <button
-        onClick={() => { setAd(kategori.ad); setDuzenle(true) }}
-        title="Kategori adını düzenle"
-        className="rounded px-0.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-faint hover:bg-canvas hover:text-ink"
-      >
-        {kategori.kod} · {kategori.ad}
-      </button>
+      <span className="flex min-w-0 flex-1 items-center gap-1">
+        <button
+          onClick={() => setDuzenle(true)}
+          title="Ana başlığı düzenle"
+          className="min-w-0 flex-1 truncate rounded px-0.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-faint hover:bg-canvas hover:text-ink"
+        >
+          {kategori.kod} · {kategori.ad}
+        </button>
+        <button onClick={() => onTasi(-1)} disabled={ilk}
+                className="shrink-0 text-faint hover:text-ink disabled:opacity-30" title="Yukarı">
+          <ChevronUp className="size-3" />
+        </button>
+        <button onClick={() => onTasi(1)} disabled={son}
+                className="shrink-0 text-faint hover:text-ink disabled:opacity-30" title="Aşağı">
+          <ChevronDown className="size-3" />
+        </button>
+        <button
+          onClick={onSil}
+          className="shrink-0 text-faint hover:text-danger disabled:opacity-30"
+          disabled={surecAdedi > 0}
+          title={surecAdedi > 0
+            ? `${surecAdedi} süreç bağlı — önce başka kategoriye taşıyın`
+            : 'Kategoriyi sil'}
+        >
+          <Trash2 className="size-3" />
+        </button>
+      </span>
     )
   }
 
   return (
-    <span className="flex min-w-0 flex-1 items-center gap-1">
-      <span className="num shrink-0 text-[11px] text-faint">{kategori.kod}</span>
+    <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+      <input
+        value={kod}
+        onChange={(e) => setKod(e.target.value)}
+        className="num w-14 shrink-0 rounded border border-line bg-surface px-1.5 py-0.5 text-[12px] text-ink outline-none focus:border-accent"
+      />
       <input
         autoFocus
         value={ad}
         onChange={(e) => setAd(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') setDuzenle(false)
+          if (e.key === 'Escape') yoksay()
           if (e.key === 'Enter' && degisti) {
-            void onKaydet(ad.trim()).then(() => setDuzenle(false))
+            void onKaydet({ kod: kod.trim(), ad: ad.trim() }).then(() => setDuzenle(false))
           }
         }}
         className="min-w-0 flex-1 rounded border border-line bg-surface px-1.5 py-0.5 text-[12px] text-ink outline-none focus:border-accent"
       />
       <button disabled={!degisti || bekliyor}
-              onClick={() => onKaydet(ad.trim()).then(() => setDuzenle(false))}
+              onClick={() => onKaydet({ kod: kod.trim(), ad: ad.trim() }).then(() => setDuzenle(false))}
               className="shrink-0 text-[11px] text-accent-ink hover:underline disabled:opacity-40">
         Kaydet
       </button>
-      <button onClick={() => setDuzenle(false)}
-              className="shrink-0 text-[11px] text-faint hover:text-ink">
+      <button onClick={yoksay} className="shrink-0 text-[11px] text-faint hover:text-ink">
         Yoksay
       </button>
     </span>

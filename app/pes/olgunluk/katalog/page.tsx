@@ -76,7 +76,14 @@ export default async function OlgunlukKatalogPage({
       )}
 
       {!dbError && data?.katalog && (
+        /* key ŞART: panel katalogu useState ile ALIYOR ve useState yalnız ilk
+           render'da çalışır. Sürüm değiştirildiğinde sunucu yeni katalogu
+           gönderiyordu ama panelin iç durumu eskisinde kalıyor, başlıkta v8
+           yazarken içerik v7 görünüyordu — üstelik v7 yayında olduğu için
+           ekran "salt okunur" diyordu ve taslak hiç düzenlenemiyordu.
+           key değişince bileşen yeniden kurulur, seçili süreç de sıfırlanır. */
         <OlgunlukKatalogPaneli
+          key={data.katalog.sablon.id}
           katalog={data.katalog}
           sablonlar={data.hepsi}
           yetkili={yetkili}

@@ -123,6 +123,34 @@ test('süreç ve kategori başlıkları da sürümleniyor', async () => {
   })
 })
 
+test('madde seviyeler arasında taşınabilir ve taşıma geçmişe düşer', async () => {
+  await geriAlinan(async (sql) => {
+    const { sablonId } = await taslakKatalog(sql)
+    // Üç seviyesi de dolu bir süreçten seviye 1'in ilk maddesini al.
+    const [k] = await sql`
+      SELECT k.id, k.surec_id, k.seviye FROM olgunluk_kriter k
+       WHERE k.sablon_id = ${sablonId} AND k.seviye = 1
+       ORDER BY k.id LIMIT 1`
+
+    // Panelin yaptığı işlem: seviye değişince madde hedef seviyenin SONUNA
+    // gider — eski sıra numarası orada başka bir maddeyle çakışırdı.
+    const [{ sonSira }] = await sql`
+      SELECT COALESCE(max(sira), 0)::int AS "sonSira"
+        FROM olgunluk_kriter WHERE surec_id = ${k.surec_id} AND seviye = 3`
+    await sql`
+      UPDATE olgunluk_kriter SET seviye = 3, sira = ${sonSira + 1} WHERE id = ${k.id}`
+
+    const [sonra] = await sql`SELECT seviye, sira FROM olgunluk_kriter WHERE id = ${k.id}`
+    expect(sonra.seviye).toBe(3)
+    expect(sonra.sira).toBe(sonSira + 1)
+
+    const g = await revizyonlar(sql, 'kriter', k.id)
+    expect(g.length).toBe(1)
+    expect(g[0].degisen).toContain('seviye')
+    expect(g[0].onceki.seviye).toBe(1)
+  })
+})
+
 test('yayındaki sürüm kilitli olduğu için geçmişe de kayıt düşmez', async () => {
   await geriAlinan(async (sql) => {
     const hepsi = await sablonlar(sql)

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, expect, test } from 'vitest'
 import postgres from 'postgres'
 import { readFileSync } from 'node:fs'
 import { sablonlar, varsayilanSablon } from './olgunluk'
-import { denetimDetay, filoDurumu } from './olgunluk-denetim'
+import { denetimDetay, filoDurumu, atolyeOlgunluk } from './olgunluk-denetim'
 
 /* Denetimin TAM AKIŞI, uygulamanın rolüyle (pes_app, NOBYPASSRLS):
    sürüm yayınla -> denetim aç -> madde işaretle -> seviye türet ->
@@ -170,6 +170,32 @@ test('taslak denetim filo görünümüne girmez, tamamlanınca girer', async () 
       satir.kategoriler[k.kod] !== undefined && satir.kategoriler[k.kod] !== null)
     expect(katKod).toBeDefined()
     expect(satir.kategoriler[katKod!.kod]).toBe(3)
+  })
+})
+
+test('atölye sayfası: taslak da tamamlanmış da listelenir, profil sonuncudan gelir', async () => {
+  await geriAlinan(async (sql) => {
+    const { denetimId, workshopId, surec } = await kurulum(sql)
+
+    // Taslak haldeyken: listede var ama "son tamamlanmış" yok.
+    const taslakHal = await atolyeOlgunluk(sql, workshopId)
+    expect(taslakHal.denetimler.length).toBe(1)
+    expect(taslakHal.denetimler[0].durum).toBe('taslak')
+    expect(taslakHal.sonDenetim).toBeNull()
+    expect(taslakHal.sonKategoriler.length).toBe(0)
+    expect(taslakHal.yayindaSurum).not.toBeNull()
+
+    await isaretle(sql, denetimId, surec.id, 'EVET')
+    await sql`
+      UPDATE olgunluk_denetim SET durum = 'tamamlandi', tamamlandi_at = now()
+       WHERE id = ${denetimId}`
+
+    const son = await atolyeOlgunluk(sql, workshopId)
+    expect(son.sonDenetim?.denetim_id).toBe(denetimId)
+    expect(son.sonDenetim?.yuzde).toBe('100.0')
+    expect(son.sonDenetim?.sablon_kod).toBeTruthy()
+    // Radar verisi yalnız tamamlanmış denetimden gelir.
+    expect(son.sonKategoriler.length).toBeGreaterThan(0)
   })
 })
 

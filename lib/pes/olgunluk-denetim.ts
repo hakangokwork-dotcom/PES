@@ -229,6 +229,82 @@ export async function filoDurumu(
   }
 }
 
+/* ---------------------------------------------------------------- */
+
+export interface AtolyeDenetimSatiri {
+  denetim_id: number
+  tarih: string
+  durum: DenetimDurum
+  denetci: string | null
+  sablon_kod: string
+  yuzde: string | null
+  puan: string | null
+  max_puan: string | null
+  degerlendirilen: number
+  degerlendirilmeyen: number
+}
+
+export interface AtolyeOlgunluk {
+  denetimler: AtolyeDenetimSatiri[]
+  /** En son TAMAMLANMIŞ denetimin kategori kırılımı — radar için. */
+  sonKategoriler: KategoriSeviye[]
+  sonDenetim: AtolyeDenetimSatiri | null
+  /** Yayında sürüm yoksa yeni denetim açılamaz (031 trigger). */
+  yayindaSurum: { id: number; kod: string } | null
+}
+
+/**
+ * Tek atölyenin olgunluk geçmişi — atölye detay sayfasının sekmesi için.
+ *
+ * Taslaklar da döner: "yarım kalmış denetim var mı" sorusu atölye
+ * sayfasında sorulan ilk sorulardan biri, filo görünümüne gitmeden
+ * cevaplanabilmeli.
+ */
+export async function atolyeOlgunluk(
+  sql: postgres.TransactionSql,
+  workshopId: number
+): Promise<AtolyeOlgunluk> {
+  const denetimler = await sql`
+    SELECT o.denetim_id, o.tarih::text AS tarih, o.durum, o.denetci,
+           s.kod AS sablon_kod,
+           o.yuzde::text AS yuzde, o.puan::text AS puan, o.max_puan::text AS max_puan,
+           o.degerlendirilen, o.degerlendirilmeyen
+      FROM v_olgunluk_denetim_ozet o
+      JOIN olgunluk_sablon s ON s.id = o.sablon_id
+     WHERE o.workshop_id = ${workshopId}
+     ORDER BY o.tarih DESC, o.denetim_id DESC` as unknown as AtolyeDenetimSatiri[]
+
+  const sonDenetim = denetimler.find((d) => d.durum === 'tamamlandi') ?? null
+
+  const sonKategoriler = sonDenetim
+    ? (await sql`
+        SELECT kategori_id, kategori_kod, kategori_adi, sira, surec_adedi,
+               ortalama_seviye::text AS ortalama_seviye, en_zayif_seviye
+          FROM v_olgunluk_kategori WHERE denetim_id = ${sonDenetim.denetim_id}
+         ORDER BY sira`) as unknown as KategoriSeviye[]
+    : []
+
+  const [yayin] = await sql`
+    SELECT id, kod FROM olgunluk_sablon WHERE durum = 'yayinda'`
+
+  return {
+    denetimler,
+    sonKategoriler,
+    sonDenetim,
+    yayindaSurum: (yayin as unknown as { id: number; kod: string }) ?? null,
+  }
+}
+
+/** Yüzdeden A/B/C/D — v_atolye_olgunluk'takiyle aynı eşikler. */
+export function olgunlukSinifi(yuzde: string | number | null): string {
+  if (yuzde === null) return 'YOK'
+  const v = Number(yuzde)
+  if (v >= 85) return 'A'
+  if (v >= 70) return 'B'
+  if (v >= 50) return 'C'
+  return 'D'
+}
+
 /** Seviye (0-3) -> ısı haritası rengi. Nötr gri ile marka yeşili arası. */
 export function seviyeRengi(seviye: number | null | undefined): string {
   if (seviye === null || seviye === undefined) return 'bg-canvas text-faint'

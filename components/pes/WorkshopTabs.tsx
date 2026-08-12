@@ -7,6 +7,8 @@ import AtolyeProfilSekmesi, {
   type ProfilKaydi, type DenetimKaydi,
 } from '@/components/pes/AtolyeProfilSekmesi'
 import AtolyeKapasiteSekmesi from '@/components/pes/AtolyeKapasiteSekmesi'
+import AtolyeOlgunlukSekmesi from '@/components/pes/AtolyeOlgunlukSekmesi'
+import type { AtolyeOlgunluk } from '@/lib/pes/olgunluk-denetim'
 
 type Account = {
   workshop_id: number
@@ -56,7 +58,7 @@ type Capability = {
 /* Yetenek editörü bant bazlı çalışır; sekme atölyenin bantlarını listeler. */
 type Line = { id: number; code: string; name: string }
 
-const TABS = ['Kimlik', 'Profil & Denetim', 'Kapasite', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
+const TABS = ['Kimlik', 'Profil & Denetim', 'Olgunluk', 'Kapasite', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
 type Tab = (typeof TABS)[number]
 
 const KIND_LABELS: Record<string, string> = {
@@ -96,6 +98,7 @@ export default function WorkshopTabs({
   isActive,
   profil,
   denetimler,
+  olgunluk,
 }: {
   workshopId: number
   account: Account | null
@@ -107,6 +110,7 @@ export default function WorkshopTabs({
   isActive: boolean
   profil: ProfilKaydi
   denetimler: DenetimKaydi[]
+  olgunluk: AtolyeOlgunluk
 }) {
   const [tab, setTab] = useState<Tab>('Kimlik')
 
@@ -137,6 +141,9 @@ export default function WorkshopTabs({
             profil={profil}
             denetimler={denetimler}
           />
+        )}
+        {tab === 'Olgunluk' && (
+          <AtolyeOlgunlukSekmesi workshopId={workshopId} veri={olgunluk} />
         )}
         {tab === 'Kapasite' && <AtolyeKapasiteSekmesi workshopId={workshopId} />}
         {tab === 'Yetenek' && <YetenekTab capabilities={capabilities} lines={lines} />}

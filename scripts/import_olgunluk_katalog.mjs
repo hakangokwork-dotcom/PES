@@ -34,8 +34,13 @@ const SABLON_AD = arg('ad', 'WKYS Olgunluk Seviyesi v4')
 
 /* ---- Okuma ---- */
 const wb = xlsx.readFile(DOSYA, { cellDates: false })
-const sayfa = (ad) => {
-  if (!wb.Sheets[ad]) { console.error(`Sayfa yok: ${ad}`); process.exit(1) }
+/** zorunlu=false ise sayfa yoksa boş liste döner — her katalog dosyasında
+    "Beyin Fırt Havuzu" gibi ek sayfalar bulunmuyor. */
+const sayfa = (ad, zorunlu = true) => {
+  if (!wb.Sheets[ad]) {
+    if (zorunlu) { console.error(`Sayfa yok: ${ad}`); process.exit(1) }
+    return []
+  }
   return xlsx.utils.sheet_to_json(wb.Sheets[ad], { raw: false, defval: null, blankrows: false })
 }
 // "3.5 (öneri)" -> "3.5"; kod veritabanında sade tutulur.
@@ -67,7 +72,7 @@ const kriterler = sayfa('Kriterler')
   .filter((k) => k.surecKod && k.metin)
 
 // Beyin Fırt havuzundan yalnız ONAYLI SUREC_KOD doldurulmuş satırlar gelir.
-const havuz = sayfa('Beyin Fırt Havuzu')
+const havuz = sayfa('Beyin Fırt Havuzu', false)
   .filter((r) => metin(r['ONAYLI SUREC_KOD']))
   .map((r) => kriterSatiri(kodSade(r['ONAYLI SUREC_KOD']), r.SEVIYE, metin(r['KRİTER METNİ']), null))
   .filter((k) => k.surecKod && k.metin)

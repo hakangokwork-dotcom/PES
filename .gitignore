@@ -43,6 +43,7 @@ ekip.csv
 # ile bir kez tuketilir. Ondan sonra katalogun tek kaynagi veritabani ve
 # /pes/olgunluk/katalog panelidir.
 /olgunluk_katalog_taslak.xlsx
+/olgunluk_katalog_v5_taslak.xlsx
 
 # Excel'in acik dosya kilitleri
 ~$*.xlsx

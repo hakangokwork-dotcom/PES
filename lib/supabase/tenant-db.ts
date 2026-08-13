@@ -13,7 +13,8 @@ import { getDB } from './db'
  */
 export async function withTenant<T>(
   tenantId: string,
-  fn: (sql: postgres.TransactionSql) => Promise<T>
+  fn: (sql: postgres.TransactionSql) => Promise<T>,
+  opts: { workshopId?: number | null } = {}
 ): Promise<T> {
   if (!isValidUuid(tenantId)) {
     throw new Error(`withTenant: geçersiz tenant_id (${tenantId})`)
@@ -21,6 +22,11 @@ export async function withTenant<T>(
   const sql = getDB()
   return sql.begin(async (txSql) => {
     await txSql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`
+    /* 033: atölye kullanıcısı kısıtı. HER ZAMAN yazılır — boş bırakmak
+       havuzdan gelen bağlantıda önceki değerin kalması riskini doğurur.
+       Boş dize = kısıt yok = merkez kullanıcısı (bugünkü davranış). */
+    await txSql`SELECT set_config('app.current_workshop_id',
+                  ${opts.workshopId != null ? String(opts.workshopId) : ''}, true)`
     return fn(txSql)
   }) as Promise<T>
 }

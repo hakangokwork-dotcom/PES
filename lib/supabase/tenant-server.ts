@@ -37,5 +37,13 @@ export async function withServerTenant<T>(
   if (tenantRows.length === 0) return null
 
   const tenantId = tenantRows[0].tenant_id
-  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id))
+
+  /* 033: kullanıcı bir atölyeye bağlıysa RLS onu yalnız kendi atölyesine
+     kısıtlar. Bağ yoksa NULL döner ve hiçbir şey değişmez. */
+  const [ws] = await sql`
+    SELECT resolve_workshop_id(${user.id}::uuid) AS workshop_id
+  ` as Array<{ workshop_id: number | null }>
+
+  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id),
+    { workshopId: ws?.workshop_id ?? null })
 }

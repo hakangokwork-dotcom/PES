@@ -12,6 +12,9 @@ export type TenantContext = {
   /** Denetim/geçmiş kayıtlarında "kim yaptı" yazabilmek için. pes_app rolü
       auth şemasını okuyamaz, dolayısıyla e-posta sonradan join'lenemez. */
   userEmail: string | null
+  /** 033: kullanıcı bir atölyeye bağlıysa o atölyenin id'si; merkez
+      kullanıcısında null. RLS kısıtı buna göre uygulanır. */
+  workshopId: number | null
   role: 'owner' | 'admin' | 'editor' | 'viewer'
   tenantType: 'individual' | 'parent' | 'internal'
   isInternalAdmin: boolean
@@ -61,10 +64,18 @@ export async function getTenantContext(req?: NextRequest | null): Promise<Tenant
   if (rows.length === 0) return null
 
   const { tenant_id, role, tenant_type } = rows[0]
+
+  /* 033: atölye bağı. SECURITY DEFINER — resolve_tenant_context ile aynı
+     gerekçe: pes_app rolü workshop_user'ı doğrudan okuyamaz. */
+  const wsRows = await sql`
+    SELECT resolve_workshop_id(${user.id}::uuid) AS workshop_id
+  ` as Array<{ workshop_id: number | null }>
+
   return {
     tenantId: tenant_id,
     userId: user.id,
     userEmail: user.email ?? null,
+    workshopId: wsRows[0]?.workshop_id ?? null,
     role,
     tenantType: tenant_type,
     isInternalAdmin: tenant_type === 'internal' && (role === 'owner' || role === 'admin'),

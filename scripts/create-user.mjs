@@ -4,7 +4,14 @@
  *
  *   node scripts/create-user.mjs --email=ahmet@pes.local --sifre='Gizli1234!'
  *   node scripts/create-user.mjs --email=ayse@pes.local  --sifre='Gizli1234!' --panel=atolye
+ *   node scripts/create-user.mjs --email=b091@pes.local  --sifre='Gizli1234!' --atolye=B091
  *   node scripts/create-user.mjs --liste            # mevcut kullanıcıları göster
+ *
+ * --atolye=<KOD> (033): hesabı O ATÖLYEYE bağlar. Bağlı kullanıcı RLS
+ * seviyesinde yalnız kendi atölyesinin satırlarını görür ve yazar; başka
+ * atölyeye kayıt açamaz. --atolye verilince panel otomatik 'atolye' olur —
+ * yönetim paneline giren bir hesabı atölyeye kısıtlamak, o kişiyi merkez
+ * ekranlarında boş listelerle baş başa bırakırdı.
  *
  * PANEL → ROL:
  *   --panel=tam     (VARSAYILAN) → rol 'admin'  → HER İKİ panel: /pes + /workshop
@@ -75,7 +82,10 @@ if (process.argv.includes('--liste')) {
 /* ---------- Girdi doğrulama ---------- */
 const email = (arg('email') || '').trim().toLowerCase()
 const sifre = arg('sifre')
-const panel = arg('panel', 'tam')
+const atolyeKod = (arg('atolye') || '').trim().toUpperCase()
+/* --atolye verildiyse panel zorunlu olarak 'atolye': atölyeye kısıtlanmış
+   bir hesabın yönetim panelinde işi yok, orada her liste boş görünürdü. */
+const panel = atolyeKod ? 'atolye' : arg('panel', 'tam')
 const tenantSlug = arg('tenant', 'default')
 
 const hata = []
@@ -91,6 +101,23 @@ if (hata.length) {
 
 const rol = PANEL_ROL[panel]
 const [tenant] = await sql`SELECT id, name, type FROM tenant WHERE slug = ${tenantSlug}`
+
+/* Atölye kodu verildiyse ÖNCE doğrula: hesap açılıp sonra bağ kurulamazsa
+   ortada yönetim paneline giremeyen, atölyesi de olmayan bir hesap kalır. */
+let atolye = null
+if (atolyeKod) {
+  if (!tenant) { console.error(`✗ tenant bulunamadı: ${tenantSlug}`); await sql.end(); process.exit(1) }
+  const bulunan = await sql`
+    SELECT id, code, name FROM workshop
+     WHERE tenant_id = ${tenant.id} AND upper(code) = ${atolyeKod}`
+  if (bulunan.length === 0) {
+    console.error(`\n✗ atölye bulunamadı: ${atolyeKod}`)
+    console.error('  Kodları görmek için: SELECT code, name FROM workshop ORDER BY code;\n')
+    await sql.end()
+    process.exit(1)
+  }
+  atolye = bulunan[0]
+}
 if (!tenant) {
   console.error(`✗ tenant bulunamadı: ${tenantSlug}`)
   await sql.end()
@@ -157,12 +184,24 @@ await sql.begin(async (tx) => {
     INSERT INTO tenant_user (tenant_id, user_id, role, is_primary)
     VALUES (${tenant.id}, ${uid}, ${rol}, TRUE)
     ON CONFLICT (tenant_id, user_id) DO UPDATE SET role = EXCLUDED.role`
+
+  /* 033 atölye bağı. Verilmediyse mevcut bağ SİLİNMEZ: --sifre ile şifre
+     güncellemek, kullanıcıyı sessizce merkez kullanıcısına çevirmemeli. */
+  if (atolye) {
+    await tx`
+      INSERT INTO workshop_user (user_id, workshop_id, tenant_id)
+      VALUES (${uid}, ${atolye.id}, ${tenant.id})
+      ON CONFLICT (user_id) DO UPDATE SET workshop_id = EXCLUDED.workshop_id`
+  }
 })
 
 console.log(`\n✓ ${yeni ? 'Hesap açıldı' : 'Hesap güncellendi'}`)
 console.log(`  e-posta : ${email}`)
 console.log(`  rol     : ${rol}  (${panel === 'atolye' ? 'yalnız /workshop' : 'her iki panel: /pes + /workshop'})`)
 console.log(`  tenant  : ${tenant.name} (${tenantSlug})`)
+if (atolye) {
+  console.log(`  atölye  : ${atolye.code} — ${atolye.name}  (yalnız bu atölyenin verisi)`)
+}
 console.log(`\n  Şifreyi kullanıcıya elden ilet — betik ekrana basmaz.\n`)
 
 await sql.end()

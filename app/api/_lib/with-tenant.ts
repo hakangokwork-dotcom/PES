@@ -48,7 +48,14 @@ export function withTenantRoute<P = Record<string, string>>(
       if (opts.internalAdmin) {
         return await withInternalAdmin<NextResponse>((sql) => handler(req, { sql, tenant, params }))
       }
-      return await withTenant<NextResponse>(tenant.tenantId, (sql) => handler(req, { sql, tenant, params }))
+      /* 033: atölye kullanıcısıysa RLS onu kendi atölyesine kısıtlar.
+         API uçlarının tek tek workshop_id kontrolü yapmasına gerek yok —
+         yanlış atölyeye yazma denemesi politikada durur. */
+      return await withTenant<NextResponse>(
+        tenant.tenantId,
+        (sql) => handler(req, { sql, tenant, params }),
+        { workshopId: tenant.workshopId },
+      )
     } catch (err) {
       console.error('[withTenantRoute]', err)
       const msg = err instanceof Error ? err.message : 'Sunucu hatası'

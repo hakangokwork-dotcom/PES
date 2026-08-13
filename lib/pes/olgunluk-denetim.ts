@@ -15,6 +15,14 @@ import type { Kategori, Kriter, Surec, Taraf } from './olgunluk'
 export type Sonuc = 'EVET' | 'HAYIR' | 'KAPSAM_DISI'
 export type DenetimDurum = 'taslak' | 'tamamlandi'
 
+/** 034: atölyenin kendi beyanı ile denetçinin kaydı ayrı tutulur. */
+export type DenetimTur = 'DENETIM' | 'OZ_DEGERLENDIRME'
+
+export const TUR_ETIKET: Record<DenetimTur, string> = {
+  DENETIM: 'Denetim',
+  OZ_DEGERLENDIRME: 'Öz değerlendirme',
+}
+
 /* "Var/Yok" DEĞİL. Kriter bir varlık değil bir ÖNERMEDİR; sorulan şey
    "bu şey var mı" değil, "bu önerme bu atölye için doğru mu".
    Olumsuz kurulmuş maddelerde fark kritik: "Atölyede çocuk işçi
@@ -36,6 +44,7 @@ export interface DenetimBasligi {
   tarih: string
   denetci: string | null
   durum: DenetimDurum
+  tur: DenetimTur
   not_metni: string | null
 }
 
@@ -88,7 +97,7 @@ export async function denetimDetay(
   const [baslik] = await sql`
     SELECT d.id, d.workshop_id, w.code AS atolye_kodu, w.name AS atolye_adi,
            d.sablon_id, s.kod AS sablon_kod,
-           d.tarih::text AS tarih, d.denetci, d.durum, d.not_metni
+           d.tarih::text AS tarih, d.denetci, d.durum, d.tur, d.not_metni
       FROM olgunluk_denetim d
       JOIN workshop w        ON w.id = d.workshop_id
       JOIN olgunluk_sablon s ON s.id = d.sablon_id
@@ -184,8 +193,11 @@ export async function filoDurumu(
            a.son_denetim::text AS son_denetim, a.denetci,
            a.yuzde::text AS yuzde, a.sinif,
            a.degerlendirilen, a.degerlendirilmeyen,
+           /* Yalnız RESMİ denetim taslağı: filo görünümü merkezin ekranı,
+              atölyenin yarım kalmış öz değerlendirmesi oraya düşmemeli. */
            (SELECT d.id FROM olgunluk_denetim d
              WHERE d.workshop_id = a.workshop_id AND d.durum = 'taslak'
+               AND d.tur = 'DENETIM'
              ORDER BY d.tarih DESC, d.id DESC LIMIT 1) AS taslak_id
       FROM v_atolye_olgunluk a
      WHERE ${opts.pasifDahil ? sql`TRUE` : sql`a.is_active`}
@@ -235,6 +247,7 @@ export interface AtolyeDenetimSatiri {
   denetim_id: number
   tarih: string
   durum: DenetimDurum
+  tur: DenetimTur
   denetci: string | null
   sablon_kod: string
   yuzde: string | null
@@ -265,16 +278,20 @@ export async function atolyeOlgunluk(
   workshopId: number
 ): Promise<AtolyeOlgunluk> {
   const denetimler = await sql`
-    SELECT o.denetim_id, o.tarih::text AS tarih, o.durum, o.denetci,
+    SELECT o.denetim_id, o.tarih::text AS tarih, o.durum, d.tur, o.denetci,
            s.kod AS sablon_kod,
            o.yuzde::text AS yuzde, o.puan::text AS puan, o.max_puan::text AS max_puan,
            o.degerlendirilen, o.degerlendirilmeyen
       FROM v_olgunluk_denetim_ozet o
-      JOIN olgunluk_sablon s ON s.id = o.sablon_id
+      JOIN olgunluk_sablon s  ON s.id = o.sablon_id
+      JOIN olgunluk_denetim d ON d.id = o.denetim_id
      WHERE o.workshop_id = ${workshopId}
      ORDER BY o.tarih DESC, o.denetim_id DESC` as unknown as AtolyeDenetimSatiri[]
 
-  const sonDenetim = denetimler.find((d) => d.durum === 'tamamlandi') ?? null
+  /* Sınıf ve radar YALNIZ resmi denetimden. Öz değerlendirme listede
+     görünür ama atölyenin kendi notu skoru belirlemez. */
+  const sonDenetim = denetimler.find(
+    (d) => d.durum === 'tamamlandi' && d.tur === 'DENETIM') ?? null
 
   const sonKategoriler = sonDenetim
     ? (await sql`

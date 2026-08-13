@@ -20,7 +20,18 @@ import { dbHata } from '../_guard'
 
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   const body = (await req.json()) as Record<string, unknown>
-  const workshopId = Number(body.workshop_id)
+
+  /* 034: kaydı KİM açıyor, türü o belirler.
+       merkez kullanıcısı -> DENETIM (rapora giren asıl kayıt)
+       atölye kullanıcısı -> OZ_DEGERLENDIRME (kendi beyanı)
+     İstemciden gelen bir tur alanına bakılmaz; bakılsaydı atölye kendine
+     resmi denetim açabilirdi. Veritabanı tarafında da trigger var. */
+  const tur = tenant.workshopId ? 'OZ_DEGERLENDIRME' : 'DENETIM'
+
+  /* Atölye kullanıcısı her zaman KENDİ atölyesine açar; gövdedeki
+     workshop_id yok sayılır (RLS zaten reddederdi, ama hata yerine
+     doğru davranış daha iyi). */
+  const workshopId = tenant.workshopId ?? Number(body.workshop_id)
   if (!Number.isInteger(workshopId)) {
     return NextResponse.json({ error: 'Atölye seçilmeli' }, { status: 400 })
   }
@@ -43,7 +54,8 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
 
   const [ayni] = await sql`
     SELECT id FROM olgunluk_denetim
-     WHERE workshop_id = ${workshopId} AND sablon_id = ${sablon.id} AND tarih = ${tarih}`
+     WHERE workshop_id = ${workshopId} AND sablon_id = ${sablon.id}
+       AND tarih = ${tarih} AND tur = ${tur}`
   if (ayni) {
     // Çift kayıt yerine mevcuda yönlendir: aynı gün ikinci kez "yeni
     // denetim" demek neredeyse her zaman yarım kalanı sürdürmek demektir.
@@ -52,8 +64,8 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
 
   try {
     const [satir] = await sql`
-      INSERT INTO olgunluk_denetim (tenant_id, workshop_id, sablon_id, tarih, denetci)
-      VALUES (${tenant.tenantId}, ${workshopId}, ${sablon.id}, ${tarih},
+      INSERT INTO olgunluk_denetim (tenant_id, workshop_id, sablon_id, tarih, tur, denetci)
+      VALUES (${tenant.tenantId}, ${workshopId}, ${sablon.id}, ${tarih}, ${tur},
               ${String(body.denetci ?? '').trim() || null})
       RETURNING id`
     return NextResponse.json({ id: satir.id })

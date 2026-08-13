@@ -1,5 +1,6 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -69,7 +70,7 @@ export default function Wrapper() {
 }
 
 function IsEmriPage() {
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   const [orders, setOrders] = useState<WO[]>([])
   const [lines, setLines] = useState<Line[]>([])
   const [showForm, setShowForm] = useState(false)

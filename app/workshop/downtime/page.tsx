@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Line { id: number; code: string; name: string }
@@ -14,8 +14,7 @@ export default function DowntimeWrapper() {
 }
 
 function WorkshopDowntimePage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [workshopName, setWorkshopName] = useState('')
   const [lines, setLines] = useState<Line[]>([])
   const [records, setRecords] = useState<DowntimeRow[]>([])

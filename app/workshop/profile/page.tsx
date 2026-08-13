@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import React, { Suspense, useState, useEffect, useMemo } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Workshop {
@@ -31,8 +31,7 @@ export default function ProfileWrapper() {
 }
 
 function WorkshopProfilePage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [w, setW] = useState<Workshop | null>(null)
   const [lines, setLines] = useState<Line[]>([])
   const [loading, setLoading] = useState(false)

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 
@@ -7,10 +8,11 @@ export const dynamic = 'force-dynamic'
 interface Props { searchParams: Promise<{ wid?: string }> }
 
 export default async function AnalysisPage({ searchParams }: Props) {
-  const { wid } = await searchParams
+  const { wid: widParam } = await searchParams
+  const wid = await aktifAtolyeId(widParam)
   if (!wid) return <p>Atölye seçin</p>
 
-  const workshopId = parseInt(wid)
+  const workshopId = wid
 
   const data = await withServerTenant(async (sql) => {
     const [w] = await sql`SELECT * FROM workshop WHERE id = ${workshopId}`

@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
 
 const TEMPLATES = [
   { key: 'setup', label: 'Atolye Kurulum (Tek Dosya)', desc: 'Profil + personel + bantlar + gider — bir kerede kurulum', icon: '★', color: 'emerald' },
@@ -29,8 +29,7 @@ export default function VeriYukleWrapper() {
 }
 
 function VeriYuklePage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [results, setResults] = useState<Record<string, { ok?: boolean; message?: string; error?: string; imported?: number }>>({})

@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const MAIN_FIELDS = [
@@ -37,8 +37,7 @@ export default function WorkshopCostsWrapper() {
 interface DkMaliyetRef { bolge: number; dk_maliyet_tl: number }
 
 function WorkshopCostsPage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [w, setW] = useState<Workshop | null>(null)
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(new Date().getMonth() + 1)

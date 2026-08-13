@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export default function WorkforceWrapper() {
@@ -9,8 +9,7 @@ export default function WorkforceWrapper() {
 }
 
 function WorkshopWorkforcePage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [workshopName, setWorkshopName] = useState('')
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(new Date().getMonth() + 1)

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { Boxes, Wallet, Gauge, BarChart3 } from 'lucide-react'
@@ -10,7 +11,8 @@ export const dynamic = 'force-dynamic'
 interface Props { searchParams: Promise<{ wid?: string }> }
 
 export default async function WorkshopDashboard({ searchParams }: Props) {
-  const { wid } = await searchParams
+  const { wid: widParam } = await searchParams
+  const wid = await aktifAtolyeId(widParam)
 
   const data = await withServerTenant(async (sql, _tenantId, userId) => {
     if (!wid) {
@@ -26,7 +28,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
       return { mode: 'list' as const, workshops, userId }
     }
 
-    const workshopId = parseInt(wid)
+    const workshopId = wid
     const [w] = await sql`SELECT * FROM workshop WHERE id = ${workshopId}`
     if (!w) return { mode: 'notfound' as const }
 

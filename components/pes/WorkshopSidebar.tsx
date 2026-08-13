@@ -78,26 +78,33 @@ const NAV_GROUPS: NavGroup[] = [
 interface WsItem { id: number; code: string; name: string }
 
 export default function WorkshopSidebar({
-  eposta = null, tenantAdi = null,
-}: { eposta?: string | null; tenantAdi?: string | null }) {
+  eposta = null, tenantAdi = null, sabitAtolye = null,
+}: {
+  eposta?: string | null
+  tenantAdi?: string | null
+  /* Kullanıcı bir atölyeye bağlıysa seçici gösterilmez: seçecek bir şey
+     yok ve "Atölye seçin" boş ekranı da bundan doğuyordu. */
+  sabitAtolye?: WsItem | null
+}) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const wid = searchParams.get('wid') ?? ''
+  const wid = searchParams.get('wid') || (sabitAtolye ? String(sabitAtolye.id) : '')
 
   const [workshops, setWorkshops] = useState<WsItem[]>([])
   const [arama, setArama] = useState('')
 
   useEffect(() => {
+    if (sabitAtolye) return          // listeye gerek yok, seçici çizilmiyor
     fetch('/api/pes/workshops')
       .then(r => r.json())
       .then(d => setWorkshops((d.workshops ?? []).map((w: Record<string, unknown>) => ({
         id: w.id as number, code: w.code as string, name: w.name as string,
       }))))
       .catch(() => {})
-  }, [])
+  }, [sabitAtolye])
 
-  const currentWs = workshops.find(w => w.id === Number(wid)) ?? null
+  const currentWs = sabitAtolye ?? workshops.find(w => w.id === Number(wid)) ?? null
 
   function switchWorkshop(newWid: string) {
     if (!newWid) { router.push('/workshop'); return }
@@ -136,17 +143,27 @@ export default function WorkshopSidebar({
         <label className="mb-1 block px-1 text-[11px] font-semibold uppercase tracking-wider text-faint">
           Aktif Atölye
         </label>
-        <select
-          value={wid}
-          onChange={e => switchWorkshop(e.target.value)}
-          className="w-full truncate rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-        >
-          <option value="">Atölye seçin…</option>
-          {workshops.map(w => (
-            <option key={w.id} value={w.id}>{w.code} — {w.name}</option>
-          ))}
-        </select>
-        {currentWs && (
+        {sabitAtolye ? (
+          /* Bağlı kullanıcı: seçim yok, kimlik var. Açılır kutu göstermek
+             "başka atölyeye geçebilirim" izlenimi verirdi; RLS zaten
+             geçirmez, ekranda da vaat edilmemeli. */
+          <div className="w-full truncate rounded-lg border border-line-soft bg-canvas px-2.5 py-1.5 text-sm">
+            <span className="num text-faint">{sabitAtolye.code}</span>{' '}
+            <span className="text-ink">{sabitAtolye.name}</span>
+          </div>
+        ) : (
+          <select
+            value={wid}
+            onChange={e => switchWorkshop(e.target.value)}
+            className="w-full truncate rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          >
+            <option value="">Atölye seçin…</option>
+            {workshops.map(w => (
+              <option key={w.id} value={w.id}>{w.code} — {w.name}</option>
+            ))}
+          </select>
+        )}
+        {!sabitAtolye && currentWs && (
           <p className="mt-1.5 flex items-center gap-1 px-1 text-[11px] font-medium text-faint">
             <MapPin className="size-3" strokeWidth={1.8} />
             <span className="truncate">{currentWs.name}</span>

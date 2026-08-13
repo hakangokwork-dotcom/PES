@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const DEFECTS = ['Dikiş hatası','Montaj hatası','Kemer/fermuar hatası','Temizlik hatası','Ütü hatası','Etiket/paket hatası','Ölçü hatası']
@@ -13,8 +13,7 @@ export default function QualityWrapper() {
 interface LineItem { id: number; code: string; name: string }
 
 function WorkshopQualityPage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [workshopName, setWorkshopName] = useState('')
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(new Date().getMonth() + 1)

@@ -1,5 +1,6 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -92,7 +93,7 @@ interface DragState {
 }
 
 function TakvimPage() {
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   const router = useRouter()
   const [orders, setOrders] = useState<WO[]>([])
   const [lines, setLines] = useState<Line[]>([])

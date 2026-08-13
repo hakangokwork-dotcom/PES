@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Process { id: number; code: string; name: string }
@@ -20,8 +20,7 @@ export default function WorkshopModelsWrapper() {
 }
 
 function WorkshopModelsPage() {
-  const searchParams = useSearchParams()
-  const wid = searchParams.get('wid')
+  const wid = useAktifAtolyeId()
   const [models, setModels] = useState<ModelRow[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [processes, setProcesses] = useState<Process[]>([])

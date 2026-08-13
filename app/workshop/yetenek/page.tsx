@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import YetenekEditoru from '@/components/pes/YetenekEditoru'
@@ -10,7 +11,8 @@ interface Props { searchParams: Promise<{ wid?: string; bant?: string }> }
 /* Bant yetenek profili. Yetenekler bant bazında tutulur (line_capability);
    atölye özeti bunlardan türetilir (v_workshop_capability, migration 023). */
 export default async function YetenekPage({ searchParams }: Props) {
-  const { wid, bant } = await searchParams
+  const { wid: widParam, bant } = await searchParams
+  const wid = await aktifAtolyeId(widParam)
 
   const data = await withServerTenant(async (sql) => {
     if (!wid) return { mode: 'atolyesiz' as const }

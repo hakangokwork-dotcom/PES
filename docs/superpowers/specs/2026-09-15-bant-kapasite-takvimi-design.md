@@ -38,14 +38,19 @@ Sonuç: planlamacı ekrana bakıp karar veremiyor, Excel ve telefona dönüyor.
 **K1 — Kapasite atölyenin, bantlar arasında ortak.** Bant başına ayrı kapasite
 tutulmaz. Atölye "günde 6.000 adet" der; üç bandı bu havuzu paylaşır. Doluluk
 atölye satırında hesaplanır, bant satırı yalnız siparişin nerede durduğunu
-gösterir. Kaynak `workshop_stage_capacity`'nin **DIKIM** satırıdır.
-`production_line.daily_target` bu ekranda payda olmaktan çıkar; başka ekranlarda
-kullanıldığı için tabloda kalır.
+gösterir.
 
-**K2 — Bandın varsayılan günlük payı = atölye kapasitesi ÷ bant sayısı.**
-6.000 kapasiteli üç bantlı atölyede bant başına 2.000. Bölen **aktif** bant
-sayısıdır (`production_line.is_active`). Bu yalnızca başlangıç değeridir; atölye
-gün gün ezer.
+Kaynak **aktif bantların `production_line.daily_target` toplamıdır**.
+`workshop_stage_capacity`'de DIKIM satırı bilerek yok; mevcut kapasite API'si
+(`app/api/pes/workshops/[id]/kapasite/route.ts`) bunu açıkça söylüyor: *"DİKİM
+burada YOK: onun kapasitesi bantların daily_target toplamıdır, ayrıca girilmesi
+iki doğruluk kaynağı yaratırdı."* O kural korunuyor.
+
+**K2 — Bandın varsayılan günlük payı, o bandın kendi `daily_target`'ıdır.**
+Eşit bölme yapılmaz: 12 kişilik bant ile 30 kişilik bandın payı aynı olamaz ve
+fark zaten `daily_target`'ta duruyor. Atölye o gün için toplam kapasitesini
+düşürdüğünde (K1'deki override) bantların payı `daily_target` oranında birlikte
+küçülür. Bu yalnızca başlangıç değeridir; atölye gün gün ezer.
 
 **K3 — Günlük planı ve gerçekleşeni atölye girer.** Yeni modele başlarken 2.000
 yerine 1.800 yazmak atölyenin kararıdır. Gerçekleşen adet aynı gün girilir.
@@ -128,8 +133,9 @@ CREATE INDEX IF NOT EXISTS idx_lsch_rezerve
 
 ### 3.2 `workshop_kapasite_gun` — yeni
 
-Atölyenin günlük kapasitesinin sabitten saptığı günler. Kayıt yoksa
-`workshop_stage_capacity`'nin DIKIM satırındaki `gunluk_kapasite` geçerlidir.
+Atölyenin toplam günlük kapasitesinin sabitten saptığı günler — toplu izin,
+kısa vardiya, resmi tatil arifesi. Kayıt yoksa aktif bantların `daily_target`
+toplamı geçerlidir.
 
 ```sql
 CREATE TABLE workshop_kapasite_gun (
@@ -237,14 +243,19 @@ Tek formül, tek yerde. Bunu `lib/pes/` altında saf bir modüle koy; hem API he
 doğrulama betiği aynı koddan okusun.
 
 ```
+çalışan bantlar(atölye, gün) =
+    is_active olan ve o günü kapsayan tam BAKIM/İZİN bloğu bulunmayan bantlar
+
+ham kapasite(atölye, gün) = Σ çalışan bantların daily_target'ı
+
 efektif kapasite(atölye, gün) =
     Pazar ise 0
-    workshop_kapasite_gun(atölye, gün)
-      ?? workshop_stage_capacity(atölye, DIKIM).gunluk_kapasite
+    değilse workshop_kapasite_gun(atölye, gün) ?? ham kapasite(atölye, gün)
 
 bandın varsayılan payı(bant, gün) =
-    o bantta kapsayan BAKIM/İZİN bloğu varsa 0
-    değilse efektif kapasite(atölye, gün) ÷ atölyenin AKTİF bant sayısı
+    bant çalışan bantlarda değilse 0
+    ham kapasite = 0 ise 0
+    değilse round(bant.daily_target × efektif kapasite ÷ ham kapasite)
 
 günlük plan(atama, gün) =
     plan_adet girilmişse o

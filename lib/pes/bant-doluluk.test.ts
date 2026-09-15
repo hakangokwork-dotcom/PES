@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { pazarMi, hamKapasite, efektifKapasite, bantPayi } from './bant-doluluk'
-import type { BantTanim, BlokTanim } from './bant-doluluk'
+import {
+  pazarMi, hamKapasite, efektifKapasite, bantPayi, gunlukPlan, planBitisi,
+} from './bant-doluluk'
+import type { BantTanim, BlokTanim, AtamaTanim } from './bant-doluluk'
 
 /* 2027-01-04 Pazartesi, 2027-01-09 Cumartesi, 2027-01-10 Pazar. */
 const BANTLAR: BantTanim[] = [
@@ -95,5 +97,76 @@ describe('bantPayi', () => {
 
   it('Pazar sıfır', () => {
     expect(bantPayi(101, BANTLAR, [], '2027-01-10', null)).toBe(0)
+  })
+})
+
+describe('gunlukPlan', () => {
+  const atama: AtamaTanim = {
+    atamaId: 1, lineId: 101, adet: 9000, planBaslangic: '2027-01-04', elleplan: {},
+  }
+  const ctx = { bantlar: BANTLAR, bloklar: [] as BlokTanim[], override: () => null }
+
+  it('bandın payı kadar doldurur, son gün kalanı yazar', () => {
+    const p = gunlukPlan(atama, ctx)
+    expect(p.map(x => x.adet)).toEqual([2000, 2000, 2000, 2000, 1000])
+    expect(p.map(x => x.tarih)).toEqual([
+      '2027-01-04', '2027-01-05', '2027-01-06', '2027-01-07', '2027-01-08',
+    ])
+  })
+
+  it('Pazar atlanır, Cumartesi çalışılır', () => {
+    const uzun = { ...atama, adet: 13000 }
+    const tarihler = gunlukPlan(uzun, ctx).map(x => x.tarih)
+    expect(tarihler).toContain('2027-01-09')     // Cumartesi
+    expect(tarihler).not.toContain('2027-01-10') // Pazar
+  })
+
+  it('elle girilen gün sabit kalır, kalan arkaya kayar', () => {
+    const elle = { ...atama, elleplan: { '2027-01-04': 1000, '2027-01-05': 1250 } }
+    const p = gunlukPlan(elle, ctx)
+    expect(p[0]).toMatchObject({ tarih: '2027-01-04', adet: 1000, elle: true })
+    expect(p[1]).toMatchObject({ tarih: '2027-01-05', adet: 1250, elle: true })
+    expect(p[2]).toMatchObject({ tarih: '2027-01-06', adet: 2000, elle: false })
+    expect(p.reduce((t, x) => t + x.adet, 0)).toBe(9000)
+  })
+
+  it('elle girilen gün kalandan büyükse kalanla sınırlanır', () => {
+    const kucuk = { ...atama, adet: 500, elleplan: { '2027-01-04': 9999 } }
+    const p = gunlukPlan(kucuk, ctx)
+    expect(p).toHaveLength(1)
+    expect(p[0].adet).toBe(500)
+  })
+
+  it('kapasitesi sıfır olan gün atlanır, plan uzar', () => {
+    const c = { ...ctx, override: (t: string) => (t === '2027-01-06' ? 0 : null) }
+    const p = gunlukPlan(atama, c)
+    expect(p.map(x => x.tarih)).not.toContain('2027-01-06')
+    expect(p.reduce((t, x) => t + x.adet, 0)).toBe(9000)
+  })
+
+  it('toplam her zaman sipariş adedine eşittir', () => {
+    for (const adet of [1, 999, 9000, 25000]) {
+      const p = gunlukPlan({ ...atama, adet }, ctx)
+      expect(p.reduce((t, x) => t + x.adet, 0)).toBe(adet)
+    }
+  })
+})
+
+describe('planBitisi', () => {
+  const ctx = { bantlar: BANTLAR, bloklar: [] as BlokTanim[], override: () => null }
+
+  it('adedin tükendiği son gündür', () => {
+    const a: AtamaTanim = {
+      atamaId: 1, lineId: 101, adet: 9000, planBaslangic: '2027-01-04', elleplan: {},
+    }
+    expect(planBitisi(a, ctx)).toBe('2027-01-08')
+  })
+
+  it('elle girilen düşük plan bitişi ileri iter', () => {
+    const a: AtamaTanim = {
+      atamaId: 1, lineId: 101, adet: 9000, planBaslangic: '2027-01-04',
+      elleplan: { '2027-01-04': 500, '2027-01-05': 500 },
+    }
+    expect(planBitisi(a, ctx) > '2027-01-08').toBe(true)
   })
 })

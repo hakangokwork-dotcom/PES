@@ -1,3 +1,5 @@
+import { gunEkle } from './yerlestirme'
+
 /* Bant kapasite takvimi — hesap kuralları (tasarım K1, K2, K13).
 
    SAF MODÜL: veritabanı yok, Date nesnesi taşınmaz. Tarihler her yerde
@@ -87,4 +89,67 @@ export function bantPayi(
 
   const efektif = efektifKapasite(bantlar, bloklar, tarih, override)
   return Math.round((bant.dailyTarget * efektif) / ham)
+}
+
+export type AtamaTanim = {
+  atamaId: number
+  lineId: number
+  adet: number
+  planBaslangic: string
+  /** work_order_gunluk_uretim.plan_adet — atölyenin elle yazdığı günler */
+  elleplan: Record<string, number>
+}
+
+export type PlanGunu = {
+  tarih: string
+  adet: number
+  /** Atölye elle yazdı mı — blok taşınsa bile korunur */
+  elle: boolean
+  /** O günün bant payı (referans) */
+  pay: number
+}
+
+export type HesapBaglami = {
+  bantlar: BantTanim[]
+  bloklar: BlokTanim[]
+  /** O gün için workshop_kapasite_gun kaydı; yoksa null */
+  override: (tarih: string) => number | null
+}
+
+/** Sonsuz döngüye karşı üst sınır — 200 iş günü ~9 aydır. */
+const AZAMI_GUN = 200
+
+/**
+ * Bir atamanın gün gün planı (K3, K4).
+ *
+ *   1) O gün elle plan_adet girilmişse o kullanılır — SABİT kalır.
+ *   2) Girilmemişse min(kalan, bandın o günkü payı).
+ *
+ * Kapasitesi sıfır olan gün (Pazar, bakım, atölye kapalı) atlanır; plan uzar.
+ */
+export function gunlukPlan(atama: AtamaTanim, ctx: HesapBaglami): PlanGunu[] {
+  const cikti: PlanGunu[] = []
+  let kalan = atama.adet
+  let tarih = atama.planBaslangic
+
+  for (let i = 0; kalan > 0 && i < AZAMI_GUN; i++) {
+    const pay = bantPayi(atama.lineId, ctx.bantlar, ctx.bloklar, tarih, ctx.override(tarih))
+    if (pay > 0) {
+      const elleDeger = atama.elleplan[tarih]
+      const istenen = elleDeger != null ? elleDeger : pay
+      const adet = Math.max(0, Math.min(istenen, kalan))
+      if (adet > 0) {
+        cikti.push({ tarih, adet, elle: elleDeger != null, pay })
+        kalan -= adet
+      }
+    }
+    tarih = gunEkle(tarih, 1)
+  }
+  return cikti
+}
+
+/** Planlanan bitiş TÜRETİLİR — adedin tükendiği son gün (K4). */
+export function planBitisi(atama: AtamaTanim, ctx: HesapBaglami): string {
+  const p = gunlukPlan(atama, ctx)
+  return p.length ? p[p.length - 1].tarih : atama.planBaslangic
 }

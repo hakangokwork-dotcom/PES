@@ -53,6 +53,8 @@ const UCLAR = [
   'olgunluk_denetim', 'olgunluk_denetim_kriter',
   'v_olgunluk_surec_seviye', 'v_olgunluk_denetim_ozet',
   'v_olgunluk_kategori', 'v_atolye_olgunluk',
+  // 036 — bant kapasite takvimi
+  'workshop_kapasite_gun', 'kumas_cekme_testi',
 ]
 
 let sizan = 0

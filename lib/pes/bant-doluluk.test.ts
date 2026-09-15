@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   pazarMi, hamKapasite, efektifKapasite, bantPayi, gunlukPlan, planBitisi,
+  gunlukDoluluk, aylikDoluluk,
 } from './bant-doluluk'
 import type { BantTanim, BlokTanim, AtamaTanim } from './bant-doluluk'
 
@@ -168,5 +169,72 @@ describe('planBitisi', () => {
       elleplan: { '2027-01-04': 500, '2027-01-05': 500 },
     }
     expect(planBitisi(a, ctx) > '2027-01-08').toBe(true)
+  })
+})
+
+describe('gunlukDoluluk', () => {
+  const ctx = { bantlar: BANTLAR, bloklar: [] as BlokTanim[], override: () => null }
+  const atamalar: AtamaTanim[] = [
+    { atamaId: 1, lineId: 101, adet: 9000, planBaslangic: '2027-01-04', elleplan: {} },
+    { atamaId: 2, lineId: 102, adet: 4000, planBaslangic: '2027-01-04', elleplan: {} },
+  ]
+
+  it('plan toplamını kapasiteye böler', () => {
+    const d = gunlukDoluluk('2027-01-04', atamalar, ctx, {})
+    expect(d.plan).toBe(4000)      // 2000 + 2000
+    expect(d.kapasite).toBe(5000)
+    expect(d.oran).toBeCloseTo(0.8, 6)
+    expect(d.asim).toBe(false)
+  })
+
+  it('rezerveyi plana ekler ama kapasiteyi düşürmez', () => {
+    const rez: BlokTanim[] = [
+      { lineId: 103, tip: 'REZERVE', adet: 1000, baslangic: '2027-01-04', bitis: '2027-01-08' },
+    ]
+    const d = gunlukDoluluk('2027-01-04', atamalar, { ...ctx, bloklar: rez }, {})
+    expect(d.kapasite).toBe(5000)
+    expect(d.rezerve).toBe(1000)
+    expect(d.oran).toBeCloseTo(1.0, 6)
+    expect(d.asim).toBe(false)     // tam dolu aşım değildir
+  })
+
+  it('kapasiteyi aşınca asim true', () => {
+    const rez: BlokTanim[] = [
+      { lineId: 103, tip: 'REZERVE', adet: 2000, baslangic: '2027-01-04', bitis: '2027-01-08' },
+    ]
+    const d = gunlukDoluluk('2027-01-04', atamalar, { ...ctx, bloklar: rez }, {})
+    expect(d.asim).toBe(true)
+  })
+
+  it('gerçekleşeni ayrı toplar', () => {
+    const d = gunlukDoluluk('2027-01-04', atamalar, ctx, { 1: { '2027-01-04': 1800 } })
+    expect(d.gercek).toBe(1800)
+  })
+
+  it('kapasite sıfırken oran sıfır, aşım yok', () => {
+    const d = gunlukDoluluk('2027-01-10', atamalar, ctx, {})  // Pazar
+    expect(d.kapasite).toBe(0)
+    expect(d.oran).toBe(0)
+    expect(d.asim).toBe(false)
+  })
+})
+
+describe('aylikDoluluk', () => {
+  const ctx = { bantlar: BANTLAR, bloklar: [] as BlokTanim[], override: () => null }
+  const atamalar: AtamaTanim[] = [
+    { atamaId: 1, lineId: 101, adet: 9000, planBaslangic: '2027-01-04', elleplan: {} },
+  ]
+
+  it('ayın çalışılan günlerini toplayıp böler', () => {
+    const a = aylikDoluluk('2027-01', atamalar, ctx, {})
+    expect(a).not.toBeNull()
+    expect(a!.plan).toBe(9000)
+    expect(a!.kapasite).toBeGreaterThan(0)
+    expect(a!.oran).toBeCloseTo(9000 / a!.kapasite, 6)
+  })
+
+  it('hiç çalışılan gün yoksa null döner — %0 ile veri yok aynı değildir', () => {
+    const kapali = { ...ctx, override: () => 0 }
+    expect(aylikDoluluk('2027-01', atamalar, kapali, {})).toBeNull()
   })
 })

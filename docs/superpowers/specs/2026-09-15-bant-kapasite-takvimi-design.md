@@ -94,6 +94,11 @@ projedir; PES'te ikili dosya saklama altyapısı henüz yok. Takvim yalnızca
 **K13 — Pazar kapalı, Cumartesi çalışılır.** Kapasite hesabı Pazar günlerini
 sıfır sayar.
 
+**K14 — Kompakt matris, detay takvimin dördüncü görünümüdür.** Atölye × ay
+doluluk matrisi ayrı bir ekran değil; aynı hesap modülünü okuyan bir görünüm
+kipi. Yeni veri, yeni kural yok. Planlamacı yılı tarayıp bir hücreye tıklar ve
+o atölyenin o ayındaki gün kırılımına iner.
+
 ---
 
 ## 3. Veri modeli — Migration 036
@@ -298,6 +303,7 @@ kontrollerinden geçiyor.
 | Ay | 1 gün, dar | yalnız çubuk — tarama için |
 | Hafta | 1 gün, geniş | `plan / kapasite` ve gerçekleşen |
 | Gün | tek gün | atölye ve bant kırılımı tablosu |
+| Matris | 1 ay | atölye × ay doluluk yüzdesi — bkz. 5.6 |
 
 ### 5.4 Etkileşim
 
@@ -309,6 +315,29 @@ kontrollerinden geçiyor.
 - Bloğa tıkla → yan panel, beş sekme: **Günlük plan**, **Zincir**, **Malzeme**,
   **Çekme testi**, **Konular** (`work_order_journal`).
 - Uyarı sayaçları tıklanınca filtreye dönüşür. Sıfırken alarm rengi taşımaz.
+
+### 5.6 Kompakt görünüm — aylık doluluk matrisi
+
+Satırlar atölye (tedarik müdürlüğüne göre gruplu), kolonlar ay. Bir hücre o
+atölyenin o aydaki doluluk yüzdesini taşır:
+
+```
+aylık doluluk(atölye, ay) =
+    Σ günlük plan (ayın çalışılan günleri) ÷ Σ efektif kapasite (aynı günler)
+```
+
+Payda sıfırsa (atölye o ay hiç çalışmıyorsa) hücre "veri yok" olarak gri çizilir;
+%0 ile boş aynı görünmemeli.
+
+Hücre tonu 4. bölümdeki doluluk ölçeğinin aynısıdır. %100'ü aşan ay kırmızı halka
+alır. Hücreye tıklamak o atölye ve ayla detay takvime iner.
+
+Satır sonunda üç sayı durur: yıllık toplam kapasite, yerleşen adet, boş kalan
+adet. Sıralama boş adede göre yapılabilir — "bu yıl en çok yeri olan atölye"
+sorusu tek bakışta cevaplanır.
+
+Bu görünüm yeni tablo ya da yeni hesap istemez; 4. bölümdeki modülü ay bazında
+toplar. Detay takvim çalışmadan bu görünüm de çalışmaz, o yüzden aynı spec'te.
 
 ### 5.5 Filtreler
 
@@ -344,6 +373,28 @@ ve `line_schedule`'ı zaten bant üzerinden atölyeye bağlıyor. Eksik olan tek
 - Otomatik yerleştirme önerisi. Sistem eler, kullanıcı seçer — 030'un K5'i.
 - Aşamalar arası tampon süre kuralları.
 - Rezervenin onay akışı. Sahip ve süre yeterli; talep→onay zinciri sonraki tur.
+- **PO havuzu ve künye alanları** — kendi spec'i. Notlar aşağıda, kaybolmasın.
+
+### 7.1 Sonraki proje: PO havuzu ve künye
+
+Tasarım görüşmesinde çıktı, bu turda yapılmıyor ama iki bulgu kayda geçsin.
+
+**`work_order.workshop_id` NOT NULL.** "Gelen PO'yu yazdım, henüz atölyeye
+atamadım" durumu bugün temsil edilemiyor. Durum enum'ında `'Taslak'` var ama
+atölye yine de zorunlu.
+
+**Nullable yapmak tuzaklı.** Migration 035 atölye kısıtına
+`OR workshop_id IS NULL` koşulunu ekledi; `work_order` da o listede. Yani
+`workshop_id = NULL` yazılan bir PO **bütün atölyelere görünür** — müşterisi,
+adedi ve anlaşmalı fiyatıyla. Birbirine rakip fason atölyeler arasında bu kabul
+edilemez. 035'in kuralı `model_library` gibi ortak kataloglar için doğru,
+`work_order` için değil. Havuz ya ayrı bir tablo ister ya da politikada açık bir
+istisna. Karar o spec'e ait.
+
+**Künyede eksik olanlar dar.** `work_order` müşteri, sezon, stil kodu, SAM, fiyat,
+`sample_onaylandi`, `tech_pack_onaylandi` ve serbest etiketleri zaten taşıyor.
+Eklenecekler: klasman / ürün grubu ve kumaş türü (ikisinin de kataloğu
+`capability_value` içinde hazır — 023b), bir de künye seviyesinde ana kumaşçı.
 
 ---
 

@@ -14,7 +14,8 @@
  */
 import {
   GIDER_KALEMLERI, ISCILIK_KALEMLERI,
-  type EkonomiParam, type EkonomiSatiri, type GiderSatiri,
+  type EkonomiGirdi, type EkonomiParam, type EkonomiRasyo,
+  type EkonomiSatiri, type GiderSatiri,
 } from './ekonomi-tipler'
 
 /** Güvenli bölme: payda 0/null ya da pay null ise null. */
@@ -296,4 +297,101 @@ export function asgariDkCarpani(
  */
 export function dikimDkAdet(e: EkonomiSatiri, qtyActual: number | null): number | null {
   return bol(nominalDikimDk(e), kullanilanAdet(e, qtyActual))
+}
+
+/* ---------- Fiyat — FORMULLER 32-34 ---------- */
+
+/** HESAP!AI — net gider ÷ aylık adet. Sıfır kârla yaşadığı ortalama CMT. */
+export function basabasFiyat(
+  g: GiderSatiri, e: EkonomiSatiri, qtyActual: number | null,
+): number | null {
+  return bol(netGider(g), kullanilanAdet(e, qtyActual))
+}
+
+/** HESAP!AJ — başabaş × (1 + hedef marj). Tedarikçiyi ayakta tutan fiyat. */
+export function adilFiyat(
+  g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam, qtyActual: number | null,
+): number | null {
+  const bb = basabasFiyat(g, e, qtyActual)
+  if (bb === null) return null
+  return bb * (1 + p.target_margin)
+}
+
+/**
+ * HESAP!AK — ortalama fiyat ÷ adil fiyat − 1.
+ * Negatifse atölye adilin altında çalışıyor: gizli pahalı, süreklilik riski.
+ */
+export function fiyatSapmasi(
+  g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam, qtyActual: number | null,
+): number | null {
+  const oran = bol(ortFiyatAdet(e, p, qtyActual), adilFiyat(g, e, p, qtyActual))
+  return oran === null ? null : oran - 1
+}
+
+/* ---------- 3D referans — FORMULLER 49-50 ---------- */
+
+/**
+ * HESAP!AN — atölyenin gerçekleşen dikim dakika maliyeti ÷ bölge 3D değeri.
+ * 1,00 = referansla aynı; 1,20 = %20 pahalı; 0,85 = referansın altında
+ * (yalın ya da eksik bildirim).
+ */
+export function dkMaliyet3DOran(
+  g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam, dk3d: number | null,
+): number | null {
+  return bol(bolumDkMaliyet(g, e, p, 'dikim'), dk3d)
+}
+
+/* ---------- Birleştirme ---------- */
+
+/**
+ * Tek bir atölye-ayın 37 rasyosunu hesaplar.
+ * Ekranlar ve import doğrulaması bunu çağırır; tek tek fonksiyonlar
+ * testler ve E3/E5 içindir.
+ */
+export function hesapla(girdi: EkonomiGirdi): EkonomiRasyo {
+  const { gider: g, ekonomi: e, param: p, dkMaliyet3D, qtyActual } = girdi
+  return {
+    toplamKisi: toplamKisi(e),
+    uretimKisi: uretimKisi(e),
+    dikimPayi: dikimPayi(e),
+
+    aylikCiro: aylikCiro(e, p),
+    aylikAdet: kullanilanAdet(e, qtyActual),
+    ortFiyatAdet: ortFiyatAdet(e, p, qtyActual),
+    brutGider: brutGider(g),
+    tesvik: g.incentive_amount,
+    netGider: netGider(g),
+    karZarar: karZarar(g, e, p),
+    marj: marj(g, e, p),
+
+    iscilikToplam: iscilikToplam(g),
+    iscilikPayi: iscilikPayi(g),
+    iscilikDisiKisi: iscilikDisiKisi(g, e),
+    iscilikYukKatsayisi: iscilikYukKatsayisi(g),
+
+    ciroKisi: ciroKisi(e, p),
+    netGiderKisi: netGiderKisi(g, e),
+    maasKisi: maasKisi(g, e),
+    adetDikimci: adetDikimci(e, qtyActual),
+
+    nominalDikimDk: nominalDikimDk(e),
+    fiiliDikimDk: fiiliDikimDk(e),
+    uretimKisiDk: uretimKisiDk(e),
+    kisiDkMaliyet: kisiDkMaliyet(g, e),
+    kesimDkMaliyet: bolumDkMaliyet(g, e, p, 'kesim'),
+    dikimDkMaliyet: bolumDkMaliyet(g, e, p, 'dikim'),
+    ukpDkMaliyet: bolumDkMaliyet(g, e, p, 'ukp'),
+    dikimDkCiro: dikimDkCiro(e, p),
+    dakikaMarji: dakikaMarji(g, e, p),
+    fiiliDikimDkMaliyet: fiiliDikimDkMaliyet(g, e),
+    asgariDkCarpani: asgariDkCarpani(g, e, p),
+    dikimDkAdet: dikimDkAdet(e, qtyActual),
+
+    basabasFiyat: basabasFiyat(g, e, qtyActual),
+    adilFiyat: adilFiyat(g, e, p, qtyActual),
+    fiyatSapmasi: fiyatSapmasi(g, e, p, qtyActual),
+
+    referans3D: dkMaliyet3D,
+    dkMaliyet3DOran: dkMaliyet3DOran(g, e, p, dkMaliyet3D),
+  }
 }

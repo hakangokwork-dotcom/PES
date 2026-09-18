@@ -263,3 +263,78 @@ describe('dikim dakikası / adet', () => {
     expect(dikimDkAdet(adetsiz, null)).toBeNull()
   })
 })
+
+import { basabasFiyat, adilFiyat, fiyatSapmasi, dkMaliyet3DOran, hesapla } from './ekonomi-hesap'
+
+describe('fiyat', () => {
+  it('başabaş fiyat = net gider ÷ adet', () => {
+    expect(basabasFiyat(ORSSAN_GIDER, ORSSAN_EKONOMI, null))
+      .toBeCloseTo(145.294597401752, 9)
+  })
+
+  it('adil fiyat hedef marjla', () => {
+    expect(adilFiyat(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, null))
+      .toBeCloseTo(167.088787012015, 9)
+  })
+
+  it('Örssan adil fiyatın altında çalışıyor', () => {
+    const sapma = fiyatSapmasi(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, null)!
+    expect(sapma).toBeCloseTo(-0.157361697312826, 10)
+    expect(sapma).toBeLessThan(0)
+  })
+
+  it('adet yoksa başabaş null', () => {
+    const adetsiz: EkonomiSatiri = { ...ORSSAN_EKONOMI, qty_declared: null }
+    expect(basabasFiyat(ORSSAN_GIDER, adetsiz, null)).toBeNull()
+  })
+})
+
+describe('3D referans', () => {
+  it('dikim dk maliyeti ÷ bölge 3D değeri', () => {
+    expect(dkMaliyet3DOran(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, 5.05))
+      .toBeCloseTo(0.795626636454994, 11)
+  })
+
+  it('bölge değeri yoksa null', () => {
+    expect(dkMaliyet3DOran(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, null)).toBeNull()
+  })
+})
+
+describe('hesapla — tam rasyo seti', () => {
+  const r = hesapla({
+    gider: ORSSAN_GIDER,
+    ekonomi: ORSSAN_EKONOMI,
+    param: VARSAYILAN_PARAM,
+    dkMaliyet3D: 5.05,
+    qtyActual: null,
+  })
+
+  it('36 alanın hepsini döndürür', () => {
+    expect(Object.keys(r)).toHaveLength(36)
+  })
+
+  it('anahtar göstergeler Excel ile aynı', () => {
+    expect(r.toplamKisi).toBe(137)
+    expect(r.netGider).toBe(6253000)
+    expect(r.marj).toBeCloseTo(-0.031955483887049, 12)
+    expect(r.dikimDkMaliyet).toBeCloseTo(4.01791451409772, 12)
+    expect(r.adilFiyat).toBeCloseTo(167.088787012015, 9)
+  })
+
+  it('tamamen boş girdide her alan null, hata atmaz', () => {
+    const bosEkonomi: EkonomiSatiri = {
+      revenue_declared: null, idle_days: null, qty_declared: null,
+      nominal_days: null, actual_days: null, hours_per_day: null,
+      cutting_staff: null, sewing_staff: null, ukp_staff: null, office_staff: null,
+      area_m2: null, source: 'elle',
+    }
+    const bos = hesapla({
+      gider: { incentive_amount: null },
+      ekonomi: bosEkonomi,
+      param: VARSAYILAN_PARAM,
+      dkMaliyet3D: null,
+      qtyActual: null,
+    })
+    expect(Object.values(bos).every(v => v === null)).toBe(true)
+  })
+})

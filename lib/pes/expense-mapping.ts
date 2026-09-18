@@ -16,6 +16,7 @@ export type ExpenseColumn =
   | 'rent' | 'building_depr' | 'machine_depr' | 'insurance' | 'overtime'
   | 'bonus' | 'severance_reserve' | 'incentive_amount' | 'isg' | 'consulting'
   | 'official_fees' | 'communication' | 'stationery' | 'needle' | 'consumables'
+  | 'ukp_consumables' | 'vehicle_depr'
 
 /** Gider kalemi olmayan ama formda gelen alanlar. */
 export type MetaColumn = 'work_days' | 'target_revenue' | 'donem' | 'workshop_code' | 'workshop_name'
@@ -69,6 +70,8 @@ export const EXPENSE_LABELS: Record<ExpenseColumn, string> = {
   cargo: 'Kargo',
   vehicle: 'Araç',
   incentive_amount: 'Teşvik (mahsup)',
+  ukp_consumables: 'UKP Sarf',
+  vehicle_depr: 'Taşıt / Demirbaş Amortismanı',
   other: 'Diğer',
 }
 
@@ -80,30 +83,32 @@ const SYNONYMS: Record<ExpenseColumn, string[]> = {
   personnel: ['personel maas', 'maas', 'personel gideri', 'iscilik', 'net maas', 'ucret'],
   sgk: ['sgk', 'sgk primi', 'sigorta primi', 'ssk'],
   overtime: ['fazla mesai', 'mesai', 'ek mesai', 'fm'],
-  bonus: ['prim', 'ikramiye', 'prim ikramiye', 'bonus'],
-  severance_reserve: ['kidem', 'kidem tazminati', 'kidem tazminati karsiligi', 'ihbar tazminati'],
+  bonus: ['prim', 'ikramiye', 'prim ikramiye', 'bonus', 'prim ve ikramiye'],
+  severance_reserve: ['kidem', 'kidem tazminati', 'kidem tazminati karsiligi', 'ihbar tazminati', 'kidem karsiligi'],
   food: ['yemek', 'yemek gideri', 'gida'],
   transport: ['servis', 'ulasim', 'servis ulasim', 'personel servisi', 'tasima'],
   electricity: ['elektrik', 'elektrik gideri'],
   water: ['su', 'su gideri'],
-  gas: ['dogalgaz', 'gaz', 'dogal gaz'],
+  gas: ['dogalgaz', 'gaz', 'dogal gaz', 'isitma'],
   rent: ['kira', 'kira gideri', 'isyeri kirasi'],
   building_depr: ['bina amortismani', 'bina amortisman', 'bina'],
   machine_depr: ['makine amortismani', 'makine amortisman', 'amortisman'],
-  machine_maint: ['makine bakim', 'bakim', 'bakim onarim', 'makine bakim onarim', 'teknik servis'],
-  thread: ['iplik', 'iplik gideri', 'dikis ipligi'],
+  machine_maint: ['makine bakim', 'bakim', 'bakim onarim', 'makine bakim onarim', 'teknik servis', 'bakim ve yedek parca'],
+  thread: ['iplik', 'iplik gideri', 'dikis ipligi', 'igne ve iplik'],
   needle: ['igne', 'igne gideri'],
-  consumables: ['sarf', 'sarf malzeme', 'sarf malzemesi', 'yardimci malzeme'],
+  consumables: ['sarf', 'sarf malzeme', 'sarf malzemesi', 'yardimci malzeme', 'genel uretim sarf'],
   insurance: ['sigorta', 'bina sigortasi', 'makine sigortasi', 'dask'],
   isg: ['isg', 'is sagligi', 'is guvenligi', 'is sagligi ve guvenligi', 'osgb'],
   consulting: ['danismanlik', 'musavirlik', 'mali musavir', 'muhasebe'],
-  official_fees: ['resmi harc', 'harc', 'vergi', 'resmi odemeler', 'belediye'],
-  communication: ['telefon', 'internet', 'iletisim', 'telefon internet', 'haberlesme'],
+  official_fees: ['resmi harc', 'harc', 'vergi', 'resmi odemeler', 'belediye', 'ek resmi giderler'],
+  communication: ['telefon', 'internet', 'iletisim', 'telefon internet', 'haberlesme', 'diger telefon internet'],
   stationery: ['kirtasiye', 'ofis malzemesi'],
   cargo: ['kargo', 'kargo gideri', 'nakliye'],
-  vehicle: ['arac', 'arac gideri', 'akaryakit', 'yakit'],
-  incentive_amount: ['tesvik', 'tesvik tutari', 'sgk tesviki', 'devlet destegi'],
+  vehicle: ['arac', 'arac gideri', 'akaryakit', 'yakit', 'arac yakit ve bakim'],
+  incentive_amount: ['tesvik', 'tesvik tutari', 'sgk tesviki', 'devlet destegi', 'alinan tesvik'],
   other: ['diger', 'diger giderler', 'muhtelif'],
+  ukp_consumables: ['ukp sarf', 'ukp sarfi', 'utu kontrol paket sarf'],
+  vehicle_depr: ['tasit amortismani', 'demirbas amortismani', 'tasit demirbas amortismani', 'tasit ve demirbas amortismani'],
 }
 
 const META_SYNONYMS: Record<MetaColumn, string[]> = {

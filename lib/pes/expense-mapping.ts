@@ -101,7 +101,11 @@ const SYNONYMS: Record<ExpenseColumn, string[]> = {
   isg: ['isg', 'is sagligi', 'is guvenligi', 'is sagligi ve guvenligi', 'osgb'],
   consulting: ['danismanlik', 'musavirlik', 'mali musavir', 'muhasebe'],
   official_fees: ['resmi harc', 'harc', 'vergi', 'resmi odemeler', 'belediye', 'ek resmi giderler'],
-  communication: ['telefon', 'internet', 'iletisim', 'telefon internet', 'haberlesme', 'diger telefon internet'],
+  // 'Diğer (telefon, internet)' Excel başlığı normalizeHeader parantezi
+  // attığı için 'diger'e düşer ve other'la eşleşir. Bu özel durum
+  // ekonomi-anket.ts'in OZEL_BASLIK sözlüğünde çözülür — burada tam
+  // eşleşecek bir sinonim yok, olduğu izlenimi vermeyelim.
+  communication: ['telefon', 'internet', 'iletisim', 'telefon internet', 'haberlesme'],
   stationery: ['kirtasiye', 'ofis malzemesi'],
   cargo: ['kargo', 'kargo gideri', 'nakliye'],
   vehicle: ['arac', 'arac gideri', 'akaryakit', 'yakit', 'arac yakit ve bakim'],

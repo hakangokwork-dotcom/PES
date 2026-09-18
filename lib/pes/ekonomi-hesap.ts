@@ -1,0 +1,138 @@
+/**
+ * Atölye ekonomi rasyoları — Atolye_Gider_Model.xlsx FORMULLER sayfasıyla
+ * bire bir. Her fonksiyon bir göstergedir; hangi FORMULLER satırına
+ * karşılık geldiği yorumda yazılıdır.
+ *
+ * KURAL 1: Hesaplanamayan her şey null döner, 0 değil. 0 "hesaplandı ve
+ *   sıfır çıktı", null "hesaplanamadı" demektir. Excel ikisini de 0 yazıyor;
+ *   burada bilerek ayrıldık çünkü ekranda 0 gösterilen bir atölye
+ *   sıralamanın ucuna fırlar ve en kârlı ya da en zararlı sanılır.
+ *
+ * KURAL 2: Teşvik gider değildir. Brüt toplama girmez, net giderden düşülür.
+ *
+ * KURAL 3: Ofis dakikası ürün üretmez; maliyeti üretim dakikasına yüklenir.
+ */
+import {
+  GIDER_KALEMLERI, ISCILIK_KALEMLERI,
+  type EkonomiParam, type EkonomiSatiri, type GiderSatiri,
+} from './ekonomi-tipler'
+
+/** Güvenli bölme: payda 0/null ya da pay null ise null. */
+export function bol(pay: number | null, payda: number | null): number | null {
+  if (pay === null || payda === null || payda === 0) return null
+  return pay / payda
+}
+
+/** Null'ları atlayarak toplar; hiç sayı yoksa null. */
+function topla(degerler: Array<number | null | undefined>): number | null {
+  let toplam = 0
+  let sayiVar = false
+  for (const d of degerler) {
+    if (typeof d === 'number' && Number.isFinite(d)) {
+      toplam += d
+      sayiVar = true
+    }
+  }
+  return sayiVar ? toplam : null
+}
+
+/* ---------- Kadro ve ölçek — FORMULLER 6-8 ---------- */
+
+/** HESAP!E — kesim + dikim + UKP + ofis. Kişi başı rasyoların paydası. */
+export function toplamKisi(e: EkonomiSatiri): number | null {
+  return topla([e.cutting_staff, e.sewing_staff, e.ukp_staff, e.office_staff])
+}
+
+/** HESAP!F — ofis hariç. Dakika maliyetinin paydası. */
+export function uretimKisi(e: EkonomiSatiri): number | null {
+  return topla([e.cutting_staff, e.sewing_staff, e.ukp_staff])
+}
+
+/** HESAP!G — dikim kişi ÷ toplam kişi. %55-75 tipik. */
+export function dikimPayi(e: EkonomiSatiri): number | null {
+  return bol(e.sewing_staff, toplamKisi(e))
+}
+
+/* ---------- Ciro — FORMULLER 9 ---------- */
+
+/**
+ * HESAP!H — fatura ÷ ay × (1 + boş gün ÷ payda).
+ * Boş gün düzeltmesi dışarı/boş geçen günleri kapasiteye geri ekler;
+ * revenue_adj_on = 0 ile kapatılabilir.
+ */
+export function aylikCiro(e: EkonomiSatiri, p: EkonomiParam): number | null {
+  if (e.revenue_declared === null) return null
+  if (p.revenue_adj_on !== 1 || p.revenue_adj_divisor === 0) return e.revenue_declared
+  const bosGun = e.idle_days ?? 0
+  return e.revenue_declared * (1 + bosGun / p.revenue_adj_divisor)
+}
+
+/* ---------- Gider — FORMULLER 11-12, 15 ---------- */
+
+/** HESAP!K — 28 gider kaleminin toplamı. Teşvik BURADA YOK. */
+export function brutGider(g: GiderSatiri): number | null {
+  return topla(GIDER_KALEMLERI.map(k => g[k]))
+}
+
+/** HESAP!M — brüt gider − teşvik. Teşvik iade olarak geri geldiği için düşülür. */
+export function netGider(g: GiderSatiri): number | null {
+  const brut = brutGider(g)
+  if (brut === null) return null
+  return brut - (g.incentive_amount ?? 0)
+}
+
+/** HESAP!P — maaş + mesai + prim + SGK + kıdem. */
+export function iscilikToplam(g: GiderSatiri): number | null {
+  return topla(ISCILIK_KALEMLERI.map(k => g[k]))
+}
+
+/* ---------- Sonuç — FORMULLER 13-14 ---------- */
+
+/** HESAP!N — aylık ciro − net gider. */
+export function karZarar(g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam): number | null {
+  const ciro = aylikCiro(e, p)
+  const net = netGider(g)
+  if (ciro === null || net === null) return null
+  return ciro - net
+}
+
+/** HESAP!O — (ciro − net gider) ÷ ciro. Adet tahmininden etkilenmez. */
+export function marj(g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam): number | null {
+  return bol(karZarar(g, e, p), aylikCiro(e, p))
+}
+
+/* ---------- İşçilik rasyoları — FORMULLER 16-17, 35 ---------- */
+
+/** HESAP!Q — (işçilik − teşvik) ÷ net gider. Pilotta %66-79. */
+export function iscilikPayi(g: GiderSatiri): number | null {
+  const isc = iscilikToplam(g)
+  if (isc === null) return null
+  return bol(isc - (g.incentive_amount ?? 0), netGider(g))
+}
+
+/**
+ * HESAP!R — (brüt − işçilik − kira) ÷ toplam kişi.
+ * Yemek, servis, enerji, sarf, bakım, idari: her çalışanla gelen işletme
+ * maliyeti. Pilot medyanı 12.831 TL.
+ */
+export function iscilikDisiKisi(g: GiderSatiri, e: EkonomiSatiri): number | null {
+  const brut = brutGider(g)
+  const isc = iscilikToplam(g)
+  if (brut === null || isc === null) return null
+  return bol(brut - isc - (g.rent ?? 0), toplamKisi(e))
+}
+
+/**
+ * HESAP!AL — (işçilik − teşvik) ÷ net maaş.
+ * Net maaşın üstüne mesai, prim, SGK ve kıdemle ne kadar bindiği.
+ * Pilot: 6. bölge ~1,17, 1. bölge ~1,25.
+ *
+ * 1'in altına düşüyorsa teşvik SGK'dan büyük demektir ve beyan şüphelidir —
+ * Örssan'da 0,82 çıkıyor (SGK 200 bin, teşvik 1,3 milyon). Task 13'teki
+ * doğrulama bunu ayrıca raporlar.
+ */
+export function iscilikYukKatsayisi(g: GiderSatiri): number | null {
+  const isc = iscilikToplam(g)
+  if (isc === null) return null
+  return bol(isc - (g.incentive_amount ?? 0), g.personnel ?? null)
+}

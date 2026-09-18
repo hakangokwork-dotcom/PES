@@ -136,3 +136,164 @@ export function iscilikYukKatsayisi(g: GiderSatiri): number | null {
   if (isc === null) return null
   return bol(isc - (g.incentive_amount ?? 0), g.personnel ?? null)
 }
+
+/* ---------- Adet — beyan mı PES gerçeği mi ---------- */
+
+/**
+ * Hesaplarda kullanılacak adet. PES üretim kaydı varsa o, yoksa beyan.
+ *
+ * İkisi arasındaki fark bir hata değil sinyaldir: büyük sapma ya beyanın
+ * ya iş emri kaydının zayıf olduğunu söyler. Hangisinin kullanıldığı
+ * ekranda işaretlenir (adetKaynagi).
+ */
+export function kullanilanAdet(e: EkonomiSatiri, qtyActual: number | null): number | null {
+  return qtyActual ?? e.qty_declared
+}
+
+export function adetKaynagi(qtyActual: number | null): 'pes' | 'beyan' {
+  return qtyActual === null ? 'beyan' : 'pes'
+}
+
+/** Beyan ile PES gerçeği arasındaki oransal sapma. İkisi de yoksa null. */
+export function adetSapmasi(e: EkonomiSatiri, qtyActual: number | null): number | null {
+  if (qtyActual === null || e.qty_declared === null || e.qty_declared === 0) return null
+  return qtyActual / e.qty_declared - 1
+}
+
+/* ---------- Kişi başı — FORMULLER 10, 18-21 ---------- */
+
+/** HESAP!S — aylık ciro ÷ toplam kişi. Marjla en güçlü ilişkiyi gösteren rasyo. */
+export function ciroKisi(e: EkonomiSatiri, p: EkonomiParam): number | null {
+  return bol(aylikCiro(e, p), toplamKisi(e))
+}
+
+/** HESAP!T — net gider ÷ toplam kişi. Ciro/kişi ile yan yana okunur. */
+export function netGiderKisi(g: GiderSatiri, e: EkonomiSatiri): number | null {
+  return bol(netGider(g), toplamKisi(e))
+}
+
+/** HESAP!U — net maaş ÷ toplam kişi. Asgari net ile kıyaslanır. */
+export function maasKisi(g: GiderSatiri, e: EkonomiSatiri): number | null {
+  return bol(g.personnel ?? null, toplamKisi(e))
+}
+
+/** HESAP!V — aylık adet ÷ dikim kişi. Ürüne çok bağlı; aynı klasmanda kıyasla. */
+export function adetDikimci(e: EkonomiSatiri, qtyActual: number | null): number | null {
+  return bol(kullanilanAdet(e, qtyActual), e.sewing_staff)
+}
+
+/** HESAP!J — aylık ciro ÷ aylık adet. Parça başına faturalanan ortalama CMT. */
+export function ortFiyatAdet(
+  e: EkonomiSatiri, p: EkonomiParam, qtyActual: number | null,
+): number | null {
+  return bol(aylikCiro(e, p), kullanilanAdet(e, qtyActual))
+}
+
+/* ---------- Dakika havuzları — FORMULLER 22-24 ---------- */
+
+/** HESAP!W — dikim kişi × saat × nominal gün × 60. Benchmark cetveli. */
+export function nominalDikimDk(e: EkonomiSatiri): number | null {
+  if (e.sewing_staff === null || e.hours_per_day === null || e.nominal_days === null) return null
+  return e.sewing_staff * e.hours_per_day * e.nominal_days * 60
+}
+
+/** HESAP!X — fiili günle. Fiyatlama için bu kullanılır. */
+export function fiiliDikimDk(e: EkonomiSatiri): number | null {
+  if (e.sewing_staff === null || e.hours_per_day === null || e.actual_days === null) return null
+  return e.sewing_staff * e.hours_per_day * e.actual_days * 60
+}
+
+/** HESAP!Y — üretim kişi × saat × nominal gün × 60. Bölüm maliyetlerinin ortak paydası. */
+export function uretimKisiDk(e: EkonomiSatiri): number | null {
+  const kisi = uretimKisi(e)
+  if (kisi === null || e.hours_per_day === null || e.nominal_days === null) return null
+  return kisi * e.hours_per_day * e.nominal_days * 60
+}
+
+/* ---------- Dakika maliyetleri — FORMULLER 25-30 ---------- */
+
+/** HESAP!Z — net gider ÷ üretim kişi-dakikası. Tam yüklü bir üretim dakikası. */
+export function kisiDkMaliyet(g: GiderSatiri, e: EkonomiSatiri): number | null {
+  return bol(netGider(g), uretimKisiDk(e))
+}
+
+export type Bolum = 'kesim' | 'dikim' | 'ukp'
+
+/**
+ * HESAP!AA / AB / AC — net gider maaş ağırlığıyla bölümlere dağıtılır,
+ * sonra bölümün dakikasına bölünür:
+ *
+ *   netGider × w_b ÷ ((kesim×w_k + dikim×w_d + ukp×w_u) × saat × gün × 60)
+ *
+ * Ağırlıklar 1/1/1 olduğu sürece üç değer aynı çıkar. Bölüm maaşları
+ * toplandığında economy_param'dan ayrıştırılır; formül buna hazır.
+ */
+export function bolumDkMaliyet(
+  g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam, bolum: Bolum,
+): number | null {
+  const net = netGider(g)
+  if (net === null || e.hours_per_day === null || e.nominal_days === null) return null
+
+  const agirlikliKisi =
+    (e.cutting_staff ?? 0) * p.weight_cutting +
+    (e.sewing_staff ?? 0) * p.weight_sewing +
+    (e.ukp_staff ?? 0) * p.weight_ukp
+  if (agirlikliKisi === 0) return null
+
+  const w = bolum === 'kesim' ? p.weight_cutting
+    : bolum === 'dikim' ? p.weight_sewing
+    : p.weight_ukp
+
+  return (net * w) / (agirlikliKisi * e.hours_per_day * e.nominal_days * 60)
+}
+
+/** HESAP!AD — aylık ciro ÷ nominal dikim dakikası. Kârı belirleyen gösterge. */
+export function dikimDkCiro(e: EkonomiSatiri, p: EkonomiParam): number | null {
+  return bol(aylikCiro(e, p), nominalDikimDk(e))
+}
+
+/** HESAP!AE — (ciro − net gider) ÷ nominal dikim dakikası. */
+export function dakikaMarji(g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam): number | null {
+  return bol(karZarar(g, e, p), nominalDikimDk(e))
+}
+
+/** HESAP!AF — net gider ÷ fiili dikim dakikası. Nominalden ~%10-15 yüksek. */
+export function fiiliDikimDkMaliyet(g: GiderSatiri, e: EkonomiSatiri): number | null {
+  return bol(netGider(g), fiiliDikimDk(e))
+}
+
+/**
+ * PARAMETRE!B11 — (işveren maliyeti − destek) ÷ (nominal gün × günlük dakika).
+ * Türkiye'de bir dikim dakikasının olabileceği en düşük maliyet.
+ */
+export function asgariDkMaliyetNominal(p: EkonomiParam): number | null {
+  return bol(p.employer_cost - p.wage_support, p.nominal_days * p.minutes_per_day)
+}
+
+/**
+ * PARAMETRE!B12 — aynı pay ÷ (efektif gün × günlük dakika).
+ * Ücret 30 gün ödenir ama ~19,5 gün dikilir; fiyatlama kararında bu kullanılır.
+ */
+export function asgariDkMaliyetEfektif(p: EkonomiParam): number | null {
+  return bol(p.employer_cost - p.wage_support, p.effective_days * p.minutes_per_day)
+}
+
+/**
+ * HESAP!AG — dikim dakika maliyeti ÷ asgari ücretli dakika.
+ * ~1,3 yalın; 1,8-2,4 tipik; 3+ ağır (destek kadrosu, genel gider, boş zaman).
+ */
+export function asgariDkCarpani(
+  g: GiderSatiri, e: EkonomiSatiri, p: EkonomiParam,
+): number | null {
+  const dkMaliyet = bol(netGider(g), nominalDikimDk(e))
+  return bol(dkMaliyet, asgariDkMaliyetNominal(p))
+}
+
+/**
+ * HESAP!AH — nominal dikim dakikası ÷ aylık adet.
+ * %100 verimlilikte parça başına düşen dikim dakikası; MTM ile kıyaslanınca
+ * gerçek verimliliği verir (E3'ün girdisi).
+ */
+export function dikimDkAdet(e: EkonomiSatiri, qtyActual: number | null): number | null {
+  return bol(nominalDikimDk(e), kullanilanAdet(e, qtyActual))
+}

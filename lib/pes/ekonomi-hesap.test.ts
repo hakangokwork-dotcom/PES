@@ -139,3 +139,127 @@ describe('işçilik rasyoları', () => {
     expect(iscilikYukKatsayisi(ORSSAN_GIDER)).toBeCloseTo(0.816326530612245, 12)
   })
 })
+
+import {
+  ciroKisi, netGiderKisi, maasKisi, adetDikimci, ortFiyatAdet,
+  nominalDikimDk, fiiliDikimDk, uretimKisiDk, kisiDkMaliyet,
+  bolumDkMaliyet, dikimDkCiro, dakikaMarji, fiiliDikimDkMaliyet,
+  asgariDkMaliyetNominal, asgariDkMaliyetEfektif, asgariDkCarpani, dikimDkAdet,
+} from './ekonomi-hesap'
+
+describe('kişi başı rasyolar', () => {
+  it('ciro / kişi', () => {
+    expect(ciroKisi(ORSSAN_EKONOMI, VARSAYILAN_PARAM)).toBeCloseTo(44228.9773920316, 8)
+  })
+
+  it('net gider / kişi', () => {
+    expect(netGiderKisi(ORSSAN_GIDER, ORSSAN_EKONOMI)).toBeCloseTo(45642.3357664234, 8)
+  })
+
+  it('maaş / kişi', () => {
+    expect(maasKisi(ORSSAN_GIDER, ORSSAN_EKONOMI)).toBeCloseTo(35766.4233576642, 8)
+  })
+
+  it('adet / dikimci', () => {
+    expect(adetDikimci(ORSSAN_EKONOMI, null)).toBeCloseTo(478.185555555556, 8)
+  })
+
+  it('adet / dikimci PES gerçeği verilirse onu kullanır', () => {
+    expect(adetDikimci(ORSSAN_EKONOMI, 36000)).toBe(400)
+  })
+
+  it('ortalama fiyat / adet', () => {
+    expect(ortFiyatAdet(ORSSAN_EKONOMI, VARSAYILAN_PARAM, null))
+      .toBeCloseTo(140.795411885863, 8)
+  })
+})
+
+describe('dakika havuzları', () => {
+  it('nominal dikim dakikası = dikim × saat × nominal gün × 60', () => {
+    expect(nominalDikimDk(ORSSAN_EKONOMI)).toBe(1069200)
+  })
+
+  it('fiili dikim dakikası fiili günle', () => {
+    expect(fiiliDikimDk(ORSSAN_EKONOMI)).toBe(741150)
+  })
+
+  it('üretim kişi-dakikası ofisi dışlar', () => {
+    expect(uretimKisiDk(ORSSAN_EKONOMI)).toBe(1556280)
+  })
+
+  it('dikim kişi yoksa nominal dikim dakikası null', () => {
+    const dikimsiz: EkonomiSatiri = { ...ORSSAN_EKONOMI, sewing_staff: null }
+    expect(nominalDikimDk(dikimsiz)).toBeNull()
+  })
+})
+
+describe('dakika maliyetleri', () => {
+  it('kişi-dakika maliyeti = net gider ÷ üretim kişi-dakikası', () => {
+    expect(kisiDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI)).toBeCloseTo(4.01791451409772, 12)
+  })
+
+  it('ağırlıklar eşitken üç bölüm aynı değeri alır', () => {
+    const k = bolumDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, 'kesim')
+    const d = bolumDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, 'dikim')
+    const u = bolumDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM, 'ukp')
+    expect(k).toBeCloseTo(4.01791451409772, 12)
+    expect(d).toBeCloseTo(4.01791451409772, 12)
+    expect(u).toBeCloseTo(4.01791451409772, 12)
+  })
+
+  it('dikim ağırlığı artınca dikim pahalılaşır, kesim ucuzlar', () => {
+    const agirlikli = { ...VARSAYILAN_PARAM, weight_sewing: 1.2 }
+    const d = bolumDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI, agirlikli, 'dikim')!
+    const k = bolumDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI, agirlikli, 'kesim')!
+    expect(d).toBeGreaterThan(4.01791451409772)
+    expect(k).toBeLessThan(4.01791451409772)
+  })
+
+  it('ağırlıklı kişi toplamı sıfırsa null', () => {
+    const kadrosuz: EkonomiSatiri = {
+      ...ORSSAN_EKONOMI, cutting_staff: 0, sewing_staff: 0, ukp_staff: 0,
+    }
+    expect(bolumDkMaliyet(ORSSAN_GIDER, kadrosuz, VARSAYILAN_PARAM, 'dikim')).toBeNull()
+  })
+
+  it('dikim dakika cirosu', () => {
+    expect(dikimDkCiro(ORSSAN_EKONOMI, VARSAYILAN_PARAM)).toBeCloseTo(5.66719968453829, 12)
+  })
+
+  it('dakika marjı negatif', () => {
+    expect(dakikaMarji(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM))
+      .toBeCloseTo(-0.181098108203953, 12)
+  })
+
+  it('fiili dikim dakika maliyeti nominalden yüksek', () => {
+    expect(fiiliDikimDkMaliyet(ORSSAN_GIDER, ORSSAN_EKONOMI))
+      .toBeCloseTo(8.43688861903798, 12)
+  })
+})
+
+describe('asgari ücret referansı', () => {
+  it('nominal asgari dakika maliyeti', () => {
+    expect(asgariDkMaliyetNominal(VARSAYILAN_PARAM)).toBeCloseTo(3.19470791245791, 12)
+  })
+
+  it('efektif dakika nominalden pahalı', () => {
+    expect(asgariDkMaliyetEfektif(VARSAYILAN_PARAM))
+      .toBeGreaterThan(asgariDkMaliyetNominal(VARSAYILAN_PARAM)!)
+  })
+
+  it('asgari dakika çarpanı', () => {
+    expect(asgariDkCarpani(ORSSAN_GIDER, ORSSAN_EKONOMI, VARSAYILAN_PARAM))
+      .toBeCloseTo(1.83062049896221, 11)
+  })
+})
+
+describe('dikim dakikası / adet', () => {
+  it('nominal dakika ÷ adet', () => {
+    expect(dikimDkAdet(ORSSAN_EKONOMI, null)).toBeCloseTo(24.843912288814, 10)
+  })
+
+  it('adet sıfırsa null', () => {
+    const adetsiz: EkonomiSatiri = { ...ORSSAN_EKONOMI, qty_declared: 0 }
+    expect(dikimDkAdet(adetsiz, null)).toBeNull()
+  })
+})

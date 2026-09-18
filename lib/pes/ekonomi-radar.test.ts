@@ -10,9 +10,12 @@ import {
   rasyoSiralari,
 } from './ekonomi-radar'
 import type { AtolyeRasyolari } from './ekonomi-radar'
+import type { EkonomiRasyo } from './ekonomi-tipler'
+
+type TamRasyo = EkonomiRasyo & { marjSirasi: number | null }
 
 /** Boş EkonomiRasyo — testlerde yalnız ilgili alanlar doldurulur. */
-function bosRasyo() {
+function bosRasyo(): TamRasyo {
   return {
     toplamKisi: null, uretimKisi: null, dikimPayi: null,
     aylikCiro: null, aylikAdet: null, ortFiyatAdet: null,
@@ -34,7 +37,7 @@ function bosRasyo() {
 function atolye(
   id: number,
   ad: string,
-  kismıRasyolar: Partial<ReturnType<typeof bosRasyo>>,
+  kismıRasyolar: Partial<TamRasyo>,
 ): AtolyeRasyolari {
   return {
     workshopId: id,
@@ -42,7 +45,7 @@ function atolye(
     code: `W${id}`,
     bolge: null,
     veri_var: true,
-    rasyolar: { ...bosRasyo(), ...kismıRasyolar },
+    rasyolar: { ...bosRasyo(), ...kismıRasyolar } as TamRasyo,
   }
 }
 

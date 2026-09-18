@@ -122,9 +122,12 @@ export type EkonomiGirdi = {
 }
 
 /**
- * 37 türetilmiş gösterge. Hesaplanamayan her alan null döner — 0 DEĞİL.
+ * 36 türetilmiş gösterge. Hesaplanamayan her alan null döner — 0 DEĞİL.
  * 0 "hesaplandı ve sıfır çıktı", null "hesaplanamadı" demektir; ekranda
  * ikisi farklı görünür.
+ *
+ * HESAP sayfasının 37. sütunu Marj sırası akran türevlidir ve burada değil,
+ * ekonomi-akran.ts'in marjSirasi() fonksiyonunda hesaplanır.
  */
 export type EkonomiRasyo = {
   toplamKisi: number | null

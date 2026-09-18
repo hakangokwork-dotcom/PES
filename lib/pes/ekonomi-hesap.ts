@@ -344,7 +344,8 @@ export function dkMaliyet3DOran(
 /* ---------- Birleştirme ---------- */
 
 /**
- * Tek bir atölye-ayın 37 rasyosunu hesaplar.
+ * Tek bir atölye-ayın 36 rasyosunu hesaplar. HESAP'ın 37. sütunu (Marj sırası)
+ * akran türevlidir; tek satır bilgisiyle hesaplanamaz, ekonomi-akran.ts'te.
  * Ekranlar ve import doğrulaması bunu çağırır; tek tek fonksiyonlar
  * testler ve E3/E5 içindir.
  */

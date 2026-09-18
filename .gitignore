@@ -52,3 +52,7 @@ ekip.csv
 
 # Playwright ile alinan inceleme ekran goruntuleri (gecici)
 /*.png
+
+# Saha-ozgu eslestirme dosyasi: kullanici onaylı workshop ID haritalamasi;
+# her ortamda farkli olabilir, git'e girmez.
+atolye_eslesme.json

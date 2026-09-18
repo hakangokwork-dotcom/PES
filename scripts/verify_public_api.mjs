@@ -55,6 +55,8 @@ const UCLAR = [
   'v_olgunluk_kategori', 'v_atolye_olgunluk',
   // 036 — bant kapasite takvimi
   'workshop_kapasite_gun', 'kumas_cekme_testi',
+  // 037 — atölye ekonomi (iç ekip verisi, atölye kullanıcısı göremez)
+  'workshop_economy', 'economy_param', 'economy_survey_staging',
 ]
 
 let sizan = 0

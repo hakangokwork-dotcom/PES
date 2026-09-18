@@ -9,7 +9,7 @@ import {
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
   Shapes, Workflow, Waypoints, Calculator,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
-  ArrowRight,
+  ArrowRight, Coins,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -53,6 +53,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Skorlama',       href: '/pes/scoring',       icon: Star },
       { label: 'Karşılaştırma',  href: '/pes/compare',       icon: ArrowLeftRight },
+      { label: 'Atölye Ekonomi',  href: '/pes/ekonomi',       icon: Coins },
+      { label: 'Gider Panosu',   href: '/pes/gider-panosu',  icon: ChartColumn },
       { label: 'Benchmark',      href: '/pes/benchmark',     icon: Gauge },
       { label: 'Yetenek Raporu', href: '/pes/yetenek-rapor', icon: ClipboardList },
       { label: 'Yetenek Arama',  href: '/pes/yetenek-arama', icon: Search },

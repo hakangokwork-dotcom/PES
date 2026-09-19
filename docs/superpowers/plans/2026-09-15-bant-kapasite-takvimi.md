@@ -14,9 +14,9 @@
 
 ---
 
-## Durum — 2026-09-15
+## Durum — 2026-09-19
 
-**4/16 görev bitti.** Faz A ve Faz B tamamlandı; sıradaki **Task 5**.
+**8/16 görev bitti.** Faz A, B ve C tamamlandı; sıradaki **Task 9** (ekran).
 
 | Görev | Durum |
 |---|---|
@@ -24,10 +24,25 @@
 | 2 · Kapasite ve bant payı | bitti — 16 test |
 | 3 · Günlük plan, türetilmiş bitiş | bitti — 8 test |
 | 4 · Doluluk, çakışma, aylık toplama | bitti — 7 test |
-| 5 · Takvim okuma ucu | **SIRADA** |
+| 5 · Takvim okuma ucu | bitti |
+| 6 · Gün bazlı atölye kapasitesi | bitti |
+| 7 · Rezerve oluştur/sil | bitti |
+| 8 · Günlük plan + gerçekleşen yazma | bitti |
+| 9 · Sayfa iskeleti ve gantt satırları | **SIRADA** |
 
-Son doğrulama: 498/498 test (44 dosya), `verify_public_api` ve
-`verify_workshop_isolation` temiz.
+Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
+kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
+(Test sayısındaki sıçrama benden değil: 15–19 Eylül arasında başka
+oturumlarda Atölye Ekonomi E0 tamamlanıp v1.2.0 kesilmiş.)
+
+Faz C'de plan iki yerde YANLIŞTI, düzeltildi: `workshop_profil`'de kolon
+`bolge_ad` (`bolge` değil) ve `line_capability` değere `value_code` ile
+bağlanır (`value_id` değil).
+
+Task 8'de mevcut `gunlukKaydet` ile çakışma çıktı: `adet=null` satırı
+siliyordu, bu artık atölyenin yazdığı `plan_adet`'i de götürürdü. Ayrıca
+`asamaToplamiTazele`'deki `COUNT(g.id)` plan-only satırları giriş sayıp
+aşamayı sıfırlıyordu. İkisi de düzeltildi, altı test eklendi.
 
 Task 1 uygulanırken plana göre iki ek yapıldı, ikisi de işlendi:
 `scripts/verify_public_api.mjs`'e yeni tablolar eklendi, ve
@@ -927,7 +942,7 @@ git commit -m "feat(takvim): doluluk, cakisma ve aylik toplama"
 **Files:**
 - Create: `app/api/pes/takvim/doluluk/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -1026,7 +1041,7 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Uygulamayı başlat ve ucu çağır**
+- [x] **Step 2: Uygulamayı başlat ve ucu çağır**
 
 Run: `npm run dev` (ayrı terminalde), sonra
 ```bash
@@ -1034,7 +1049,7 @@ curl -s "http://localhost:3000/api/pes/takvim/doluluk?baslangic=2027-01-01&bitis
 ```
 Expected: 401 (oturum yok) ya da oturum varsa dokuz anahtarlı JSON. 401 doğru davranıştır — `withTenantRoute` kimliksiz isteği reddeder.
 
-- [ ] **Step 3: Tarih kolonlarının metin döndüğünü doğrula**
+- [x] **Step 3: Tarih kolonlarının metin döndüğünü doğrula**
 
 `postgres.js` DATE kolonlarını `Date` nesnesine çevirir; istemcide `.slice(0,10)` çağrısı çöker ve TypeScript bunu yakalamaz. Sorgulardaki her DATE kolonunu `::text` ile döndür:
 
@@ -1051,7 +1066,7 @@ t.tarih::text
 
 Yukarıdaki route'taki tüm DATE seçimlerini bu biçime çevir.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/api/pes/takvim/doluluk/route.ts
@@ -1065,7 +1080,7 @@ git commit -m "feat(takvim): tek okuma ucu — atolye, bant, atama, blok, asama,
 **Files:**
 - Create: `app/api/pes/workshops/[id]/kapasite-gun/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -1151,7 +1166,7 @@ export const DELETE = withTenantRoute<{ id: string }>(async (req, { sql, params 
 })
 ```
 
-- [ ] **Step 2: Elle dene**
+- [x] **Step 2: Elle dene**
 
 Run (oturumlu tarayıcı konsolundan ya da curl + çerez ile):
 ```js
@@ -1163,12 +1178,12 @@ await fetch('/api/pes/workshops/1/kapasite-gun', {
 ```
 Expected: `{ ok: true, gunSayisi: 4 }`
 
-- [ ] **Step 3: Aralık sınırının çalıştığını doğrula**
+- [x] **Step 3: Aralık sınırının çalıştığını doğrula**
 
 Aynı çağrıyı `baslangic: '2027-01-01', bitis: '2029-01-01'` ile yap.
 Expected: 400, `"Aralık en fazla bir yıl olabilir"`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "app/api/pes/workshops/[id]/kapasite-gun/route.ts"
@@ -1182,7 +1197,7 @@ git commit -m "feat(takvim): gun bazli atolye kapasitesi — aralik yazar"
 **Files:**
 - Create: `app/api/pes/rezerve/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -1250,7 +1265,7 @@ export const DELETE = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Sahipsiz rezervenin reddedildiğini doğrula**
+- [x] **Step 2: Sahipsiz rezervenin reddedildiğini doğrula**
 
 ```js
 await fetch('/api/pes/rezerve', { method: 'POST',
@@ -1260,7 +1275,7 @@ await fetch('/api/pes/rezerve', { method: 'POST',
 ```
 Expected: `{ error: 'Rezervenin sahibi yazılmalı' }` — 400, 500 değil.
 
-- [ ] **Step 3: Geçerli rezervenin yazıldığını doğrula**
+- [x] **Step 3: Geçerli rezervenin yazıldığını doğrula**
 
 ```js
 await fetch('/api/pes/rezerve', { method: 'POST',
@@ -1272,7 +1287,7 @@ await fetch('/api/pes/rezerve', { method: 'POST',
 ```
 Expected: `{ ok: true, id: <sayı> }`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/api/pes/rezerve/route.ts
@@ -1287,7 +1302,7 @@ git commit -m "feat(takvim): rezerve olustur/sil — sahip ve gecerlilik zorunlu
 - Modify: `lib/pes/gunluk-uretim.ts`
 - Create: `app/api/pes/atamalar/[id]/gunluk/route.ts`
 
-- [ ] **Step 1: `gunlukKaydet`'i plan_adet için genişlet**
+- [x] **Step 1: `gunlukKaydet`'i plan_adet için genişlet**
 
 `lib/pes/gunluk-uretim.ts` içindeki `gunlukKaydet` fonksiyonunu oku ve INSERT/UPDATE'ini `plan_adet` taşıyacak biçime getir. Mevcut imza `adet` ve `hatali_adet` yazıyor; yeni imza:
 
@@ -1324,7 +1339,7 @@ export async function gunlukKaydet(
 
 Çağıran yerler varsa yeni imzaya uyarla: `grep -rn "gunlukKaydet" app lib --include=*.ts --include=*.tsx`
 
-- [ ] **Step 2: Ucu yaz**
+- [x] **Step 2: Ucu yaz**
 
 `app/api/pes/atamalar/[id]/gunluk/route.ts`:
 
@@ -1390,12 +1405,12 @@ export const PUT = withTenantRoute<{ id: string }>(async (req, { sql, tenant, pa
 })
 ```
 
-- [ ] **Step 3: Mevcut günlük üretim testlerini çalıştır**
+- [x] **Step 3: Mevcut günlük üretim testlerini çalıştır**
 
 Run: `npm test -- lib/pes/gunluk-uretim.test.ts`
 Expected: PASS. Kırılan varsa yeni `GunlukGiris` imzasına uyarla — `adet` artık isteğe bağlı.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/pes/gunluk-uretim.ts "app/api/pes/atamalar/[id]/gunluk/route.ts"

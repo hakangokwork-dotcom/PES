@@ -56,3 +56,6 @@ ekip.csv
 # Saha-ozgu eslestirme dosyasi: kullanici onaylı workshop ID haritalamasi;
 # her ortamda farkli olabilir, git'e girmez.
 atolye_eslesme.json
+
+# Import kuru calismasinin uretttigi eslesmeyen atolye raporu: gecici cikti.
+ekonomi_eslesmeyen.json

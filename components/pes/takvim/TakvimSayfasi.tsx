@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { BOS_VERI, type TakvimVerisi, type Kip, type Vurgu } from './tipler'
+import { BOS_VERI, type TakvimVerisi, type Kip, type Vurgu, type Atama } from './tipler'
 import {
   TR_AY, bugunIso, ayAraligi, haftaAraligi, gunListesi, trTarih,
   atolyePaketleri, uyarilariHesapla,
 } from './hesap'
 import GanttSatirlari from './GanttSatirlari'
+import PoPaneli from './PoPaneli'
 
 /* Sayfanın üç sorumluluğu: dönem/kip durumu, filtreler, veri çekme.
    Çizim GanttSatirlari'nda, hesap lib/pes/bant-doluluk'ta. */
@@ -27,6 +28,7 @@ export default function TakvimSayfasi() {
   const [secenekler, setSecenekler] = useState<Secenekler>({ tedarik: [], bolge: [] })
   const [yukleniyor, setYukleniyor] = useState(true)
   const [hata, setHata] = useState<string | null>(null)
+  const [secili, setSecili] = useState<Atama | null>(null)
 
   const aralik = useMemo(
     () => (kip === 'hafta' ? haftaAraligi(gunSecili) : ayAraligi(ay.y, ay.m)),
@@ -90,6 +92,10 @@ export default function TakvimSayfasi() {
     : `${TR_AY[ay.m]} ${ay.y}`
 
   const asimSayisi = new Set([...uyarilar.asim].map(k => k.split('|')[0])).size
+
+  const seciliBant = secili ? veri.bantlar.find(b => b.id === secili.line_id) : undefined
+  const seciliAtolye = seciliBant ? veri.atolyeler.find(w => w.id === seciliBant.workshop_id) : undefined
+  const seciliPaket = seciliAtolye ? paketler.get(seciliAtolye.id) : undefined
 
   return (
     <div className="space-y-3">
@@ -168,8 +174,17 @@ export default function TakvimSayfasi() {
         {yukleniyor
           ? <div className="p-10 text-center text-faint">Yükleniyor…</div>
           : <GanttSatirlari veri={veri} paketler={paketler} gunler={gunler} bugun={bugun}
-              kip={kip} vurgu={vurgu} uyarilar={uyarilar} />}
+              kip={kip} vurgu={vurgu} uyarilar={uyarilar} onAtamaSec={setSecili} />}
       </div>
+
+      {secili && seciliPaket && seciliAtolye && seciliBant && (
+        <PoPaneli atama={secili} paket={seciliPaket} atolyeId={seciliAtolye.id}
+          atolyeAdi={seciliAtolye.name} bantAdi={seciliBant.name} bugun={bugun}
+          asamalar={veri.asamalar.filter(a => a.work_order_id === secili.work_order_id)}
+          malzemeler={veri.malzemeler.filter(m => m.work_order_id === secili.work_order_id)}
+          test={veri.testler.find(t => t.work_order_id === secili.work_order_id) ?? null}
+          onKapat={() => setSecili(null)} />
+      )}
 
       <p className="px-1 text-[11.5px] leading-relaxed text-faint">
         Atölye satırındaki çubuk o günün doluluğu; içindeki koyu kısım gerçekleşen. Bant satırı

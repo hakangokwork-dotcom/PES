@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**10/16 görev bitti.** Sıradaki **Task 11** (beş sekmeli panel).
+**11/16 görev bitti.** Sıradaki **Task 12** (aylık doluluk matrisi).
 
 | Görev | Durum |
 |---|---|
@@ -30,7 +30,8 @@
 | 8 · Günlük plan + gerçekleşen yazma | bitti |
 | 9 · Sayfa iskeleti ve gantt satırları | bitti — gerçek veriyle tarayıcıda doğrulandı |
 | 10 · PO satırı — aşama zinciri, malzeme | bitti — tarayıcıda doğrulandı |
-| 11 · Beş sekmeli PO paneli | **SIRADA** |
+| 11 · Beş sekmeli PO paneli | bitti — tarayıcıda doğrulandı |
+| 12 · Aylık doluluk matrisi | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -1744,7 +1745,7 @@ git commit -m "feat(takvim): PO satiri — asama zinciri, malzeme kilometre tasl
 - Create: `components/pes/takvim/PoPaneli.tsx`
 - Modify: `components/pes/takvim/GanttSatirlari.tsx`
 
-- [ ] **Step 1: Paneli yaz**
+- [x] **Step 1: Paneli yaz**
 
 Sekmeler ve kaynakları:
 
@@ -1760,7 +1761,7 @@ Günlük plan tablosu dört sütun: Gün, Plan, Gerçek, Fark. Geçmiş günlerd
 
 Panel açık değilken DOM'da tutulmasın; `aria-hidden` ve `hidden` birlikte kullanılsın.
 
-- [ ] **Step 2: Konular sekmesi için journal ucu ekle**
+- [x] **Step 2: Konular sekmesi için journal ucu ekle**
 
 `work_order_journal` tablosu 017'de var ama okuma ucu yoksa `app/api/pes/work-orders/[id]/journal/route.ts` ekle:
 
@@ -1784,12 +1785,12 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
 
 Önce `grep -rn "work_order_journal" app/api` ile mevcut uç olup olmadığına bak; varsa bu adımı atla.
 
-- [ ] **Step 3: Panelde plan düzenlemeyi dene**
+- [x] **Step 3: Panelde plan düzenlemeyi dene**
 
 Atölye rolüyle bir siparişin gününe 1800 yaz.
 Expected: Bitiş tarihi anında yeniden hesaplanır, kalan adet arkadaki günlere kayar, elle yazılan gün `elle` rozeti alır.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/PoPaneli.tsx components/pes/takvim/GanttSatirlari.tsx \

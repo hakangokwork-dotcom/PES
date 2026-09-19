@@ -8,6 +8,7 @@ import {
 } from './hesap'
 import GanttSatirlari from './GanttSatirlari'
 import PoPaneli from './PoPaneli'
+import DolulukMatrisi from './DolulukMatrisi'
 
 /* Sayfanın üç sorumluluğu: dönem/kip durumu, filtreler, veri çekme.
    Çizim GanttSatirlari'nda, hesap lib/pes/bant-doluluk'ta. */
@@ -30,10 +31,11 @@ export default function TakvimSayfasi() {
   const [hata, setHata] = useState<string | null>(null)
   const [secili, setSecili] = useState<Atama | null>(null)
 
-  const aralik = useMemo(
-    () => (kip === 'hafta' ? haftaAraligi(gunSecili) : ayAraligi(ay.y, ay.m)),
-    [kip, gunSecili, ay],
-  )
+  const aralik = useMemo(() => (
+    kip === 'matris' ? { baslangic: `${ay.y}-01-01`, bitis: `${ay.y}-12-31` }
+    : kip === 'hafta' ? haftaAraligi(gunSecili)
+    : ayAraligi(ay.y, ay.m)
+  ), [kip, gunSecili, ay])
   const gunler = useMemo(() => gunListesi(aralik.baslangic, aralik.bitis), [aralik])
 
   const filtreliMi = !!(filtre.tedarik || filtre.bolge || filtre.yetkinlik)
@@ -74,7 +76,9 @@ export default function TakvimSayfasi() {
     () => uyarilariHesapla(veri, paketler, gunler, bugun), [veri, paketler, gunler, bugun])
 
   function kaydir(yon: -1 | 1) {
-    if (kip === 'hafta') {
+    if (kip === 'matris') {
+      setAy({ y: ay.y + yon, m: ay.m })
+    } else if (kip === 'hafta') {
       const d = new Date(gunSecili); d.setDate(d.getDate() + 7 * yon)
       setGunSecili(d.toISOString().slice(0, 10))
     } else {
@@ -87,8 +91,8 @@ export default function TakvimSayfasi() {
     setAy({ y: d.getFullYear(), m: d.getMonth() }); setGunSecili(bugun)
   }
 
-  const donemEtiketi = kip === 'hafta'
-    ? `${trTarih(aralik.baslangic)} – ${trTarih(aralik.bitis)} ${aralik.bitis.slice(0, 4)}`
+  const donemEtiketi = kip === 'matris' ? `${ay.y}`
+    : kip === 'hafta' ? `${trTarih(aralik.baslangic)} – ${trTarih(aralik.bitis)} ${aralik.bitis.slice(0, 4)}`
     : `${TR_AY[ay.m]} ${ay.y}`
 
   const asimSayisi = new Set([...uyarilar.asim].map(k => k.split('|')[0])).size
@@ -111,10 +115,10 @@ export default function TakvimSayfasi() {
         <span className="mx-1 h-6 w-px bg-line-soft" />
 
         <div className="inline-flex overflow-hidden rounded-lg border border-line" role="group" aria-label="Görünüm">
-          {(['ay', 'hafta'] as const).map(k => (
+          {(['ay', 'hafta', 'matris'] as const).map(k => (
             <button key={k} type="button" onClick={() => setKip(k)} aria-pressed={kip === k}
               className={`px-3 py-1.5 text-sm ${kip === k ? 'bg-accent text-white' : 'text-muted hover:bg-canvas hover:text-ink'}`}>
-              {k === 'ay' ? 'Ay' : 'Hafta'}
+              {k === 'ay' ? 'Ay' : k === 'hafta' ? 'Hafta' : 'Matris'}
             </button>
           ))}
         </div>
@@ -173,6 +177,9 @@ export default function TakvimSayfasi() {
       <div className="overflow-hidden rounded-xl border border-line-soft bg-surface">
         {yukleniyor
           ? <div className="p-10 text-center text-faint">Yükleniyor…</div>
+          : kip === 'matris'
+          ? <DolulukMatrisi veri={veri} paketler={paketler} yil={ay.y}
+              onAySec={m => { setAy({ y: ay.y, m }); setKip('ay') }} />
           : <GanttSatirlari veri={veri} paketler={paketler} gunler={gunler} bugun={bugun}
               kip={kip} vurgu={vurgu} uyarilar={uyarilar} onAtamaSec={setSecili} />}
       </div>

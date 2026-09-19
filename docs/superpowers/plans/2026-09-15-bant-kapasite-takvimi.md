@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**11/16 görev bitti.** Sıradaki **Task 12** (aylık doluluk matrisi).
+**12/16 görev bitti.** Sıradaki **Task 13** (hücre menüsü, sürükle-bırak).
 
 | Görev | Durum |
 |---|---|
@@ -31,7 +31,8 @@
 | 9 · Sayfa iskeleti ve gantt satırları | bitti — gerçek veriyle tarayıcıda doğrulandı |
 | 10 · PO satırı — aşama zinciri, malzeme | bitti — tarayıcıda doğrulandı |
 | 11 · Beş sekmeli PO paneli | bitti — tarayıcıda doğrulandı |
-| 12 · Aylık doluluk matrisi | **SIRADA** |
+| 12 · Aylık doluluk matrisi | bitti — yıllık yanıt 32 KB / ~2,1 s, aylıkla aynı |
+| 13 · Hücre menüsü ve blok taşıma | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -1806,7 +1807,7 @@ git commit -m "feat(takvim): bes sekmeli PO paneli — plan, zincir, malzeme, ce
 - Create: `components/pes/takvim/DolulukMatrisi.tsx`
 - Modify: `components/pes/takvim/TakvimSayfasi.tsx`
 
-- [ ] **Step 1: Matrisi yaz**
+- [x] **Step 1: Matrisi yaz**
 
 Satırlar atölye (tedarik müdürlüğüne göre gruplu), kolonlar ay. Hücre `aylikDoluluk()` çağrısının `oran`'ı.
 
@@ -1829,12 +1830,12 @@ const aralik = useMemo(() => (
 ), [ay, kip])
 ```
 
-- [ ] **Step 2: Bir yıllık veri hacmini ölç**
+- [x] **Step 2: Bir yıllık veri hacmini ölç**
 
 Matris kipini aç, tarayıcı ağ sekmesinde `doluluk` isteğinin süresini ve gövde boyutunu not et.
 Expected: 131 atölye × 12 ay için yanıt birkaç MB'ı aşmamalı ve 2 saniyenin altında dönmeli. Aşıyorsa uç tarafında aylık toplama yapmak gerekir — o zaman bu adımı bir görev olarak ayır, tahmin etme.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add components/pes/takvim/DolulukMatrisi.tsx components/pes/takvim/TakvimSayfasi.tsx

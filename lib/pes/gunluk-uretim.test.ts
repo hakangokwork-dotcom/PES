@@ -298,3 +298,22 @@ test('yalnız plan yazılması aşamanın üretilen adedini SIFIRLAMAZ', async (
   const [s] = await yonetici`SELECT uretilen_adet FROM work_order_stage WHERE id = ${stage_row_id}`
   expect(s.uretilen_adet).toBe(2500)
 })
+
+test('elle düşük plan yazılınca plan_bitis TÜRETİLİR, kaldırılınca geri gelir', async () => {
+  /* İlk gün 500 yazılırsa kalan arkaya kayar, bitiş ileri gider;
+     elle giriş kalkınca türetilmiş taban bitişe döner (K4). */
+  const atamaId = await atamaKur({ no: 'ZZG-106', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-11' })
+  const bitis = async () =>
+    (await yonetici`SELECT plan_bitis::text FROM work_order_stage_atama WHERE id = ${atamaId}`)[0].plan_bitis
+
+  /* Beklenen bitis fiksturun daily_target'ina bagli; sabit yazmak yerine
+     once/sonra karsilastirilir. */
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-10', null))
+  const taban = await bitis()
+
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-10', 500))
+  expect(await bitis() > taban).toBe(true)
+
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-10', null))
+  expect(await bitis()).toBe(taban)
+})

@@ -24,8 +24,10 @@ function GunlukUretimSayfasi() {
         title="Günlük Üretim"
       />
       <p className="-mt-2 text-[13px] text-muted">
-        Bantların o gün çıkardığı adet. Girmek zorunlu değil — girilirse
-        siparişin plan/gerçek karşılaştırması çıkar.
+        Bantların o gün için planı ve çıkardığı adet. Plan boşsa bandın
+        varsayılan payı geçerlidir; yeni modele başlarken 2000 yerine 1800
+        yazmak sizin kararınız. Gerçekleşen zorunlu değil — girilirse
+        plan/gerçek karşılaştırması çıkar.
       </p>
 
       {!Number.isInteger(workshopId) ? (

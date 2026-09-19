@@ -1,4 +1,6 @@
 import type postgres from 'postgres'
+import { bantPayi, planBitisi } from './bant-doluluk'
+import { atolyeBaglamiYukle, elleplanYukle } from './bant-doluluk-veri'
 
 /* Günlük üretim girişi (tasarım K6, §6.3).
 
@@ -40,6 +42,10 @@ export type GunlukSatir = {
   kalanAdet: number
   /** Plan penceresi geçmiş, tahsis hâlâ bitmemiş */
   gecikmis: boolean
+  /** Atölyenin bu gün için ELLE yazdığı plan; yoksa null → varsayılan pay geçerli (036, K3) */
+  planAdet: number | null
+  /** Bandın bu günkü varsayılan payı — bant-doluluk.bantPayi (K2) */
+  varsayilanPay: number
 }
 
 /**
@@ -69,9 +75,10 @@ export async function gunlukSatirlar(
       CEIL(a.adet::numeric / GREATEST(1, a.plan_bitis - a.plan_baslangic + 1))::int
                                  AS gunluk_hedef,
       COALESCE(o.onceki, 0)::int AS onceki_toplam,
+      g.plan_adet                AS plan_adet,
       COALESCE(g.adet, 0)::int   AS girilen_adet,
       COALESCE(g.hatali_adet, 0)::int AS girilen_hatali,
-      (g.id IS NOT NULL)         AS kayit_var,
+      (g.adet IS NOT NULL)       AS kayit_var,
       (${tarih}::date > a.plan_bitis) AS gecikmis
     FROM work_order_stage_atama a
     JOIN work_order_stage wos ON wos.id = a.stage_row_id
@@ -97,6 +104,11 @@ export async function gunlukSatirlar(
       )
     ORDER BY pl.code, wo.is_emri_no`
 
+  /* Varsayılan pay için atölyenin hesap bağlamı bir kez yüklenir —
+     satırların hepsi aynı atölyede. */
+  const ctx = satirlar.length
+    ? await atolyeBaglamiYukle(sql, Number(satirlar[0].line_id)) : null
+
   return satirlar.map(r => {
     const tahsis = Number(r.tahsis_adet)
     const onceki = Number(r.onceki_toplam)
@@ -121,6 +133,9 @@ export async function gunlukSatirlar(
       kayitVar: r.kayit_var === true,
       kalanAdet: tahsis - onceki - girilen,
       gecikmis: r.gecikmis === true,
+      planAdet: r.plan_adet == null ? null : Number(r.plan_adet),
+      varsayilanPay: ctx
+        ? bantPayi(Number(r.line_id), ctx.bantlar, ctx.bloklar, tarih, ctx.override(tarih)) : 0,
     }
   })
 }
@@ -194,6 +209,7 @@ export async function planKaydet(
     await sql`DELETE FROM work_order_gunluk_uretim
               WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date
                 AND adet IS NULL`
+    await planBitisiniTazele(sql, atamaId)
     return
   }
 
@@ -206,6 +222,29 @@ export async function planKaydet(
     })}
     ON CONFLICT (atama_id, tarih) DO UPDATE SET
       plan_adet = EXCLUDED.plan_adet`
+
+  await planBitisiniTazele(sql, atamaId)
+}
+
+/**
+ * plan_bitis TÜRETİLİR (K4): elle girilen gün değişince adedin tükendiği
+ * son gün kayar. Tek yazma fonksiyonu — planKaydet ve taşıma ucu aynı
+ * kuralı kullanır; iki ayrı yerden yazılsaydı zamanla birbirini tutmazdı.
+ * /api/pes/takvim/doluluk tarih filtresi bu kolona bakar; eskirse sipariş
+ * ay penceresinden düşebilir.
+ */
+async function planBitisiniTazele(sql: postgres.TransactionSql, atamaId: number): Promise<void> {
+  const [a] = await sql`
+    SELECT line_id, adet, plan_baslangic::text FROM work_order_stage_atama WHERE id = ${atamaId}`
+  if (!a) return
+  const ctx = await atolyeBaglamiYukle(sql, a.line_id as number)
+  if (!ctx) return
+  const elleplan = await elleplanYukle(sql, atamaId)
+  const bitis = planBitisi({
+    atamaId, lineId: a.line_id as number, adet: a.adet as number,
+    planBaslangic: a.plan_baslangic as string, elleplan,
+  }, ctx)
+  await sql`UPDATE work_order_stage_atama SET plan_bitis = ${bitis} WHERE id = ${atamaId}`
 }
 
 /**

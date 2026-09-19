@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**13/16 görev bitti.** Faz D tamamlandı; sıradaki **Task 14** (atölye günlük plan girişi).
+**14/16 görev bitti.** Sıradaki **Task 15** (malzemede gelen miktar).
 
 | Görev | Durum |
 |---|---|
@@ -33,7 +33,8 @@
 | 11 · Beş sekmeli PO paneli | bitti — tarayıcıda doğrulandı |
 | 12 · Aylık doluluk matrisi | bitti — yıllık yanıt 32 KB / ~2,1 s, aylıkla aynı |
 | 13 · Hücre menüsü ve blok taşıma | bitti — PATCH 200, bitiş sunucuda türetildi |
-| 14 · Atölye günlük plan + gerçek girişi | **SIRADA** |
+| 14 · Atölye günlük plan + gerçek girişi | bitti — tarayıcıda PUT 200, plan_bitis türetiliyor |
+| 15 · Malzeme gelen miktar | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -1974,22 +1975,22 @@ git commit -m "feat(takvim): hucre menusu ve blok tasima"
 **Files:**
 - Modify: `app/workshop/gunluk-uretim/page.tsx`
 
-- [ ] **Step 1: Plan sütununu ekle**
+- [x] **Step 1: Plan sütununu ekle**
 
 Ekran bugün yalnız gerçekleşeni alıyor. Plan sütunu eklenir; varsayılan değer `bantPayi()` sonucudur ve gri gösterilir. Atölye yazdığında koyulaşır ve `elle` rozeti alır.
 
 `PUT /api/pes/atamalar/<id>/gunluk` çağrılır. `planAdet: null` göndermek elle girişi kaldırır.
 
-- [ ] **Step 2: Sayfa metnini güncelle**
+- [x] **Step 2: Sayfa metnini güncelle**
 
 Mevcut metin "Girmek zorunlu değil — girilirse siparişin plan/gerçek karşılaştırması çıkar" diyor. Artık plan da buradan giriliyor; metni buna göre yaz: plan girilmezse bandın varsayılan payı kullanılır, gerçekleşen isteğe bağlı kalır.
 
-- [ ] **Step 3: Atölye hesabıyla dene**
+- [x] **Step 3: Atölye hesabıyla dene**
 
 Atölye kullanıcısıyla gir, kendi bandına plan ve gerçek yaz, sonra başka atölyenin atama id'sine `PUT` dene.
 Expected: Kendi bandı yazılır; başka atölyenin atamasında 404 (RLS satırı göstermiyor).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/workshop/gunluk-uretim/page.tsx

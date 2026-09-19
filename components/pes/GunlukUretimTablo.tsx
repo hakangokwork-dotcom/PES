@@ -47,7 +47,7 @@ function kisaTarih(iso: string): string {
   return `${Number(g)} ${AY_KISA[Number(a) - 1]}`
 }
 
-type Taslak = { adet: string; hatali: string }
+type Taslak = { plan: string; adet: string; hatali: string }
 
 export default function GunlukUretimTablo({ workshopId }: { workshopId: number }) {
   const toast = useToast()
@@ -60,6 +60,7 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
   const doldur = useCallback((gelen: GunlukSatir[]) => {
     setSatirlar(gelen)
     setTaslak(Object.fromEntries(gelen.map(s => [s.atamaId, {
+      plan: s.planAdet != null ? String(s.planAdet) : '',
       adet: s.kayitVar ? String(s.girilenAdet) : '',
       hatali: s.kayitVar && s.girilenHatali > 0 ? String(s.girilenHatali) : '',
     }])))
@@ -77,7 +78,7 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
   }, [workshopId, tarih, doldur, toast])
 
   async function kaydet(satir: GunlukSatir) {
-    const t = taslak[satir.atamaId] ?? { adet: '', hatali: '' }
+    const t = taslak[satir.atamaId] ?? { plan: '', adet: '', hatali: '' }
     setKaydedilen(satir.atamaId)
     try {
       const r = await fetch(`/api/pes/workshops/${workshopId}/gunluk-uretim`, {
@@ -86,6 +87,7 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
         body: JSON.stringify({
           atamaId: satir.atamaId,
           tarih,
+          planAdet: t.plan.trim() === '' ? null : t.plan,
           adet: t.adet.trim() === '' ? null : t.adet,
           hataliAdet: t.hatali.trim() === '' ? 0 : t.hatali,
         }),
@@ -104,10 +106,11 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
   }
 
   function degistiMi(satir: GunlukSatir): boolean {
-    const t = taslak[satir.atamaId] ?? { adet: '', hatali: '' }
+    const t = taslak[satir.atamaId] ?? { plan: '', adet: '', hatali: '' }
+    const mevcutPlan = satir.planAdet != null ? String(satir.planAdet) : ''
     const mevcutAdet = satir.kayitVar ? String(satir.girilenAdet) : ''
     const mevcutHatali = satir.kayitVar && satir.girilenHatali > 0 ? String(satir.girilenHatali) : ''
-    return t.adet.trim() !== mevcutAdet || t.hatali.trim() !== mevcutHatali
+    return t.plan.trim() !== mevcutPlan || t.adet.trim() !== mevcutAdet || t.hatali.trim() !== mevcutHatali
   }
 
   const girilenSatir = satirlar.filter(s => s.kayitVar).length
@@ -153,7 +156,7 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
             const tamamlanan = s.oncekiToplam + s.girilenAdet
             const yuzde = s.tahsisAdet > 0 ? Math.min(100, Math.round((tamamlanan / s.tahsisAdet) * 100)) : 0
             const asim = tamamlanan > s.tahsisAdet
-            const t = taslak[s.atamaId] ?? { adet: '', hatali: '' }
+            const t = taslak[s.atamaId] ?? { plan: '', adet: '', hatali: '' }
 
             return (
               <div key={s.atamaId} className="rounded-xl border border-line-soft bg-surface p-3">
@@ -175,6 +178,24 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
 
                   {/* Giriş */}
                   <div className="flex items-end gap-2">
+                    <span className="w-24">
+                      <span className="mb-1 block text-[11px] uppercase tracking-[0.06em] text-faint">
+                        Plan{s.planAdet != null && <span className="ml-1 rounded bg-accent-soft px-1 normal-case tracking-normal text-accent-ink">elle</span>}
+                      </span>
+                      <Input
+                        value={t.plan}
+                        onChange={e => setTaslak(x => ({ ...x, [s.atamaId]: { ...t, plan: e.target.value } }))}
+                        onBlur={() => { if (degistiMi(s)) kaydet(s) }}
+                        onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+                        inputMode="numeric"
+                        align="right"
+                        /* Boşken bandın varsayılan payı geçerli; placeholder
+                           tam olarak bunu söyler. Yeni modele başlarken
+                           2000 yerine 1800 yazmak atölyenin kararı (K3). */
+                        placeholder={s.varsayilanPay.toLocaleString('tr-TR')}
+                        disabled={kaydedilen === s.atamaId}
+                      />
+                    </span>
                     <span className="w-24">
                       <span className="mb-1 block text-[11px] uppercase tracking-[0.06em] text-faint">Üretilen</span>
                       <Input
@@ -235,7 +256,8 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
 
           <p className="text-[13px] text-faint">
             {girilenSatir} / {satirlar.length} bandın girişi yapıldı.
-            {' '}Boş bırakılan bant “henüz girilmedi” sayılır; hiç üretim olmadıysa <strong className="text-muted">0</strong> yazın.
+            {' '}Plan boşsa bandın varsayılan payı geçerlidir; yazarsanız o gün sabitlenir.
+            {' '}Üretilen boş bırakılırsa “henüz girilmedi” sayılır; hiç üretim olmadıysa <strong className="text-muted">0</strong> yazın.
           </p>
         </div>
       )}

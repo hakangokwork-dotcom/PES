@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**12/16 görev bitti.** Sıradaki **Task 13** (hücre menüsü, sürükle-bırak).
+**13/16 görev bitti.** Faz D tamamlandı; sıradaki **Task 14** (atölye günlük plan girişi).
 
 | Görev | Durum |
 |---|---|
@@ -32,7 +32,8 @@
 | 10 · PO satırı — aşama zinciri, malzeme | bitti — tarayıcıda doğrulandı |
 | 11 · Beş sekmeli PO paneli | bitti — tarayıcıda doğrulandı |
 | 12 · Aylık doluluk matrisi | bitti — yıllık yanıt 32 KB / ~2,1 s, aylıkla aynı |
-| 13 · Hücre menüsü ve blok taşıma | **SIRADA** |
+| 13 · Hücre menüsü ve blok taşıma | bitti — PATCH 200, bitiş sunucuda türetildi |
+| 14 · Atölye günlük plan + gerçek girişi | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -1849,14 +1850,14 @@ git commit -m "feat(takvim): aylik doluluk matrisi"
 **Files:**
 - Modify: `components/pes/takvim/GanttSatirlari.tsx`
 
-- [ ] **Step 1: Boş hücre menüsünü ekle**
+- [x] **Step 1: Boş hücre menüsünü ekle**
 
 Yalnız merkez rolünde. Üç eylem:
 - *Rezerve et* → `POST /api/pes/rezerve`, sahip ve geçerlilik zorunlu alan.
 - *Sipariş yerleştir* → `/pes/siparis-yerlestir`'e atölye, bant ve tarih önseçili yönlendir. Sihirbazı kopyalama; aşama zinciri mantığı tek yerde kalmalı.
 - *Kapasite gir* → `PUT /api/pes/workshops/<id>/kapasite-gun`, tarih aralığı ve sebep sorar.
 
-- [ ] **Step 2: Blok taşımayı ekle**
+- [x] **Step 2: Blok taşımayı ekle**
 
 HTML5 sürükle-bırak yeterli; kütüphane ekleme. Bırakma anında hedef günün doluluğunu `gunlukDoluluk` ile hesapla; aşıyorsa kırmızı gösterip onay iste.
 
@@ -1951,12 +1952,12 @@ export async function elleplanYukle(
 }
 ```
 
-- [ ] **Step 3: Taşımanın rampayı koruduğunu doğrula**
+- [x] **Step 3: Taşımanın rampayı koruduğunu doğrula**
 
 Elle plan girilmiş bir siparişi başka banda taşı, paneli aç.
 Expected: `elle` rozetli günler aynı değerlerle duruyor; yalnız otomatik günler yeni bant payına göre değişmiş.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/GanttSatirlari.tsx "app/api/pes/atamalar/[id]/route.ts" \

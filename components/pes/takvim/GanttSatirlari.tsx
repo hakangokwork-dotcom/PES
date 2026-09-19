@@ -5,6 +5,7 @@ import { gunlukDoluluk, gunlukPlan, pazarMi } from '@/lib/pes/bant-doluluk'
 import type { TakvimVerisi, Kip, Vurgu, Atolye, Bant, Atama, Blok } from './tipler'
 import { TR_GUN, yerelTarih, trTarih, type AtolyePaketi, type Uyarilar } from './hesap'
 import PoSatiri from './PoZinciri'
+import HucreMenusu, { type HucreHedefi } from './HucreMenusu'
 
 /* Üç seviyeli katlanır gantt: tedarik müdürlüğü → atölye → bant (K7).
    PO satırı (aşama zinciri) Task 10'da bu dosyaya eklenir.
@@ -28,14 +29,44 @@ type Props = {
   vurgu: Vurgu
   uyarilar: Uyarilar
   onAtamaSec?: (atama: Atama) => void
+  onYenile?: () => void
 }
 
 export default function GanttSatirlari({
-  veri, paketler, gunler, bugun, kip, vurgu, uyarilar, onAtamaSec,
+  veri, paketler, gunler, bugun, kip, vurgu, uyarilar, onAtamaSec, onYenile,
 }: Props) {
   const [kapaliGrup, setKapaliGrup] = useState<Set<string>>(() => new Set())
   const [acikWs, setAcikWs] = useState<Set<number>>(() => new Set())
   const [acikLn, setAcikLn] = useState<Set<number>>(() => new Set())   // bant açıkken PO zincirleri görünür
+  const [menu, setMenu] = useState<HucreHedefi | null>(null)
+
+  /* Bos hucreye tiklama: menu, o gunun bos kapasitesiyle. */
+  function hucreAc(bant: Bant, tarih: string, x: number, y: number) {
+    const w = veri.atolyeler.find(a => a.id === bant.workshop_id); const p = paketler.get(bant.workshop_id)
+    if (!w || !p) return
+    const d = gunlukDoluluk(tarih, p.atamalar, p.ctx, p.gercekler)
+    setMenu({ lineId: bant.id, bantAdi: bant.name, atolyeId: w.id, atolyeAdi: w.name, tarih,
+      bosAdet: Math.max(0, d.kapasite - d.plan - d.rezerve), x, y })
+  }
+
+  /* Blok tasima: kapasite kontrolu ISTEMCIDE (aninda uyari), bitis SUNUCUDA turetilir. */
+  async function tasi(atamaId: number, hedefBant: Bant, tarih: string) {
+    const p = paketler.get(hedefBant.workshop_id); if (!p) return
+    const eski = p.atamalar.find(a => a.atamaId === atamaId)
+    if (!eski) { alert('Sipariş başka atölyeye buradan taşınamaz; yerleştirme sihirbazını kullanın.'); return }
+    if (eski.lineId === hedefBant.id && eski.planBaslangic === tarih) return
+    const yeni = { ...eski, lineId: hedefBant.id, planBaslangic: tarih }
+    const digerleri = p.atamalar.filter(a => a.atamaId !== atamaId)
+    const asimGun = gunlukPlan(yeni, p.ctx)
+      .map(g => g.tarih)
+      .filter(t => gunlukDoluluk(t, [...digerleri, yeni], p.ctx, p.gercekler).asim)
+    if (asimGun.length && !confirm(`${asimGun.length} günde kapasite aşılıyor (ilk: ${trTarih(asimGun[0])}). Yine de taşınsın mı?`)) return
+    const r = await fetch(`/api/pes/atamalar/${atamaId}`, { method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ lineId: hedefBant.id, planBaslangic: tarih }) })
+    if (!r.ok) { const d = await r.json().catch(() => ({})); alert(d.error ?? `Taşınamadı (${r.status})`); return }
+    onYenile?.()
+  }
 
   const kolonPx = kip === 'hafta' ? 92 : 24
   const n = gunler.length
@@ -71,6 +102,7 @@ export default function GanttSatirlari({
 
   return (
     <div className="overflow-x-auto">
+      {menu && onYenile && <HucreMenusu hedef={menu} onKapat={() => setMenu(null)} onYenile={onYenile} />}
       <div style={{ minWidth: 'max-content' }}>
         {/* Başlık */}
         <div className="sticky top-0 z-30 grid border-b border-line bg-canvas" style={{ gridTemplateColumns: sablon }}>
@@ -129,7 +161,9 @@ export default function GanttSatirlari({
                           <BantSatiri bant={b} paket={paket} gunler={gunler} bugun={bugun}
                             sablon={sablon} icSablon={icSablon} genis={kolonPx >= 60}
                             bloklar={veri.bloklar.filter(x => x.line_id === b.id)} onAtamaSec={onAtamaSec}
-                            poSayisi={poler.length} poAcik={lnAcik} onPoToggle={() => toggleLn(b.id)} />
+                            poSayisi={poler.length} poAcik={lnAcik} onPoToggle={() => toggleLn(b.id)}
+                            onHucre={onYenile ? (t, x, y) => hucreAc(b, t, x, y) : undefined}
+                            onBirak={onYenile ? (id, t) => tasi(id, b, t) : undefined} />
                           {lnAcik && poler.map(a => (
                             <PoSatiri key={a.id} atama={a} atolyeId={w.id}
                               asamalar={veri.asamalar.filter(x => x.work_order_id === a.work_order_id)}
@@ -211,11 +245,13 @@ function AtolyeSatiri({ w, bantlar, paket, gunler, bugun, sablon, icSablon, geni
 }
 
 /* ---------- Bant satırı: sipariş, rezerve ve bakım blokları ---------- */
-function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, bloklar, onAtamaSec, poSayisi, poAcik, onPoToggle }: {
+function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, bloklar, onAtamaSec, poSayisi, poAcik, onPoToggle, onHucre, onBirak }: {
   bant: Bant; paket: AtolyePaketi; gunler: string[]; bugun: string
   sablon: string; icSablon: string; genis: boolean; bloklar: Blok[]
   onAtamaSec?: (a: Atama) => void
   poSayisi: number; poAcik: boolean; onPoToggle: () => void
+  onHucre?: (tarih: string, x: number, y: number) => void
+  onBirak?: (atamaId: number, tarih: string) => void
 }) {
   const ilk = gunler[0], son = gunler[gunler.length - 1]
   const aralik = (bas: string, bit: string) => {
@@ -246,7 +282,11 @@ function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, blokl
         {/* Arka katman: gün hücreleri */}
         <div className="absolute inset-0 grid" style={{ gridTemplateColumns: icSablon }}>
           {gunler.map(t => (
-            <div key={t} className={`border-r border-line-soft ${pazarMi(t) ? 'bg-canvas' : ''} ${t === bugun ? 'bg-accent-soft/50' : ''}`} />
+            <div key={t}
+              className={`border-r border-line-soft ${pazarMi(t) ? 'bg-canvas' : ''} ${t === bugun ? 'bg-accent-soft/50' : ''} ${onHucre ? 'cursor-cell hover:bg-accent-soft hover:shadow-[inset_0_0_0_1px_var(--color-accent)]' : ''}`}
+              onClick={onHucre ? e => onHucre(t, e.clientX, e.clientY) : undefined}
+              onDragOver={onBirak ? e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' } : undefined}
+              onDrop={onBirak ? e => { e.preventDefault(); const id = Number(e.dataTransfer.getData('text/plain')); if (id) onBirak(id, t) } : undefined} />
           ))}
         </div>
 
@@ -285,7 +325,9 @@ function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, blokl
           const genislik = sp.e - sp.s
           return (
             <button key={`a${a.atamaId}`} type="button" onClick={() => onAtamaSec?.(kaynak)}
-              className="relative z-[2] my-1 mx-px flex min-h-[26px] items-center overflow-hidden rounded text-left hover:shadow-md focus-visible:outline-2 focus-visible:outline-accent"
+              draggable={!!onBirak}
+              onDragStart={onBirak ? e => { e.dataTransfer.setData('text/plain', String(a.atamaId)); e.dataTransfer.effectAllowed = 'move' } : undefined}
+              className="relative z-[2] my-1 mx-px flex min-h-[26px] cursor-grab items-center overflow-hidden rounded text-left hover:shadow-md focus-visible:outline-2 focus-visible:outline-accent active:cursor-grabbing"
               style={{ gridColumn: `${sp.s + 1} / ${sp.e + 1}`, background: '#B6DCC9', border: '1px solid #4FA57F' }}
               title={`${kaynak.is_emri_no} · ${kaynak.model_adi}\n${kaynak.musteri ?? ''} · ${nf(a.adet)} adet\nPlan ${trTarih(a.planBaslangic)} → ${trTarih(bitis)}${kaynak.teslim_tarihi ? ` · Teslim ${trTarih(kaynak.teslim_tarihi)}` : ''}${gercek ? `\nGerçekleşen ${nf(gercek)} (%${Math.round(ilerleme)})` : ''}${gec ? '\n⚠ Planlanan bitiş teslimi aşıyor' : ''}`}>
               <span className="absolute inset-y-0 left-0 opacity-70" style={{ width: `${ilerleme}%`, background: '#4FA57F' }} />

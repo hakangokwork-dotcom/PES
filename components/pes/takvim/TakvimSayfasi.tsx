@@ -181,7 +181,7 @@ export default function TakvimSayfasi() {
           ? <DolulukMatrisi veri={veri} paketler={paketler} yil={ay.y}
               onAySec={m => { setAy({ y: ay.y, m }); setKip('ay') }} />
           : <GanttSatirlari veri={veri} paketler={paketler} gunler={gunler} bugun={bugun}
-              kip={kip} vurgu={vurgu} uyarilar={uyarilar} onAtamaSec={setSecili} />}
+              kip={kip} vurgu={vurgu} uyarilar={uyarilar} onAtamaSec={setSecili} onYenile={yukle} />}
       </div>
 
       {secili && seciliPaket && seciliAtolye && seciliBant && (

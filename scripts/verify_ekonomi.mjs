@@ -184,7 +184,15 @@ console.log(`\n${kontrol} kontrol, ${hata} sapma, ${atlanan} atölye atlandı`)
 
 // postgres.js NUMERIC'i string döndürür. Number() ile sarılmayan bir alan
 // sessizce NaN üretir; bu yüzden NaN'ı da hata sayıyoruz.
-if (hata > 0) {
+if (kontrol === 0) {
+  // Sıfır kontrol bir başarı değildir. Bu script bir kez "0 kontrol, 0 sapma
+  // → BAŞARILI" dedi ve o dönemde hiç veri olmadığını gizledi. Yanlış dönem,
+  // boş tablo ya da RLS yüzünden görünmeyen satırlar hep buraya düşer.
+  console.error('\nDOĞRULAMA YAPILAMADI — bu dönemde karşılaştırılacak satır yok.')
+  console.error('  Dönemi kontrol et: SELECT DISTINCT year, month FROM workshop_economy;')
+  console.error('  Anket içeri alınmadıysa: node scripts/import_ekonomi_anket.mjs --baslangic YYYY-MM --uygula')
+  process.exitCode = 1
+} else if (hata > 0) {
   console.error('\nDOĞRULAMA BAŞARISIZ — sapmaların nedenini bul, tolerans yükseltme.')
   process.exitCode = 1
 } else {

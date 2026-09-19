@@ -14,6 +14,29 @@
 
 ---
 
+## Durum — 2026-09-15
+
+**4/16 görev bitti.** Faz A ve Faz B tamamlandı; sıradaki **Task 5**.
+
+| Görev | Durum |
+|---|---|
+| 1 · Migration 036 | bitti — canlı şemaya uygulandı, doğrulandı |
+| 2 · Kapasite ve bant payı | bitti — 16 test |
+| 3 · Günlük plan, türetilmiş bitiş | bitti — 8 test |
+| 4 · Doluluk, çakışma, aylık toplama | bitti — 7 test |
+| 5 · Takvim okuma ucu | **SIRADA** |
+
+Son doğrulama: 498/498 test (44 dosya), `verify_public_api` ve
+`verify_workshop_isolation` temiz.
+
+Task 1 uygulanırken plana göre iki ek yapıldı, ikisi de işlendi:
+`scripts/verify_public_api.mjs`'e yeni tablolar eklendi, ve
+`lib/pes/gunluk-uretim-izolasyon.test.ts` yazıldı — 033 boşluğunun
+kapandığını kanıtlıyor (mevcut izolasyon betiği o tabloyu göremiyor,
+çünkü yalnız `workshop_id` kolonu OLAN tabloları tarıyor).
+
+---
+
 ## Mevcut kodda ne var — yeniden yazma
 
 Bu plan üç yerde **mevcut modülü genişletir**, yenisini açmaz:
@@ -62,7 +85,7 @@ Yeni açılan tek modül: `lib/pes/bant-doluluk.ts`.
 **Files:**
 - Create: `supabase/migrations/036_bant_kapasite_takvimi.sql`
 
-- [ ] **Step 1: Migration dosyasını yaz**
+- [x] **Step 1: Migration dosyasını yaz**
 
 ```sql
 -- ============================================================
@@ -264,12 +287,12 @@ COMMIT;
 -- ============================================================
 ```
 
-- [ ] **Step 2: Migration'ı uygula**
+- [x] **Step 2: Migration'ı uygula**
 
 Run: `node scripts/_migrate_one.mjs 036_bant_kapasite_takvimi.sql`
 Expected: `OK   036_bant_kapasite_takvimi.sql`
 
-- [ ] **Step 3: Aşama kataloğunu doğrula**
+- [x] **Step 3: Aşama kataloğunu doğrula**
 
 Run:
 ```bash
@@ -288,12 +311,12 @@ import('postgres').then(async ({default:pg})=>{
 ```
 Expected: yedi satır, sırasıyla KESIM 10 true, HAZIRLIK 15 true, DIKIM 20 true, YIKAMA 30 false, BASKI 32 false, NAKIS 34 false, UKP 50 true.
 
-- [ ] **Step 4: İzolasyon betiklerini çalıştır**
+- [x] **Step 4: İzolasyon betiklerini çalıştır**
 
 Run: `node scripts/verify_public_api.mjs && node scripts/verify_workshop_isolation.mjs`
 Expected: iki betik de hatasız biter; yeni tablolar public API'de 401 döner ve atölye izolasyon taramasında sızıntı raporlanmaz.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/036_bant_kapasite_takvimi.sql
@@ -312,7 +335,7 @@ Bu fazın tamamı saf fonksiyondur: veritabanı yok, tarih kütüphanesi yok, `D
 - Create: `lib/pes/bant-doluluk.ts`
 - Test: `lib/pes/bant-doluluk.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/bant-doluluk.test.ts`:
 
@@ -411,12 +434,12 @@ describe('bantPayi', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npm test -- lib/pes/bant-doluluk.test.ts`
 Expected: FAIL — `Failed to resolve import "./bant-doluluk"`
 
-- [ ] **Step 3: Modülü yaz**
+- [x] **Step 3: Modülü yaz**
 
 `lib/pes/bant-doluluk.ts`:
 
@@ -510,12 +533,12 @@ export function bantPayi(
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npm test -- lib/pes/bant-doluluk.test.ts`
 Expected: PASS — 15 test.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/bant-doluluk.ts lib/pes/bant-doluluk.test.ts
@@ -530,7 +553,7 @@ git commit -m "feat(takvim): kapasite ve bant payi hesabi"
 - Modify: `lib/pes/bant-doluluk.ts`
 - Modify: `lib/pes/bant-doluluk.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/bant-doluluk.test.ts` dosyasının sonuna ekle. Import satırını da genişlet:
 
@@ -615,12 +638,12 @@ describe('planBitisi', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npm test -- lib/pes/bant-doluluk.test.ts`
 Expected: FAIL — `gunlukPlan is not a function`
 
-- [ ] **Step 3: Modüle ekle**
+- [x] **Step 3: Modüle ekle**
 
 Önce dosyanın **en üstüne** import satırını ekle — ESM'de import'lar dosya
 başında olmak zorundadır, gövdeye yazarsan derleme kırılır. `gunEkle` mevcut
@@ -697,12 +720,12 @@ export function planBitisi(atama: AtamaTanim, ctx: HesapBaglami): string {
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npm test -- lib/pes/bant-doluluk.test.ts`
 Expected: PASS — 23 test.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/bant-doluluk.ts lib/pes/bant-doluluk.test.ts
@@ -717,7 +740,7 @@ git commit -m "feat(takvim): gunluk plan doldurma kurali ve turetilmis bitis"
 - Modify: `lib/pes/bant-doluluk.ts`
 - Modify: `lib/pes/bant-doluluk.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 Import satırını `gunlukDoluluk, aylikDoluluk` ile genişlet, sonra ekle:
 
@@ -790,12 +813,12 @@ describe('aylikDoluluk', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npm test -- lib/pes/bant-doluluk.test.ts`
 Expected: FAIL — `gunlukDoluluk is not a function`
 
-- [ ] **Step 3: Modüle ekle**
+- [x] **Step 3: Modüle ekle**
 
 ```ts
 export type Doluluk = {
@@ -878,17 +901,17 @@ export function aylikDoluluk(
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npm test -- lib/pes/bant-doluluk.test.ts`
 Expected: PASS — 30 test.
 
-- [ ] **Step 5: Tüm test paketini çalıştır — hiçbir şeyi bozmadığını doğrula**
+- [x] **Step 5: Tüm test paketini çalıştır — hiçbir şeyi bozmadığını doğrula**
 
 Run: `npm test`
 Expected: Mevcut testler geçmeye devam eder. `plan-gercek.test.ts` ve `gunluk-uretim.test.ts` özellikle yeşil olmalı; 036 `adet` kolonunu nullable yaptı.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/pes/bant-doluluk.ts lib/pes/bant-doluluk.test.ts

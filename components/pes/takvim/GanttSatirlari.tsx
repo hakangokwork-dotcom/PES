@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from 'react'
 import { gunlukDoluluk, gunlukPlan, pazarMi } from '@/lib/pes/bant-doluluk'
 import type { TakvimVerisi, Kip, Vurgu, Atolye, Bant, Atama, Blok } from './tipler'
 import { TR_GUN, yerelTarih, trTarih, type AtolyePaketi, type Uyarilar } from './hesap'
+import PoSatiri from './PoZinciri'
 
 /* Üç seviyeli katlanır gantt: tedarik müdürlüğü → atölye → bant (K7).
    PO satırı (aşama zinciri) Task 10'da bu dosyaya eklenir.
@@ -34,6 +35,7 @@ export default function GanttSatirlari({
 }: Props) {
   const [kapaliGrup, setKapaliGrup] = useState<Set<string>>(() => new Set())
   const [acikWs, setAcikWs] = useState<Set<number>>(() => new Set())
+  const [acikLn, setAcikLn] = useState<Set<number>>(() => new Set())   // bant açıkken PO zincirleri görünür
 
   const kolonPx = kip === 'hafta' ? 92 : 24
   const n = gunler.length
@@ -61,6 +63,9 @@ export default function GanttSatirlari({
     const y = new Set(s); y.has(g) ? y.delete(g) : y.add(g); return y
   })
   const toggleWs = (id: number) => setAcikWs(s => {
+    const y = new Set(s); y.has(id) ? y.delete(id) : y.add(id); return y
+  })
+  const toggleLn = (id: number) => setAcikLn(s => {
     const y = new Set(s); y.has(id) ? y.delete(id) : y.add(id); return y
   })
 
@@ -116,11 +121,26 @@ export default function GanttSatirlari({
                     <AtolyeSatiri w={w} bantlar={bantlar} paket={paket} gunler={gunler} bugun={bugun}
                       sablon={sablon} icSablon={icSablon} genis={kolonPx >= 60}
                       acik={wsAcik} onToggle={() => toggleWs(w.id)} uyarilar={uyarilar} />
-                    {wsAcik && bantlar.map(b => (
-                      <BantSatiri key={b.id} bant={b} paket={paket} gunler={gunler} bugun={bugun}
-                        sablon={sablon} icSablon={icSablon} genis={kolonPx >= 60}
-                        bloklar={veri.bloklar.filter(x => x.line_id === b.id)} onAtamaSec={onAtamaSec} />
-                    ))}
+                    {wsAcik && bantlar.map(b => {
+                      const poler = [...paket.atamaKaynak.values()].filter(a => a.line_id === b.id)
+                      const lnAcik = acikLn.has(b.id)
+                      return (
+                        <div key={b.id}>
+                          <BantSatiri bant={b} paket={paket} gunler={gunler} bugun={bugun}
+                            sablon={sablon} icSablon={icSablon} genis={kolonPx >= 60}
+                            bloklar={veri.bloklar.filter(x => x.line_id === b.id)} onAtamaSec={onAtamaSec}
+                            poSayisi={poler.length} poAcik={lnAcik} onPoToggle={() => toggleLn(b.id)} />
+                          {lnAcik && poler.map(a => (
+                            <PoSatiri key={a.id} atama={a} atolyeId={w.id}
+                              asamalar={veri.asamalar.filter(x => x.work_order_id === a.work_order_id)}
+                              malzemeler={veri.malzemeler.filter(x => x.work_order_id === a.work_order_id)}
+                              test={veri.testler.find(x => x.work_order_id === a.work_order_id) ?? null}
+                              gunler={gunler} bugun={bugun} sablon={sablon} icSablon={icSablon}
+                              genis={kolonPx >= 60} onAtamaSec={onAtamaSec} />
+                          ))}
+                        </div>
+                      )
+                    })}
                   </div>
                 )
               })}
@@ -191,10 +211,11 @@ function AtolyeSatiri({ w, bantlar, paket, gunler, bugun, sablon, icSablon, geni
 }
 
 /* ---------- Bant satırı: sipariş, rezerve ve bakım blokları ---------- */
-function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, bloklar, onAtamaSec }: {
+function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, bloklar, onAtamaSec, poSayisi, poAcik, onPoToggle }: {
   bant: Bant; paket: AtolyePaketi; gunler: string[]; bugun: string
   sablon: string; icSablon: string; genis: boolean; bloklar: Blok[]
   onAtamaSec?: (a: Atama) => void
+  poSayisi: number; poAcik: boolean; onPoToggle: () => void
 }) {
   const ilk = gunler[0], son = gunler[gunler.length - 1]
   const aralik = (bas: string, bit: string) => {
@@ -210,7 +231,15 @@ function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, blokl
   return (
     <div className="grid border-b border-line-soft bg-surface" style={{ gridTemplateColumns: sablon, minHeight: 36 }}>
       <div className="sticky left-0 z-20 flex items-center gap-2 overflow-hidden border-r border-line bg-surface pl-10 pr-2.5">
-        <span className="truncate text-xs text-body">{bant.name}</span>
+        {poSayisi > 0 ? (
+          <button type="button" onClick={onPoToggle} className="flex min-w-0 items-center gap-1.5 text-left">
+            <Caret acik={poAcik} />
+            <span className="truncate text-xs text-body">{bant.name}</span>
+            <span className="shrink-0 text-[10px] text-faint">{poSayisi} PO</span>
+          </button>
+        ) : (
+          <span className="truncate pl-[18px] text-xs text-body">{bant.name}</span>
+        )}
         <span className="ml-auto shrink-0 font-mono text-[10px] text-faint">{nf(bant.daily_target)}/gün</span>
       </div>
       <div className="relative grid content-start" style={{ gridColumn: '2 / -1', gridTemplateColumns: icSablon, minHeight: 36 }}>

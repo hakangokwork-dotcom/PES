@@ -10,7 +10,7 @@ import {
   type BantTanim, type BlokTanim, type AtamaTanim,
   type HesapBaglami, type GercekHaritasi,
 } from '@/lib/pes/bant-doluluk'
-import type { TakvimVerisi, Atama, Blok } from './tipler'
+import type { TakvimVerisi, Atama, Blok, Malzeme, CekmeTesti } from './tipler'
 
 /* ---------- tarih ---------- */
 export const TR_AY = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -159,4 +159,32 @@ export function uyarilariHesapla(
   const eskimisRezerve = veri.bloklar.filter(
     b => b.tip === 'REZERVE' && b.gecerlilik_bitis != null && b.gecerlilik_bitis < bugun)
   return { asim, eskimisRezerve, teslimRiski }
+}
+
+/* ---------- PO satırı rozetleri ---------- */
+
+export type Rozet = { sinif: 'ok' | 'wait' | 'bad' | 'neu'; etiket: string }
+
+/** Malzeme durumu: eksik geldi > gecikti > bekleniyor > tam. */
+export function malzemeDurumu(malzemeler: Malzeme[], bugun: string): Rozet {
+  if (!malzemeler.length) return { sinif: 'neu', etiket: 'Malzeme kaydı yok' }
+  const eksik = malzemeler.filter(m =>
+    m.durum === 'Eksik' || (m.gelis_tarihi && m.gelen_miktar != null && m.miktar != null && m.gelen_miktar < m.miktar))
+  if (eksik.length) return { sinif: 'bad', etiket: eksik.some(m => m.tip === 'KUMAŞ') ? 'Kumaş eksik' : 'Malzeme eksik' }
+  const gelmeyen = malzemeler.filter(m => !m.gelis_tarihi && m.durum !== 'Geldi')
+  if (gelmeyen.length) {
+    const gec = gelmeyen.some(m => m.beklenen_tarih != null && m.beklenen_tarih < bugun)
+    return gec
+      ? { sinif: 'bad', etiket: `${gelmeyen.length} malzeme gecikti` }
+      : { sinif: 'wait', etiket: `${gelmeyen.length} malzeme bekleniyor` }
+  }
+  return { sinif: 'ok', etiket: 'Malzeme tam' }
+}
+
+export function testDurumu(test: CekmeTesti | null): Rozet {
+  if (!test) return { sinif: 'neu', etiket: 'Çekme testi yok' }
+  if (test.sonuc === 'UYGUN') return { sinif: 'ok', etiket: 'Çekme ✓' }
+  if (test.sonuc === 'RİSKLİ') return { sinif: 'bad', etiket: 'Çekme riskli' }
+  if (test.sonuc === 'RED') return { sinif: 'bad', etiket: 'Çekme RED' }
+  return { sinif: 'wait', etiket: 'Çekme bekliyor' }
 }

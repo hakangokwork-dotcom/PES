@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**9/16 görev bitti.** Faz A, B, C ve ekran iskeleti tamamlandı; sıradaki **Task 10** (PO satırı).
+**10/16 görev bitti.** Sıradaki **Task 11** (beş sekmeli panel).
 
 | Görev | Durum |
 |---|---|
@@ -29,7 +29,8 @@
 | 7 · Rezerve oluştur/sil | bitti |
 | 8 · Günlük plan + gerçekleşen yazma | bitti |
 | 9 · Sayfa iskeleti ve gantt satırları | bitti — gerçek veriyle tarayıcıda doğrulandı |
-| 10 · PO satırı — aşama zinciri, malzeme | **SIRADA** |
+| 10 · PO satırı — aşama zinciri, malzeme | bitti — tarayıcıda doğrulandı |
+| 11 · Beş sekmeli PO paneli | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -1689,7 +1690,7 @@ git commit -m "feat(takvim): sayfa iskeleti ve dort seviyeli gantt satirlari"
 - Create: `components/pes/takvim/PoZinciri.tsx`
 - Modify: `components/pes/takvim/GanttSatirlari.tsx`
 
-- [ ] **Step 1: PO satırını yaz**
+- [x] **Step 1: PO satırını yaz**
 
 `components/pes/takvim/PoZinciri.tsx`. İki şey çizer:
 
@@ -1719,16 +1720,16 @@ import { malzemeUyarisi } from '@/lib/pes/malzeme-uyari'
 
 Rozetler: malzeme durumu, çekme testi sonucu, risk dökümanı eksikliği (bu turda her zaman "yok" — K12, ayrı proje), açık konu sayısı.
 
-- [ ] **Step 2: `GanttSatirlari`'na bağla**
+- [x] **Step 2: `GanttSatirlari`'na bağla**
 
 Bant satırının etiketinde caret ekle; açıkken o bandın atamaları için `PoZinciri` satırları render et.
 
-- [ ] **Step 3: Grift geçişi gözle doğrula**
+- [x] **Step 3: Grift geçişi gözle doğrula**
 
 Aynı banda iki sipariş yerleştir; ikincinin kesim tarihi birincinin dikim aralığına düşsün.
 Expected: İkinci PO'nun kesim çubuğu, birincinin dikim bloğu hâlâ sürerken başlar ve ekranda yan yana görünür.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/PoZinciri.tsx components/pes/takvim/GanttSatirlari.tsx

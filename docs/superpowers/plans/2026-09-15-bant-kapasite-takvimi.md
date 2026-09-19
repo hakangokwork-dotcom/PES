@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**8/16 görev bitti.** Faz A, B ve C tamamlandı; sıradaki **Task 9** (ekran).
+**9/16 görev bitti.** Faz A, B, C ve ekran iskeleti tamamlandı; sıradaki **Task 10** (PO satırı).
 
 | Görev | Durum |
 |---|---|
@@ -28,7 +28,8 @@
 | 6 · Gün bazlı atölye kapasitesi | bitti |
 | 7 · Rezerve oluştur/sil | bitti |
 | 8 · Günlük plan + gerçekleşen yazma | bitti |
-| 9 · Sayfa iskeleti ve gantt satırları | **SIRADA** |
+| 9 · Sayfa iskeleti ve gantt satırları | bitti — gerçek veriyle tarayıcıda doğrulandı |
+| 10 · PO satırı — aşama zinciri, malzeme | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -1432,7 +1433,7 @@ Renkler `app/globals.css` jetonlarından gelir; yeni renk tanımlama.
 - Create: `components/pes/takvim/GanttSatirlari.tsx`
 - Modify: `app/pes/takvim/page.tsx`
 
-- [ ] **Step 1: Paylaşılan tipleri yaz**
+- [x] **Step 1: Paylaşılan tipleri yaz**
 
 `components/pes/takvim/tipler.ts`:
 
@@ -1488,7 +1489,7 @@ export type Kip = 'ay' | 'hafta' | 'gun' | 'matris'
 export type Rol = 'merkez' | 'atolye'
 ```
 
-- [ ] **Step 2: Sunucu sayfasını ince hale getir**
+- [x] **Step 2: Sunucu sayfasını ince hale getir**
 
 `app/pes/takvim/page.tsx` içeriğini tamamen şununla değiştir:
 
@@ -1512,7 +1513,7 @@ export default function PesTakvimPage() {
 }
 ```
 
-- [ ] **Step 3: Kip yönetimi ve veri çekmeyi yaz**
+- [x] **Step 3: Kip yönetimi ve veri çekmeyi yaz**
 
 `components/pes/takvim/TakvimSayfasi.tsx` — `'use client'` bileşeni. Sorumluluğu üç şey: dönem/kip durumu, filtreler, veri çekme. Çizim `GanttSatirlari`'na devredilir.
 
@@ -1586,7 +1587,7 @@ export default function TakvimSayfasi() {
 
 Araç çubuğunu makete bakarak tamamla: dönem ‹ Bugün ›, kip düğmeleri (Ay/Hafta/Gün/Matris), üç filtre `select`'i, sağda üç uyarı sayacı. Sayacı sıfırken `a-nul` sınıfıyla nötr göster ve `disabled` yap — sıfır sayı alarm rengi taşımamalı.
 
-- [ ] **Step 4: Satır bileşenlerini yaz**
+- [x] **Step 4: Satır bileşenlerini yaz**
 
 `components/pes/takvim/GanttSatirlari.tsx` — dört seviyeli katlanır gantt. Hesap için `lib/pes/bant-doluluk` kullanılır; bu dosyada oran hesabı yazma.
 
@@ -1667,12 +1668,12 @@ Geri kalan çizim işi:
   Hücreler mutlak konumlu arka katman (`.bg`), bloklar akışta — böylece aynı
   bantta üst üste binen siparişler satırı büyütür.
 
-- [ ] **Step 5: Ekranı aç ve kontrol et**
+- [x] **Step 5: Ekranı aç ve kontrol et**
 
 Run: `npm run dev`, tarayıcıda `http://localhost:3000/pes/takvim`
 Expected: Atölye satırları doluluk çubuklarıyla, bantlar açılınca sipariş blokları görünür. Konsolda hata yok.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add components/pes/takvim/tipler.ts components/pes/takvim/TakvimSayfasi.tsx \

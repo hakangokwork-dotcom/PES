@@ -138,7 +138,8 @@ export const GET = withTenantRoute(async (req, { sql }) => {
      ORDER BY ws.work_order_id, ps.sira_no`
 
   const malzemeler = await sql`
-    SELECT m.work_order_id, m.tip, m.kod, m.ad, m.miktar, m.gelen_miktar, m.birim,
+    SELECT m.work_order_id, m.tip, m.kod, m.ad,
+           m.miktar::float, m.gelen_miktar::float, m.birim,
            m.durum, m.beklenen_tarih::text, m.gelis_tarihi::text, m.tedarikci
       FROM work_order_material m
       JOIN work_order wo ON wo.id = m.work_order_id
@@ -146,7 +147,8 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 
   const testler = await sql`
     SELECT t.work_order_id, t.tarih::text, t.yikama_sayisi,
-           t.en_cekme_pct, t.boy_cekme_pct, t.may_kaymasi_pct,
+           /* NUMERIC postgres.js'te dize döner; tipler.ts number bekliyor */
+           t.en_cekme_pct::float, t.boy_cekme_pct::float, t.may_kaymasi_pct::float,
            t.sonuc, t.yapan
       FROM kumas_cekme_testi t
       JOIN work_order wo ON wo.id = t.work_order_id

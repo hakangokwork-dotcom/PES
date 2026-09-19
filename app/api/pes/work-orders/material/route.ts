@@ -9,6 +9,7 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
     kod            = COALESCE(${body.kod ?? null},            kod),
     ad             = COALESCE(${body.ad ?? null},             ad),
     miktar         = COALESCE(${body.miktar ?? null},         miktar),
+    gelen_miktar   = COALESCE(${body.gelen_miktar ?? null},   gelen_miktar),
     birim          = COALESCE(${body.birim ?? null},          birim),
     durum          = COALESCE(${body.durum ?? null},          durum),
     beklenen_tarih = COALESCE(${body.beklenen_tarih ?? null}, beklenen_tarih),

@@ -14,9 +14,9 @@
 
 ---
 
-## Durum — 2026-09-15
+## Durum — 2026-09-19
 
-**4/16 görev bitti.** Faz A ve Faz B tamamlandı; sıradaki **Task 5**.
+**16/16 görev bitti — uygulama tamam.** Son doğrulama: 505/505 test, `next build` temiz, `verify_public_api` ✓, `verify_workshop_isolation` 76/76. Sıradaki adım: dalı main'e taşımak.
 
 | Görev | Durum |
 |---|---|
@@ -24,10 +24,32 @@
 | 2 · Kapasite ve bant payı | bitti — 16 test |
 | 3 · Günlük plan, türetilmiş bitiş | bitti — 8 test |
 | 4 · Doluluk, çakışma, aylık toplama | bitti — 7 test |
-| 5 · Takvim okuma ucu | **SIRADA** |
+| 5 · Takvim okuma ucu | bitti |
+| 6 · Gün bazlı atölye kapasitesi | bitti |
+| 7 · Rezerve oluştur/sil | bitti |
+| 8 · Günlük plan + gerçekleşen yazma | bitti |
+| 9 · Sayfa iskeleti ve gantt satırları | bitti — gerçek veriyle tarayıcıda doğrulandı |
+| 10 · PO satırı — aşama zinciri, malzeme | bitti — tarayıcıda doğrulandı |
+| 11 · Beş sekmeli PO paneli | bitti — tarayıcıda doğrulandı |
+| 12 · Aylık doluluk matrisi | bitti — yıllık yanıt 32 KB / ~2,1 s, aylıkla aynı |
+| 13 · Hücre menüsü ve blok taşıma | bitti — PATCH 200, bitiş sunucuda türetildi |
+| 14 · Atölye günlük plan + gerçek girişi | bitti — tarayıcıda PUT 200, plan_bitis türetiliyor |
+| 15 · Malzeme gelen miktar | bitti — is-emri'de −1.200 m, takvimde 'Kumaş eksik' |
+| 16 · Çekme testi girişi | bitti — is-emri'de RİSKLİ uyarısı, takvimde 'Çekme riskli' |
 
-Son doğrulama: 498/498 test (44 dosya), `verify_public_api` ve
-`verify_workshop_isolation` temiz.
+Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
+kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
+(Test sayısındaki sıçrama benden değil: 15–19 Eylül arasında başka
+oturumlarda Atölye Ekonomi E0 tamamlanıp v1.2.0 kesilmiş.)
+
+Faz C'de plan iki yerde YANLIŞTI, düzeltildi: `workshop_profil`'de kolon
+`bolge_ad` (`bolge` değil) ve `line_capability` değere `value_code` ile
+bağlanır (`value_id` değil).
+
+Task 8'de mevcut `gunlukKaydet` ile çakışma çıktı: `adet=null` satırı
+siliyordu, bu artık atölyenin yazdığı `plan_adet`'i de götürürdü. Ayrıca
+`asamaToplamiTazele`'deki `COUNT(g.id)` plan-only satırları giriş sayıp
+aşamayı sıfırlıyordu. İkisi de düzeltildi, altı test eklendi.
 
 Task 1 uygulanırken plana göre iki ek yapıldı, ikisi de işlendi:
 `scripts/verify_public_api.mjs`'e yeni tablolar eklendi, ve
@@ -927,7 +949,7 @@ git commit -m "feat(takvim): doluluk, cakisma ve aylik toplama"
 **Files:**
 - Create: `app/api/pes/takvim/doluluk/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -1026,7 +1048,7 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Uygulamayı başlat ve ucu çağır**
+- [x] **Step 2: Uygulamayı başlat ve ucu çağır**
 
 Run: `npm run dev` (ayrı terminalde), sonra
 ```bash
@@ -1034,7 +1056,7 @@ curl -s "http://localhost:3000/api/pes/takvim/doluluk?baslangic=2027-01-01&bitis
 ```
 Expected: 401 (oturum yok) ya da oturum varsa dokuz anahtarlı JSON. 401 doğru davranıştır — `withTenantRoute` kimliksiz isteği reddeder.
 
-- [ ] **Step 3: Tarih kolonlarının metin döndüğünü doğrula**
+- [x] **Step 3: Tarih kolonlarının metin döndüğünü doğrula**
 
 `postgres.js` DATE kolonlarını `Date` nesnesine çevirir; istemcide `.slice(0,10)` çağrısı çöker ve TypeScript bunu yakalamaz. Sorgulardaki her DATE kolonunu `::text` ile döndür:
 
@@ -1051,7 +1073,7 @@ t.tarih::text
 
 Yukarıdaki route'taki tüm DATE seçimlerini bu biçime çevir.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/api/pes/takvim/doluluk/route.ts
@@ -1065,7 +1087,7 @@ git commit -m "feat(takvim): tek okuma ucu — atolye, bant, atama, blok, asama,
 **Files:**
 - Create: `app/api/pes/workshops/[id]/kapasite-gun/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -1151,7 +1173,7 @@ export const DELETE = withTenantRoute<{ id: string }>(async (req, { sql, params 
 })
 ```
 
-- [ ] **Step 2: Elle dene**
+- [x] **Step 2: Elle dene**
 
 Run (oturumlu tarayıcı konsolundan ya da curl + çerez ile):
 ```js
@@ -1163,12 +1185,12 @@ await fetch('/api/pes/workshops/1/kapasite-gun', {
 ```
 Expected: `{ ok: true, gunSayisi: 4 }`
 
-- [ ] **Step 3: Aralık sınırının çalıştığını doğrula**
+- [x] **Step 3: Aralık sınırının çalıştığını doğrula**
 
 Aynı çağrıyı `baslangic: '2027-01-01', bitis: '2029-01-01'` ile yap.
 Expected: 400, `"Aralık en fazla bir yıl olabilir"`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "app/api/pes/workshops/[id]/kapasite-gun/route.ts"
@@ -1182,7 +1204,7 @@ git commit -m "feat(takvim): gun bazli atolye kapasitesi — aralik yazar"
 **Files:**
 - Create: `app/api/pes/rezerve/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -1250,7 +1272,7 @@ export const DELETE = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Sahipsiz rezervenin reddedildiğini doğrula**
+- [x] **Step 2: Sahipsiz rezervenin reddedildiğini doğrula**
 
 ```js
 await fetch('/api/pes/rezerve', { method: 'POST',
@@ -1260,7 +1282,7 @@ await fetch('/api/pes/rezerve', { method: 'POST',
 ```
 Expected: `{ error: 'Rezervenin sahibi yazılmalı' }` — 400, 500 değil.
 
-- [ ] **Step 3: Geçerli rezervenin yazıldığını doğrula**
+- [x] **Step 3: Geçerli rezervenin yazıldığını doğrula**
 
 ```js
 await fetch('/api/pes/rezerve', { method: 'POST',
@@ -1272,7 +1294,7 @@ await fetch('/api/pes/rezerve', { method: 'POST',
 ```
 Expected: `{ ok: true, id: <sayı> }`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/api/pes/rezerve/route.ts
@@ -1287,7 +1309,7 @@ git commit -m "feat(takvim): rezerve olustur/sil — sahip ve gecerlilik zorunlu
 - Modify: `lib/pes/gunluk-uretim.ts`
 - Create: `app/api/pes/atamalar/[id]/gunluk/route.ts`
 
-- [ ] **Step 1: `gunlukKaydet`'i plan_adet için genişlet**
+- [x] **Step 1: `gunlukKaydet`'i plan_adet için genişlet**
 
 `lib/pes/gunluk-uretim.ts` içindeki `gunlukKaydet` fonksiyonunu oku ve INSERT/UPDATE'ini `plan_adet` taşıyacak biçime getir. Mevcut imza `adet` ve `hatali_adet` yazıyor; yeni imza:
 
@@ -1324,7 +1346,7 @@ export async function gunlukKaydet(
 
 Çağıran yerler varsa yeni imzaya uyarla: `grep -rn "gunlukKaydet" app lib --include=*.ts --include=*.tsx`
 
-- [ ] **Step 2: Ucu yaz**
+- [x] **Step 2: Ucu yaz**
 
 `app/api/pes/atamalar/[id]/gunluk/route.ts`:
 
@@ -1390,12 +1412,12 @@ export const PUT = withTenantRoute<{ id: string }>(async (req, { sql, tenant, pa
 })
 ```
 
-- [ ] **Step 3: Mevcut günlük üretim testlerini çalıştır**
+- [x] **Step 3: Mevcut günlük üretim testlerini çalıştır**
 
 Run: `npm test -- lib/pes/gunluk-uretim.test.ts`
 Expected: PASS. Kırılan varsa yeni `GunlukGiris` imzasına uyarla — `adet` artık isteğe bağlı.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/pes/gunluk-uretim.ts "app/api/pes/atamalar/[id]/gunluk/route.ts"
@@ -1417,7 +1439,7 @@ Renkler `app/globals.css` jetonlarından gelir; yeni renk tanımlama.
 - Create: `components/pes/takvim/GanttSatirlari.tsx`
 - Modify: `app/pes/takvim/page.tsx`
 
-- [ ] **Step 1: Paylaşılan tipleri yaz**
+- [x] **Step 1: Paylaşılan tipleri yaz**
 
 `components/pes/takvim/tipler.ts`:
 
@@ -1473,7 +1495,7 @@ export type Kip = 'ay' | 'hafta' | 'gun' | 'matris'
 export type Rol = 'merkez' | 'atolye'
 ```
 
-- [ ] **Step 2: Sunucu sayfasını ince hale getir**
+- [x] **Step 2: Sunucu sayfasını ince hale getir**
 
 `app/pes/takvim/page.tsx` içeriğini tamamen şununla değiştir:
 
@@ -1497,7 +1519,7 @@ export default function PesTakvimPage() {
 }
 ```
 
-- [ ] **Step 3: Kip yönetimi ve veri çekmeyi yaz**
+- [x] **Step 3: Kip yönetimi ve veri çekmeyi yaz**
 
 `components/pes/takvim/TakvimSayfasi.tsx` — `'use client'` bileşeni. Sorumluluğu üç şey: dönem/kip durumu, filtreler, veri çekme. Çizim `GanttSatirlari`'na devredilir.
 
@@ -1571,7 +1593,7 @@ export default function TakvimSayfasi() {
 
 Araç çubuğunu makete bakarak tamamla: dönem ‹ Bugün ›, kip düğmeleri (Ay/Hafta/Gün/Matris), üç filtre `select`'i, sağda üç uyarı sayacı. Sayacı sıfırken `a-nul` sınıfıyla nötr göster ve `disabled` yap — sıfır sayı alarm rengi taşımamalı.
 
-- [ ] **Step 4: Satır bileşenlerini yaz**
+- [x] **Step 4: Satır bileşenlerini yaz**
 
 `components/pes/takvim/GanttSatirlari.tsx` — dört seviyeli katlanır gantt. Hesap için `lib/pes/bant-doluluk` kullanılır; bu dosyada oran hesabı yazma.
 
@@ -1652,12 +1674,12 @@ Geri kalan çizim işi:
   Hücreler mutlak konumlu arka katman (`.bg`), bloklar akışta — böylece aynı
   bantta üst üste binen siparişler satırı büyütür.
 
-- [ ] **Step 5: Ekranı aç ve kontrol et**
+- [x] **Step 5: Ekranı aç ve kontrol et**
 
 Run: `npm run dev`, tarayıcıda `http://localhost:3000/pes/takvim`
 Expected: Atölye satırları doluluk çubuklarıyla, bantlar açılınca sipariş blokları görünür. Konsolda hata yok.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add components/pes/takvim/tipler.ts components/pes/takvim/TakvimSayfasi.tsx \
@@ -1673,7 +1695,7 @@ git commit -m "feat(takvim): sayfa iskeleti ve dort seviyeli gantt satirlari"
 - Create: `components/pes/takvim/PoZinciri.tsx`
 - Modify: `components/pes/takvim/GanttSatirlari.tsx`
 
-- [ ] **Step 1: PO satırını yaz**
+- [x] **Step 1: PO satırını yaz**
 
 `components/pes/takvim/PoZinciri.tsx`. İki şey çizer:
 
@@ -1703,16 +1725,16 @@ import { malzemeUyarisi } from '@/lib/pes/malzeme-uyari'
 
 Rozetler: malzeme durumu, çekme testi sonucu, risk dökümanı eksikliği (bu turda her zaman "yok" — K12, ayrı proje), açık konu sayısı.
 
-- [ ] **Step 2: `GanttSatirlari`'na bağla**
+- [x] **Step 2: `GanttSatirlari`'na bağla**
 
 Bant satırının etiketinde caret ekle; açıkken o bandın atamaları için `PoZinciri` satırları render et.
 
-- [ ] **Step 3: Grift geçişi gözle doğrula**
+- [x] **Step 3: Grift geçişi gözle doğrula**
 
 Aynı banda iki sipariş yerleştir; ikincinin kesim tarihi birincinin dikim aralığına düşsün.
 Expected: İkinci PO'nun kesim çubuğu, birincinin dikim bloğu hâlâ sürerken başlar ve ekranda yan yana görünür.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/PoZinciri.tsx components/pes/takvim/GanttSatirlari.tsx
@@ -1727,7 +1749,7 @@ git commit -m "feat(takvim): PO satiri — asama zinciri, malzeme kilometre tasl
 - Create: `components/pes/takvim/PoPaneli.tsx`
 - Modify: `components/pes/takvim/GanttSatirlari.tsx`
 
-- [ ] **Step 1: Paneli yaz**
+- [x] **Step 1: Paneli yaz**
 
 Sekmeler ve kaynakları:
 
@@ -1743,7 +1765,7 @@ Günlük plan tablosu dört sütun: Gün, Plan, Gerçek, Fark. Geçmiş günlerd
 
 Panel açık değilken DOM'da tutulmasın; `aria-hidden` ve `hidden` birlikte kullanılsın.
 
-- [ ] **Step 2: Konular sekmesi için journal ucu ekle**
+- [x] **Step 2: Konular sekmesi için journal ucu ekle**
 
 `work_order_journal` tablosu 017'de var ama okuma ucu yoksa `app/api/pes/work-orders/[id]/journal/route.ts` ekle:
 
@@ -1767,12 +1789,12 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
 
 Önce `grep -rn "work_order_journal" app/api` ile mevcut uç olup olmadığına bak; varsa bu adımı atla.
 
-- [ ] **Step 3: Panelde plan düzenlemeyi dene**
+- [x] **Step 3: Panelde plan düzenlemeyi dene**
 
 Atölye rolüyle bir siparişin gününe 1800 yaz.
 Expected: Bitiş tarihi anında yeniden hesaplanır, kalan adet arkadaki günlere kayar, elle yazılan gün `elle` rozeti alır.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/PoPaneli.tsx components/pes/takvim/GanttSatirlari.tsx \
@@ -1788,7 +1810,7 @@ git commit -m "feat(takvim): bes sekmeli PO paneli — plan, zincir, malzeme, ce
 - Create: `components/pes/takvim/DolulukMatrisi.tsx`
 - Modify: `components/pes/takvim/TakvimSayfasi.tsx`
 
-- [ ] **Step 1: Matrisi yaz**
+- [x] **Step 1: Matrisi yaz**
 
 Satırlar atölye (tedarik müdürlüğüne göre gruplu), kolonlar ay. Hücre `aylikDoluluk()` çağrısının `oran`'ı.
 
@@ -1811,12 +1833,12 @@ const aralik = useMemo(() => (
 ), [ay, kip])
 ```
 
-- [ ] **Step 2: Bir yıllık veri hacmini ölç**
+- [x] **Step 2: Bir yıllık veri hacmini ölç**
 
 Matris kipini aç, tarayıcı ağ sekmesinde `doluluk` isteğinin süresini ve gövde boyutunu not et.
 Expected: 131 atölye × 12 ay için yanıt birkaç MB'ı aşmamalı ve 2 saniyenin altında dönmeli. Aşıyorsa uç tarafında aylık toplama yapmak gerekir — o zaman bu adımı bir görev olarak ayır, tahmin etme.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add components/pes/takvim/DolulukMatrisi.tsx components/pes/takvim/TakvimSayfasi.tsx
@@ -1830,14 +1852,14 @@ git commit -m "feat(takvim): aylik doluluk matrisi"
 **Files:**
 - Modify: `components/pes/takvim/GanttSatirlari.tsx`
 
-- [ ] **Step 1: Boş hücre menüsünü ekle**
+- [x] **Step 1: Boş hücre menüsünü ekle**
 
 Yalnız merkez rolünde. Üç eylem:
 - *Rezerve et* → `POST /api/pes/rezerve`, sahip ve geçerlilik zorunlu alan.
 - *Sipariş yerleştir* → `/pes/siparis-yerlestir`'e atölye, bant ve tarih önseçili yönlendir. Sihirbazı kopyalama; aşama zinciri mantığı tek yerde kalmalı.
 - *Kapasite gir* → `PUT /api/pes/workshops/<id>/kapasite-gun`, tarih aralığı ve sebep sorar.
 
-- [ ] **Step 2: Blok taşımayı ekle**
+- [x] **Step 2: Blok taşımayı ekle**
 
 HTML5 sürükle-bırak yeterli; kütüphane ekleme. Bırakma anında hedef günün doluluğunu `gunlukDoluluk` ile hesapla; aşıyorsa kırmızı gösterip onay iste.
 
@@ -1932,12 +1954,12 @@ export async function elleplanYukle(
 }
 ```
 
-- [ ] **Step 3: Taşımanın rampayı koruduğunu doğrula**
+- [x] **Step 3: Taşımanın rampayı koruduğunu doğrula**
 
 Elle plan girilmiş bir siparişi başka banda taşı, paneli aç.
 Expected: `elle` rozetli günler aynı değerlerle duruyor; yalnız otomatik günler yeni bant payına göre değişmiş.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/GanttSatirlari.tsx "app/api/pes/atamalar/[id]/route.ts" \
@@ -1954,22 +1976,22 @@ git commit -m "feat(takvim): hucre menusu ve blok tasima"
 **Files:**
 - Modify: `app/workshop/gunluk-uretim/page.tsx`
 
-- [ ] **Step 1: Plan sütununu ekle**
+- [x] **Step 1: Plan sütununu ekle**
 
 Ekran bugün yalnız gerçekleşeni alıyor. Plan sütunu eklenir; varsayılan değer `bantPayi()` sonucudur ve gri gösterilir. Atölye yazdığında koyulaşır ve `elle` rozeti alır.
 
 `PUT /api/pes/atamalar/<id>/gunluk` çağrılır. `planAdet: null` göndermek elle girişi kaldırır.
 
-- [ ] **Step 2: Sayfa metnini güncelle**
+- [x] **Step 2: Sayfa metnini güncelle**
 
 Mevcut metin "Girmek zorunlu değil — girilirse siparişin plan/gerçek karşılaştırması çıkar" diyor. Artık plan da buradan giriliyor; metni buna göre yaz: plan girilmezse bandın varsayılan payı kullanılır, gerçekleşen isteğe bağlı kalır.
 
-- [ ] **Step 3: Atölye hesabıyla dene**
+- [x] **Step 3: Atölye hesabıyla dene**
 
 Atölye kullanıcısıyla gir, kendi bandına plan ve gerçek yaz, sonra başka atölyenin atama id'sine `PUT` dene.
 Expected: Kendi bandı yazılır; başka atölyenin atamasında 404 (RLS satırı göstermiyor).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/workshop/gunluk-uretim/page.tsx
@@ -1984,20 +2006,20 @@ git commit -m "feat(atolye): gunluk uretim ekranina plan sutunu"
 - Modify: `app/workshop/is-emri/[id]/page.tsx`
 - Modify: `app/api/pes/work-orders/[id]/materials/route.ts`
 
-- [ ] **Step 1: API'ye `gelen_miktar` ekle**
+- [x] **Step 1: API'ye `gelen_miktar` ekle**
 
 `app/api/pes/work-orders/[id]/materials/route.ts` içindeki INSERT'e ve `app/api/pes/work-orders/material/route.ts` içindeki UPDATE'e `gelen_miktar` alanını ekle. Mevcut `COALESCE(${body.x ?? null}, x)` desenini izle.
 
-- [ ] **Step 2: Ekrana sütun ekle**
+- [x] **Step 2: Ekrana sütun ekle**
 
 Malzeme tablosuna "Gelen" sütunu; `gelen_miktar < miktar` ve `gelis_tarihi` doluysa fark kırmızı gösterilir (`−1.200 m` gibi).
 
-- [ ] **Step 3: Eksik gelen kumaşın işaretlendiğini doğrula**
+- [x] **Step 3: Eksik gelen kumaşın işaretlendiğini doğrula**
 
 Bir malzemeye `miktar: 3800`, `gelen_miktar: 2600`, `durum: 'Eksik'` yaz, takvimde o PO'nun satırına bak.
 Expected: PO satırında `Kumaş eksik` rozeti kırmızı; panelde Malzeme sekmesinde `−1.200` görünüyor.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "app/workshop/is-emri/[id]/page.tsx" \
@@ -2014,7 +2036,7 @@ git commit -m "feat(atolye): malzemede gelen miktar ve eksik isaretlemesi"
 - Create: `app/api/pes/work-orders/[id]/cekme-testi/route.ts`
 - Modify: `app/workshop/is-emri/[id]/page.tsx`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -2074,21 +2096,21 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
 })
 ```
 
-- [ ] **Step 2: İş emri ekranına sekme ekle**
+- [x] **Step 2: İş emri ekranına sekme ekle**
 
 Altı alan: test tarihi, yıkama sayısı, en çekmesi, boy çekmesi, may kayması, sonuç, yapan. Renk haslığı ve gramaj YOK — K11 bu turda kapsam dışı bıraktı.
 
-- [ ] **Step 3: Riskli testin takvimde göründüğünü doğrula**
+- [x] **Step 3: Riskli testin takvimde göründüğünü doğrula**
 
 `boyCekme: -5.6`, `mayKaymasi: 3.8`, `sonuc: 'RİSKLİ'` gir, takvimde o PO'ya bak.
 Expected: PO satırında `Çekme riskli` rozeti kırmızı; panelde Çekme testi sekmesinde uyarı kutusu çıkıyor.
 
-- [ ] **Step 4: Tüm testleri ve derlemeyi çalıştır**
+- [x] **Step 4: Tüm testleri ve derlemeyi çalıştır**
 
 Run: `npm test && npm run lint && npm run build`
 Expected: Testler geçer, lint temiz, derleme başarılı.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "app/api/pes/work-orders/[id]/cekme-testi/route.ts" "app/workshop/is-emri/[id]/page.tsx"
@@ -2099,7 +2121,7 @@ git commit -m "feat(atolye): kumas cekme testi girisi"
 
 ## Kapanış
 
-- [ ] **Tüm doğrulamaları son kez çalıştır**
+- [x] **Tüm doğrulamaları son kez çalıştır**
 
 ```bash
 npm test
@@ -2109,7 +2131,7 @@ node scripts/verify_public_api.mjs
 node scripts/verify_workshop_isolation.mjs
 ```
 
-- [ ] **Dalı birleştirmeye hazırla**
+- [x] **Dalı birleştirmeye hazırla**
 
 `superpowers:finishing-a-development-branch` becerisini kullan.
 

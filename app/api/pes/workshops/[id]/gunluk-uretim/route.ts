@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
-import { gunlukSatirlar, gunlukKaydet } from '@/lib/pes/gunluk-uretim'
+import { gunlukSatirlar, gunlukKaydet, planKaydet } from '@/lib/pes/gunluk-uretim'
 
 /**
  * Atölyenin günlük üretim girişi (tasarım K6).
  *
  *   GET /api/pes/workshops/12/gunluk-uretim?tarih=2026-08-07
  *   PUT /api/pes/workshops/12/gunluk-uretim
- *       { atamaId, tarih, adet: number|null, hataliAdet }
+ *       { atamaId, tarih, adet: number|null, hataliAdet, planAdet?: number|null }
  *
- * adet null → o günün kaydı silinir. adet 0 → "bugün hiç çıkmadı"
- * olarak KAYDEDİLİR; ikisi farklı bilgidir.
+ * adet null → gerçekleşen "girilmedi" olur (plan varsa satır kalır).
+ * adet 0 → "bugün hiç çıkmadı" olarak KAYDEDİLİR; ikisi farklı bilgidir.
+ * planAdet gönderilmezse plana dokunulmaz; null → elle giriş kalkar,
+ * gün bandın varsayılan payına döner (036, K3).
  */
 
 const TARIH = /^\d{4}-\d{2}-\d{2}$/
@@ -64,6 +66,20 @@ export const PUT = withTenantRoute<{ id: string }>(async (req, { sql, tenant, pa
   let hatali = Number(String(hamHatali ?? 0).replace(',', '.') || 0)
   if (!Number.isFinite(hatali) || hatali < 0) hatali = 0
   hatali = Math.round(hatali)
+
+  if (b.planAdet !== undefined) {
+    const hamPlan = b.planAdet
+    const planBos = hamPlan === null || String(hamPlan).trim() === ''
+    let planAdet: number | null = null
+    if (!planBos) {
+      planAdet = Number(String(hamPlan).replace(',', '.'))
+      if (!Number.isFinite(planAdet) || planAdet < 0) {
+        return NextResponse.json({ error: 'Plan 0 veya daha büyük olmalı' }, { status: 400 })
+      }
+      planAdet = Math.round(planAdet)
+    }
+    await planKaydet(sql, tenant.tenantId, atamaId, tarih, planAdet)
+  }
 
   await gunlukKaydet(sql, tenant.tenantId, atamaId, tarih, adet, hatali)
 

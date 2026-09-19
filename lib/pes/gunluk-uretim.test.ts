@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
 import postgres from 'postgres'
 import { readFileSync } from 'node:fs'
-import { gunlukSatirlar, gunlukKaydet } from './gunluk-uretim'
+import { gunlukSatirlar, gunlukKaydet, planKaydet } from './gunluk-uretim'
 
 /* Gerçek veritabanına bağlanır. Kendi atölyesini/bantlarını açar,
    sonunda siler; gerçek atölyelere dokunmaz. */
@@ -225,4 +225,76 @@ test('başka atölyenin bandı listeye girmez', async () => {
   const satirlar = await tenantIcinde(sql =>
     gunlukSatirlar(sql, baska.id as number, '2026-08-11'))
   expect(satirlar.some(s => s.isEmriNo === 'ZZG-007')).toBe(false)
+})
+
+/* ---------- 036: plan_adet ile gerçekleşen aynı satırda ---------- */
+
+/** Ham satırı yönetici bağlantısıyla okur — gunlukSatirlar planı taşımıyor. */
+async function hamSatir(atamaId: number, tarih: string) {
+  const [r] = await yonetici`
+    SELECT plan_adet, adet, hatali_adet FROM work_order_gunluk_uretim
+     WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date`
+  return r ?? null
+}
+
+test('plan yazılır, gerçekleşen boş kalır', async () => {
+  const atamaId = await atamaKur({ no: 'ZZG-100', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-13' })
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', 1800))
+
+  const r = await hamSatir(atamaId, '2026-08-11')
+  expect(r?.plan_adet).toBe(1800)
+  expect(r?.adet).toBeNull()
+})
+
+test('gerçekleşen silinince PLAN kalır — satır gitmez', async () => {
+  const atamaId = await atamaKur({ no: 'ZZG-101', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-13' })
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', 1800))
+  await tenantIcinde(sql => gunlukKaydet(sql, defaultTenant, atamaId, '2026-08-11', 900, 5))
+  expect((await hamSatir(atamaId, '2026-08-11'))?.adet).toBe(900)
+
+  await tenantIcinde(sql => gunlukKaydet(sql, defaultTenant, atamaId, '2026-08-11', null, 0))
+  const r = await hamSatir(atamaId, '2026-08-11')
+  expect(r).not.toBeNull()
+  expect(r?.plan_adet).toBe(1800)   // atölyenin yazdığı plan korundu
+  expect(r?.adet).toBeNull()
+})
+
+test('plan yokken gerçekleşen silinirse satır da gider', async () => {
+  const atamaId = await atamaKur({ no: 'ZZG-102', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-13' })
+  await tenantIcinde(sql => gunlukKaydet(sql, defaultTenant, atamaId, '2026-08-11', 900, 0))
+  await tenantIcinde(sql => gunlukKaydet(sql, defaultTenant, atamaId, '2026-08-11', null, 0))
+  expect(await hamSatir(atamaId, '2026-08-11')).toBeNull()
+})
+
+test('elle giriş kaldırılınca gerçekleşen kalır', async () => {
+  const atamaId = await atamaKur({ no: 'ZZG-103', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-13' })
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', 1800))
+  await tenantIcinde(sql => gunlukKaydet(sql, defaultTenant, atamaId, '2026-08-11', 900, 0))
+
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', null))
+  const r = await hamSatir(atamaId, '2026-08-11')
+  expect(r?.plan_adet).toBeNull()
+  expect(r?.adet).toBe(900)
+})
+
+test('yalnız plan varken elle giriş kaldırılırsa satır gider', async () => {
+  const atamaId = await atamaKur({ no: 'ZZG-104', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-13' })
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', 1800))
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', null))
+  expect(await hamSatir(atamaId, '2026-08-11')).toBeNull()
+})
+
+test('yalnız plan yazılması aşamanın üretilen adedini SIFIRLAMAZ', async () => {
+  const atamaId = await atamaKur({ no: 'ZZG-105', adet: 4000, baslangic: '2026-08-10', bitis: '2026-08-13' })
+  const [{ stage_row_id }] = await yonetici`
+    SELECT stage_row_id FROM work_order_stage_atama WHERE id = ${atamaId}`
+  await yonetici`UPDATE work_order_stage SET uretilen_adet = 2500 WHERE id = ${stage_row_id}`
+
+  /* Plan-only satır "giriş" sayılsaydı giris > 0 olur ve aşama, kimsenin
+     yazmadığı bir 0 ile üretimi durmuş gösterirdi. */
+  await tenantIcinde(sql => planKaydet(sql, defaultTenant, atamaId, '2026-08-11', 1800))
+  await tenantIcinde(sql => gunlukKaydet(sql, defaultTenant, atamaId, '2026-08-12', null, 0))
+
+  const [s] = await yonetici`SELECT uretilen_adet FROM work_order_stage WHERE id = ${stage_row_id}`
+  expect(s.uretilen_adet).toBe(2500)
 })

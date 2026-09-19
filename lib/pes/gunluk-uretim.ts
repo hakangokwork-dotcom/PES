@@ -141,8 +141,16 @@ export async function gunlukKaydet(
   hataliAdet: number,
 ): Promise<void> {
   if (adet === null) {
+    /* 036'dan sonra aynı satırda plan_adet de duruyor. Satırı körlemesine
+       silmek atölyenin yazdığı PLANI da götürürdü. Plan varsa satır kalır,
+       yalnız gerçekleşen boşalır; plan da yoksa satırın işi bitmiştir. */
+    await sql`UPDATE work_order_gunluk_uretim
+                 SET adet = NULL, hatali_adet = 0
+               WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date
+                 AND plan_adet IS NOT NULL`
     await sql`DELETE FROM work_order_gunluk_uretim
-              WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date`
+              WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date
+                AND plan_adet IS NULL`
   } else {
     await sql`
       INSERT INTO work_order_gunluk_uretim ${sql({
@@ -160,6 +168,44 @@ export async function gunlukKaydet(
   }
 
   await asamaToplamiTazele(sql, atamaId)
+}
+
+/**
+ * Atölyenin o gün için yazdığı PLANI kaydeder (tasarım K3).
+ *
+ * gunlukKaydet gerçekleşeni yazar; bu plan tarafıdır. İkisi aynı satırda
+ * yaşar ve birbirini silmez.
+ *
+ * planAdet null → elle giriş KALDIRILIR, gün bandın varsayılan payına
+ * döner. Gerçekleşen de yoksa satırın tutacak bilgisi kalmaz, silinir.
+ */
+export async function planKaydet(
+  sql: postgres.TransactionSql,
+  tenantId: string,
+  atamaId: number,
+  tarih: string,
+  planAdet: number | null,
+): Promise<void> {
+  if (planAdet === null) {
+    await sql`UPDATE work_order_gunluk_uretim
+                 SET plan_adet = NULL
+               WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date
+                 AND adet IS NOT NULL`
+    await sql`DELETE FROM work_order_gunluk_uretim
+              WHERE atama_id = ${atamaId} AND tarih = ${tarih}::date
+                AND adet IS NULL`
+    return
+  }
+
+  await sql`
+    INSERT INTO work_order_gunluk_uretim ${sql({
+      atama_id: atamaId,
+      tenant_id: tenantId,
+      tarih,
+      plan_adet: planAdet,
+    })}
+    ON CONFLICT (atama_id, tarih) DO UPDATE SET
+      plan_adet = EXCLUDED.plan_adet`
 }
 
 /**
@@ -186,7 +232,10 @@ async function asamaToplamiTazele(
       SELECT a.stage_row_id,
              COALESCE(SUM(g.adet), 0)::int        AS adet,
              COALESCE(SUM(g.hatali_adet), 0)::int AS hatali,
-             COUNT(g.id)                          AS giris
+             /* Plan yazılı ama gerçekleşen girilmemiş satırlar GİRİŞ
+                SAYILMAZ. Sayılsaydı giris > 0 olur ve aşama, kimsenin
+                yazmadığı bir 0 ile üretimi durmuş gösterirdi. */
+             COUNT(g.id) FILTER (WHERE g.adet IS NOT NULL) AS giris
       FROM work_order_stage_atama a
       LEFT JOIN work_order_gunluk_uretim g ON g.atama_id = a.id
       WHERE a.stage_row_id = (

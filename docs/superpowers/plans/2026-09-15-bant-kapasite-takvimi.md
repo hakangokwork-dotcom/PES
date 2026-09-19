@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**15/16 görev bitti.** Sıradaki **Task 16** (çekme testi girişi).
+**16/16 görev bitti — uygulama tamam.** Son doğrulama: 505/505 test, `next build` temiz, `verify_public_api` ✓, `verify_workshop_isolation` 76/76. Sıradaki adım: dalı main'e taşımak.
 
 | Görev | Durum |
 |---|---|
@@ -35,7 +35,7 @@
 | 13 · Hücre menüsü ve blok taşıma | bitti — PATCH 200, bitiş sunucuda türetildi |
 | 14 · Atölye günlük plan + gerçek girişi | bitti — tarayıcıda PUT 200, plan_bitis türetiliyor |
 | 15 · Malzeme gelen miktar | bitti — is-emri'de −1.200 m, takvimde 'Kumaş eksik' |
-| 16 · Çekme testi girişi | **SIRADA** |
+| 16 · Çekme testi girişi | bitti — is-emri'de RİSKLİ uyarısı, takvimde 'Çekme riskli' |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -2036,7 +2036,7 @@ git commit -m "feat(atolye): malzemede gelen miktar ve eksik isaretlemesi"
 - Create: `app/api/pes/work-orders/[id]/cekme-testi/route.ts`
 - Modify: `app/workshop/is-emri/[id]/page.tsx`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -2096,21 +2096,21 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
 })
 ```
 
-- [ ] **Step 2: İş emri ekranına sekme ekle**
+- [x] **Step 2: İş emri ekranına sekme ekle**
 
 Altı alan: test tarihi, yıkama sayısı, en çekmesi, boy çekmesi, may kayması, sonuç, yapan. Renk haslığı ve gramaj YOK — K11 bu turda kapsam dışı bıraktı.
 
-- [ ] **Step 3: Riskli testin takvimde göründüğünü doğrula**
+- [x] **Step 3: Riskli testin takvimde göründüğünü doğrula**
 
 `boyCekme: -5.6`, `mayKaymasi: 3.8`, `sonuc: 'RİSKLİ'` gir, takvimde o PO'ya bak.
 Expected: PO satırında `Çekme riskli` rozeti kırmızı; panelde Çekme testi sekmesinde uyarı kutusu çıkıyor.
 
-- [ ] **Step 4: Tüm testleri ve derlemeyi çalıştır**
+- [x] **Step 4: Tüm testleri ve derlemeyi çalıştır**
 
 Run: `npm test && npm run lint && npm run build`
 Expected: Testler geçer, lint temiz, derleme başarılı.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "app/api/pes/work-orders/[id]/cekme-testi/route.ts" "app/workshop/is-emri/[id]/page.tsx"
@@ -2121,7 +2121,7 @@ git commit -m "feat(atolye): kumas cekme testi girisi"
 
 ## Kapanış
 
-- [ ] **Tüm doğrulamaları son kez çalıştır**
+- [x] **Tüm doğrulamaları son kez çalıştır**
 
 ```bash
 npm test
@@ -2131,7 +2131,7 @@ node scripts/verify_public_api.mjs
 node scripts/verify_workshop_isolation.mjs
 ```
 
-- [ ] **Dalı birleştirmeye hazırla**
+- [x] **Dalı birleştirmeye hazırla**
 
 `superpowers:finishing-a-development-branch` becerisini kullan.
 

@@ -128,7 +128,7 @@ function WoDetailPage() {
   const [journal, setJournal] = useState<Journal[]>([])
   const [history, setHistory] = useState<{ tarih: string; eski_durum: string; yeni_durum: string }[]>([])
   const [lines, setLines] = useState<Line[]>([])
-  const [tab, setTab] = useState<'ozet'|'asamalar'|'plangercek'|'malzemeler'|'gunluk'|'gecmis'>('ozet')
+  const [tab, setTab] = useState<'ozet'|'asamalar'|'plangercek'|'malzemeler'|'cekme'|'gunluk'|'gecmis'>('ozet')
   const [loading, setLoading] = useState(true)
 
   const reload = useCallback(async () => {
@@ -168,10 +168,11 @@ function WoDetailPage() {
             ['asamalar',`Aşamalar (${stages.length})`,'📊'],
             ['plangercek','Plan / Gerçek','📈'],
             ['malzemeler',`Malzemeler (${materials.length})`,'📦'],
+            ['cekme','Çekme Testi','🧪'],
             ['gunluk',`Günlük (${journal.length})`,'📝'],
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (
-            <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'plangercek'|'malzemeler'|'gunluk'|'gecmis')}
+            <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'plangercek'|'malzemeler'|'cekme'|'gunluk'|'gecmis')}
               className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
               <span className="mr-1">{icon}</span>{label}
             </button>
@@ -182,6 +183,7 @@ function WoDetailPage() {
           {tab === 'asamalar'  && <AsamalarTab stages={stages} lines={lines} onRefresh={reload} woId={id} />}
           {tab === 'plangercek'&& <PlanGercekSekmesi workOrderId={id} />}
           {tab === 'malzemeler'&& <MalzemelerTab materials={materials} onRefresh={reload} woId={id} />}
+          {tab === 'cekme'     && <CekmeTestiTab woId={id} />}
           {tab === 'gunluk'    && <GunlukTab journal={journal} stages={stages} onRefresh={reload} woId={id} />}
           {tab === 'gecmis'    && <GecmisTab history={history} />}
         </div>
@@ -1034,6 +1036,131 @@ function GecmisTab({ history }: { history: { tarih: string; eski_durum: string; 
 }
 
 /* ───────── Helpers ───────── */
+/* ───────── Çekme Testi Tab (tasarım K11, migration 036) ─────────
+   Kumaş geldikten SONRA, kesim planlanmadan ÖNCE yapılır. Altı alan:
+   tarih, yıkama sayısı, en/boy çekmesi, may kayması, sonuç (+ yapan).
+   Çekme yüzdeleri negatif girilir — kumaş küçülür. Renk haslığı ve
+   gramaj bu tura girmedi. */
+type CekmeTesti = {
+  id: number; tarih: string; yikama_sayisi: number | null
+  en_cekme_pct: number | null; boy_cekme_pct: number | null; may_kaymasi_pct: number | null
+  sonuc: string; yapan: string | null; notlar: string | null
+}
+const CEKME_SONUC_RENK: Record<string, string> = {
+  UYGUN: 'bg-emerald-100 text-emerald-700', 'RİSKLİ': 'bg-amber-100 text-amber-700',
+  RED: 'bg-red-100 text-red-700', BEKLIYOR: 'bg-canvas text-muted',
+}
+function CekmeTestiTab({ woId }: { woId: number }) {
+  const [testler, setTestler] = useState<CekmeTesti[]>([])
+  const [yukleniyor, setYukleniyor] = useState(true)
+  const [showAdd, setShowAdd] = useState(false)
+  const bugun = new Date().toISOString().slice(0, 10)
+  const bos = { tarih: bugun, yikamaSayisi: '1', enCekme: '', boyCekme: '', mayKaymasi: '', sonuc: 'UYGUN', yapan: '', notlar: '' }
+  const [add, setAdd] = useState(bos)
+
+  const yukle = useCallback(async () => {
+    setYukleniyor(true)
+    try {
+      const r = await fetch(`/api/pes/work-orders/${woId}/cekme-testi`)
+      const d = await r.json()
+      setTestler(d.testler ?? [])
+    } finally { setYukleniyor(false) }
+  }, [woId])
+  useEffect(() => { yukle() }, [yukle])
+
+  async function kaydet() {
+    const r = await fetch(`/api/pes/work-orders/${woId}/cekme-testi`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(add),
+    })
+    const d = await r.json()
+    if (!r.ok) { alert(d.error ?? 'Kaydedilemedi'); return }
+    setShowAdd(false); setAdd(bos); await yukle()
+  }
+  async function sil(id: number) {
+    if (!confirm('Bu test kaydı silinsin mi?')) return
+    await fetch(`/api/pes/work-orders/${woId}/cekme-testi?testId=${id}`, { method: 'DELETE' })
+    await yukle()
+  }
+
+  const son = testler[0]
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <button onClick={() => setShowAdd(!showAdd)} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">+ Test Ekle</button>
+        <span className="text-xs text-faint">Kumaş geldikten sonra, kesim planlanmadan önce. Çekme yüzdeleri negatiftir (kumaş küçülür).</span>
+      </div>
+
+      {son && son.sonuc === 'RİSKLİ' && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <b>Son test riskli.</b> Boy %{son.boy_cekme_pct} · en %{son.en_cekme_pct} · may kayması %{son.may_kaymasi_pct}.
+          Kalıp büyütme ya da ön yıkama değerlendirilmeli; kesim bu karar verilmeden planlanmamalı.
+        </div>
+      )}
+      {son && son.sonuc === 'RED' && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+          <b>Son test RED.</b> Kumaş bu haliyle kesime giremez.
+        </div>
+      )}
+
+      {showAdd && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-canvas rounded-lg">
+          <Field label="Test tarihi"><input type="date" className="input-sm" value={add.tarih} onChange={e => setAdd({ ...add, tarih: e.target.value })} /></Field>
+          <Field label="Yıkama sayısı"><input type="number" min={0} max={10} className="input-sm" value={add.yikamaSayisi} onChange={e => setAdd({ ...add, yikamaSayisi: e.target.value })} /></Field>
+          <Field label="En çekmesi %"><input type="number" step="0.1" className="input-sm" placeholder="-2.1" value={add.enCekme} onChange={e => setAdd({ ...add, enCekme: e.target.value })} /></Field>
+          <Field label="Boy çekmesi %"><input type="number" step="0.1" className="input-sm" placeholder="-2.8" value={add.boyCekme} onChange={e => setAdd({ ...add, boyCekme: e.target.value })} /></Field>
+          <Field label="May kayması %"><input type="number" step="0.1" className="input-sm" placeholder="1.2" value={add.mayKaymasi} onChange={e => setAdd({ ...add, mayKaymasi: e.target.value })} /></Field>
+          <Field label="Sonuç">
+            <select className="input-sm" value={add.sonuc} onChange={e => setAdd({ ...add, sonuc: e.target.value })}>
+              {Object.keys(CEKME_SONUC_RENK).map(x => <option key={x}>{x}</option>)}
+            </select>
+          </Field>
+          <Field label="Yapan"><input className="input-sm" placeholder="Kalite / Lab" value={add.yapan} onChange={e => setAdd({ ...add, yapan: e.target.value })} /></Field>
+          <Field label="Not"><input className="input-sm" value={add.notlar} onChange={e => setAdd({ ...add, notlar: e.target.value })} /></Field>
+          <div className="col-span-full flex justify-end gap-2">
+            <button onClick={() => setShowAdd(false)} className="text-xs px-3 py-1.5 border border-line-soft rounded-lg">İptal</button>
+            <button onClick={kaydet} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">Kaydet</button>
+          </div>
+        </div>
+      )}
+
+      {yukleniyor ? <div className="text-xs text-faint">Yükleniyor…</div>
+        : testler.length === 0 ? <div className="text-xs text-faint italic text-center py-6">Henüz çekme testi girilmemiş. Kesim bu test girilmeden planlanmamalı.</div>
+        : (
+        <table className="w-full text-xs">
+          <thead className="bg-canvas text-faint uppercase tracking-wider text-[11px]">
+            <tr>
+              <th className="px-3 py-2 text-left">Tarih</th>
+              <th className="px-3 py-2 text-right">Yıkama</th>
+              <th className="px-3 py-2 text-right">En %</th>
+              <th className="px-3 py-2 text-right">Boy %</th>
+              <th className="px-3 py-2 text-right">May kayması %</th>
+              <th className="px-3 py-2">Sonuç</th>
+              <th className="px-3 py-2 text-left">Yapan</th>
+              <th className="px-3 py-2 text-left">Not</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {testler.map(t => (
+              <tr key={t.id} className="border-t border-line-soft hover:bg-canvas">
+                <td className="px-3 py-1.5 font-mono">{t.tarih}</td>
+                <td className="px-3 py-1.5 text-right font-mono">{t.yikama_sayisi ?? '—'}</td>
+                <td className="px-3 py-1.5 text-right font-mono">{t.en_cekme_pct ?? '—'}</td>
+                <td className={`px-3 py-1.5 text-right font-mono ${(t.boy_cekme_pct ?? 0) < -5 ? 'text-red-600 font-semibold' : ''}`}>{t.boy_cekme_pct ?? '—'}</td>
+                <td className={`px-3 py-1.5 text-right font-mono ${(t.may_kaymasi_pct ?? 0) > 3 ? 'text-red-600 font-semibold' : ''}`}>{t.may_kaymasi_pct ?? '—'}</td>
+                <td className="px-3 py-1.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${CEKME_SONUC_RENK[t.sonuc] ?? ''}`}>{t.sonuc}</span></td>
+                <td className="px-3 py-1.5 text-muted">{t.yapan}</td>
+                <td className="px-3 py-1.5 text-faint">{t.notlar}</td>
+                <td className="px-3 py-1.5 text-right"><button onClick={() => sil(t.id)} className="text-red-500 text-xs">×</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div><label className="block text-[11px] font-medium text-faint uppercase tracking-wider mb-1">{label}</label>{children}</div>
 }

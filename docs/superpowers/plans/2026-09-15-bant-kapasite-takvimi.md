@@ -16,7 +16,7 @@
 
 ## Durum — 2026-09-19
 
-**14/16 görev bitti.** Sıradaki **Task 15** (malzemede gelen miktar).
+**15/16 görev bitti.** Sıradaki **Task 16** (çekme testi girişi).
 
 | Görev | Durum |
 |---|---|
@@ -34,7 +34,8 @@
 | 12 · Aylık doluluk matrisi | bitti — yıllık yanıt 32 KB / ~2,1 s, aylıkla aynı |
 | 13 · Hücre menüsü ve blok taşıma | bitti — PATCH 200, bitiş sunucuda türetildi |
 | 14 · Atölye günlük plan + gerçek girişi | bitti — tarayıcıda PUT 200, plan_bitis türetiliyor |
-| 15 · Malzeme gelen miktar | **SIRADA** |
+| 15 · Malzeme gelen miktar | bitti — is-emri'de −1.200 m, takvimde 'Kumaş eksik' |
+| 16 · Çekme testi girişi | **SIRADA** |
 
 Son doğrulama: **1045/1045 test (52 dosya)**, `next build` dört yeni ucu
 kaydediyor, `verify_public_api` ve `verify_workshop_isolation` temiz.
@@ -2005,20 +2006,20 @@ git commit -m "feat(atolye): gunluk uretim ekranina plan sutunu"
 - Modify: `app/workshop/is-emri/[id]/page.tsx`
 - Modify: `app/api/pes/work-orders/[id]/materials/route.ts`
 
-- [ ] **Step 1: API'ye `gelen_miktar` ekle**
+- [x] **Step 1: API'ye `gelen_miktar` ekle**
 
 `app/api/pes/work-orders/[id]/materials/route.ts` içindeki INSERT'e ve `app/api/pes/work-orders/material/route.ts` içindeki UPDATE'e `gelen_miktar` alanını ekle. Mevcut `COALESCE(${body.x ?? null}, x)` desenini izle.
 
-- [ ] **Step 2: Ekrana sütun ekle**
+- [x] **Step 2: Ekrana sütun ekle**
 
 Malzeme tablosuna "Gelen" sütunu; `gelen_miktar < miktar` ve `gelis_tarihi` doluysa fark kırmızı gösterilir (`−1.200 m` gibi).
 
-- [ ] **Step 3: Eksik gelen kumaşın işaretlendiğini doğrula**
+- [x] **Step 3: Eksik gelen kumaşın işaretlendiğini doğrula**
 
 Bir malzemeye `miktar: 3800`, `gelen_miktar: 2600`, `durum: 'Eksik'` yaz, takvimde o PO'nun satırına bak.
 Expected: PO satırında `Kumaş eksik` rozeti kırmızı; panelde Malzeme sekmesinde `−1.200` görünüyor.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "app/workshop/is-emri/[id]/page.tsx" \

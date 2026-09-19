@@ -62,7 +62,7 @@ interface Stage {
 
 interface Material {
   id: number; tip: string; kod: string | null; ad: string
-  miktar: number | null; birim: string | null
+  miktar: number | null; gelen_miktar: number | null; birim: string | null
   durum: string; beklenen_tarih: string | null; gelis_tarihi: string | null
   tedarikci: string | null; notlar: string | null
 }
@@ -844,7 +844,8 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
             <th className="px-3 py-2 text-left">Tip</th>
             <th className="px-3 py-2 text-left">Ad</th>
             <th className="px-3 py-2 text-left">Kod</th>
-            <th className="px-3 py-2 text-right">Miktar</th>
+            <th className="px-3 py-2 text-right">Sipariş</th>
+            <th className="px-3 py-2 text-right">Gelen</th>
             <th className="px-3 py-2 text-left">Tedarikçi</th>
             <th className="px-3 py-2 text-left">Beklenen</th>
             <th className="px-3 py-2 text-left">Geldi</th>
@@ -859,6 +860,21 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
               <td className="px-3 py-1.5 font-medium">{m.ad}</td>
               <td className="px-3 py-1.5 text-faint font-mono">{m.kod}</td>
               <td className="px-3 py-1.5 text-right font-mono">{m.miktar} {m.birim}</td>
+              <td className="px-3 py-1.5 text-right">
+                {/* Sipariş edilen ile gelen farkı eldeki eksik kumaşı gösterir (K10).
+                    Gelen < sipariş ise durum Eksik'e çekilir; kullanıcı elle ezebilir. */}
+                <input type="number" step="0.01" className="input-sm w-24 text-right font-mono"
+                  defaultValue={m.gelen_miktar ?? ''} placeholder="—"
+                  onBlur={e => {
+                    const v = e.target.value.trim() === '' ? null : Number(e.target.value)
+                    if (v === (m.gelen_miktar ?? null)) return
+                    const eksik = v != null && m.miktar != null && v < m.miktar
+                    patch(m, { gelen_miktar: v, durum: eksik ? 'Eksik' : (v != null && m.gelis_tarihi ? 'Geldi' : m.durum) })
+                  }} />
+                {m.gelen_miktar != null && m.miktar != null && m.gelen_miktar < m.miktar && (
+                  <div className="text-[10px] font-mono text-red-600">−{(m.miktar - m.gelen_miktar).toLocaleString('tr-TR')} {m.birim}</div>
+                )}
+              </td>
               <td className="px-3 py-1.5 text-muted">{m.tedarikci}</td>
               <td className="px-3 py-1.5 text-faint">{m.beklenen_tarih}</td>
               <td className="px-3 py-1.5 text-faint">

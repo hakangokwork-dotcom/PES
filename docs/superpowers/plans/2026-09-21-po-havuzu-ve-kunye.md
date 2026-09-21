@@ -15,7 +15,7 @@
 
 ## Durum
 
-**1/9 görev.** Task 1 bitti — 038 canlıda, RLS kanıtı 5/5, izolasyon 76/76. Sıradaki **Task 2**.
+**3/9 görev.** Faz A ve B bitti; Task 3 katalog ucu bitti. Sıradaki **Task 4** (havuz uçları).
 
 ---
 
@@ -340,7 +340,7 @@ git commit -m "feat(havuz): migration 038 — nullable atolye, kunye kolonlari, 
 - Create: `lib/pes/kunye.ts`
 - Test: `lib/pes/kunye.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 ```ts
 import { afterAll, expect, test } from 'vitest'
@@ -388,12 +388,12 @@ test('boş ve null alan doğrulanmaz — künye isteğe bağlı (K3)', async () 
 })
 ```
 
-- [ ] **Step 2: Çalıştır, başarısız gör**
+- [x] **Step 2: Çalıştır, başarısız gör**
 
 Run: `npx vitest run lib/pes/kunye.test.ts`
 Expected: FAIL — `Failed to resolve import "./kunye"`.
 
-- [ ] **Step 3: Modülü yaz**
+- [x] **Step 3: Modülü yaz**
 
 ```ts
 import type postgres from 'postgres'
@@ -452,12 +452,12 @@ export function kunyeyiAyikla(b: Record<string, unknown>): Kunye {
 }
 ```
 
-- [ ] **Step 4: Çalıştır, geçtiğini gör**
+- [x] **Step 4: Çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/kunye.test.ts`
 Expected: 4/4 PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/kunye.ts lib/pes/kunye.test.ts
@@ -473,7 +473,7 @@ git commit -m "feat(havuz): kunye dogrulama — katalog kodlari tek yerde"
 **Files:**
 - Create: `app/api/pes/katalog/route.ts`
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -506,12 +506,12 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Tip kontrolü**
+- [x] **Step 2: Tip kontrolü**
 
 Run: `npx tsc --noEmit 2>&1 | grep katalog/route || echo "tip hatasi yok"`
 Expected: `tip hatasi yok`
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add app/api/pes/katalog/route.ts

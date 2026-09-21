@@ -45,6 +45,8 @@ type Satir = {
   dolu_gun: number | null
   denetim_dolmus: number | null
   yetenek_kaydi: number | null
+  yetenek_klasman: number | null
+  yetenek_kumas: number | null
   tedarik_mudurlugu: string | null
 }
 
@@ -75,15 +77,29 @@ export async function adayAtolyeler(
       (SELECT COUNT(*)::int
          FROM v_atolye_denetim_durum d
         WHERE d.workshop_id = w.id AND d.durum = 'SURESI_DOLMUS')  AS denetim_dolmus,
+      /* Künye kodu verilmişse yalnız o kodla eşleşen kayıtlar sayılır; iki
+         kod da verilmişse her biri AYRI sayılır — bir line_capability satırı
+         tek boyut taşır, ikisini aynı satırda aramak hep sıfır verir. */
       (SELECT COUNT(*)::int
          FROM line_capability lc
          JOIN production_line pl3 ON pl3.id = lc.line_id
         WHERE pl3.workshop_id = w.id
-          AND (${istek.klasmanKodu ?? null}::text IS NULL
-               OR (lc.dimension_code = 'klasman' AND lc.value_code = ${istek.klasmanKodu ?? null}))
-          AND (${istek.kumasTuruKodu ?? null}::text IS NULL
+          AND (${istek.klasmanKodu ?? null}::text IS NULL AND ${istek.kumasTuruKodu ?? null}::text IS NULL
+               OR (lc.dimension_code = 'klasman' AND lc.value_code = ${istek.klasmanKodu ?? null})
                OR (lc.dimension_code = 'kumas_turu' AND lc.value_code = ${istek.kumasTuruKodu ?? null})))
                                                                   AS yetenek_kaydi,
+      (SELECT COUNT(*)::int
+         FROM line_capability lc
+         JOIN production_line pl3 ON pl3.id = lc.line_id
+        WHERE pl3.workshop_id = w.id
+          AND lc.dimension_code = 'klasman' AND lc.value_code = ${istek.klasmanKodu ?? null})
+                                                                  AS yetenek_klasman,
+      (SELECT COUNT(*)::int
+         FROM line_capability lc
+         JOIN production_line pl3 ON pl3.id = lc.line_id
+        WHERE pl3.workshop_id = w.id
+          AND lc.dimension_code = 'kumas_turu' AND lc.value_code = ${istek.kumasTuruKodu ?? null})
+                                                                  AS yetenek_kumas,
       p.tedarik_mudurlugu
     FROM workshop w
     LEFT JOIN workshop_profil p ON p.workshop_id = w.id
@@ -133,7 +149,9 @@ export async function adayAtolyeler(
       gerekenGun,
       yetisiyor,
       puan: Math.round(dolulukPuan + yetenekPuan + denetimPuan + tedarikPuan),
-      yapabilir: (istek.klasmanKodu || istek.kumasTuruKodu) ? Number(s.yetenek_kaydi ?? 0) > 0 : true,
+      // Verilen HER boyut için en az bir kayıt olmalı; verilmeyen boyut sorulmaz.
+      yapabilir: (!istek.klasmanKodu || Number(s.yetenek_klasman ?? 0) > 0)
+        && (!istek.kumasTuruKodu || Number(s.yetenek_kumas ?? 0) > 0),
       uyarilar,
     }
   })

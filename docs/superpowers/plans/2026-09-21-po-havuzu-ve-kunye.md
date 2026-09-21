@@ -15,7 +15,7 @@
 
 ## Durum
 
-**7/9 görev.** Havuz ekranı bitti (tarayıcıda PO açıldı, katalog seçicileri doldu). Sıradaki **Task 8** (sihirbaz havuz modu). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
+**8/9 görev.** Sihirbaz havuz modu bitti (uçtan uca: havuz PO → sihirbaz → UPDATE → takvim). Task 6'daki yapabilir AND hatası düzeltildi. Sıradaki **Task 9** (takvim menüsü + iş emri künye + tam doğrulama). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
 
 ---
 
@@ -1021,7 +1021,7 @@ git commit -m "feat(havuz): /pes/siparisler — havuz listesi, kunye formu, kena
 - Modify: `app/pes/siparis-yerlestir/page.tsx`
 - Modify: `components/pes/SiparisYerlestirSihirbazi.tsx` (durumlar satır 34–63, aday çağrısı satır 70, gönderim satır 144–150, aday listesi satır 261–265)
 
-- [ ] **Step 1: Sayfa havuz kaydını sunucuda yükler**
+- [x] **Step 1: Sayfa havuz kaydını sunucuda yükler**
 
 `app/pes/siparis-yerlestir/page.tsx` — `searchParams` prop'unu al; `po` varsa `withServerTenant` içinde:
 ```ts
@@ -1032,7 +1032,7 @@ const [po] = await sql`
 ```
 `po` bulunamazsa ya da `workshop_id !== null` ise sayfa üstünde uyarı ("Bu sipariş zaten yerleştirilmiş") ve sihirbaz havuz modu olmadan açılır. Sihirbaza `havuzPo={po}`, `onBantId={Number(sp.bant) || undefined}`, `onTarih={sp.tarih}`, `onAtolyeId={Number(sp.atolye) || undefined}` geçir.
 
-- [ ] **Step 2: Sihirbazda 1. adım dolu ve kilitli**
+- [x] **Step 2: Sihirbazda 1. adım dolu ve kilitli**
 
 Prop tipi:
 ```ts
@@ -1053,7 +1053,7 @@ type HavuzPo = { id: number; is_emri_no: string; musteri: string | null; model_a
 )}
 ```
 
-- [ ] **Step 3: Aday çağrısına kodları ekle, listeyi ikiye böl**
+- [x] **Step 3: Aday çağrısına kodları ekle, listeyi ikiye böl**
 
 Satır 70'teki fetch:
 ```ts
@@ -1076,15 +1076,15 @@ const r = await fetch(`/api/pes/work-orders/yerlestir?${q}`)
 ```
 `onAtolyeId` verildiyse o aday `useEffect` ile otomatik seçilir (`atolyeSec`); `onBantId` verildiyse bant adımında o bant işaretli gelir; `onTarih` başlangıç tarihi alanına yazılır.
 
-- [ ] **Step 4: Gönderime `workOrderId`**
+- [x] **Step 4: Gönderime `workOrderId`**
 
 Satır 144–150'deki POST gövdesine `workOrderId: havuzPo?.id` ekle. Başarıda yönlendirme mevcut davranış (iş emri sayfası).
 
-- [ ] **Step 5: Tarayıcıda uçtan uca**
+- [x] **Step 5: Tarayıcıda uçtan uca**
 
 `/pes/siparisler` → havuz PO'da **Atölyeye ata** → sihirbaz 1. adım dolu/kilitli, künye şeridi görünür → atölye listesi iki gruplu → yerleştir → `/pes/takvim`'de blok görünür, `/pes/siparisler?gorunum=atanmis`'ta satır atölyeli.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/pes/siparis-yerlestir/page.tsx components/pes/SiparisYerlestirSihirbazi.tsx

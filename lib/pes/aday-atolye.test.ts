@@ -82,3 +82,31 @@ test('ağırlıklar toplamı 100', () => {
   const toplam = Object.values(AGIRLIK).reduce((t, v) => t + v, 0)
   expect(toplam).toBe(100)
 })
+
+test('klasman VE kumaş türü birlikte verilince yapabilir, her iki boyutta kaydı olan atölyede true', async () => {
+  /* Bir line_capability satırı tek boyut taşır. İlk hâli iki koşulu aynı
+     satırda AND'liyordu — hiçbir atölye "yapabilir" çıkmıyordu. */
+  const [ornek] = await yonetici`
+    SELECT pl.workshop_id, k.value_code AS klasman, f.value_code AS kumas
+      FROM line_capability k
+      JOIN production_line pl ON pl.id = k.line_id
+      JOIN line_capability f ON f.line_id = k.line_id AND f.dimension_code = 'kumas_turu'
+      JOIN workshop w ON w.id = pl.workshop_id AND w.is_active AND w.tenant_id = ${defaultTenant}
+     WHERE k.dimension_code = 'klasman'
+     LIMIT 1`
+  if (!ornek) return // veri yoksa iddia yok
+
+  const adaylar = await tenantIcinde(sql => adayAtolyeler(sql, {
+    adet: 100, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    klasmanKodu: ornek.klasman, kumasTuruKodu: ornek.kumas,
+  }))
+  const aday = adaylar.find(a => a.workshopId === Number(ornek.workshop_id))
+  expect(aday?.yapabilir).toBe(true)
+
+  // Uydurma kumaş türü: klasman tutsa da yapabilir false — her boyut ayrı şart.
+  const adaylar2 = await tenantIcinde(sql => adayAtolyeler(sql, {
+    adet: 100, teslimTarihi: '2026-12-31', bugun: '2026-08-06',
+    klasmanKodu: ornek.klasman, kumasTuruKodu: 'ZZ_YOK',
+  }))
+  expect(adaylar2.find(a => a.workshopId === Number(ornek.workshop_id))?.yapabilir).toBe(false)
+})

@@ -17,13 +17,32 @@ type Aday = {
   yetisiyor: boolean
   puan: number
   uyarilar: string[]
+  /** Künye kodu verildiyse: bu klasman/kumaşı yapabildiği kayıtlı mı. Kod yoksa hep true. */
+  yapabilir: boolean
 }
+
+/** Havuzdan gelen sipariş (spec K5) — 1. adım bundan dolar ve kilitlenir. */
+export type HavuzPo = {
+  id: number; is_emri_no: string; musteri: string | null; model_adi: string
+  siparis_miktari: number; teslim_tarihi: string | null
+  klasman_kodu: string | null; kumas_turu_kodu: string | null; kumas_grubu_kodu: string | null
+}
+
+const trTarih = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`
 
 type Bant = { id: number; code: string; name: string; daily_target: number | null }
 
 const ADIMLAR = ['Sipariş', 'Aşamalar', 'Atölye', 'Bantlar', 'Dış atölye', 'Özet'] as const
 
-export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: AsamaSecenegi[] }) {
+export default function SiparisYerlestirSihirbazi({ asamalar, havuzPo, onAtolyeId, onBantId, onTarih }: {
+  asamalar: AsamaSecenegi[]
+  havuzPo?: HavuzPo
+  /** Takvim hücresinden gelen önseçim: atölye aday listesinde otomatik seçilir,
+      bant tüm adedi alır, tarih en erken başlangıç olur. */
+  onAtolyeId?: number
+  onBantId?: number
+  onTarih?: string
+}) {
   const router = useRouter()
   const toast = useToast()
 
@@ -31,11 +50,11 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
   const [bekliyor, setBekliyor] = useState(false)
 
   // 1. adım
-  const [siparisNo, setSiparisNo] = useState('')
-  const [musteri, setMusteri] = useState('')
-  const [modelAdi, setModelAdi] = useState('')
-  const [adet, setAdet] = useState('')
-  const [teslimTarihi, setTeslimTarihi] = useState('')
+  const [siparisNo, setSiparisNo] = useState(havuzPo?.is_emri_no ?? '')
+  const [musteri, setMusteri] = useState(havuzPo?.musteri ?? '')
+  const [modelAdi, setModelAdi] = useState(havuzPo?.model_adi ?? '')
+  const [adet, setAdet] = useState(havuzPo ? String(havuzPo.siparis_miktari) : '')
+  const [teslimTarihi, setTeslimTarihi] = useState(havuzPo?.teslim_tarihi ?? '')
 
   // 2. adım — varsayılan zincir: zorunlu aşamalar
   const [secilenAsamalar, setSecilenAsamalar] = useState<string[]>(
@@ -49,6 +68,8 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
   // 4. adım — bantId -> adet
   const [bantlar, setBantlar] = useState<Bant[]>([])
   const [dagilim, setDagilim] = useState<Record<number, number>>({})
+  // En erken başlangıç (boş = bugün). Sunucu teslimden geriye planlarken bu tarihin altına inmez.
+  const [baslangic, setBaslangic] = useState(onTarih ?? '')
 
   // 5. adım — aşama kodu -> dış atölye id
   const [disariCikanlar, setDisariCikanlar] = useState<string[]>([])
@@ -64,15 +85,19 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
   const adim2Gecerli = secilenAsamalar.includes('DIKIM')
   const adim4Gecerli = secilenBantSayisi > 0 && dagilimToplam === adetSayi
 
-  async function adaylariGetir() {
+  async function adaylariGetir(): Promise<Aday[] | null> {
     setBekliyor(true)
     try {
-      const r = await fetch(`/api/pes/work-orders/yerlestir?adet=${adetSayi}&teslim=${teslimTarihi}`)
+      const q = new URLSearchParams({ adet: String(adetSayi), teslim: teslimTarihi })
+      if (havuzPo?.klasman_kodu) q.set('klasman', havuzPo.klasman_kodu)
+      if (havuzPo?.kumas_turu_kodu) q.set('kumas', havuzPo.kumas_turu_kodu)
+      const r = await fetch(`/api/pes/work-orders/yerlestir?${q}`)
       const d = await r.json()
-      if (!r.ok) { toast.error(d.error ?? 'Aday listesi alınamadı'); return false }
-      setAdaylar(d.adaylar ?? [])
-      return true
-    } catch { toast.error('Bağlantı hatası'); return false } finally { setBekliyor(false) }
+      if (!r.ok) { toast.error(d.error ?? 'Aday listesi alınamadı'); return null }
+      const liste: Aday[] = d.adaylar ?? []
+      setAdaylar(liste)
+      return liste
+    } catch { toast.error('Bağlantı hatası'); return null } finally { setBekliyor(false) }
   }
 
   async function bantlariGetir(aday: Aday) {
@@ -88,7 +113,10 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
          uyguluyor; buradaki yalnız önizleme. */
       const toplamHedef = gelen.reduce((t, b) => t + (Number(b.daily_target) || 0), 0)
       const yeni: Record<number, number> = {}
-      if (toplamHedef > 0) {
+      if (onBantId && gelen.some(b => b.id === onBantId)) {
+        // Takvimde tıklanan bant tüm adedi alır — kullanıcı zaten o bandı seçti.
+        gelen.forEach(b => { yeni[b.id] = b.id === onBantId ? adetSayi : 0 })
+      } else if (toplamHedef > 0) {
         let dagitilan = 0
         gelen.forEach((b, i) => {
           const pay = i === gelen.length - 1
@@ -128,7 +156,16 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
   }
 
   async function ileri() {
-    if (adim === 1) { if (await adaylariGetir()) setAdim(2); return }
+    if (adim === 1) {
+      const liste = await adaylariGetir()
+      if (!liste) return
+      /* Takvimden gelen atölye listedeyse atölye adımı atlanır. Listede
+         yoksa (teslime yetişmiyor olsa bile listede kalır; yalnız yetkisiz
+         atölye düşer) kullanıcı kendisi seçer. */
+      const onSecili = onAtolyeId ? liste.find(a => a.workshopId === onAtolyeId) : undefined
+      if (onSecili) { await atolyeSec(onSecili); return }
+      setAdim(2); return
+    }
     if (adim === 3) { if (await disAtolyeKontrolu()) setAdim(4); return }
     setAdim(a => Math.min(a + 1, ADIMLAR.length - 1))
   }
@@ -145,9 +182,11 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          workOrderId: havuzPo?.id,
           siparisNo, musteri, modelAdi,
           adet: adetSayi,
           teslimTarihi,
+          baslangic: baslangic || undefined,
           workshopId: secilenAtolye!.workshopId,
           lineIds: Object.entries(dagilim).filter(([, v]) => Number(v) > 0).map(([k]) => Number(k)),
           asamaKodlari: secilenAsamalar,
@@ -202,22 +241,33 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
 
       <div className="rounded-xl border border-line-soft bg-surface p-5">
         {adim === 0 && (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Sipariş no">
-              <Input value={siparisNo} onChange={e => setSiparisNo(e.target.value)} placeholder="SIP-2026-001" />
-            </Field>
-            <Field label="Müşteri">
-              <Input value={musteri} onChange={e => setMusteri(e.target.value)} />
-            </Field>
-            <Field label="Model / stil">
-              <Input value={modelAdi} onChange={e => setModelAdi(e.target.value)} placeholder="Basic tişört" />
-            </Field>
-            <Field label="Adet">
-              <Input value={adet} onChange={e => setAdet(e.target.value)} inputMode="numeric" placeholder="10000" align="right" />
-            </Field>
-            <Field label="Teslim tarihi">
-              <Input type="date" value={teslimTarihi} onChange={e => setTeslimTarihi(e.target.value)} />
-            </Field>
+          <div className="flex flex-col gap-4">
+            {havuzPo && (
+              <p className="rounded-lg border border-line-soft bg-canvas px-3 py-2 text-xs text-muted">
+                Havuzdan: <b className="text-ink">{havuzPo.is_emri_no}</b>
+                {havuzPo.klasman_kodu && <> · {havuzPo.klasman_kodu}</>}
+                {havuzPo.kumas_turu_kodu && <> · {havuzPo.kumas_turu_kodu}</>}
+                {havuzPo.kumas_grubu_kodu && <> · {havuzPo.kumas_grubu_kodu}</>}
+                {' '}— künye <a href="/pes/siparisler" className="underline">havuz ekranında</a> düzenlenir.
+              </p>
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Sipariş no">
+                <Input value={siparisNo} onChange={e => setSiparisNo(e.target.value)} placeholder="SIP-2026-001" disabled={!!havuzPo} />
+              </Field>
+              <Field label="Müşteri">
+                <Input value={musteri} onChange={e => setMusteri(e.target.value)} disabled={!!havuzPo} />
+              </Field>
+              <Field label="Model / stil">
+                <Input value={modelAdi} onChange={e => setModelAdi(e.target.value)} placeholder="Basic tişört" disabled={!!havuzPo} />
+              </Field>
+              <Field label="Adet">
+                <Input value={adet} onChange={e => setAdet(e.target.value)} inputMode="numeric" placeholder="10000" align="right" disabled={!!havuzPo} />
+              </Field>
+              <Field label="Teslim tarihi">
+                <Input type="date" value={teslimTarihi} onChange={e => setTeslimTarihi(e.target.value)} disabled={!!havuzPo} />
+              </Field>
+            </div>
           </div>
         )}
 
@@ -262,7 +312,15 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
               Yetişmeyenler listeden çıkarılmadı, işaretlendi.
             </p>
             <div className="max-h-[420px] overflow-y-auto rounded-lg border border-line-soft">
-              {adaylar.map(a => (
+              {([
+                ['Bu ürünü yapabilenler', adaylar.filter(a => a.yapabilir)],
+                ['Diğerleri', adaylar.filter(a => !a.yapabilir)],
+              ] as [string, Aday[]][]).map(([baslik, grup]) => grup.length > 0 && (
+              <div key={baslik}>
+              {havuzPo && (
+                <p className="border-b border-line-soft bg-canvas px-4 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-faint">{baslik}</p>
+              )}
+              {grup.map(a => (
                 <button
                   key={a.workshopId}
                   onClick={() => atolyeSec(a)}
@@ -284,6 +342,8 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
                     <TriangleAlert className="size-4 shrink-0 text-warn" strokeWidth={1.8} />
                   )}
                 </button>
+              ))}
+              </div>
               ))}
               {adaylar.length === 0 && (
                 <p className="px-4 py-6 text-center text-[13px] text-faint">Aday atölye bulunamadı.</p>
@@ -326,6 +386,14 @@ export default function SiparisYerlestirSihirbazi({ asamalar }: { asamalar: Asam
               Dağıtılan: {dagilimToplam.toLocaleString('tr-TR')} / {adetSayi.toLocaleString('tr-TR')}
               {dagilimToplam !== adetSayi && ' — toplam sipariş adediyle eşit olmalı'}
             </p>
+            <div className="mt-3 flex flex-wrap items-end gap-3">
+              <Field label="En erken başlangıç" hint="Boş bırakılırsa bugün. Plan teslimden geriye kurulur, bu tarihin altına inmez.">
+                <Input type="date" value={baslangic} onChange={e => setBaslangic(e.target.value)} />
+              </Field>
+              {onTarih && baslangic === onTarih && (
+                <span className="pb-2 text-[11.5px] text-faint">Takvimde tıklanan gün: {trTarih(onTarih)}</span>
+              )}
+            </div>
           </div>
         )}
 

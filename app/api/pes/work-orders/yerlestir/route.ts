@@ -91,7 +91,10 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
       modelAdi,
       adet: Number(b.adet),
       teslimTarihi: String(b.teslimTarihi),
-      bugun: bugun(),
+      /* En erken başlangıç istemciden gelebilir (takvim hücresi). Geçmiş
+         tarih anlamsız: bugünden küçükse bugün. */
+      bugun: typeof b.baslangic === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(b.baslangic) && b.baslangic > bugun()
+        ? b.baslangic : bugun(),
       workshopId: Number(b.workshopId),
       lineIds: b.lineIds.map(Number),
       asamaKodlari: b.asamaKodlari.map(String),

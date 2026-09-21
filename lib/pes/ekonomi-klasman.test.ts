@@ -125,11 +125,22 @@ describe('klasmanOzetleri', () => {
     expect(hepsi.map(o => o.klasman)).toContain('GOMLEK')
   })
 
-  it('varsayılan sıra: en çok atölyeli klasman önce', () => {
-    expect(hepsi[0].atolyeSayisi).toBeGreaterThanOrEqual(hepsi[1].atolyeSayisi)
+  it('varsayılan sıra: verisi olan atölye sayısı önce', () => {
+    expect(hepsi[0].marjliAtolyeSayisi)
+      .toBeGreaterThanOrEqual(hepsi[1].marjliAtolyeSayisi)
   })
 
-  it('eşit atölye sayısında alfabetik — sıra kararlı olsun', () => {
+  it('kalabalık ama verisiz klasman, küçük ama verili klasmanın altında kalır', () => {
+    const sirali = klasmanOzetleri([
+      a(1, 'A', ['KALABALIK'], null),
+      a(2, 'B', ['KALABALIK'], null),
+      a(3, 'C', ['KALABALIK'], null),
+      a(4, 'D', ['KUCUK'], 0.1),
+    ])
+    expect(sirali.map(o => o.klasman)).toEqual(['KUCUK', 'KALABALIK'])
+  })
+
+  it('eşit verili sayıda toplam atölyeye, o da eşitse alfabetiğe düşer', () => {
     const esit = klasmanOzetleri([
       a(1, 'A', ['ZETA'], 0.1),
       a(2, 'B', ['ALFA'], 0.2),

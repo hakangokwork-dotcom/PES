@@ -43,7 +43,11 @@ export default function RadarClient({ veri, secilenDonem, donemler }: Props) {
             Atölye Rasyo Radarı
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-            {veri.length} atölye · {secilenDonem} · 5 başlıkta karşılaştırma
+            {veri.length} atölye · {secilenDonem} · 5 başlıkta karşılaştırma ·{' '}
+            <Link href={`/pes/ekonomi/klasman?donem=${secilenDonem}`}
+                  className="underline hover:text-neutral-700 dark:hover:text-neutral-200">
+              klasman karşılaştırması →
+            </Link>
           </p>
         </div>
         {/* Dönem seçici */}

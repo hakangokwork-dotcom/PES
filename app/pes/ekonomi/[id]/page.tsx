@@ -6,8 +6,14 @@
  *
  * Plan: docs/superpowers/plans/2026-09-15-atolye-ekonomi-e0.md Task 16
  * Uyarlama: KOLONLAR/bicimle yerine RASYO_META + fmtRasyo kullanılır.
- * Klasman sorgusu: capability_value.dimension_code kolonu mevcut değil →
- *   klasmanHarita boş bırakıldı, akran grubu 'tumu' kademesine düşer.
+ *
+ * AKRAN GRUBU NEDEN 'tumu' KADEMESİNDE: klasman artık okunuyor (bant
+ * seviyesinde line_capability'den) ama akranGrubu'na BİLEREK verilmiyor.
+ * Atölyeler çok klasman diktiği için "herhangi bir ortak klasman" kuralı
+ * anlamsız gruplar üretiyor — canlı veride 11 pilotta n=5..11 çıkıyor ve
+ * İmkot herkesle akran oluyor. "Aynı klasmanı diken atölyeler" sorusu
+ * klasman tarafından sorulunca anlam kazanıyor: /pes/ekonomi/klasman.
+ * Buradaki klasman listesi o sayfaya bağlantı olarak gösteriliyor.
  */
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -19,6 +25,7 @@ import {
 } from '@/lib/pes/ekonomi-sorgu'
 import { hesapla } from '@/lib/pes/ekonomi-hesap'
 import { marjSirasi, medyan, yuzdelikSkor, akranGrubu, type AkranAdayi } from '@/lib/pes/ekonomi-akran'
+import { atolyeKlasmanlari } from '@/lib/pes/ekonomi-klasman'
 import { RASYO_META } from '@/lib/pes/ekonomi-rasyo-meta'
 import { fmtRasyo } from '../formatlayici'
 
@@ -66,8 +73,17 @@ export default async function EkonomiKarne({
       EKONOMI_SORGUSU, [donemStr, donem.yil, donem.ay],
     ) as unknown as EkonomiDbSatiri[]
 
-    // Klasman sorgusunu atla — capability_value.dimension_code kolonu yok.
-    const klasmanHarita = new Map<number, string[]>()
+    /* Klasman bant seviyesinde: line_capability.dimension_code='klasman'.
+       (capability_value'da dimension_code kolonu yoktur, orada dimension_id
+       var — ilk uygulamada bu varsayılmış ve sorgu atlanmıştı.)
+       Burada yalnız GÖSTERİM için okunuyor; akran grubuna girmiyor. */
+    const klasmanSatirlari = await sql`
+      SELECT pl.workshop_id::int AS workshop_id, lc.value_code
+      FROM line_capability lc
+      JOIN production_line pl ON pl.id = lc.line_id
+      WHERE lc.dimension_code = 'klasman'
+    ` as Array<{ workshop_id: number; value_code: string }>
+    const klasmanHarita = atolyeKlasmanlari(klasmanSatirlari)
 
     const hepsi = ham.map(r => {
       const girdi = dbSatiriCoz(r, param)
@@ -108,10 +124,13 @@ export default async function EkonomiKarne({
   const { donem, donemler, hedef, hepsi, marjSirasiSonuclari } = data
   if (!hedef) notFound()
 
+  /* klasmanlar BİLEREK boş: dosya başındaki nota bak. Klasmanı buraya
+     verirsek akranGrubu 'aynı klasman' etiketiyle neredeyse tüm örneklemi
+     döndürür — doğru görünen, yanlış bir etiket. */
   const adaylar: AkranAdayi[] = hepsi.map(h => ({
     workshopId: h.workshopId,
     ad: h.ad,
-    klasmanlar: h.klasmanlar,
+    klasmanlar: [],
     sewingStaff: h.sewingStaff,
     marj: h.rasyo.marj,
   }))
@@ -152,9 +171,27 @@ export default async function EkonomiKarne({
 
       <p className="text-sm bg-amber-50 border border-amber-200 rounded px-3 py-2">
         Akran grubu: <strong>{KADEME_ETIKET[grup.kademe]}</strong>, n={grup.n}
-        {grup.kademe === 'tumu' && ' — bu klasmanda yeterli örneklem yok, tüm atölyelerle kıyaslanıyor'}
         {grup.n < 5 && ' — örneklem küçük, medyanı temkinli okuyun'}
+        {'. '}
+        Klasman bazlı kıyas burada yapılmıyor: bu atölye birden fazla klasman
+        dikiyor ve “ortak klasmanı olan atölyeler” neredeyse tüm örneklem
+        demek. Klasman karşılaştırması için{' '}
+        <Link href={`/pes/ekonomi/klasman?donem=${donem ? donemYaz(donem) : ''}`}
+              className="underline">klasman görünümü</Link>.
       </p>
+
+      {hedef.klasmanlar.length > 0 && (
+        <p className="text-sm">
+          <span className="text-slate-500">Diktiği klasmanlar:</span>{' '}
+          {hedef.klasmanlar.map(k => (
+            <Link key={k}
+                  href={`/pes/ekonomi/klasman?donem=${donem ? donemYaz(donem) : ''}&klasman=${encodeURIComponent(k)}`}
+                  className="inline-block mr-1 mb-1 px-2 py-0.5 rounded border text-xs hover:bg-slate-100">
+              {k}
+            </Link>
+          ))}
+        </p>
+      )}
 
       <div className="overflow-x-auto border rounded">
         <table className="text-sm w-full">

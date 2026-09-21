@@ -117,8 +117,15 @@ export function klasmanOzeti(
 }
 
 /**
- * Bütün klasmanların özeti. Varsayılan sıra: en çok atölyeli önce, eşitlikte
- * alfabetik — böylece liste veri değişmedikçe yer değiştirmez.
+ * Bütün klasmanların özeti.
+ *
+ * Sıra: önce EKONOMİ VERİSİ OLAN atölye sayısı, sonra toplam atölye sayısı,
+ * sonra alfabetik. Toplam sayıya göre sıralamak yanıltıyordu — canlı veride
+ * PANTOLON'u 68 atölye dikiyor ama yalnız 7'sinin marjı var; satırdaki her
+ * rakamı (medyan, zararda, yayılım, en iyi/kötü) o 7 belirliyor. Verisi
+ * olmayan kalabalık bir klasmanın listenin başında durması işe yaramıyor.
+ *
+ * Eşitlikte alfabetik — liste veri değişmedikçe yer değiştirmesin.
  */
 export function klasmanOzetleri(atolyeler: KlasmanAtolyesi[]): KlasmanOzeti[] {
   const klasmanlar = [...klasmanlariGrupla(atolyeler).keys()]
@@ -126,6 +133,7 @@ export function klasmanOzetleri(atolyeler: KlasmanAtolyesi[]): KlasmanOzeti[] {
     .map(k => klasmanOzeti(k, atolyeler))
     .sort(
       (x, y) =>
+        y.marjliAtolyeSayisi - x.marjliAtolyeSayisi ||
         y.atolyeSayisi - x.atolyeSayisi ||
         x.klasman.localeCompare(y.klasman, 'tr'),
     )

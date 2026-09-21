@@ -19,6 +19,9 @@ export type AdayIstek = {
   bugun: string
   /** Verilirse bu tedarik müdürlüğündeki atölyeler puan alır */
   tedarikMudurlugu?: string | null
+  /** Verilirse yetenek puanı yalnız bu klasman/kumaş türüne sahip bantlardan gelir (havuz spec K6) */
+  klasmanKodu?: string | null
+  kumasTuruKodu?: string | null
 }
 
 export type Aday = {
@@ -29,6 +32,8 @@ export type Aday = {
   gerekenGun: number | null
   yetisiyor: boolean
   puan: number
+  /** Künye kodu verildiyse: bu klasman/kumaş türüne sahip bandı var mı (havuz spec K6) */
+  yapabilir: boolean
   uyarilar: string[]
 }
 
@@ -73,7 +78,12 @@ export async function adayAtolyeler(
       (SELECT COUNT(*)::int
          FROM line_capability lc
          JOIN production_line pl3 ON pl3.id = lc.line_id
-        WHERE pl3.workshop_id = w.id)                              AS yetenek_kaydi,
+        WHERE pl3.workshop_id = w.id
+          AND (${istek.klasmanKodu ?? null}::text IS NULL
+               OR (lc.dimension_code = 'klasman' AND lc.value_code = ${istek.klasmanKodu ?? null}))
+          AND (${istek.kumasTuruKodu ?? null}::text IS NULL
+               OR (lc.dimension_code = 'kumas_turu' AND lc.value_code = ${istek.kumasTuruKodu ?? null})))
+                                                                  AS yetenek_kaydi,
       p.tedarik_mudurlugu
     FROM workshop w
     LEFT JOIN workshop_profil p ON p.workshop_id = w.id
@@ -123,6 +133,7 @@ export async function adayAtolyeler(
       gerekenGun,
       yetisiyor,
       puan: Math.round(dolulukPuan + yetenekPuan + denetimPuan + tedarikPuan),
+      yapabilir: (istek.klasmanKodu || istek.kumasTuruKodu) ? Number(s.yetenek_kaydi ?? 0) > 0 : true,
       uyarilar,
     }
   })

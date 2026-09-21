@@ -32,6 +32,8 @@ export const GET = withTenantRoute(async (req, { sql }) => {
     teslimTarihi: teslim,
     bugun: bugun(),
     tedarikMudurlugu: u.searchParams.get('tedarik'),
+    klasmanKodu: u.searchParams.get('klasman'),
+    kumasTuruKodu: u.searchParams.get('kumas'),
   })
 
   /* ?asama=UKP verilirse yalnız o aşamayı YAPABİLEN atölyeler döner —

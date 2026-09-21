@@ -15,7 +15,7 @@
 
 ## Durum
 
-**5/9 görev.** Havuz uçları ve sihirbaz UPDATE modu bitti. Sıradaki **Task 6** (aday-atolye kodlarla). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
+**6/9 görev.** Faz A–C bitti. Sıradaki **Task 7** (/pes/siparisler ekranı). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
 
 ---
 
@@ -870,7 +870,7 @@ git commit -m "feat(havuz): sihirbaz UPDATE modu — havuzdaki siparis ayni sati
 - Modify: `lib/pes/aday-atolye.ts` (tip satır 16–22, sorgu satır 70–76)
 - Modify: `app/api/pes/work-orders/yerlestir/route.ts` GET (satır 18–51)
 
-- [ ] **Step 1: `AdayIstek`'i genişlet**
+- [x] **Step 1: `AdayIstek`'i genişlet**
 
 ```ts
 export type AdayIstek = {
@@ -884,7 +884,7 @@ export type AdayIstek = {
 }
 ```
 
-- [ ] **Step 2: Yetenek alt sorgusunu kodlarla süz**
+- [x] **Step 2: Yetenek alt sorgusunu kodlarla süz**
 
 `yetenek_kaydi` alt sorgusunu (satır ~73) şununla değiştir:
 ```sql
@@ -905,7 +905,7 @@ Kod verilmemişse davranış bugünkü gibi (tüm yetenek kayıtları sayılır)
       yapabilir: (istek.klasmanKodu || istek.kumasTuruKodu) ? Number(s.yetenek_kaydi ?? 0) > 0 : true,
 ```
 
-- [ ] **Step 3: GET ucuna parametreleri geçir**
+- [x] **Step 3: GET ucuna parametreleri geçir**
 
 `app/api/pes/work-orders/yerlestir/route.ts` GET'te `adayAtolyeler(sql, {...})` çağrısına:
 ```ts
@@ -913,12 +913,12 @@ Kod verilmemişse davranış bugünkü gibi (tüm yetenek kayıtları sayılır)
     kumasTuruKodu: u.searchParams.get('kumas'),
 ```
 
-- [ ] **Step 4: Mevcut aday testi ve tip kontrolü**
+- [x] **Step 4: Mevcut aday testi ve tip kontrolü**
 
 Run: `npx vitest run lib/pes/aday-atolye.test.ts && npx tsc --noEmit 2>&1 | grep -E "aday-atolye|yerlestir/route" || echo "tip hatasi yok"`
 Expected: PASS; tip hatası yok.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/aday-atolye.ts app/api/pes/work-orders/yerlestir/route.ts

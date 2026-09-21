@@ -15,7 +15,7 @@
 
 ## Durum
 
-**6/9 görev.** Faz A–C bitti. Sıradaki **Task 7** (/pes/siparisler ekranı). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
+**7/9 görev.** Havuz ekranı bitti (tarayıcıda PO açıldı, katalog seçicileri doldu). Sıradaki **Task 8** (sihirbaz havuz modu). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
 
 ---
 
@@ -938,7 +938,7 @@ git commit -m "feat(havuz): aday atolye puani klasman ve kumas turune gore"
 - Create: `app/pes/siparisler/page.tsx`
 - Modify: `components/pes/PesDevSidebar.tsx:34`
 
-- [ ] **Step 1: Tipler**
+- [x] **Step 1: Tipler**
 
 ```ts
 export type Siparis = {
@@ -963,15 +963,15 @@ export const KUNYE_ALANLARI: { kolon: keyof Siparis; boyut: string; etiket: stri
 ]
 ```
 
-- [ ] **Step 2: Form**
+- [x] **Step 2: Form**
 
 `SiparisFormu.tsx` — `'use client'`; props `{ mevcut?: Siparis; secenekler: Secenekler; onKapat: () => void; onKaydedildi: () => void }`. Alanlar: sipariş no (düzenlemede kilitli), müşteri, model adı, stil kodu, sezon, adet, teslim, öncelik; altında künye — `KUNYE_ALANLARI.map` ile altı `<select>` (`<option value="">—</option>` + `secenekler[boyut]`), sonra kumaşçı `<input>`. Gönderim: `mevcut` yoksa `POST /api/pes/siparisler`, varsa `PATCH /api/pes/siparisler/${mevcut.id}`; hata metnini formun altında göster; başarıda `onKaydedildi()`. Girdi bileşenleri `@/components/ui`'den `Input`, `Select`, `Button`, `Field` (hepsi `components/ui/index.ts`'te dışa verilmiş). Her kontrolde sabit `id` (`sp-is-emri-no`, `sp-klasman` …).
 
-- [ ] **Step 3: Liste**
+- [x] **Step 3: Liste**
 
 `SiparisListesi.tsx` — `'use client'`; `useSearchParams` ile `havuz`, `atolye`, `bant`, `tarih` okur. Durum: `gorunum` ('havuz' | 'atanmis' | 'hepsi'; URL'de `havuz=1` ise 'havuz'), `q`, `siparisler`, `secenekler` (açılışta `GET /api/pes/katalog?boyut=ana_grup,klasman,kumas_turu,kumas_grubu,cinsiyet_yas,kalite`), `formAcik`, `duzenlenen`. Tablo sütunları: sipariş no · müşteri · model · klasman · kumaş türü · adet · teslim · kalan gün · atölye · eylemler. `kalan_gun <= 7` satır `bg-warn-soft`, `< 0` `bg-danger-soft`. Havuz satırında **Atölyeye ata** → `router.push('/pes/siparis-yerlestir?po=' + id + (bant ? '&bant=' + bant : '') + (tarih ? '&tarih=' + tarih : '') + (atolye ? '&atolye=' + atolye : ''))`; **Düzenle** formu açar; **Sil** (`confirm`) → `DELETE`, 409 gelirse hata metnini toast'la.
 
-- [ ] **Step 4: Sayfa ve kenar çubuğu**
+- [x] **Step 4: Sayfa ve kenar çubuğu**
 
 `app/pes/siparisler/page.tsx`:
 ```tsx
@@ -1002,11 +1002,11 @@ export default function SiparislerPage() {
 ```
 (`ClipboardList` `lucide-react`'ten; dosyanın import satırına ekle.)
 
-- [ ] **Step 5: Tarayıcıda dene**
+- [x] **Step 5: Tarayıcıda dene**
 
 `npm run dev`, `/pes/siparisler`: havuza PO yaz (klasman ve kumaş türü seçerek), listede görün, düzenle, sil. Konsol temiz.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add components/pes/siparisler app/pes/siparisler/page.tsx components/pes/PesDevSidebar.tsx

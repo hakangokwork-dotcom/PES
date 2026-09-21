@@ -5,6 +5,8 @@ import {
 } from './yerlestirme'
 
 export type YerlestirIstek = {
+  /** Doluysa havuzdaki bu iş emri GÜNCELLENİR, yeni satır açılmaz (spec K5). */
+  workOrderId?: number
   siparisNo: string
   musteri: string
   modelAdi: string
@@ -133,22 +135,46 @@ export async function yerlestir(
      workshop_id, model_adi, siparis_miktari, tenant_id — hepsi burada.
      durum CHECK listesi: Taslak / Planlandi / Bekleniyor / Devam /
      Duraklatildi / Tamamlandi / İptal / Sevk Edildi. */
-  const [wo] = await sql`
-    INSERT INTO work_order ${sql({
-      tenant_id: tenantId,
-      is_emri_no: istek.siparisNo,
-      siparis_no: istek.siparisNo,
-      workshop_id: istek.workshopId,
-      musteri: istek.musteri,
-      model_adi: istek.modelAdi,
-      siparis_miktari: istek.adet,
-      teslim_tarihi: istek.teslimTarihi,
-      baslangic_tarihi: plan.pencereler.find(p => p.baslangic)?.baslangic ?? null,
-      bitis_tarihi: istek.teslimTarihi,
-      durum: 'Planlandi',
-    })}
-    RETURNING id`
-  const workOrderId = wo.id as number
+  /* workOrderId varsa HAVUZ modu (K5): aynı satır güncellenir, yeni satır
+     açılmaz. Havuz kaydı aşama zinciri kurmadı; zincir aşağıda kurulur. */
+  let workOrderId: number
+  if (istek.workOrderId) {
+    const [mevcut] = await sql`
+      SELECT id, workshop_id, durum FROM work_order WHERE id = ${istek.workOrderId}`
+    if (!mevcut) throw new Error('Havuzdaki sipariş bulunamadı')
+    if (mevcut.workshop_id !== null || mevcut.durum !== 'Taslak') {
+      throw new Error('Bu sipariş zaten yerleştirilmiş; havuzdan tekrar yerleştirilemez')
+    }
+    await sql`
+      UPDATE work_order SET
+        workshop_id = ${istek.workshopId},
+        musteri = ${istek.musteri},
+        siparis_miktari = ${istek.adet},
+        teslim_tarihi = ${istek.teslimTarihi},
+        baslangic_tarihi = ${plan.pencereler.find(p => p.baslangic)?.baslangic ?? null},
+        bitis_tarihi = ${istek.teslimTarihi},
+        durum = 'Planlandi',
+        updated_at = now()
+      WHERE id = ${istek.workOrderId}`
+    workOrderId = istek.workOrderId
+  } else {
+    const [wo] = await sql`
+      INSERT INTO work_order ${sql({
+        tenant_id: tenantId,
+        is_emri_no: istek.siparisNo,
+        siparis_no: istek.siparisNo,
+        workshop_id: istek.workshopId,
+        musteri: istek.musteri,
+        model_adi: istek.modelAdi,
+        siparis_miktari: istek.adet,
+        teslim_tarihi: istek.teslimTarihi,
+        baslangic_tarihi: plan.pencereler.find(p => p.baslangic)?.baslangic ?? null,
+        bitis_tarihi: istek.teslimTarihi,
+        durum: 'Planlandi',
+      })}
+      RETURNING id`
+    workOrderId = wo.id as number
+  }
 
   // 4) Zincir + tahsisler
   for (const p of plan.pencereler) {

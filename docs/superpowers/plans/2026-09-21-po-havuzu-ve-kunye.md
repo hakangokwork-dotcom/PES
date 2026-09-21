@@ -15,7 +15,7 @@
 
 ## Durum
 
-**3/9 görev.** Faz A ve B bitti; Task 3 katalog ucu bitti. Sıradaki **Task 4** (havuz uçları).
+**5/9 görev.** Havuz uçları ve sihirbaz UPDATE modu bitti. Sıradaki **Task 6** (aday-atolye kodlarla). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
 
 ---
 
@@ -526,7 +526,7 @@ git commit -m "feat(havuz): katalog secenekleri ucu"
 - Create: `app/api/pes/siparisler/route.ts`
 - Create: `app/api/pes/siparisler/[id]/route.ts`
 
-- [ ] **Step 1: Liste ve oluşturma ucunu yaz**
+- [x] **Step 1: Liste ve oluşturma ucunu yaz**
 
 `app/api/pes/siparisler/route.ts`:
 
@@ -619,7 +619,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
 })
 ```
 
-- [ ] **Step 2: Düzenleme ve silme ucunu yaz**
+- [x] **Step 2: Düzenleme ve silme ucunu yaz**
 
 `app/api/pes/siparisler/[id]/route.ts`:
 
@@ -684,7 +684,7 @@ export const DELETE = withTenantRoute<{ id: string }>(async (_req, { sql, params
 })
 ```
 
-- [ ] **Step 3: Tip kontrolü ve elle deneme**
+- [x] **Step 3: Tip kontrolü ve elle deneme**
 
 Run: `npx tsc --noEmit 2>&1 | grep siparisler || echo "tip hatasi yok"`
 Sonra `npm run dev` ile oturumlu tarayıcı konsolundan:
@@ -695,7 +695,7 @@ await fetch('/api/pes/siparisler', { method: 'POST', headers: { 'content-type': 
 ```
 Expected: `{ error: 'klasman_kodu: YOK katalogda yok' }` — 400. Geçerli kodla `{ ok: true, id }`; sonra `DELETE /api/pes/siparisler/<id>` → `{ ok: true }`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/api/pes/siparisler
@@ -711,7 +711,7 @@ git commit -m "feat(havuz): siparis havuzu uclari — liste, olustur, duzenle, s
 - Modify: `app/api/pes/work-orders/yerlestir/route.ts` (POST, satır 54–80)
 - Test: `lib/pes/yerlestir-kaydet.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/yerlestir-kaydet.test.ts` sonuna ekle (dosyadaki `yonetici`, `uygulama`, `defaultTenant`, `wsId`, `lineIds` fikstürlerini kullanır; `test()` ve `expect` zaten import edilmiş):
 
@@ -765,12 +765,12 @@ Dosyanın `temizle()` fonksiyonu `work_order`'ı `workshop_id`'ye göre siliyor;
 await yonetici`DELETE FROM work_order WHERE is_emri_no = 'ZZYRLTST-HAVUZ'`
 ```
 
-- [ ] **Step 2: Çalıştır, başarısız gör**
+- [x] **Step 2: Çalıştır, başarısız gör**
 
 Run: `npx vitest run lib/pes/yerlestir-kaydet.test.ts -t "havuz"`
 Expected: FAIL — `workOrderId` tipte yok (tsc) ya da INSERT ikinci satırı açtığı için `sonra.n` ≠ `once.n`.
 
-- [ ] **Step 3: `YerlestirIstek` ve `yerlestir()` düzenle**
+- [x] **Step 3: `YerlestirIstek` ve `yerlestir()` düzenle**
 
 `lib/pes/yerlestir-kaydet.ts` tipine ekle:
 ```ts
@@ -826,7 +826,7 @@ INSERT bloğunu (satır ~137) şununla değiştir:
 ```
 (`const workOrderId = wo.id as number` satırı kalkar; devamı `workOrderId`'yi kullanmaya devam eder.)
 
-- [ ] **Step 4: Route'a `workOrderId` geçir**
+- [x] **Step 4: Route'a `workOrderId` geçir**
 
 `app/api/pes/work-orders/yerlestir/route.ts` POST'ta `yerlestir(...)` çağrısına ekle:
 ```ts
@@ -850,12 +850,12 @@ Havuz modunda `siparisNo` ve `modelAdi` sunucuda kayıttan okunur:
 ```
 ve `yerlestir()`'e `siparisNo, modelAdi` bu değişkenlerden gider.
 
-- [ ] **Step 5: Çalıştır, geçtiğini gör**
+- [x] **Step 5: Çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/yerlestir-kaydet.test.ts`
 Expected: mevcut testler + 2 yeni, hepsi PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/pes/yerlestir-kaydet.ts lib/pes/yerlestir-kaydet.test.ts app/api/pes/work-orders/yerlestir/route.ts

@@ -57,8 +57,11 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   /* modelAdi burada: work_order.model_adi NOT NULL. Boş dize NOT NULL'ı
      geçer ama sipariş "adı olmayan model" olarak kayda girer — sessiz
      bozuk veri. İstemciden zorunlu istemek doğrusu. */
-  const eksik = ['siparisNo', 'modelAdi', 'adet', 'teslimTarihi', 'workshopId', 'lineIds', 'asamaKodlari']
-    .filter(k => b[k] === undefined || b[k] === null || b[k] === '')
+  /* Havuz modunda (workOrderId) siparişNo ve modelAdi kayıttan okunur (K5). */
+  const zorunlu = b.workOrderId
+    ? ['adet', 'teslimTarihi', 'workshopId', 'lineIds', 'asamaKodlari']
+    : ['siparisNo', 'modelAdi', 'adet', 'teslimTarihi', 'workshopId', 'lineIds', 'asamaKodlari']
+  const eksik = zorunlu.filter(k => b[k] === undefined || b[k] === null || b[k] === '')
   if (eksik.length) {
     return NextResponse.json({ error: `Eksik alan: ${eksik.join(', ')}` }, { status: 400 })
   }
@@ -69,11 +72,21 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
     return NextResponse.json({ error: 'En az bir aşama seçilmeli' }, { status: 400 })
   }
 
+  let siparisNo = String(b.siparisNo ?? '')
+  let modelAdi = String(b.modelAdi ?? '')
+  if (b.workOrderId) {
+    const [wo] = await sql`SELECT is_emri_no, model_adi FROM work_order WHERE id = ${Number(b.workOrderId)}`
+    if (!wo) return NextResponse.json({ error: 'Havuzdaki sipariş bulunamadı' }, { status: 404 })
+    siparisNo = wo.is_emri_no as string
+    modelAdi = wo.model_adi as string
+  }
+
   try {
     const sonuc = await yerlestir(sql, tenant.tenantId, {
-      siparisNo: String(b.siparisNo),
+      workOrderId: b.workOrderId ? Number(b.workOrderId) : undefined,
+      siparisNo,
       musteri: String(b.musteri ?? ''),
-      modelAdi: String(b.modelAdi),
+      modelAdi,
       adet: Number(b.adet),
       teslimTarihi: String(b.teslimTarihi),
       bugun: bugun(),

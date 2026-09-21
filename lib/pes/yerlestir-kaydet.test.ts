@@ -23,6 +23,8 @@ const KOD = 'ZZYRLTST'
 
 async function temizle() {
   await yonetici`DELETE FROM work_order WHERE workshop_id IN (SELECT id FROM workshop WHERE code = ${KOD})`
+  /* Havuz satiri workshop_id NULL — ustteki silme onu yakalamaz. */
+  await yonetici`DELETE FROM work_order WHERE is_emri_no LIKE ${KOD + '-HAVUZ%'}`
   await yonetici`DELETE FROM production_line WHERE code LIKE ${KOD + '%'}`
   await yonetici`DELETE FROM workshop WHERE code = ${KOD}`
 }
@@ -248,4 +250,52 @@ test('dis atolyenin kapasitesi o asamanin suresini belirler', async () => {
   } finally {
     await yonetici`DELETE FROM workshop_stage_capacity WHERE workshop_id = ${disId}`
   }
+})
+
+/* ---------- K5: havuz modu — mevcut is emri UPDATE edilir ---------- */
+
+test('havuzdaki iş emri yerleştirilince aynı satır güncellenir, yeni satır açılmaz', async () => {
+  const [havuz] = await yonetici`
+    INSERT INTO work_order (tenant_id, workshop_id, is_emri_no, model_adi, siparis_miktari, durum)
+    VALUES (${defaultTenant}, NULL, ${KOD + '-HAVUZ'}, 'Havuz Modeli', 2000, 'Taslak')
+    RETURNING id`
+  const havuzId = havuz.id as number
+  const [once] = await yonetici`SELECT count(*)::int AS n FROM work_order WHERE is_emri_no = ${KOD + '-HAVUZ'}`
+
+  const sonuc = await uygulama.begin(async (tx) => {
+    await tx`SELECT set_config('app.current_tenant_id', ${defaultTenant}, true)`
+    await tx`SELECT set_config('app.current_workshop_id', '', true)`
+    return yerlestir(tx, defaultTenant, {
+      workOrderId: havuzId,
+      siparisNo: KOD + '-HAVUZ', musteri: '', modelAdi: 'Havuz Modeli',
+      adet: 2000, teslimTarihi: '2026-12-20', bugun: '2026-12-01',
+      workshopId: wsId, lineIds: [lineIds[0]], asamaKodlari: ['KESIM', 'DIKIM', 'UKP'],
+    })
+  })
+
+  expect(sonuc.workOrderId).toBe(havuzId)
+  const [sonra] = await yonetici`SELECT count(*)::int AS n FROM work_order WHERE is_emri_no = ${KOD + '-HAVUZ'}`
+  expect(sonra.n).toBe(once.n)   // yeni satır AÇILMADI
+  const [wo] = await yonetici`SELECT workshop_id, durum FROM work_order WHERE id = ${havuzId}`
+  expect(wo.workshop_id).toBe(wsId)
+  expect(wo.durum).toBe('Planlandi')
+  const [z] = await yonetici`SELECT count(*)::int AS n FROM work_order_stage WHERE work_order_id = ${havuzId}`
+  expect(z.n).toBe(3)
+})
+
+test('zaten yerleştirilmiş iş emri havuz modundan tekrar yerleştirilemez', async () => {
+  const [dolu] = await yonetici`
+    INSERT INTO work_order (tenant_id, workshop_id, is_emri_no, model_adi, siparis_miktari, durum)
+    VALUES (${defaultTenant}, ${wsId}, ${KOD + '-HAVUZ-DOLU'}, 'Dolu Modeli', 500, 'Planlandi')
+    RETURNING id`
+  await expect(uygulama.begin(async (tx) => {
+    await tx`SELECT set_config('app.current_tenant_id', ${defaultTenant}, true)`
+    await tx`SELECT set_config('app.current_workshop_id', '', true)`
+    return yerlestir(tx, defaultTenant, {
+      workOrderId: dolu.id as number,
+      siparisNo: KOD + '-HAVUZ-DOLU', musteri: '', modelAdi: 'Dolu Modeli',
+      adet: 500, teslimTarihi: '2026-12-20', bugun: '2026-12-01',
+      workshopId: wsId, lineIds: [lineIds[0]], asamaKodlari: ['DIKIM'],
+    })
+  })).rejects.toThrow(/zaten yerleştirilmiş/)
 })

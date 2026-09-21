@@ -63,10 +63,10 @@ export default function HucreMenusu({ hedef, onKapat, onYenile }: {
       {kip === 'menu' && (
         <>
           <Secenek renk="#7280C4" onClick={() => setKip('rezerve')} ipucu="line_schedule">Rezerve et</Secenek>
-          <a href={`/pes/siparis-yerlestir?atolye=${hedef.atolyeId}&bant=${hedef.lineId}&tarih=${hedef.tarih}`}
+          <a href={`/pes/siparisler?havuz=1&atolye=${hedef.atolyeId}&bant=${hedef.lineId}&tarih=${hedef.tarih}`}
             className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] text-ink hover:bg-canvas">
             <span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: '#197A56' }} />Sipariş yerleştir
-            <small className="ml-auto text-[10.5px] text-faint">sihirbaz</small>
+            <small className="ml-auto text-[10.5px] text-faint">havuz</small>
           </a>
           <Secenek renk="#C3CBD2" onClick={() => setKip('kapasite')} ipucu="atölye beyanı">Kapasite gir</Secenek>
         </>

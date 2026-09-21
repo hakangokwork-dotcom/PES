@@ -15,7 +15,7 @@
 
 ## Durum
 
-**8/9 görev.** Sihirbaz havuz modu bitti (uçtan uca: havuz PO → sihirbaz → UPDATE → takvim). Task 6'daki yapabilir AND hatası düzeltildi. Sıradaki **Task 9** (takvim menüsü + iş emri künye + tam doğrulama). Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
+**9/9 görev — bitti.** vitest 1079/1079, next build temiz, verify_public_api ve verify_workshop_isolation geçti. Sırada Kapanış: dalı main'e taşı. Ek: 038b — durum geçmişi tetikleyicisi tenant_id yazmıyordu (eski gizli hata), düzeltildi.
 
 ---
 
@@ -1099,7 +1099,7 @@ git commit -m "feat(havuz): sihirbaz havuz modu — 1. adim kilitli, yapabilenle
 - Modify: `components/pes/takvim/HucreMenusu.tsx` ("Sipariş yerleştir" `href`)
 - Modify: `app/workshop/is-emri/[id]/page.tsx` (Özet sekmesi)
 
-- [ ] **Step 1: Hücre menüsü havuza gider**
+- [x] **Step 1: Hücre menüsü havuza gider**
 
 `HucreMenusu.tsx`'de bağlantıyı değiştir:
 ```tsx
@@ -1107,7 +1107,7 @@ git commit -m "feat(havuz): sihirbaz havuz modu — 1. adim kilitli, yapabilenle
 ```
 ve `<small>`'daki metni `havuz` yap.
 
-- [ ] **Step 2: İş emri Özet'e künye**
+- [x] **Step 2: İş emri Özet'e künye**
 
 `OzetTab` içindeki `DataRow` listesine, `Order` tipine yedi alanı ekledikten sonra:
 ```tsx
@@ -1121,7 +1121,7 @@ ve `<small>`'daki metni `havuz` yap.
 ```
 İş emri GET ucu `v_work_order_full`'dan `SELECT *` okuyor; Task 1'deki view yeniden tanımıyla yedi kolon gelir, uçta değişiklik gerekmez. `Order` tipine yedi alan eklenir. Atölye düzenleyemez — `DataRow` salt okunur (K9).
 
-- [ ] **Step 3: Tam doğrulama**
+- [x] **Step 3: Tam doğrulama**
 
 ```bash
 npx vitest run
@@ -1131,7 +1131,7 @@ node scripts/verify_workshop_isolation.mjs
 ```
 Expected: hepsi geçer; yeni uçlar 401.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add components/pes/takvim/HucreMenusu.tsx "app/workshop/is-emri/[id]/page.tsx"

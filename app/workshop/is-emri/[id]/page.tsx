@@ -36,6 +36,14 @@ interface WO {
   acik_problem: number
   teslim_kalan_gun: number | null
   aciliyet: string
+  // Künye (038) — havuz ekranında girilir, atölye yalnız okur (K9)
+  ana_grup_kodu: string | null
+  klasman_kodu: string | null
+  kumas_turu_kodu: string | null
+  kumas_grubu_kodu: string | null
+  cinsiyet_yas_kodu: string | null
+  kalite_kodu: string | null
+  kumasci: string | null
   sezon: string | null
   sample_onaylandi: boolean
   tech_pack_onaylandi: boolean
@@ -307,6 +315,18 @@ function OzetTab({ order, lines, onRefresh }: { order: WO; lines: Line[]; onRefr
           <DataRow label="Anlaşmalı Fiyat" value={`${order.anlasmali_fiyat || 0} TL/adet`} />
           <DataRow label="Yıkama Fiyatı" value={`${order.yikama_fiyati || 0} TL`} />
           <DataRow label="Tahmini Ciro" value={`${(order.anlasmali_fiyat * order.siparis_miktari).toLocaleString('tr-TR')} TL`} highlight />
+        </div>
+        <div className="mt-4">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-faint">Künye <span className="font-normal normal-case tracking-normal">— merkez tarafından girilir</span></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <DataRow label="Ana grup" value={order.ana_grup_kodu} />
+            <DataRow label="Klasman" value={order.klasman_kodu} />
+            <DataRow label="Kumaş türü" value={order.kumas_turu_kodu} />
+            <DataRow label="Kumaş grubu" value={order.kumas_grubu_kodu} />
+            <DataRow label="Cinsiyet / yaş" value={order.cinsiyet_yas_kodu} />
+            <DataRow label="Kalite segmenti" value={order.kalite_kodu} />
+            <DataRow label="Kumaşçı" value={order.kumasci} />
+          </div>
         </div>
         {order.notlar_genel && (
           <div>

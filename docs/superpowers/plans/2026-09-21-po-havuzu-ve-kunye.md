@@ -1142,7 +1142,22 @@ git commit -m "feat(havuz): takvim menusu havuza gider, is emri ozetinde kunye"
 
 ## Kapanış
 
-- [ ] `superpowers:finishing-a-development-branch` ile dalı `main`'e taşı.
+- [x] `superpowers:finishing-a-development-branch` ile dalı `main`'e taşı.
+
+Doğrulama (2026-09-21):
+
+- `npm test` → 1079 geçti / 55 dosya (`po-havuzu-izolasyon.test.ts` ve `kunye.test.ts` dahil)
+- `npm run build` → temiz; `/pes/siparisler`, `/api/pes/siparisler`, `/api/pes/siparisler/[id]`
+- `verify_workshop_isolation.mjs` → 76 geçti, 0 kaldı
+- `verify_public_api.mjs` → tüm uçlar 401
+- Canlı RLS politikaları §3'teki tanımla birebir; `work_order`'daki
+  `OR workshop_id IS NULL` kalktı
+- Artık risk ölçüldü: kuralı hâlâ 29 tablo taşıyor ama NULL satırı olan tek
+  tablo `model_library` (kasıtlı ortak katalog). Diğer 28'inde NULL satır yok.
+
+§8.7 (tarayıcıda uçtan uca tıklama) YAPILMADI — havuza PO yaz → takvim hücre
+menüsü → sihirbaz önseçili → yerleştir → takvimde blok. Kodda ve testte
+karşılığı var, elle akış denenmedi.
 
 ## Spec kapsama kontrolü
 

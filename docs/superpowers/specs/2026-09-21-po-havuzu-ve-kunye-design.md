@@ -1,6 +1,6 @@
 # PO Havuzu ve Künye — Tasarım
 
-Tarih: 2026-09-21 · Durum: tasarım onay bekliyor
+Tarih: 2026-09-21 · Durum: **uygulandı** — migration 038 + 038b canlıda, dokuz görev bitti, doğrulama geçti (1079 test, `verify_workshop_isolation` 76/76, `verify_public_api` temiz)
 
 Önceki iş: `2026-09-15-bant-kapasite-takvimi-design.md` §7.1 bu projeyi tanımladı.
 

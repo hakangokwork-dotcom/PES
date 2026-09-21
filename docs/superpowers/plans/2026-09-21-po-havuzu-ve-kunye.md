@@ -15,7 +15,7 @@
 
 ## Durum
 
-**0/9 görev.** Sıradaki **Task 1**.
+**1/9 görev.** Task 1 bitti — 038 canlıda, RLS kanıtı 5/5, izolasyon 76/76. Sıradaki **Task 2**.
 
 ---
 
@@ -66,7 +66,7 @@ Test deseni: `lib/pes/gunluk-uretim-izolasyon.test.ts` — `yonetici` (DATABASE_
 - Create: `supabase/migrations/038_po_havuzu_ve_kunye.sql`
 - Test: `lib/pes/po-havuzu-izolasyon.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/po-havuzu-izolasyon.test.ts`:
 
@@ -178,12 +178,12 @@ test('atölye kullanıcısı havuza yazamaz', async () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npx vitest run lib/pes/po-havuzu-izolasyon.test.ts`
 Expected: FAIL — `beforeAll` içinde `null value in column "workshop_id" violates not-null constraint` (038 henüz yok).
 
-- [ ] **Step 3: Migration'ı yaz**
+- [x] **Step 3: Migration'ı yaz**
 
 `supabase/migrations/038_po_havuzu_ve_kunye.sql`:
 
@@ -293,7 +293,7 @@ COMMIT;
 -- ============================================================
 ```
 
-- [ ] **Step 3b: View gövdesini migration'a yerleştir**
+- [x] **Step 3b: View gövdesini migration'a yerleştir**
 
 Yer tutucuyu gerçek gövdeyle doldur — elle yazma, veritabanından al:
 ```bash
@@ -313,17 +313,17 @@ const [v]=await sql\`SELECT pg_get_viewdef('v_work_order_full', true) AS d\`; co
 ```
 ve tamamını migration'daki `<…>` yerine koy (sondaki `;` kalsın).
 
-- [ ] **Step 4: Migration'ı uygula ve testi çalıştır**
+- [x] **Step 4: Migration'ı uygula ve testi çalıştır**
 
 Run: `node scripts/_migrate_one.mjs 038_po_havuzu_ve_kunye.sql && npx vitest run lib/pes/po-havuzu-izolasyon.test.ts`
 Expected: `OK   038_po_havuzu_ve_kunye.sql`, sonra 5/5 PASS.
 
-- [ ] **Step 5: İzolasyon betiği ve mevcut testler**
+- [x] **Step 5: İzolasyon betiği ve mevcut testler**
 
 Run: `node scripts/verify_workshop_isolation.mjs && npx vitest run lib/pes/yerlestir-kaydet.test.ts lib/pes/gunluk-uretim.test.ts`
 Expected: betik "0 kaldı"; mevcut testler geçer (`work_order_stage` politikası sıkılaştı, sihirbaz testleri kendi atölyesinin aşamasını hâlâ görmeli).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add supabase/migrations/038_po_havuzu_ve_kunye.sql lib/pes/po-havuzu-izolasyon.test.ts

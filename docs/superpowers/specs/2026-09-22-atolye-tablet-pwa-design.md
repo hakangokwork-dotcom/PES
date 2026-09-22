@@ -1,6 +1,6 @@
 # Atölye Tablet Uygulaması (PWA) — Tasarım
 
-Tarih: 2026-09-22 · Durum: **onaylandı, plan bekliyor**
+Tarih: 2026-09-22 · Durum: **Faz 1 uygulandı** (PWA kabuğu, çekmece, dokunma boyutları; 1110 test, `next build` temiz, izolasyon 76/76, `tablet_kontrol` 14/14) — Faz 2 (çevrimdışı giriş) plan bekliyor
 
 Önceki iş: `/workshop` paneli (20 sayfa) masaüstü için yazıldı; bu tasarım aynı
 paneli iPad ve Android tabletlerde kurulabilir bir uygulamaya çevirir.

@@ -36,11 +36,21 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   invalid?: boolean
 }
 
+/* type="number" alanlar tablette sayı klavyesi açsın: ondalık step varsa
+   decimal, yoksa numeric. Açık inputMode her zaman kazanır. */
+function sayisalKlavye(rest: InputHTMLAttributes<HTMLInputElement>) {
+  if (rest.inputMode) return rest.inputMode
+  if (rest.type !== 'number') return undefined
+  return String(rest.step ?? '').includes('.') ? 'decimal' : 'numeric'
+}
+
 export function Input({ align = 'left', suffix, invalid, className, ...rest }: InputProps) {
   const numeric = align === 'right' || rest.type === 'number'
+  const inputMode = sayisalKlavye(rest)
   const field = (
     <input
       {...rest}
+      inputMode={inputMode}
       className={cn(
         BASE,
         invalid ? 'border-danger-line' : 'border-line',
@@ -58,6 +68,7 @@ export function Input({ align = 'left', suffix, invalid, className, ...rest }: I
     )}>
       <input
         {...rest}
+        inputMode={inputMode}
         className={cn('h-full w-full border-0 bg-transparent px-2.5 text-[13px] text-ink outline-none', numeric && 'text-right num', className)}
       />
       <span className="shrink-0 pl-1.5 text-xs text-faint">{suffix}</span>

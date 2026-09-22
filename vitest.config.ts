@@ -1,6 +1,15 @@
 import { defineConfig } from 'vitest/config'
+import { fileURLToPath } from 'node:url'
 
+/* '@/…' takma adı tsconfig.json'da tanımlı ama vitest onu okumaz (Next'in
+   webpack/Turbopack çözümleyicisi ayrı). Field.test.tsx gibi '@/lib/utils'
+   içe aktaran dosyalar bu alan olmadan "Failed to resolve import" ile çöker. */
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('.', import.meta.url)),
+    },
+  },
   test: {
     /* Bu depodaki testlerin bir kısmı GERÇEK veritabanına bağlanıyor
        (RLS, tenant izolasyonu ve tarih tipleri sahte sürücüyle

@@ -64,3 +64,41 @@ body {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------------------------------------------------------------------------
+   Tablet / dokunma — tasarım 2026-09-22 §3.4.
+   Kurallar yalnız kaba işaretçide (parmak) devreye girer; masaüstü yoğunluğu
+   değişmez. 44 px: iOS ve Android erişilebilirlik alt sınırı.
+   --------------------------------------------------------------------------- */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  select,
+  textarea,
+  button,
+  [role="button"] {
+    min-height: 44px;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 22px;
+    height: 22px;
+  }
+  /* Kenar çubuğu satırları parmakla seçilebilsin. */
+  aside nav a {
+    min-height: 44px;
+  }
+  /* Tablo satırları: hücre dolgusu büyür, satır 44 px'e yaklaşır. */
+  table td,
+  table th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+}
+
+/* TabloSarmal: başlık kaydırırken üstte kalır. */
+.tablo-sarmal thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-surface);
+}

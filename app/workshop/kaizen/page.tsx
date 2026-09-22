@@ -63,7 +63,7 @@ function KaizenPage() {
       </div>
 
       {/* PDCA Ozet */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="bg-canvas border border-line rounded-xl p-4 text-center">
           <p className="text-3xl font-bold text-muted">{planCount}</p>
           <p className="text-xs text-muted">PLAN</p>
@@ -90,8 +90,8 @@ function KaizenPage() {
             <div className="md:col-span-2"><label className="block text-xs text-muted mb-1">Baslik *</label><input required className={ic} value={form.baslik} onChange={e => setForm(p => ({...p, baslik: e.target.value}))} placeholder="Darbogaz operasyonu icin ek makine" /></div>
             <div><label className="block text-xs text-muted mb-1">Kategori</label><select className={ic} value={form.kategori} onChange={e => setForm(p => ({...p, kategori: e.target.value}))}>{KATEGORILER.map(k => <option key={k} value={k}>{k}</option>)}</select></div>
             <div><label className="block text-xs text-muted mb-1">Hedef Metrik</label><input className={ic} value={form.hedef_metrik} onChange={e => setForm(p => ({...p, hedef_metrik: e.target.value}))} placeholder="orn. Cikti Verimliligi %" /></div>
-            <div><label className="block text-xs text-muted mb-1">Mevcut Deger</label><input type="number" step="0.1" className={ic} value={form.mevcut_deger} onChange={e => setForm(p => ({...p, mevcut_deger: e.target.value}))} /></div>
-            <div><label className="block text-xs text-muted mb-1">Hedef Deger</label><input type="number" step="0.1" className={ic} value={form.hedef_deger} onChange={e => setForm(p => ({...p, hedef_deger: e.target.value}))} /></div>
+            <div><label className="block text-xs text-muted mb-1">Mevcut Deger</label><input type="number" inputMode="decimal" step="0.1" className={ic} value={form.mevcut_deger} onChange={e => setForm(p => ({...p, mevcut_deger: e.target.value}))} /></div>
+            <div><label className="block text-xs text-muted mb-1">Hedef Deger</label><input type="number" inputMode="decimal" step="0.1" className={ic} value={form.hedef_deger} onChange={e => setForm(p => ({...p, hedef_deger: e.target.value}))} /></div>
             <div><label className="block text-xs text-muted mb-1">Sorumlu</label><input className={ic} value={form.sorumlu} onChange={e => setForm(p => ({...p, sorumlu: e.target.value}))} /></div>
             <div><label className="block text-xs text-muted mb-1">Baslangic</label><input type="date" className={ic} value={form.baslangic_tarihi} onChange={e => setForm(p => ({...p, baslangic_tarihi: e.target.value}))} /></div>
             <div><label className="block text-xs text-muted mb-1">Bitis</label><input type="date" className={ic} value={form.bitis_tarihi} onChange={e => setForm(p => ({...p, bitis_tarihi: e.target.value}))} /></div>

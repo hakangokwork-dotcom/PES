@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type InputHTMLAttributes } from 'react'
 import { useRouter } from 'next/navigation'
 import YetenekEditoru from '@/components/pes/YetenekEditoru'
 import AtolyeProfilSekmesi, {
@@ -202,7 +202,7 @@ function KimlikTab({ workshopId, account }: { workshopId: number; account: Accou
         />
         <Field
           label="Üretim Alanı (m²)"
-          type="number"
+          type="number" inputMode="numeric"
           value={form.production_area_m2?.toString() ?? ''}
           onChange={set('production_area_m2')}
         />
@@ -422,7 +422,7 @@ function IliskiTab({
           />
           <input
             placeholder="%"
-            type="number"
+            type="number" inputMode="numeric"
             value={newShare.share_pct}
             onChange={(e) => setNewShare((s) => ({ ...s, share_pct: e.target.value }))}
             className="w-24 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
@@ -617,6 +617,7 @@ function Field({
   value,
   onChange,
   type = 'text',
+  inputMode,
   textarea = false,
   hint,
 }: {
@@ -624,6 +625,8 @@ function Field({
   value: string
   onChange: (v: string) => void
   type?: string
+  /* Tablette sayı klavyesi açsın diye — native <input>'e olduğu gibi geçer. */
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode']
   textarea?: boolean
   hint?: string
 }) {
@@ -638,7 +641,7 @@ function Field({
       {textarea ? (
         <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} className={cls} />
       ) : (
-        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className={cls} />
+        <input type={type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} className={cls} />
       )}
     </div>
   )

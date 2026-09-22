@@ -134,7 +134,7 @@ function WorkshopCostsPage() {
       <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end">
         <div><label className="block text-xs font-medium text-muted mb-1">Yıl</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}><option value={2025}>2025</option><option value={2026}>2026</option></select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Ay</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-        <div><label className="block text-xs font-medium text-muted mb-1">Çalışma Günü</label><input type="number" className="w-16 px-2 py-2 border border-line rounded-lg text-sm text-center" value={workDays} onChange={e => setWorkDays(parseInt(e.target.value)||22)} /></div>
+        <div><label className="block text-xs font-medium text-muted mb-1">Çalışma Günü</label><input type="number" inputMode="numeric" className="w-16 px-2 py-2 border border-line rounded-lg text-sm text-center" value={workDays} onChange={e => setWorkDays(parseInt(e.target.value)||22)} /></div>
       </div>
 
       {/* Ana Gider Kalemleri */}
@@ -144,7 +144,7 @@ function WorkshopCostsPage() {
           {MAIN_FIELDS.map(f => (
             <div key={f.key}>
               <label className="block text-xs font-medium text-muted mb-1">{f.label}</label>
-              <input type="number" className={ic} value={expenses[f.key]} onChange={e => setExpenses(p => ({...p, [f.key]: parseInt(e.target.value)||0}))} />
+              <input type="number" inputMode="numeric" className={ic} value={expenses[f.key]} onChange={e => setExpenses(p => ({...p, [f.key]: parseInt(e.target.value)||0}))} />
             </div>
           ))}
         </div>
@@ -161,7 +161,7 @@ function WorkshopCostsPage() {
                 {OTHER_DETAILS.map(d => (
                   <div key={d}>
                     <label className="block text-[11px] font-medium text-faint mb-0.5">{d}</label>
-                    <input type="number" className="w-full px-2 py-1.5 border border-line rounded text-xs text-right" value={otherDetails[d]} onChange={e => setOtherDetails(p => ({...p, [d]: parseInt(e.target.value)||0}))} />
+                    <input type="number" inputMode="numeric" className="w-full px-2 py-1.5 border border-line rounded text-xs text-right" value={otherDetails[d]} onChange={e => setOtherDetails(p => ({...p, [d]: parseInt(e.target.value)||0}))} />
                   </div>
                 ))}
               </div>
@@ -177,7 +177,7 @@ function WorkshopCostsPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-medium text-muted mb-1">Aylık Hedef Ciro (TL)</label>
-            <input type="number" className={ic} value={targetRevenue} onChange={e => setTargetRevenue(parseInt(e.target.value)||0)} />
+            <input type="number" inputMode="numeric" className={ic} value={targetRevenue} onChange={e => setTargetRevenue(parseInt(e.target.value)||0)} />
           </div>
           <div className="bg-canvas rounded-lg p-3">
             <p className="text-xs text-faint">Günlük Hedef Kazanç</p>
@@ -220,7 +220,7 @@ function WorkshopCostsPage() {
         {costPerMin > 0 && sektorDkMaliyetler.length > 0 && (
           <div className="mt-4 pt-4 border-t border-line-soft">
             <h3 className="text-sm font-semibold text-body mb-3">Gerçek Maliyet vs Sektör Referans (TL/dk)</h3>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
               <div className="bg-emerald-100 border-2 border-emerald-500 rounded-lg p-3 text-center">
                 <p className="text-[11px] font-semibold text-emerald-700">GERÇEK</p>
                 <p className="text-xl font-bold text-emerald-800">{costPerMin.toFixed(2)}</p>

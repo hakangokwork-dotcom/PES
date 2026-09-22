@@ -345,7 +345,7 @@ function OzetTab({ order, lines, onRefresh }: { order: WO; lines: Line[]; onRefr
         <Field label="Müşteri Kodu"><input className="input" value={form.musteri_kodu || ''} onChange={e => setForm({ ...form, musteri_kodu: e.target.value })} /></Field>
         <Field label="Müşteri İletişim"><input className="input" value={form.musteri_iletisim || ''} onChange={e => setForm({ ...form, musteri_iletisim: e.target.value })} /></Field>
         <Field label="Sezon"><input className="input" value={form.sezon || ''} onChange={e => setForm({ ...form, sezon: e.target.value })} /></Field>
-        <Field label="Sipariş Miktarı"><input type="number" className="input" value={form.siparis_miktari} onChange={e => setForm({ ...form, siparis_miktari: Number(e.target.value) })} /></Field>
+        <Field label="Sipariş Miktarı"><input type="number" inputMode="numeric" className="input" value={form.siparis_miktari} onChange={e => setForm({ ...form, siparis_miktari: Number(e.target.value) })} /></Field>
         <Field label="Bant">
           <select className="input" value={form.line_id || ''} onChange={e => setForm({ ...form, line_id: e.target.value ? Number(e.target.value) : null })}>
             <option value="">— Atanmadı —</option>
@@ -356,8 +356,8 @@ function OzetTab({ order, lines, onRefresh }: { order: WO; lines: Line[]; onRefr
         <Field label="Teslim Tarihi"><input type="date" className="input" value={form.teslim_tarihi || ''} onChange={e => setForm({ ...form, teslim_tarihi: e.target.value })} /></Field>
         <Field label="Öncelik"><select className="input" value={form.oncelik} onChange={e => setForm({ ...form, oncelik: e.target.value })}>{['Düşük','Normal','Yüksek','Kritik'].map(x => <option key={x}>{x}</option>)}</select></Field>
         <Field label="Risk"><select className="input" value={form.risk_seviyesi} onChange={e => setForm({ ...form, risk_seviyesi: e.target.value })}>{['Düşük','Orta','Yüksek','Kritik'].map(x => <option key={x}>{x}</option>)}</select></Field>
-        <Field label="Anlaşmalı Fiyat (TL/adet)"><input type="number" step="0.01" className="input" value={form.anlasmali_fiyat} onChange={e => setForm({ ...form, anlasmali_fiyat: Number(e.target.value) })} /></Field>
-        <Field label="SAM (sn)"><input type="number" step="0.01" className="input" value={form.sam_toplam_sn} onChange={e => setForm({ ...form, sam_toplam_sn: Number(e.target.value) })} /></Field>
+        <Field label="Anlaşmalı Fiyat (TL/adet)"><input type="number" inputMode="decimal" step="0.01" className="input" value={form.anlasmali_fiyat} onChange={e => setForm({ ...form, anlasmali_fiyat: Number(e.target.value) })} /></Field>
+        <Field label="SAM (sn)"><input type="number" inputMode="decimal" step="0.01" className="input" value={form.sam_toplam_sn} onChange={e => setForm({ ...form, sam_toplam_sn: Number(e.target.value) })} /></Field>
       </div>
       <div className="flex items-center gap-3">
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.tech_pack_onaylandi} onChange={e => setForm({ ...form, tech_pack_onaylandi: e.target.checked })} /> Tech Pack onaylandı</label>
@@ -669,7 +669,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             </div>
           ) : (
             <div className="space-y-2 bg-canvas -m-1 p-3 rounded">
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                 <div>
                   <label className="text-[11px] text-muted block">Başlangıç</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={planStart} onChange={e => setPlanStart(e.target.value)} />
@@ -680,7 +680,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
                 </div>
                 <div>
                   <label className="text-[11px] text-muted block">veya Süre (gün)</label>
-                  <input type="number" min={1} placeholder="5" className="w-full text-sm px-2 py-1 border border-line rounded" value={planDays} onChange={e => setPlanDays(e.target.value)} />
+                  <input type="number" inputMode="numeric" min={1} placeholder="5" className="w-full text-sm px-2 py-1 border border-line rounded" value={planDays} onChange={e => setPlanDays(e.target.value)} />
                 </div>
               </div>
               <div className="text-[11px] text-faint italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
@@ -772,9 +772,9 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             </div>
           ) : (
             <div className="flex items-center gap-1.5 mt-1">
-              <input type="number" className="w-16 text-sm px-1.5 py-0.5 border border-line rounded" value={uretilen} onChange={e => setUretilen(e.target.value)} placeholder="adet" />
+              <input type="number" inputMode="numeric" className="w-16 text-sm px-1.5 py-0.5 border border-line rounded" value={uretilen} onChange={e => setUretilen(e.target.value)} placeholder="adet" />
               <span className="text-xs text-faint">/</span>
-              <input type="number" className="w-14 text-sm px-1.5 py-0.5 border border-line rounded" value={hatali} onChange={e => setHatali(e.target.value)} placeholder="hatalı" />
+              <input type="number" inputMode="numeric" className="w-14 text-sm px-1.5 py-0.5 border border-line rounded" value={hatali} onChange={e => setHatali(e.target.value)} placeholder="hatalı" />
               <button onClick={saveAdet} className="text-xs px-2 py-0.5 bg-emerald-600 text-white rounded">✓</button>
               <button onClick={() => setEditAdet(false)} className="text-xs text-faint">×</button>
             </div>
@@ -849,7 +849,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
           <Field label="Tip"><select className="input-sm" value={add.tip} onChange={e => setAdd({ ...add, tip: e.target.value })}>{['KUMAŞ','AKSESUAR','ETİKET','AMBALAJ','İPLİK','DIGER'].map(t => <option key={t}>{t}</option>)}</select></Field>
           <Field label="Ad *"><input className="input-sm" value={add.ad} onChange={e => setAdd({ ...add, ad: e.target.value })} /></Field>
           <Field label="Kod"><input className="input-sm" value={add.kod} onChange={e => setAdd({ ...add, kod: e.target.value })} /></Field>
-          <Field label="Miktar"><input type="number" step="0.01" className="input-sm" value={add.miktar} onChange={e => setAdd({ ...add, miktar: Number(e.target.value) })} /></Field>
+          <Field label="Miktar"><input type="number" inputMode="decimal" step="0.01" className="input-sm" value={add.miktar} onChange={e => setAdd({ ...add, miktar: Number(e.target.value) })} /></Field>
           <Field label="Birim"><input className="input-sm" placeholder="m, kg, adet" value={add.birim} onChange={e => setAdd({ ...add, birim: e.target.value })} /></Field>
           <Field label="Tedarikçi"><input className="input-sm" value={add.tedarikci} onChange={e => setAdd({ ...add, tedarikci: e.target.value })} /></Field>
           <Field label="Beklenen Tarih"><input type="date" className="input-sm" value={add.beklenen_tarih} onChange={e => setAdd({ ...add, beklenen_tarih: e.target.value })} /></Field>
@@ -885,7 +885,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
               <td className="px-3 py-1.5 text-right">
                 {/* Sipariş edilen ile gelen farkı eldeki eksik kumaşı gösterir (K10).
                     Gelen < sipariş ise durum Eksik'e çekilir; kullanıcı elle ezebilir. */}
-                <input type="number" step="0.01" className="input-sm w-24 text-right font-mono"
+                <input type="number" inputMode="decimal" step="0.01" className="input-sm w-24 text-right font-mono"
                   defaultValue={m.gelen_miktar ?? ''} placeholder="—"
                   onBlur={e => {
                     const v = e.target.value.trim() === '' ? null : Number(e.target.value)
@@ -1125,10 +1125,10 @@ function CekmeTestiTab({ woId }: { woId: number }) {
       {showAdd && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-canvas rounded-lg">
           <Field label="Test tarihi"><input type="date" className="input-sm" value={add.tarih} onChange={e => setAdd({ ...add, tarih: e.target.value })} /></Field>
-          <Field label="Yıkama sayısı"><input type="number" min={0} max={10} className="input-sm" value={add.yikamaSayisi} onChange={e => setAdd({ ...add, yikamaSayisi: e.target.value })} /></Field>
-          <Field label="En çekmesi %"><input type="number" step="0.1" className="input-sm" placeholder="-2.1" value={add.enCekme} onChange={e => setAdd({ ...add, enCekme: e.target.value })} /></Field>
-          <Field label="Boy çekmesi %"><input type="number" step="0.1" className="input-sm" placeholder="-2.8" value={add.boyCekme} onChange={e => setAdd({ ...add, boyCekme: e.target.value })} /></Field>
-          <Field label="May kayması %"><input type="number" step="0.1" className="input-sm" placeholder="1.2" value={add.mayKaymasi} onChange={e => setAdd({ ...add, mayKaymasi: e.target.value })} /></Field>
+          <Field label="Yıkama sayısı"><input type="number" inputMode="numeric" min={0} max={10} className="input-sm" value={add.yikamaSayisi} onChange={e => setAdd({ ...add, yikamaSayisi: e.target.value })} /></Field>
+          <Field label="En çekmesi %"><input type="number" inputMode="decimal" step="0.1" className="input-sm" placeholder="-2.1" value={add.enCekme} onChange={e => setAdd({ ...add, enCekme: e.target.value })} /></Field>
+          <Field label="Boy çekmesi %"><input type="number" inputMode="decimal" step="0.1" className="input-sm" placeholder="-2.8" value={add.boyCekme} onChange={e => setAdd({ ...add, boyCekme: e.target.value })} /></Field>
+          <Field label="May kayması %"><input type="number" inputMode="decimal" step="0.1" className="input-sm" placeholder="1.2" value={add.mayKaymasi} onChange={e => setAdd({ ...add, mayKaymasi: e.target.value })} /></Field>
           <Field label="Sonuç">
             <select className="input-sm" value={add.sonuc} onChange={e => setAdd({ ...add, sonuc: e.target.value })}>
               {Object.keys(CEKME_SONUC_RENK).map(x => <option key={x}>{x}</option>)}

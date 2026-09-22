@@ -71,7 +71,7 @@ export default function SiparisFormu({ mevcut, secenekler, onKapat, onKaydedildi
         <Field label="Model adı"><Input id="sp-model" value={t.model_adi} onChange={set('model_adi')} required /></Field>
         <Field label="Stil kodu"><Input id="sp-stil" value={t.stil_kodu} onChange={set('stil_kodu')} /></Field>
         <Field label="Sezon"><Input id="sp-sezon" value={t.sezon} onChange={set('sezon')} placeholder="2027 İlkbahar" /></Field>
-        <Field label="Adet"><Input id="sp-adet" type="number" min={1} align="right" value={t.siparis_miktari} onChange={set('siparis_miktari')} required /></Field>
+        <Field label="Adet"><Input id="sp-adet" type="number" inputMode="numeric" min={1} align="right" value={t.siparis_miktari} onChange={set('siparis_miktari')} required /></Field>
         <Field label="Teslim tarihi"><Input id="sp-teslim" type="date" value={t.teslim_tarihi} onChange={set('teslim_tarihi')} /></Field>
         <Field label="Öncelik">
           <Select id="sp-oncelik" value={t.oncelik} onChange={set('oncelik')}>

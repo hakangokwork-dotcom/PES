@@ -129,7 +129,7 @@ function WorkshopModelsPage() {
               {samEntries.map((e, i) => (
                 <tr key={i} className={e.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
                   <td className="py-2 text-body">{e.process_name}</td>
-                  <td className="py-2 text-right"><input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
+                  <td className="py-2 text-right"><input type="number" inputMode="numeric" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
                   <td className="py-2 text-center"><select className="px-2 py-1 border border-line rounded text-sm" value={e.source} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, source: ev.target.value} : s))}><option value="Pratik">Pratik</option><option value="MTM">MTM</option></select></td>
                 </tr>
               ))}
@@ -172,7 +172,7 @@ function WorkshopModelsPage() {
                     </div>
                     <div className="w-28">
                       <label className="block text-[11px] text-amber-600 mb-0.5">Çevrim (sn)</label>
-                      <input type="number" className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm text-right" value={bnSec || ''} onChange={e => setBnSec(parseFloat(e.target.value)||0)} step={0.1} />
+                      <input type="number" inputMode="numeric" className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm text-right" value={bnSec || ''} onChange={e => setBnSec(parseFloat(e.target.value)||0)} step={0.1} />
                     </div>
                     <div className="w-24 text-center pt-3">
                       <p className="text-lg font-bold text-amber-900">{bnSec > 0 ? Math.floor((9*3600)/bnSec).toLocaleString('tr-TR') : '—'}</p>

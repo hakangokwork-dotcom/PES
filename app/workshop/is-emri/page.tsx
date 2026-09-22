@@ -278,7 +278,7 @@ function IsEmriPage() {
               <input className="input" value={form.stil_kodu} onChange={e => setForm({ ...form, stil_kodu: e.target.value })} />
             </Field>
             <Field label="Adet">
-              <input type="number" className="input" value={form.siparis_miktari} onChange={e => setForm({ ...form, siparis_miktari: Number(e.target.value) })} />
+              <input type="number" inputMode="numeric" className="input" value={form.siparis_miktari} onChange={e => setForm({ ...form, siparis_miktari: Number(e.target.value) })} />
             </Field>
             <Field label="Bant">
               <select className="input" value={form.line_id} onChange={e => setForm({ ...form, line_id: e.target.value })}>
@@ -293,10 +293,10 @@ function IsEmriPage() {
               <input type="date" className="input" value={form.teslim_tarihi} onChange={e => setForm({ ...form, teslim_tarihi: e.target.value })} />
             </Field>
             <Field label="Toplam SAM (sn)">
-              <input type="number" step="0.01" className="input" value={form.sam_toplam_sn} onChange={e => setForm({ ...form, sam_toplam_sn: Number(e.target.value) })} />
+              <input type="number" inputMode="decimal" step="0.01" className="input" value={form.sam_toplam_sn} onChange={e => setForm({ ...form, sam_toplam_sn: Number(e.target.value) })} />
             </Field>
             <Field label="Anlaşmalı Fiyat (TL/adet)">
-              <input type="number" step="0.01" className="input" value={form.anlasmali_fiyat} onChange={e => setForm({ ...form, anlasmali_fiyat: Number(e.target.value) })} />
+              <input type="number" inputMode="decimal" step="0.01" className="input" value={form.anlasmali_fiyat} onChange={e => setForm({ ...form, anlasmali_fiyat: Number(e.target.value) })} />
             </Field>
             <Field label="Öncelik">
               <select className="input" value={form.oncelik} onChange={e => setForm({ ...form, oncelik: e.target.value })}>

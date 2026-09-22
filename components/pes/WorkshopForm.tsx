@@ -121,27 +121,27 @@ export default function WorkshopForm({ workshop }: Props) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Dikim Operatörü</label>
-            <input type="number" className={inputClass} value={form.sewing_staff} onChange={e => updateNumber('sewing_staff', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.sewing_staff} onChange={e => updateNumber('sewing_staff', e.target.value)} min={0} />
           </div>
           <div>
             <label className={labelClass}>UKP Operatörü</label>
-            <input type="number" className={inputClass} value={form.ukp_staff} onChange={e => updateNumber('ukp_staff', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.ukp_staff} onChange={e => updateNumber('ukp_staff', e.target.value)} min={0} />
           </div>
           <div>
             <label className={labelClass}>Kesim Operatörü</label>
-            <input type="number" className={inputClass} value={form.cutting_staff} onChange={e => updateNumber('cutting_staff', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.cutting_staff} onChange={e => updateNumber('cutting_staff', e.target.value)} min={0} />
           </div>
           <div>
             <label className={labelClass}>Yönetim</label>
-            <input type="number" className={inputClass} value={form.management} onChange={e => updateNumber('management', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.management} onChange={e => updateNumber('management', e.target.value)} min={0} />
           </div>
           <div>
             <label className={labelClass}>Endirekt</label>
-            <input type="number" className={inputClass} value={form.indirect} onChange={e => updateNumber('indirect', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.indirect} onChange={e => updateNumber('indirect', e.target.value)} min={0} />
           </div>
           <div>
             <label className={labelClass}>Toplam Çalışan</label>
-            <input type="number" className={inputClass} value={form.total_staff} onChange={e => updateNumber('total_staff', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.total_staff} onChange={e => updateNumber('total_staff', e.target.value)} min={0} />
           </div>
         </div>
       </div>
@@ -152,15 +152,15 @@ export default function WorkshopForm({ workshop }: Props) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Bant Sayısı</label>
-            <input type="number" className={inputClass} value={form.line_count} onChange={e => updateNumber('line_count', e.target.value)} min={1} max={10} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.line_count} onChange={e => updateNumber('line_count', e.target.value)} min={1} max={10} />
           </div>
           <div>
             <label className={labelClass}>Günlük Hedef (adet)</label>
-            <input type="number" className={inputClass} value={form.daily_target} onChange={e => updateNumber('daily_target', e.target.value)} min={0} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.daily_target} onChange={e => updateNumber('daily_target', e.target.value)} min={0} />
           </div>
           <div>
             <label className={labelClass}>Net Çalışma (saat/gün)</label>
-            <input type="number" className={inputClass} value={form.net_hours_day} onChange={e => updateField('net_hours_day', parseFloat(e.target.value) || 9)} min={1} max={24} step={0.5} />
+            <input type="number" inputMode="numeric" className={inputClass} value={form.net_hours_day} onChange={e => updateField('net_hours_day', parseFloat(e.target.value) || 9)} min={1} max={24} step={0.5} />
           </div>
         </div>
       </div>

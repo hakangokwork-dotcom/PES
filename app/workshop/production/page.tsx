@@ -115,9 +115,9 @@ function WorkshopProductionPage() {
                   <tr key={row.line_id}>
                     <td className="py-2"><span className="text-accent font-medium">{row.line_code}</span><br/><span className="text-xs text-faint">{row.line_name}</span></td>
                     <td className="py-2"><input className="w-28 px-2 py-1.5 border border-line rounded text-sm" value={row.model_code} onChange={e => updateRow(idx, 'model_code', e.target.value)} placeholder="PNT-001" /></td>
-                    <td className="py-2 text-center"><input type="number" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value)||0)} step={0.1} /></td>
-                    <td className="py-2 text-center"><input type="number" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value)||0)} /></td>
-                    <td className="py-2 text-center"><input type="number" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.actual_qty} onChange={e => updateRow(idx, 'actual_qty', parseInt(e.target.value)||0)} /></td>
+                    <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value)||0)} step={0.1} /></td>
+                    <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value)||0)} /></td>
+                    <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.actual_qty} onChange={e => updateRow(idx, 'actual_qty', parseInt(e.target.value)||0)} /></td>
                     <td className="py-2 text-center"><span className={`font-bold ${eff >= 90 ? 'text-green-600' : eff >= 70 ? 'text-amber-600' : 'text-red-600'}`}>%{eff.toFixed(1)}</span></td>
                   </tr>
                 )

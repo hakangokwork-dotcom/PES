@@ -60,13 +60,13 @@ function YikamaUkpPage() {
             <h2 className="font-semibold text-ink mb-3">Yikama Kaydi Ekle</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div><label className="block text-xs text-muted mb-1">Tarih</label><input type="date" className={ic} value={yForm.tarih} onChange={e => setYForm(p => ({...p, tarih: e.target.value}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Giren Adet</label><input type="number" className={ic} value={yForm.giren_adet || ''} onChange={e => setYForm(p => ({...p, giren_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Cikan Adet</label><input type="number" className={ic} value={yForm.cikan_adet || ''} onChange={e => setYForm(p => ({...p, cikan_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Hatali</label><input type="number" className={ic} value={yForm.hatali_adet || ''} onChange={e => setYForm(p => ({...p, hatali_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Cevrim Sayisi</label><input type="number" className={ic} value={yForm.cevrim_sayisi || ''} onChange={e => setYForm(p => ({...p, cevrim_sayisi: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Cevrim Sure (dk)</label><input type="number" className={ic} value={yForm.cevrim_sure_dk || ''} onChange={e => setYForm(p => ({...p, cevrim_sure_dk: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Enerji (kWh)</label><input type="number" className={ic} value={yForm.enerji_kwh} onChange={e => setYForm(p => ({...p, enerji_kwh: e.target.value}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Su (litre)</label><input type="number" className={ic} value={yForm.su_litre} onChange={e => setYForm(p => ({...p, su_litre: e.target.value}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Giren Adet</label><input type="number" inputMode="numeric" className={ic} value={yForm.giren_adet || ''} onChange={e => setYForm(p => ({...p, giren_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Cikan Adet</label><input type="number" inputMode="numeric" className={ic} value={yForm.cikan_adet || ''} onChange={e => setYForm(p => ({...p, cikan_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Hatali</label><input type="number" inputMode="numeric" className={ic} value={yForm.hatali_adet || ''} onChange={e => setYForm(p => ({...p, hatali_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Cevrim Sayisi</label><input type="number" inputMode="numeric" className={ic} value={yForm.cevrim_sayisi || ''} onChange={e => setYForm(p => ({...p, cevrim_sayisi: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Cevrim Sure (dk)</label><input type="number" inputMode="numeric" className={ic} value={yForm.cevrim_sure_dk || ''} onChange={e => setYForm(p => ({...p, cevrim_sure_dk: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Enerji (kWh)</label><input type="number" inputMode="numeric" className={ic} value={yForm.enerji_kwh} onChange={e => setYForm(p => ({...p, enerji_kwh: e.target.value}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Su (litre)</label><input type="number" inputMode="numeric" className={ic} value={yForm.su_litre} onChange={e => setYForm(p => ({...p, su_litre: e.target.value}))} /></div>
             </div>
             <button onClick={saveYikama} disabled={saving} className="mt-3 px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
           </div>
@@ -102,16 +102,16 @@ function YikamaUkpPage() {
             <h2 className="font-semibold text-ink mb-3">UKP Kaydi Ekle</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div><label className="block text-xs text-muted mb-1">Tarih</label><input type="date" className={ic} value={uForm.tarih} onChange={e => setUForm(p => ({...p, tarih: e.target.value}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Utu Adet</label><input type="number" className={ic} value={uForm.utu_adet || ''} onChange={e => setUForm(p => ({...p, utu_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Kontrol Adet</label><input type="number" className={ic} value={uForm.kontrol_adet || ''} onChange={e => setUForm(p => ({...p, kontrol_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Paket Adet</label><input type="number" className={ic} value={uForm.paket_adet || ''} onChange={e => setUForm(p => ({...p, paket_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Hatali</label><input type="number" className={ic} value={uForm.hatali_adet || ''} onChange={e => setUForm(p => ({...p, hatali_adet: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Personel</label><input type="number" className={ic} value={uForm.personel_sayisi || ''} onChange={e => setUForm(p => ({...p, personel_sayisi: Number(e.target.value)}))} /></div>
-              <div><label className="block text-xs text-muted mb-1">Calisma (dk)</label><input type="number" className={ic} value={uForm.calisma_dk || ''} onChange={e => setUForm(p => ({...p, calisma_dk: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Utu Adet</label><input type="number" inputMode="numeric" className={ic} value={uForm.utu_adet || ''} onChange={e => setUForm(p => ({...p, utu_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Kontrol Adet</label><input type="number" inputMode="numeric" className={ic} value={uForm.kontrol_adet || ''} onChange={e => setUForm(p => ({...p, kontrol_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Paket Adet</label><input type="number" inputMode="numeric" className={ic} value={uForm.paket_adet || ''} onChange={e => setUForm(p => ({...p, paket_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Hatali</label><input type="number" inputMode="numeric" className={ic} value={uForm.hatali_adet || ''} onChange={e => setUForm(p => ({...p, hatali_adet: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Personel</label><input type="number" inputMode="numeric" className={ic} value={uForm.personel_sayisi || ''} onChange={e => setUForm(p => ({...p, personel_sayisi: Number(e.target.value)}))} /></div>
+              <div><label className="block text-xs text-muted mb-1">Calisma (dk)</label><input type="number" inputMode="numeric" className={ic} value={uForm.calisma_dk || ''} onChange={e => setUForm(p => ({...p, calisma_dk: Number(e.target.value)}))} /></div>
             </div>
             {/* UKP Verimlilik hesabi */}
             {uForm.personel_sayisi > 0 && uForm.paket_adet > 0 && (
-              <div className="mt-3 bg-canvas rounded-lg p-3 grid grid-cols-3 gap-3 text-sm">
+              <div className="mt-3 bg-canvas rounded-lg p-3 grid grid-cols-1 gap-3 md:grid-cols-3 text-sm">
                 <div><span className="text-xs text-muted">Kisi Basi Gunluk</span><p className="font-bold">{Math.round(uForm.paket_adet / uForm.personel_sayisi)} adet</p></div>
                 <div><span className="text-xs text-muted">Adet Basi Sure</span><p className="font-bold">{(uForm.calisma_dk / uForm.paket_adet).toFixed(1)} dk</p></div>
                 <div><span className="text-xs text-muted">Hata Orani</span><p className={`font-bold ${uForm.hatali_adet / uForm.kontrol_adet > 0.03 ? 'text-red-600' : 'text-green-600'}`}>{uForm.kontrol_adet > 0 ? (uForm.hatali_adet / uForm.kontrol_adet * 100).toFixed(1) : '0'}%</p></div>

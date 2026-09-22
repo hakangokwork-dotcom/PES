@@ -68,11 +68,11 @@ function WorkshopQualityPage() {
 
       <div className="bg-white border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div><label className="block text-xs font-medium text-muted mb-1">Kontrol Edilen</label><input type="number" className={ic} value={form.inspected_qty} onChange={e => setForm(p => ({...p, inspected_qty: parseInt(e.target.value)||0}))} /></div>
-          <div><label className="block text-xs font-medium text-muted mb-1">İlk Geçiş (FPQ)</label><input type="number" className={ic} value={form.first_pass_qty} onChange={e => setForm(p => ({...p, first_pass_qty: parseInt(e.target.value)||0}))} /></div>
-          <div><label className="block text-xs font-medium text-muted mb-1">Red Edilen</label><input type="number" className={ic} value={form.rejected_qty} onChange={e => setForm(p => ({...p, rejected_qty: parseInt(e.target.value)||0}))} /></div>
-          <div><label className="block text-xs font-medium text-muted mb-1">Yeniden İşlem</label><input type="number" className={ic} value={form.rework_qty} onChange={e => setForm(p => ({...p, rework_qty: parseInt(e.target.value)||0}))} /></div>
-          <div><label className="block text-xs font-medium text-muted mb-1">Müşteri İade</label><input type="number" className={ic} value={form.customer_return} onChange={e => setForm(p => ({...p, customer_return: parseInt(e.target.value)||0}))} /></div>
+          <div><label className="block text-xs font-medium text-muted mb-1">Kontrol Edilen</label><input type="number" inputMode="numeric" className={ic} value={form.inspected_qty} onChange={e => setForm(p => ({...p, inspected_qty: parseInt(e.target.value)||0}))} /></div>
+          <div><label className="block text-xs font-medium text-muted mb-1">İlk Geçiş (FPQ)</label><input type="number" inputMode="numeric" className={ic} value={form.first_pass_qty} onChange={e => setForm(p => ({...p, first_pass_qty: parseInt(e.target.value)||0}))} /></div>
+          <div><label className="block text-xs font-medium text-muted mb-1">Red Edilen</label><input type="number" inputMode="numeric" className={ic} value={form.rejected_qty} onChange={e => setForm(p => ({...p, rejected_qty: parseInt(e.target.value)||0}))} /></div>
+          <div><label className="block text-xs font-medium text-muted mb-1">Yeniden İşlem</label><input type="number" inputMode="numeric" className={ic} value={form.rework_qty} onChange={e => setForm(p => ({...p, rework_qty: parseInt(e.target.value)||0}))} /></div>
+          <div><label className="block text-xs font-medium text-muted mb-1">Müşteri İade</label><input type="number" inputMode="numeric" className={ic} value={form.customer_return} onChange={e => setForm(p => ({...p, customer_return: parseInt(e.target.value)||0}))} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">En Sık Hata</label>
             <select className="w-full px-3 py-2 border border-line rounded-lg text-sm" value={form.top_defect_cat} onChange={e => setForm(p => ({...p, top_defect_cat: e.target.value}))}>
               <option value="">Seçin...</option>{DEFECTS.map(d => <option key={d} value={d}>{d}</option>)}
@@ -80,7 +80,7 @@ function WorkshopQualityPage() {
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-line-soft grid grid-cols-3 gap-4">
+        <div className="mt-4 pt-4 border-t border-line-soft grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="bg-emerald-50 rounded-lg p-3 text-center">
             <p className="text-xs text-emerald-600">FPQ</p>
             <p className={`text-2xl font-bold ${Number(fpq) >= 95 ? 'text-green-600' : Number(fpq) >= 90 ? 'text-amber-600' : 'text-red-600'}`}>%{fpq}</p>

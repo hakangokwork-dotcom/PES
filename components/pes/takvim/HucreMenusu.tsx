@@ -113,7 +113,7 @@ function RezerveFormu({ hedef, hata, gonderiliyor, onGeri, onGonder }: {
         <label className={etiket}>Bitiş<input id="rz-bitis" type="date" className={alan} value={v.bitis} onChange={e => setV({ ...v, bitis: e.target.value })} required /></label>
       </div>
       <label className={etiket}>Adet/gün <span className="text-faint">(boş = bandın tamamı)</span>
-        <input id="rz-adet" type="number" min={1} step={50} className={alan} value={v.adet} onChange={e => setV({ ...v, adet: e.target.value })} placeholder={nf(hedef.bosAdet)} /></label>
+        <input id="rz-adet" type="number" inputMode="numeric" min={1} step={50} className={alan} value={v.adet} onChange={e => setV({ ...v, adet: e.target.value })} placeholder={nf(hedef.bosAdet)} /></label>
       <label className={etiket}>Sahip <span className="text-danger">*</span>
         <input id="rz-sahip" className={alan} value={v.sahip} onChange={e => setV({ ...v, sahip: e.target.value })} required placeholder="M. Aydın" /></label>
       <label className={etiket}>Geçerlilik bitişi <span className="text-danger">*</span>
@@ -142,7 +142,7 @@ function KapasiteFormu({ hedef, hata, gonderiliyor, onGeri, onGonder }: {
         <label className={etiket}>Bitiş<input id="kp-bitis" type="date" className={alan} value={v.bitis} onChange={e => setV({ ...v, bitis: e.target.value })} required /></label>
       </div>
       <label className={etiket}>Günlük kapasite <span className="text-danger">*</span>
-        <input id="kp-kapasite" type="number" min={0} step={50} className={alan} value={v.gunlukKapasite} onChange={e => setV({ ...v, gunlukKapasite: e.target.value })} required placeholder="0 = kapalı" /></label>
+        <input id="kp-kapasite" type="number" inputMode="numeric" min={0} step={50} className={alan} value={v.gunlukKapasite} onChange={e => setV({ ...v, gunlukKapasite: e.target.value })} required placeholder="0 = kapalı" /></label>
       <label className={etiket}>Sebep<input id="kp-sebep" className={alan} value={v.sebep} onChange={e => setV({ ...v, sebep: e.target.value })} placeholder="Eleman izni — 2 operatör" /></label>
       {hata && <p className="text-[11px] text-danger">{hata}</p>}
       <div className="flex justify-end gap-1.5 pt-1">

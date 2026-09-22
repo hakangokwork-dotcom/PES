@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono, Quicksand, Source_Sans_3, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import { ToastProvider } from "@/components/ui"
@@ -34,6 +34,20 @@ const vsimMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "PES — Atölye Verimlilik Sistemi",
   description: "Production Efficiency System — 200 fason atölye verimlilik değerlendirme ve tedarikçi skorlama sistemi",
+  applicationName: "PES Atölye",
+  /* iOS "Ana Ekrana Ekle": tam ekran, durum çubuğu varsayılan, ikon 180 px.
+     Android bunu manifest'ten okur (app/manifest.ts). */
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "PES Atölye" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
+}
+
+/* viewport-fit=cover: çentikli tabletlerde üst bar güvenli alana kadar uzar
+   (WorkshopKabuk env(safe-area-inset-top) kullanır). */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#197A56",
 }
 
 export default function RootLayout({

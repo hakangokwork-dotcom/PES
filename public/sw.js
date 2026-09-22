@@ -10,8 +10,9 @@
      yedek HTML (aşağıda) — yanıt asla undefined olmaz.
    - /_next/static/*: önbellek önce (içerik hash'li, güvenle saklanır).
      Geliştirme kipinde (?gelistirme=1) bu kural kapanır, bkz. GELISTIRME.
-   - Kabuk kurulumu başarısız olursa install reddedilir (yarım kabuk yayına
-     çıkmasın) ve hata DevTools'a yazılır.
+   - Kabuk = yalnız çevrimdışı sayfası (/cevrimdisi); başka hiçbir dosya
+     önceden önbelleğe alınmaz. Kurulum başarısız olursa install reddedilir
+     (yarım kabuk yayına çıkmasın) ve hata DevTools'a yazılır.
    - /api/*: DOKUNMAZ. RLS'li veri cihazda kalmaz; çevrimdışı yazma kuyruğu
      Faz 2'de IndexedDB'de yaşar, burada değil.
    - GET dışı ve başka origin: dokunmaz. */
@@ -25,7 +26,11 @@ const GELISTIRME = new URL(self.location.href).searchParams.get('gelistirme') ==
 const KABUK = 'pes-kabuk-' + SURUM
 const STATIK = 'pes-statik-' + SURUM
 const CEVRIMDISI = '/cevrimdisi'
-const KABUK_DOSYALARI = [CEVRIMDISI, '/manifest.webmanifest', '/icons/pes-192.png', '/icons/pes-512.png']
+/* Kabuk = yalnız çevrimdışı sayfası. Manifest ve ikonlar buraya konulmuştu ama
+   strateji() onları hiçbir zaman önbellekten servis etmiyor (gezinme değiller,
+   /_next/static altında da değiller) — kurulumu gereksiz yere uzatan ve
+   başarısız olunca install'ı reddettiren ölü girdilerdi. */
+const KABUK_DOSYALARI = [CEVRIMDISI]
 
 /* Son çare: Safari bellek baskısında / ITP ile önbelleği silebilir, o zaman
    caches.match(CEVRIMDISI) undefined döner ve respondWith çöker. */

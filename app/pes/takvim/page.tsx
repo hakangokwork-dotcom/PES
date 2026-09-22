@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
    çekilir; dönem ve filtre değiştikçe yeniden yüklenir. */
 export default function PesTakvimPage() {
   return (
-    <div className="flex flex-col gap-5">
+    <div data-yogun className="flex flex-col gap-5">
       <PageHeader
         crumbs={[{ label: 'Merkez', href: '/pes' }, { label: 'Bant kapasite takvimi' }]}
         title="Bant kapasite takvimi"

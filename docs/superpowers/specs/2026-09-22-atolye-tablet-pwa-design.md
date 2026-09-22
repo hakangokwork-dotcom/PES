@@ -52,7 +52,9 @@ Fason atölyeler (tedarikçiler) veri girişini ve kendi performanslarını
 ### 3.2 Service worker
 - `public/sw.js`; sürüm dizesi `lib/version.ts` sürümü + build zamanı damgasından `next.config.ts` `env` ile üretilir ve `SwKayit` bunu `?v=` sorgusuyla SW adresine ekler
   (deploy → eski kabuk geçersiz).
-- Precache: `/cevrimdisi` (statik "bağlantı yok" sayfası), manifest, ikonlar.
+- Precache: yalnız `/cevrimdisi` (statik "bağlantı yok" sayfası). Manifest ve
+  ikonlar önceden önbelleğe alınmaz — `strateji()` onları hiçbir zaman
+  önbellekten servis etmiyor, listede ölü girdi kalıyorlardı.
 - Strateji: gezinmeler ve `/api/` → network-first, ağ yoksa gezinmede
   `/cevrimdisi`; `/_next/static/` → cache-first.
 - API yanıtları önbelleklenmez (RLS'li veri cihazda kalmaz).
@@ -69,8 +71,9 @@ Fason atölyeler (tedarikçiler) veri girişini ve kendi performanslarını
 ### 3.3 Çekmece kenar çubuğu
 - `WorkshopSidebar` aynı `NAV_GROUPS` verisiyle iki kipte çalışır:
   `lg:` ve üstü sabit sütun (bugünkü), altı off-canvas çekmece.
-- `components/pes/WorkshopUstBar.tsx` (client, yalnız `<lg`): 56 px; menü
-  düğmesi, atölye adı, senkron çipi (§4.5).
+- Üst bar ayrı bir dosya değil: `components/pes/WorkshopKabuk.tsx` içinde
+  yaşar (client, yalnız `<lg`, 56 px; menü düğmesi ve atölye adı) ve sağ ucunda
+  `sagUst` slotu vardır — Faz 2 senkron çipi (§4.5) oraya takılır.
 - Çekmece: `role="dialog"`, arka plan karartma, ESC/karartma tıkla kapanır,
   rota değişince kapanır. Odak çekmece içinde tutulur.
 - `app/workshop/layout.tsx`: `main` iç boşluğu `p-4 md:p-6 lg:p-8`.
@@ -80,9 +83,15 @@ Fason atölyeler (tedarikçiler) veri girişini ve kendi performanslarını
   `button` için `min-height: 44px`; tablo satırı `min-height: 44px`. Bu
   kurallar geneldir: dokunmatik cihazda yönetim panelinin (`/pes`)
   kontrollerini de büyütürler — kapsam dışı olsa da kabul edilen bir yan etki.
+  Yoğun görünümler bu kuraldan `[data-yogun]` sarmalıyla muaftır: takvim
+  sayfalarında (`/workshop/takvim`, `/pes/takvim`) Gantt blokları ve PO zinciri
+  çipleri süreyi temsil eder, 44 px'e şişirilirse satır okunmaz olur.
 - `components/ui/Field.tsx` (`Input`): `type="number"` verilince otomatik
   `inputMode="numeric"`; yalnız kesirli `step` (`0.x`) veya `step="any"`
   varsa `decimal`. Açıkça verilen `inputMode` her zaman kazanır.
+- İşaretli (negatif olabilen) alanlar — iş emri en/boy çekmesi, may kayması —
+  bilerek `inputMode` almaz: iOS'un `decimal` tuş takımında eksi tuşu yoktur,
+  tam klavye tek çıkış yoludur.
 - Sayfalardaki el yapımı `<table>`'lar `components/ui/TabloSarmal.tsx`
   (`overflow-x-auto`) ile sarılır. Yapışkan `<thead>` yalnızca sarmala
   `yukseklik` (CSS `max-height`, ör. `70vh`) verilirse gerçekten çalışır;

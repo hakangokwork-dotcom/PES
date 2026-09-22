@@ -38,7 +38,9 @@ export const metadata: Metadata = {
   /* iOS "Ana Ekrana Ekle": tam ekran, durum çubuğu varsayılan, ikon 180 px.
      Android bunu manifest'ten okur (app/manifest.ts). */
   appleWebApp: { capable: true, statusBarStyle: "default", title: "PES Atölye" },
-  icons: { apple: "/icons/apple-touch-icon.png" },
+  /* icon açıkça verilmezse tarayıcı /favicon.ico ister ve 404 alır; SVG ikon
+     hem sekmede hem yer imlerinde kullanılır. */
+  icons: { icon: "/icons/pes.svg", apple: "/icons/apple-touch-icon.png" },
 }
 
 /* viewport-fit=cover: çentikli tabletlerde üst bar güvenli alana kadar uzar

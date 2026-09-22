@@ -30,8 +30,15 @@ export default function SwKayit() {
     let ilkDenetim = !!navigator.serviceWorker.controller
 
     const onDegisim = () => {
-      /* İlk kurulumda controller null'dan dolu hale gelir; o "yeni sürüm" değildir. */
-      if (ilkDenetim) setYeniSurum(true)
+      const c = navigator.serviceWorker.controller
+      const kontrolSurum = c ? new URL(c.scriptURL).searchParams.get('v') : null
+      /* İlk kurulumda controller null'dan dolu hale gelir; o "yeni sürüm" değildir.
+         Ayrıca deploy sonrası ilk açılışta sayfa zaten yeni kodu çalıştırır ama
+         hâlâ eski worker'ın denetimindedir; yeni damgayı kaydetmek
+         controllerchange tetikler. Sayfa zaten yeni sürümse (kendi damgası
+         worker'ınkiyle aynı) şerit gösterme; şerit yalnız eski
+         sekmeler/pencereler içindir. */
+      if (ilkDenetim && kontrolSurum !== surum) setYeniSurum(true)
       ilkDenetim = true
     }
     navigator.serviceWorker.addEventListener('controllerchange', onDegisim)

@@ -342,7 +342,7 @@ function TakvimPage() {
   const today = dateOnly(new Date())
 
   return (
-    <div className="space-y-4">
+    <div data-yogun className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>

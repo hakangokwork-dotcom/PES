@@ -93,6 +93,13 @@ body {
     padding-top: 10px;
     padding-bottom: 10px;
   }
+  /* Yoğun görünümler (bant takvimi Gantt blokları) 44 px kuralından muaf:
+     bloklar süreyi temsil eder, dolgu değil. Faz 4 takvime dokunma
+     desteği getirirken yeniden değerlendirilir. */
+  [data-yogun] button,
+  [data-yogun] [role="button"] {
+    min-height: 0;
+  }
 }
 
 /* TabloSarmal: başlık kaydırırken üstte kalır (yalnızca yukseklik verilmişse). */

@@ -18,6 +18,16 @@ describe('Input inputMode', () => {
     expect(screen.getByLabelText('a').getAttribute('inputmode')).toBe('decimal')
   })
 
+  it('sayı olarak verilen ondalık step → decimal', () => {
+    render(<Input type="number" step={0.5} aria-label="a" />)
+    expect(screen.getByLabelText('a').getAttribute('inputmode')).toBe('decimal')
+  })
+
+  it('step="any" → decimal', () => {
+    render(<Input type="number" step="any" aria-label="a" />)
+    expect(screen.getByLabelText('a').getAttribute('inputmode')).toBe('decimal')
+  })
+
   it('metin alanı inputMode almaz', () => {
     render(<Input type="text" aria-label="a" />)
     expect(screen.getByLabelText('a').hasAttribute('inputmode')).toBe(false)

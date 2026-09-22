@@ -1126,9 +1126,11 @@ function CekmeTestiTab({ woId }: { woId: number }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-canvas rounded-lg">
           <Field label="Test tarihi"><input type="date" className="input-sm" value={add.tarih} onChange={e => setAdd({ ...add, tarih: e.target.value })} /></Field>
           <Field label="Yıkama sayısı"><input type="number" inputMode="numeric" min={0} max={10} className="input-sm" value={add.yikamaSayisi} onChange={e => setAdd({ ...add, yikamaSayisi: e.target.value })} /></Field>
-          <Field label="En çekmesi %"><input type="number" inputMode="decimal" step="0.1" className="input-sm" placeholder="-2.1" value={add.enCekme} onChange={e => setAdd({ ...add, enCekme: e.target.value })} /></Field>
-          <Field label="Boy çekmesi %"><input type="number" inputMode="decimal" step="0.1" className="input-sm" placeholder="-2.8" value={add.boyCekme} onChange={e => setAdd({ ...add, boyCekme: e.target.value })} /></Field>
-          <Field label="May kayması %"><input type="number" inputMode="decimal" step="0.1" className="input-sm" placeholder="1.2" value={add.mayKaymasi} onChange={e => setAdd({ ...add, mayKaymasi: e.target.value })} /></Field>
+          {/* Çekme/kayma değerleri eksi olabilir; iOS'un decimal klavyesinde eksi tuşu yok.
+              Bu yüzden ipucu vermiyoruz: iOS sayı+noktalama klavyesini açar, "-" orada var. */}
+          <Field label="En çekmesi %"><input type="number" step="0.1" className="input-sm" placeholder="-2.1" value={add.enCekme} onChange={e => setAdd({ ...add, enCekme: e.target.value })} /></Field>
+          <Field label="Boy çekmesi %"><input type="number" step="0.1" className="input-sm" placeholder="-2.8" value={add.boyCekme} onChange={e => setAdd({ ...add, boyCekme: e.target.value })} /></Field>
+          <Field label="May kayması %"><input type="number" step="0.1" className="input-sm" placeholder="1.2" value={add.mayKaymasi} onChange={e => setAdd({ ...add, mayKaymasi: e.target.value })} /></Field>
           <Field label="Sonuç">
             <select className="input-sm" value={add.sonuc} onChange={e => setAdd({ ...add, sonuc: e.target.value })}>
               {Object.keys(CEKME_SONUC_RENK).map(x => <option key={x}>{x}</option>)}

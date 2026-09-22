@@ -1214,6 +1214,10 @@ DOSYALAR=$(grep -rl 'type="number"' app/workshop components/pes/WorkshopForm.tsx
 perl -pi -e 's/type="number"(?=[^>]*step="0\.)(?![^>]*inputMode)/type="number" inputMode="decimal"/g' $DOSYALAR
 # 2) kalanlar → numeric
 perl -pi -e 's/type="number"(?![^>]*inputMode)/type="number" inputMode="numeric"/g' $DOSYALAR
+# 3) JSX sayı literali step={0.x} ve step="any" de ondalıktır — 1. adım bunları
+#    kaçırdı (ayrıca ok işlevlerindeki "=>" yüzünden [^>]* etiketin sonunu aşamaz,
+#    bu yüzden etiket kapsamlı slurp kipi gerekir):
+perl -0777 -pi -e 's{(<input\b[^<]*?/>)}{ my $t=$1; if ($t =~ /step=\{0\.[0-9]/ || $t =~ /step="any"/) { $t =~ s/inputMode="numeric"/inputMode="decimal"/g } $t }gse' $DOSYALAR
 ```
 
 - [ ] **Step 3: Doğrula**
@@ -1261,7 +1265,7 @@ Expected: boş.
 `app/workshop/downtime/page.tsx:80-94` — dış kutu ve tabloyu şöyle değiştir (import: `import { TabloSarmal } from '@/components/ui'` — dosya zaten `@/components/ui`'den import ediyorsa aynı satıra ekle):
 ```tsx
         <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
-          <TabloSarmal>
+          <TabloSarmal yukseklik="70vh">
             <table className="w-full min-w-[640px] text-sm">
               {/* … mevcut thead / tbody aynen … */}
             </table>
@@ -1269,6 +1273,10 @@ Expected: boş.
         </div>
 ```
 Yalnız `<TabloSarmal>` açılış/kapanışı ve `min-w-[640px]` eklenir; thead/tbody içeriği değişmez.
+
+`yukseklik="70vh"` şart: `overflow-x-auto` sarmalı kaydırma kabı yapar, bu yüzden
+yapışkan `thead` sayfaya değil sarmala tutunur. Sarmalın dikey kaydırması yoksa
+başlık hiç kaymaz, yani yapışkanlık görünmez.
 
 - [ ] **Step 6: Tip, lint, mevcut testler**
 

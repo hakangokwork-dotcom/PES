@@ -160,7 +160,7 @@ export default function WorkshopForm({ workshop }: Props) {
           </div>
           <div>
             <label className={labelClass}>Net Çalışma (saat/gün)</label>
-            <input type="number" inputMode="numeric" className={inputClass} value={form.net_hours_day} onChange={e => updateField('net_hours_day', parseFloat(e.target.value) || 9)} min={1} max={24} step={0.5} />
+            <input type="number" inputMode="decimal" className={inputClass} value={form.net_hours_day} onChange={e => updateField('net_hours_day', parseFloat(e.target.value) || 9)} min={1} max={24} step={0.5} />
           </div>
         </div>
       </div>

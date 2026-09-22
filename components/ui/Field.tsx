@@ -37,11 +37,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 /* type="number" alanlar tablette sayı klavyesi açsın: ondalık step varsa
-   decimal, yoksa numeric. Açık inputMode her zaman kazanır. */
+   decimal, yoksa numeric. step="any" de ondalık sayılır — sınır koymadığı
+   için kesirli değer serbesttir. Açık inputMode her zaman kazanır. */
 function sayisalKlavye(rest: InputHTMLAttributes<HTMLInputElement>) {
   if (rest.inputMode) return rest.inputMode
   if (rest.type !== 'number') return undefined
-  return String(rest.step ?? '').includes('.') ? 'decimal' : 'numeric'
+  const step = String(rest.step ?? '')
+  return step.includes('.') || step === 'any' ? 'decimal' : 'numeric'
 }
 
 export function Input({ align = 'left', suffix, invalid, className, ...rest }: InputProps) {
@@ -62,8 +64,10 @@ export function Input({ align = 'left', suffix, invalid, className, ...rest }: I
   )
   if (!suffix) return field
   return (
+    // min-h-9: dokunmatikte (pointer: coarse) içteki input 44 px'e büyüyor;
+    // sabit h-9 sarmalı taşırıyordu.
     <div className={cn(
-      'flex h-9 items-center rounded-md border bg-surface pr-2.5 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/15',
+      'flex min-h-9 items-center rounded-md border bg-surface pr-2.5 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/15',
       invalid ? 'border-danger-line' : 'border-line',
     )}>
       <input

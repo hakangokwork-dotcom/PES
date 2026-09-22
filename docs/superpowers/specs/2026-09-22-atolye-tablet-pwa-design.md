@@ -77,12 +77,17 @@ Fason atölyeler (tedarikçiler) veri girişini ve kendi performanslarını
 
 ### 3.4 Dokunma boyutları ve girdi türleri
 - `globals.css`: `@media (pointer: coarse)` altında `.input`, `.select`,
-  `button` için `min-height: 44px`; tablo satırı `min-height: 44px`.
-- `components/ui/Input.tsx`: `type="number"` verilince otomatik
-  `inputMode="decimal"` (tam sayı alanları `inputMode="numeric"` geçer).
+  `button` için `min-height: 44px`; tablo satırı `min-height: 44px`. Bu
+  kurallar geneldir: dokunmatik cihazda yönetim panelinin (`/pes`)
+  kontrollerini de büyütürler — kapsam dışı olsa da kabul edilen bir yan etki.
+- `components/ui/Field.tsx` (`Input`): `type="number"` verilince otomatik
+  `inputMode="numeric"`; yalnız kesirli `step` (`0.x`) veya `step="any"`
+  varsa `decimal`. Açıkça verilen `inputMode` her zaman kazanır.
 - Sayfalardaki el yapımı `<table>`'lar `components/ui/TabloSarmal.tsx`
-  (`overflow-x-auto`, yapışkan `<thead>`) ile sarılır. `DataTable`'a geçiş
-  zorunlu değil — sarmalayıcı yeterli, sayfa mantığı değişmez.
+  (`overflow-x-auto`) ile sarılır. Yapışkan `<thead>` yalnızca sarmala
+  `yukseklik` (CSS `max-height`, ör. `70vh`) verilirse gerçekten çalışır;
+  verilmezse sarmal sadece yatay kaydırır. `DataTable`'a geçiş zorunlu
+  değil — sarmalayıcı yeterli, sayfa mantığı değişmez.
 - Şartsız `grid-cols-3/4/7` → `grid-cols-1 md:grid-cols-2 lg:grid-cols-N`.
 - Hover-only öğeler (`MetricInfo`, `TermTip`, satır aksiyonları) dokunmada
   tıkla-aç.

@@ -247,7 +247,7 @@ function WorkshopProfilePage() {
               {[1,2,3,4,5,6].map(b => <option key={b} value={b}>{b}. Bolge</option>)}
             </select>
           </div>
-          <div><label className="block text-xs font-medium text-muted mb-1">Net Çalışma (saat/gün)</label><input type="number" inputMode="numeric" className={ic} value={w.net_hours_day} onChange={e => updateW('net_hours_day', parseFloat(e.target.value)||9)} step={0.5} /></div>
+          <div><label className="block text-xs font-medium text-muted mb-1">Net Çalışma (saat/gün)</label><input type="number" inputMode="decimal" className={ic} value={w.net_hours_day} onChange={e => updateW('net_hours_day', parseFloat(e.target.value)||9)} step={0.5} /></div>
         </div>
       </div>
 
@@ -275,7 +275,7 @@ function WorkshopProfilePage() {
             </div>
             <div><label className="block text-xs font-medium text-muted mb-1">Operatör</label><input type="number" inputMode="numeric" className={ic} value={lineForm.operator_count} onChange={e => setLineForm(p => ({...p, operator_count: parseInt(e.target.value)||0}))} /></div>
             <div><label className="block text-xs font-medium text-muted mb-1">Günlük Hedef</label><input type="number" inputMode="numeric" className={ic} value={lineForm.daily_target} onChange={e => setLineForm(p => ({...p, daily_target: parseInt(e.target.value)||0}))} /></div>
-            <div><label className="block text-xs font-medium text-muted mb-1">Max Çevrim (sn)</label><input type="number" inputMode="numeric" className={ic} value={lineForm.max_cycle_sec} onChange={e => setLineForm(p => ({...p, max_cycle_sec: e.target.value}))} step={0.01} placeholder="28" /></div>
+            <div><label className="block text-xs font-medium text-muted mb-1">Max Çevrim (sn)</label><input type="number" inputMode="decimal" className={ic} value={lineForm.max_cycle_sec} onChange={e => setLineForm(p => ({...p, max_cycle_sec: e.target.value}))} step={0.01} placeholder="28" /></div>
             <div className="md:col-span-3"><button type="submit" className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium">Bant Ekle</button></div>
           </form>
         )}
@@ -305,7 +305,7 @@ function WorkshopProfilePage() {
                     </td>
                     <td className="py-2"><input type="number" inputMode="numeric" className={eic} style={{width:50}} value={editLine.operator_count} onChange={e => setEditLine(p => ({...p, operator_count: parseInt(e.target.value)||0}))} /></td>
                     <td className="py-2"><input type="number" inputMode="numeric" className={eic} style={{width:60}} value={editLine.daily_target} onChange={e => setEditLine(p => ({...p, daily_target: parseInt(e.target.value)||0}))} /></td>
-                    <td className="py-2"><input type="number" inputMode="numeric" className={eic} style={{width:50}} value={editLine.max_cycle_sec} onChange={e => setEditLine(p => ({...p, max_cycle_sec: e.target.value}))} step={0.01} /></td>
+                    <td className="py-2"><input type="number" inputMode="decimal" className={eic} style={{width:50}} value={editLine.max_cycle_sec} onChange={e => setEditLine(p => ({...p, max_cycle_sec: e.target.value}))} step={0.01} /></td>
                     <td className="py-2 text-center space-x-1">
                       <button onClick={() => saveLine(l.id)} className="text-xs text-accent font-medium">Kaydet</button>
                       <button onClick={() => setEditLineId(null)} className="text-xs text-faint">İptal</button>

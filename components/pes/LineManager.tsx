@@ -157,7 +157,7 @@ export default function LineManager({ workshop, lines }: Props) {
                     </td>
                     <td className="py-2"><input type="number" inputMode="numeric" className={editInputClass} style={{width:60}} value={editForm.operator_count} onChange={e => setEditForm(p => ({...p, operator_count: parseInt(e.target.value)||0}))} /></td>
                     <td className="py-2"><input type="number" inputMode="numeric" className={editInputClass} style={{width:70}} value={editForm.daily_target} onChange={e => setEditForm(p => ({...p, daily_target: parseInt(e.target.value)||0}))} /></td>
-                    <td className="py-2"><input type="number" inputMode="numeric" className={editInputClass} style={{width:60}} value={editForm.max_cycle_sec} onChange={e => setEditForm(p => ({...p, max_cycle_sec: e.target.value}))} step={0.01} /></td>
+                    <td className="py-2"><input type="number" inputMode="decimal" className={editInputClass} style={{width:60}} value={editForm.max_cycle_sec} onChange={e => setEditForm(p => ({...p, max_cycle_sec: e.target.value}))} step={0.01} /></td>
                     <td className="py-2 text-center space-x-2">
                       <button onClick={() => handleEdit(line.id)} disabled={loading} className="text-xs text-accent font-medium hover:underline">Kaydet</button>
                       <button onClick={() => setEditingId(null)} className="text-xs text-faint hover:underline">İptal</button>
@@ -217,7 +217,7 @@ export default function LineManager({ workshop, lines }: Props) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted mb-1">Max Çevrim (sn)</label>
-              <input type="number" inputMode="numeric" className={inputClass} value={form.max_cycle_sec} onChange={e => setForm(p => ({ ...p, max_cycle_sec: e.target.value }))} min={0} step={0.01} placeholder="28" />
+              <input type="number" inputMode="decimal" className={inputClass} value={form.max_cycle_sec} onChange={e => setForm(p => ({ ...p, max_cycle_sec: e.target.value }))} min={0} step={0.01} placeholder="28" />
             </div>
           </div>
           <button type="submit" disabled={loading} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50">

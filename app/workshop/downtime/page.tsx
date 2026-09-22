@@ -79,7 +79,8 @@ function WorkshopDowntimePage() {
 
       {records.length > 0 && (
         <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
-          <TabloSarmal>
+          {/* yukseklik: sarmal dikey de kaysın ki thead'in yapışkanlığı gerçekten işlesin. */}
+          <TabloSarmal yukseklik="70vh">
             <table className="w-full min-w-[640px] text-sm">
               <thead><tr className="bg-canvas border-b border-line-soft"><th className="px-4 py-3 text-left text-faint">Tarih</th><th className="px-4 py-3 text-left text-faint">Bant</th><th className="px-4 py-3 text-right text-faint">Süre</th><th className="px-4 py-3 text-center text-faint">Tür</th><th className="px-4 py-3 text-left text-faint">Neden</th></tr></thead>
               <tbody className="divide-y divide-line-soft">

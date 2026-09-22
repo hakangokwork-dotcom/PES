@@ -95,10 +95,13 @@ body {
   }
 }
 
-/* TabloSarmal: başlık kaydırırken üstte kalır. */
+/* TabloSarmal: başlık kaydırırken üstte kalır (yalnızca yukseklik verilmişse). */
 .tablo-sarmal thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--color-surface);
+  /* Sayfalar başlık satırını bg-canvas ile tonluyor; surface (beyaz) o bandı
+     siliyordu. Yapışkan başlığın altındaki satırları örtmesi için opak
+     kalmalı, ama sayfanın kendi tonuyla aynı olmalı. */
+  background: var(--color-canvas);
 }

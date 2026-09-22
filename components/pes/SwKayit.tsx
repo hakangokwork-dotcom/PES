@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 
-/* Service worker kaydı — yalnız /workshop layout'unda bağlanır; yönetim
-   paneli (/pes) SW almaz. Sürüm damgası build'de üretilir (next.config.ts).
+/* Service worker kaydı — yalnız /workshop layout'unda bağlanır ve kapsamı
+   (scope) /workshop'tur: SW sadece /workshop/* istemcilerini denetler,
+   /pes ve /login istekleri hiçbir zaman araya girilmeden gider.
+   (Manifest kapsamı ayrı bir konu; /login yönlendirmesi için '/' kalır —
+   gerekçesi app/manifest.ts'te.) Sürüm damgası build'de üretilir
+   (next.config.ts).
 
    Yeni sürüm akışı: sw.js skipWaiting + clients.claim yaptığı için yeni
    worker hemen denetimi alır (controllerchange). Sayfa hâlâ eski JS'i
@@ -14,8 +18,15 @@ export default function SwKayit() {
   const [yeniSurum, setYeniSurum] = useState(false)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return
+    /* Güvensiz bağlamda (örn. tablete LAN'dan http://192.168.x.x ile girmek)
+       navigator.serviceWorker hiç tanımlı değildir; bileşen sessizce hiçbir şey
+       yapmaz. localhost ve https sorunsuz. */
+    if (!('serviceWorker' in navigator)) return
     const surum = process.env.NEXT_PUBLIC_SW_SURUM ?? 'dev'
+    /* Geliştirmede SW'ye gelistirme=1 geçiyoruz: Turbopack dev chunk adresleri
+       ident-hash'li olduğu için statik önbellek-önce bayat kod servis eder. */
+    const url = `/sw.js?v=${encodeURIComponent(surum)}` +
+      (process.env.NODE_ENV !== 'production' ? '&gelistirme=1' : '')
     let ilkDenetim = !!navigator.serviceWorker.controller
 
     const onDegisim = () => {
@@ -24,7 +35,7 @@ export default function SwKayit() {
       ilkDenetim = true
     }
     navigator.serviceWorker.addEventListener('controllerchange', onDegisim)
-    navigator.serviceWorker.register(`/sw.js?v=${encodeURIComponent(surum)}`).catch((err) => {
+    navigator.serviceWorker.register(url, { scope: '/workshop' }).catch((err) => {
       console.error('SW kaydı başarısız', err)
     })
     return () => navigator.serviceWorker.removeEventListener('controllerchange', onDegisim)

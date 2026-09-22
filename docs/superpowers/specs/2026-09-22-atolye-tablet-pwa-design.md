@@ -56,8 +56,13 @@ Fason atölyeler (tedarikçiler) veri girişini ve kendi performanslarını
 - Strateji: gezinmeler ve `/api/` → network-first, ağ yoksa gezinmede
   `/cevrimdisi`; `/_next/static/` → cache-first.
 - API yanıtları önbelleklenmez (RLS'li veri cihazda kalmaz).
-- `components/pes/SwKayit.tsx` (client): SW'yi kaydeder; `updatefound` →
-  "Yeni sürüm var, yenile" toast'ı (`useToast`).
+- `components/pes/SwKayit.tsx` (client, `/workshop` layout'unda): kaydı
+  `{ scope: '/workshop' }` ile yapar; `controllerchange` (ilk kurulum sonrası)
+  → alt şeritte "Yenile" düğmesi, otomatik reload yok.
+- Geliştirmede adrese `&gelistirme=1` eklenir; SW o kipte `/_next/static/`
+  önbellek-önce kuralını kapatır (Turbopack dev chunk'ları bayatlamasın).
+- Çevrimdışı yedek: `/cevrimdisi` önbellekte yoksa satır içi HTML son çare
+  olarak döner (yanıt asla undefined olmaz).
 - Android Chrome'da `sync` olayı (Background Sync) kuyruk boşaltmayı tetikler;
   iOS'ta bu olay yok, §4.4 tetikleyicileri güvence.
 

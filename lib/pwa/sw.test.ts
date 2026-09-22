@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 /* public/sw.js klasik bir worker'dır (modül değil). Dosya metnini sahte
    self / caches / fetch ile Function içinde çalıştırır, kaydettiği
@@ -35,8 +35,11 @@ function sahteCaches() {
   }
 }
 
-function swYukle(agVar: boolean) {
-  const kod = readFileSync('public/sw.js', 'utf8')
+/* adres: SW'nin kendi URL'si — sorgu dizesi hem sürümü hem gelistirme
+   bayrağını taşıdığı için testler bunu ezebilmeli. */
+function swYukle(agVar: boolean, adres = 'https://pes.test/sw.js?v=v9-test') {
+  /* Yol testin çalışma dizinine değil dosyanın kendi konumuna göre çözülsün. */
+  const kod = readFileSync(new URL('../../public/sw.js', import.meta.url), 'utf8')
   const dinleyiciler: Record<string, Dinleyici> = {}
   const { caches, depolar } = sahteCaches()
   const fetchCagrilari: string[] = []
@@ -47,7 +50,7 @@ function swYukle(agVar: boolean) {
     return res
   }
   const self = {
-    location: { href: 'https://pes.test/sw.js?v=v9-test', origin: 'https://pes.test' },
+    location: { href: adres, origin: 'https://pes.test' },
     addEventListener: (ad: string, fn: Dinleyici) => { dinleyiciler[ad] = fn },
     skipWaiting: async () => {},
     clients: { claim: async () => {} },
@@ -67,7 +70,9 @@ function istek(url: string, ek: Partial<{ method: string; mode: string }> = {}) 
 }
 
 async function fetchTetikle(sw: ReturnType<typeof swYukle>, req: ReturnType<typeof istek>) {
-  let yanit: Promise<SahteYanit> | null = null
+  /* `as` şart: değer yalnız respondWith geri çağrısında atandığı için TS
+     düz bildirimi `null` diye daraltır ve `yanit.body` erişimi TS2339 verir. */
+  let yanit = null as Promise<SahteYanit> | null
   sw.dinleyiciler.fetch({ request: req, respondWith: (p: Promise<SahteYanit>) => { yanit = p } })
   return yanit ? await yanit : null
 }
@@ -120,5 +125,39 @@ describe('public/sw.js', () => {
     await bekle
     expect([...sw.depolar.keys()]).not.toContain('pes-kabuk-eski')
     expect([...sw.depolar.keys()]).toContain('pes-kabuk-v9-test')
+  })
+
+  it('yedek sayfa önbellekte yoksa satır içi HTML döner', async () => {
+    /* Safari önbelleği tahliye edebilir: kur() çağırmıyoruz, kabuk boş. */
+    const kapali = swYukle(false)
+    const y = await fetchTetikle(kapali, istek('https://pes.test/workshop', { mode: 'navigate' })) as unknown as Response
+    expect(y).toBeInstanceOf(Response)
+    expect(await y.text()).toContain('Bağlantı yok')
+    expect(y.headers.get('content-type')).toMatch(/^text\/html/)
+  })
+
+  it('geliştirme kipinde /_next/static önbelleğe alınmaz', async () => {
+    const gel = swYukle(true, 'https://pes.test/sw.js?v=v9-test&gelistirme=1')
+    await kur(gel)
+    const url = 'https://pes.test/_next/static/chunks/a.js'
+    expect(await fetchTetikle(gel, istek(url))).toBeNull()
+    expect(await fetchTetikle(gel, istek(url))).toBeNull()
+    /* respondWith hiç çağrılmadı: isteği tarayıcının kendisi yapar. */
+    expect(gel.fetchCagrilari.filter(u => u === url)).toHaveLength(0)
+  })
+
+  it('kabuk dosyası kurulamazsa install reddedilir', async () => {
+    const gunluk = vi.spyOn(console, 'error').mockImplementation(() => {})
+    /* addAll'ı bu test için bozuyoruz; yarım kabuklu worker denetimi almamalı. */
+    sw.caches.open = async () => ({
+      addAll: async () => { throw new TypeError('Failed to fetch') },
+      match: async () => undefined,
+      put: async () => {},
+    })
+    let bekle: Promise<unknown> = Promise.resolve()
+    sw.dinleyiciler.install({ waitUntil: (p: Promise<unknown>) => { bekle = p } })
+    await expect(bekle).rejects.toThrow()
+    expect(gunluk).toHaveBeenCalled()
+    gunluk.mockRestore()
   })
 })

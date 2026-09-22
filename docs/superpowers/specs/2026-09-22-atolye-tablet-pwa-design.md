@@ -52,9 +52,9 @@ Fason atölyeler (tedarikçiler) veri girişini ve kendi performanslarını
 ### 3.2 Service worker
 - `public/sw.js`; sürüm dizesi `lib/version.ts` sürümü + build zamanı damgasından `next.config.ts` `env` ile üretilir ve `SwKayit` bunu `?v=` sorgusuyla SW adresine ekler
   (deploy → eski kabuk geçersiz).
-- Precache: `/workshop/cevrimdisi` (statik "bağlantı yok" sayfası), manifest, ikonlar.
+- Precache: `/cevrimdisi` (statik "bağlantı yok" sayfası), manifest, ikonlar.
 - Strateji: gezinmeler ve `/api/` → network-first, ağ yoksa gezinmede
-  `/workshop/cevrimdisi`; `/_next/static/` → cache-first.
+  `/cevrimdisi`; `/_next/static/` → cache-first.
 - API yanıtları önbelleklenmez (RLS'li veri cihazda kalmaz).
 - `components/pes/SwKayit.tsx` (client): SW'yi kaydeder; `updatefound` →
   "Yeni sürüm var, yenile" toast'ı (`useToast`).

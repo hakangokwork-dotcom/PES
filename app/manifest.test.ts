@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import manifest from './manifest'
 
 /* Tasarım §3.1: kurulan uygulama doğrudan atölye panelinde açılır,
@@ -23,5 +25,14 @@ describe('manifest', () => {
     expect(boyutlar).toContain('192x192:any')
     expect(boyutlar).toContain('512x512:any')
     expect(boyutlar).toContain('512x512:maskable')
+  })
+
+  it('ikon dosyaları public/ altında gerçekten var', () => {
+    /* Eksik veya yeniden adlandırılmış PNG Chrome'un kurulabilirlik şartını
+       ve iOS ana ekran simgesini sessizce bozar. */
+    const yollar = [...(m.icons ?? []).map(i => i.src), '/icons/apple-touch-icon.png']
+    for (const y of yollar) {
+      expect(existsSync(join(process.cwd(), 'public', y)), y).toBe(true)
+    }
   })
 })

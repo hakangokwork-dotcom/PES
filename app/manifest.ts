@@ -11,6 +11,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Atölye veri girişi ve performans — Production Efficiency System',
     lang: 'tr',
     start_url: '/workshop',
+    /* Kapsam '/' — '/workshop' DEĞİL: oturum yoksa start_url /login'e düşer;
+       dar kapsamda o sayfa tam ekran modundan çıkardı. */
     scope: '/',
     display: 'standalone',
     orientation: 'any',

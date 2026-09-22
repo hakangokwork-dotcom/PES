@@ -3,6 +3,8 @@ import { requireSession } from '@/lib/auth/panel-guard'
 import { kimlikBilgisi } from '@/lib/auth/kimlik'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { AktifAtolyeSaglayici } from '@/components/pes/AktifAtolye'
+import WorkshopKabuk from '@/components/pes/WorkshopKabuk'
+import SwKayit from '@/components/pes/SwKayit'
 
 /* Kullanıcı (atölye) paneli. Oturum kontrolü burada — altındaki tüm
    /workshop/* rotaları kapsanır. Rol ayrımı YOK: yöneticinin de atölye
@@ -22,14 +24,18 @@ export default async function WorkshopLayout({ children }: { children: React.Rea
       })
     : null
 
+  const baslik = sabitAtolye ? `${sabitAtolye.code} ${sabitAtolye.name}` : 'Atölye Paneli'
+
   return (
     <AktifAtolyeSaglayici sabitAtolyeId={sabitAtolye?.id ?? null}>
-      <div className="min-h-screen flex bg-canvas">
-        <WorkshopSidebar eposta={eposta} tenantAdi={tenantAdi} sabitAtolye={sabitAtolye ?? null} />
-        <main className="flex-1 min-w-0 p-6 lg:p-8">
-          {children}
-        </main>
-      </div>
+      <WorkshopKabuk
+        baslik={baslik}
+        kenar={<WorkshopSidebar eposta={eposta} tenantAdi={tenantAdi} sabitAtolye={sabitAtolye ?? null} />}
+      >
+        {/* SW yalnız atölye panelinde: /pes kabuk önbelleği almaz. */}
+        <SwKayit />
+        {children}
+      </WorkshopKabuk>
     </AktifAtolyeSaglayici>
   )
 }

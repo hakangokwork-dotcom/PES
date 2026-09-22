@@ -125,8 +125,9 @@ export default function WorkshopSidebar({
       .filter(g => g.items.length > 0)
   }, [arama, wid])
 
+  // Çekmecede (fixed, inset-y-0) h-full; masaüstü sütununda min-h-screen.
   return (
-    <aside className="flex min-h-screen w-64 flex-col border-r border-line-soft bg-surface">
+    <aside className="flex h-full w-64 flex-col border-r border-line-soft bg-surface lg:h-auto lg:min-h-screen">
       <div className="flex h-14 shrink-0 items-center border-b border-line-soft px-4">
         <div className="flex items-center gap-2.5">
           <span className="flex size-8 items-center justify-center rounded-md bg-accent text-[11px] font-bold tracking-wider text-white">

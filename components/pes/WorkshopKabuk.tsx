@@ -11,7 +11,13 @@ import { Menu } from 'lucide-react'
    kayan çekmece. Kenar çubuğu TEK kez render edilir; konumu CSS belirler.
 
    Çekmece kapalıyken `inert`: ekran dışındaki bağlantılar sekmeyle
-   gezilmesin. Masaüstünde inert asla uygulanmaz (useMasaustu). */
+   gezilmesin. Masaüstünde inert asla uygulanmaz (useMasaustu).
+
+   Z katmanları (üst üste binmeleri tek yerden okuyabilmek için):
+   sayfa içi yapışkanlar ≤ 40 (ör. takvim GanttSatirlari z-30/z-40),
+   kabuk 45–50 (üst bar 45, karartma 48, çekmece 50),
+   üstü kaplayanlar daha yukarıda: PoPaneli z-60, HucreMenusu z-70,
+   Toast/SwKayit z-50 ama DOM'da daha sonra geldiği için kabuğu örter. */
 
 function useMasaustu() {
   /* SSR ve ilk boyamada true: masaüstü kullanıcı ilk karede inert görmesin. */
@@ -39,8 +45,14 @@ export default function WorkshopKabuk({
   const pathname = usePathname()
   const masaustu = useMasaustu()
   const cekmeceRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => { setAcik(false) }, [pathname])
+
+  /* Masaüstüne geçişte kapan: iPad dikeyden yataya döndüğünde çekmece açık
+     kalırsa üst bar kaybolur ama gövde kaydırma kilidi ve Tab hapsi sürer;
+     kullanıcının kapatacağı bir düğme de kalmaz. */
+  useEffect(() => { if (masaustu) setAcik(false) }, [masaustu])
 
   useEffect(() => {
     if (!acik) return
@@ -49,12 +61,21 @@ export default function WorkshopKabuk({
       if (e.key !== 'Tab' || !cekmeceRef.current) return
       /* Odak çekmecede kalır: uçlarda sar. */
       const odaklanabilir = cekmeceRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])',
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       )
       if (odaklanabilir.length === 0) return
       const ilk = odaklanabilir[0], son = odaklanabilir[odaklanabilir.length - 1]
-      if (e.shiftKey && document.activeElement === ilk) { e.preventDefault(); son.focus() }
-      else if (!e.shiftKey && document.activeElement === son) { e.preventDefault(); ilk.focus() }
+      const etkin = document.activeElement as HTMLElement | null
+      const listede = etkin ? Array.prototype.includes.call(odaklanabilir, etkin) : false
+      if (!listede) {
+        /* Açılışta odak kabın kendisinde (tabIndex=-1) olur; listede değildir.
+           Tarayıcıya bırakırsak sekme çekmecenin dışına kaçar. */
+        e.preventDefault()
+        if (e.shiftKey) son.focus(); else ilk.focus()
+        return
+      }
+      if (e.shiftKey && etkin === ilk) { e.preventDefault(); son.focus() }
+      else if (!e.shiftKey && etkin === son) { e.preventDefault(); ilk.focus() }
     }
     document.addEventListener('keydown', onKey)
     const eskiOverflow = document.body.style.overflow
@@ -63,6 +84,9 @@ export default function WorkshopKabuk({
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = eskiOverflow
+      /* Odak dönüşü: çekmece kapanınca odak kaybolmasın, menü düğmesine
+         dönsün. Masaüstünde düğme display:none olduğu için etkisiz. */
+      menuRef.current?.focus()
     }
   }, [acik])
 
@@ -71,33 +95,51 @@ export default function WorkshopKabuk({
   return (
     <div className="min-h-screen flex bg-canvas">
       {acik && (
+        /* Karartma bilerek <button>: adlandırılmış, klavyeyle ulaşılabilir bir
+           kapatma hedefi olsun (div + onClick ekran okuyucuya görünmez).
+           touch-none (touch-action: none): iOS gövdedeki overflow:hidden'ı
+           dokunmatik kaydırmada yok sayar, kaydırmayı burada keseriz. */
         <button
           type="button"
           aria-label="Menüyü kapat"
           onClick={() => setAcik(false)}
-          className="fixed inset-0 z-40 bg-ink/40 lg:hidden"
+          className="fixed inset-0 z-[48] touch-none bg-ink/40 lg:hidden"
         />
       )}
 
+      {/* data-acik hem durum hem de animasyon anahtarı: transform'u CSS
+          seçicisi (data-[acik=true]) sürdüğü için açılış ve kapanış geçişlerinin
+          ikisi de CSS'te kalır; JS ile sınıf değiştirsek kapanış geçişi kaçardı.
+          role yalnızca tablette 'dialog': masaüstünde bu sadece sayfa düzeninin
+          bir sütunu, kipli pencere değil. masaustu SSR'da true olduğu için
+          sunucu çıktısı da rolsüzdür (hidrasyon uyumlu). */}
       <div
         ref={cekmeceRef}
-        role="dialog"
+        role={masaustu ? undefined : 'dialog'}
         aria-label="Gezinti"
         aria-modal={acik || undefined}
         data-acik={acik}
         inert={cekmeceInert}
         tabIndex={-1}
-        className="fixed inset-y-0 left-0 z-50 flex max-w-[85vw] -translate-x-full outline-none transition-transform duration-200 data-[acik=true]:translate-x-0 lg:static lg:z-auto lg:max-w-none lg:translate-x-0 lg:transition-none"
+        onClick={(e) => {
+          /* Zaten açık olan sayfanın bağlantısına dokunulursa pathname
+             değişmez, rota efekti tetiklenmez; çekmeceyi burada kapatırız. */
+          if (!masaustu && (e.target as HTMLElement).closest('a[href]')) setAcik(false)
+        }}
+        className="fixed inset-y-0 left-0 z-50 flex max-w-[85vw] -translate-x-full pt-[env(safe-area-inset-top)] outline-none transition-transform duration-200 motion-reduce:transition-none data-[acik=true]:translate-x-0 lg:static lg:z-auto lg:max-w-none lg:translate-x-0 lg:pt-0 lg:transition-none"
       >
         {kenar}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* min-h-14 (sabit h-14 değil): env(safe-area-inset-top) dolgusu sabit
+            yükseklikte içerik kutusunu daraltır ve 44 px'lik düğme taşar. */}
         <header
-          className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line-soft bg-surface px-2 lg:hidden"
+          className="sticky top-0 z-[45] flex min-h-14 items-center gap-2 border-b border-line-soft bg-surface px-2 lg:hidden"
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
           <button
+            ref={menuRef}
             type="button"
             aria-label="Menüyü aç"
             aria-expanded={acik}

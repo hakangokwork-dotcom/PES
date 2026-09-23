@@ -12,6 +12,8 @@ import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { EKONOMI_SORGUSU, dbSatiriCoz, paramCoz } from '@/lib/pes/ekonomi-sorgu'
 import { hesapla } from '@/lib/pes/ekonomi-hesap'
 import { marjSirasi, fiyatEndeksi } from '@/lib/pes/ekonomi-akran'
+import { dnaProfilleri as dnaHesapla, type GiderGrupSatiri } from '@/lib/pes/ekonomi-dna'
+import { G_KEYS } from '@/lib/pes/gider-gruplari'
 import type { AkranAdayi } from '@/lib/pes/ekonomi-akran'
 import type { AtolyeRasyolari } from '@/lib/pes/ekonomi-radar'
 import RadarClient from './RadarClient'
@@ -83,18 +85,49 @@ export default async function EkonomiSayfa({
       a.rasyolar.fiyatEndeksi = fiyatEndeksi(a.rasyolar.dikimDkCiro, dkCiroOrneklem)
     }
 
-    return { donemler, rasyolarArr }
+    /* Maliyet DNA: G1-G8 v_expense_groups'tan geliyor, rasyolardan
+       türetilemez. Gider satırı olmayan atölye de listeye girer; toplamı
+       null çıkar ve bölüm onu göstermez. */
+    const dnaSatirlari: GiderGrupSatiri[] = satirlar
+      /* Yalnız ekonomi satırı OLAN atölyeler. monthly_expense'te demo seed
+         kayıtları da var (FA-01..FA-08, _seed_demo_data.mjs) ve onlar
+         işçilik medyanını yukarı çekip gerçek atölyeleri yapay olarak
+         "yalın" gösteriyordu. Radarın geri kalanı zaten bu 11 satır
+         üzerinden hesaplanıyor; DNA da aynı örneklemde kalsın. */
+      .filter(r => r.veri_var === true)
+      .map((r) => ({
+      workshopId: r.workshop_id as number,
+      ad: r.name as string,
+      g1_iscilik: (r.g1_iscilik as number | null) ?? null,
+      g2_personel_yan: (r.g2_personel_yan as number | null) ?? null,
+      g3_enerji: (r.g3_enerji as number | null) ?? null,
+      g4_mekan: (r.g4_mekan as number | null) ?? null,
+      g5_makine: (r.g5_makine as number | null) ?? null,
+      g6_sarf: (r.g6_sarf as number | null) ?? null,
+      g7_dis_hizmet: (r.g7_dis_hizmet as number | null) ?? null,
+      g8_diger: (r.g8_diger as number | null) ?? null,
+    }))
+    /* Medyan yalnız gider verisi OLAN atölyelerden. YALNIZ G kolonlarına
+       bakılır: Object.values(...) kullanmak workshopId'yi de sayı olarak
+       görüp her atölyeyi geçiriyordu. */
+    const dnaVerili = dnaSatirlari.filter(s =>
+      G_KEYS.some(k => typeof s[k] === 'number' && (s[k] as number) > 0),
+    )
+    const dna = dnaHesapla(dnaVerili)
+
+    return { donemler, rasyolarArr, dna }
   })
 
   if (!sonuc) redirect('/login')
 
-  const { donemler, rasyolarArr } = sonuc
+  const { donemler, rasyolarArr, dna } = sonuc
 
   return (
     <RadarClient
       veri={rasyolarArr}
       secilenDonem={donemGecerli}
       donemler={donemler}
+      dnaProfilleri={dna}
     />
   )
 }

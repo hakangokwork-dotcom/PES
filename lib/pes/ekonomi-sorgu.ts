@@ -99,7 +99,17 @@ export const EKONOMI_SORGUSU = `
     me.official_fees, me.insurance, me.communication, me.other,
     me.incentive_amount,
     dk.dk_maliyet_tl,
-    mp.qty_actual
+    mp.qty_actual,
+    /* Maliyet DNA (G1-G8). ::float ŞART: NUMERIC postgres.js'te string
+       döner ve paylar sessizce NaN çıkar. */
+    g.g1_iscilik::float      AS g1_iscilik,
+    g.g2_personel_yan::float AS g2_personel_yan,
+    g.g3_enerji::float       AS g3_enerji,
+    g.g4_mekan::float        AS g4_mekan,
+    g.g5_makine::float       AS g5_makine,
+    g.g6_sarf::float         AS g6_sarf,
+    g.g7_dis_hizmet::float   AS g7_dis_hizmet,
+    g.g8_diger::float        AS g8_diger
   FROM workshop w
   LEFT JOIN workshop_economy we
          ON we.workshop_id = w.id AND we.year = $2 AND we.month = $3
@@ -113,6 +123,7 @@ export const EKONOMI_SORGUSU = `
         SELECT SUM(actual_qty)::int AS qty_actual
         FROM monthly_production
         WHERE workshop_id = w.id AND year = $2 AND month = $3) mp ON TRUE
+  LEFT JOIN v_expense_groups g ON g.id = me.id
   WHERE w.is_active
   ORDER BY (we.workshop_id IS NULL), w.name
 `

@@ -2,26 +2,31 @@
 
 /**
  * Radar Client — dönem + rasyo + atölye seçim state'ini yönetir.
- * 5 bölümü alt bileşenlere dağıtır.
+ * 6 bölümü alt bileşenlere dağıtır.
  */
 import { useState } from 'react'
 import Link from 'next/link'
 import type { AtolyeRasyolari } from '@/lib/pes/ekonomi-radar'
+import type { DnaProfili } from '@/lib/pes/ekonomi-dna'
 import { siralamaHesapla, rasyoIstatistik, rasyoSiralari } from '@/lib/pes/ekonomi-radar'
 import BolumTiles from './BolumTiles'
 import BolumGenelSiralama from './BolumGenelSiralama'
 import BolumRasyoGezgini from './BolumRasyoGezgini'
 import BolumIsiHaritasi from './BolumIsiHaritasi'
 import BolumAtolyeKarneleri from './BolumAtolyeKarneleri'
+import BolumMaliyetDNA from './BolumMaliyetDNA'
 import { AY_ADLARI } from '@/lib/pes/donem'
 
 type Props = {
   veri: AtolyeRasyolari[]
   secilenDonem: string
   donemler: Array<{ yil: number; ay: number }>
+  /* Maliyet DNA sunucuda hesaplanır (G1-G8 v_expense_groups'tan gelir),
+     rasyolardan türetilemez. */
+  dnaProfilleri: DnaProfili[]
 }
 
-export default function RadarClient({ veri, secilenDonem, donemler }: Props) {
+export default function RadarClient({ veri, secilenDonem, donemler, dnaProfilleri }: Props) {
   const [odakWorkshopId, setOdakWorkshopId] = useState<number | null>(null)
 
   // Önbellek: tüm hesaplar burada; alt bileşenler prop olarak alır.
@@ -43,7 +48,7 @@ export default function RadarClient({ veri, secilenDonem, donemler }: Props) {
             Atölye Rasyo Radarı
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-            {veri.length} atölye · {secilenDonem} · 5 başlıkta karşılaştırma ·{' '}
+            {veri.length} atölye · {secilenDonem} · 6 başlıkta karşılaştırma ·{' '}
             <Link href={`/pes/ekonomi/klasman?donem=${secilenDonem}`}
                   className="underline hover:text-neutral-700 dark:hover:text-neutral-200">
               klasman karşılaştırması →
@@ -113,6 +118,9 @@ export default function RadarClient({ veri, secilenDonem, donemler }: Props) {
             odakId={odakWorkshopId}
             onSecim={setOdakWorkshopId}
           />
+
+          {/* Bölüm 6 — Maliyet DNA */}
+          <BolumMaliyetDNA profiller={dnaProfilleri} />
         </>
       )}
     </div>

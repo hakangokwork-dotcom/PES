@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { donemCoz, AY_ADLARI } from '@/lib/pes/donem'
+/* G1-G8 etiket ve renkleri lib/pes/gider-gruplari.ts'te — maliyet DNA
+   ekrani da ayni sekiz grubu gosteriyor, iki yerde tanimlanirsa ayrisir. */
+import { G_ETIKET, G_KEYS, G_RENK, type GKey } from '@/lib/pes/gider-gruplari'
 
 /* ---------------------------------------------------------------
    Gider Panosu
@@ -45,31 +48,6 @@ type Satir = {
   g8_diger: number
 }
 
-const G_ETIKET = {
-  g1_iscilik: 'G1 İşçilik',
-  g2_personel_yan: 'G2 Personel yan',
-  g3_enerji: 'G3 Enerji',
-  g4_mekan: 'G4 Mekân',
-  g5_makine: 'G5 Makine',
-  g6_sarf: 'G6 Sarf',
-  g7_dis_hizmet: 'G7 Dış hizmet',
-  g8_diger: 'G8 Diğer',
-} as const
-type GKey = keyof typeof G_ETIKET
-const G_KEYS: GKey[] = Object.keys(G_ETIKET) as GKey[]
-/* WCAG-uyumlu, sıra bağımlı kararlı palet — stacked bar okunabilirliği
-   için aynı satırda 8 farklı renk. Tailwind sınıfları değil, SVG doldurma
-   olduğundan HEX. */
-const G_RENK: Record<GKey, string> = {
-  g1_iscilik: '#2563eb',       // mavi — en büyük pay çoğu zaman burada
-  g2_personel_yan: '#0ea5e9',  // açık mavi (kişi kaynaklı)
-  g3_enerji: '#eab308',        // amber
-  g4_mekan: '#a855f7',         // mor
-  g5_makine: '#64748b',        // gri (sermaye)
-  g6_sarf: '#10b981',          // yeşil (sarf)
-  g7_dis_hizmet: '#f97316',    // turuncu
-  g8_diger: '#94a3b8',         // gri açık
-}
 
 export default async function GiderPanosu({
   searchParams,

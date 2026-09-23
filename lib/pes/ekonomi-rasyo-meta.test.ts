@@ -7,8 +7,8 @@ const GECERLI_GRUPLAR = new Set<Grup>(['karlilik', 'isgucu', 'birim-maliyet', 'r
 const GECERLI_FORMATLAR = new Set<Format>(['percent', 'int', 'dec2', 'dec4', 'tl'])
 
 describe('RASYO_META bütünlük', () => {
-  it('tam 37 kayıt içeriyor (36 EkonomiRasyo alanı + marjSirasi)', () => {
-    expect(RASYO_META).toHaveLength(37)
+  it('tam 38 kayıt içeriyor (36 EkonomiRasyo alanı + marjSirasi + fiyatEndeksi)', () => {
+    expect(RASYO_META).toHaveLength(38)
   })
 
   it('her alan benzersiz', () => {
@@ -53,8 +53,8 @@ describe('RASYO_META bütünlük', () => {
 })
 
 describe('RASYO_META_MAP', () => {
-  it('harita 37 giriş içeriyor', () => {
-    expect(RASYO_META_MAP.size).toBe(37)
+  it('harita 38 giriş içeriyor', () => {
+    expect(RASYO_META_MAP.size).toBe(38)
   })
 
   it('bilinen alanlara hızlı erişim çalışıyor', () => {

@@ -1155,9 +1155,10 @@ Doğrulama (2026-09-21):
 - Artık risk ölçüldü: kuralı hâlâ 29 tablo taşıyor ama NULL satırı olan tek
   tablo `model_library` (kasıtlı ortak katalog). Diğer 28'inde NULL satır yok.
 
-§8.7 (tarayıcıda uçtan uca tıklama) YAPILMADI — havuza PO yaz → takvim hücre
-menüsü → sihirbaz önseçili → yerleştir → takvimde blok. Kodda ve testte
-karşılığı var, elle akış denenmedi.
+§8.7 (tarayıcıda uçtan uca tıklama) YAPILDI — havuz PO → "Atölyeye ata" →
+sihirbaz (1. adım kilitli) → UPDATE ile yerleşti → takvimde blok → iş emrinde
+künye. Test satırı `ZZHAVUZ-UI-1` sonra silindi. (Bu satır önce yanlışlıkla
+"yapılmadı" diye işaretlenmişti; devir notu aksini kaydediyor.)
 
 ## Spec kapsama kontrolü
 

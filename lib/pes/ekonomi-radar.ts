@@ -16,7 +16,7 @@ export type AtolyeRasyolari = {
   code: string
   bolge: number | null
   veri_var: boolean
-  rasyolar: EkonomiRasyo & { marjSirasi: number | null }
+  rasyolar: EkonomiRasyo & { marjSirasi: number | null; fiyatEndeksi: number | null }
 }
 
 /** Bir rasyo için çapraz-atölye istatistik. */
@@ -101,7 +101,7 @@ export function rasyoSiralari(veri: AtolyeRasyolari[]): RasyoSiralari {
   const sonuc: RasyoSiralari = {}
 
   for (const meta of SIRALANAN_RASYOLAR) {
-    const alan = meta.alan as keyof (EkonomiRasyo & { marjSirasi: number | null })
+    const alan = meta.alan as keyof (EkonomiRasyo & { marjSirasi: number | null; fiyatEndeksi: number | null })
     const noktalar: Array<{ workshopId: number; deger: number }> = []
 
     for (const a of veri) {
@@ -211,7 +211,7 @@ export function rasyoIstatistik(veri: AtolyeRasyolari[]): Record<string, RasyoIs
   const sonuc: Record<string, RasyoIstatistik> = {}
 
   for (const meta of RASYO_META) {
-    const alan = meta.alan as keyof (EkonomiRasyo & { marjSirasi: number | null })
+    const alan = meta.alan as keyof (EkonomiRasyo & { marjSirasi: number | null; fiyatEndeksi: number | null })
     const noktalar: Array<{ ad: string; deger: number }> = []
 
     for (const a of veri) {

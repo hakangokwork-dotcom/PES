@@ -12,7 +12,7 @@ import {
 import type { AtolyeRasyolari } from './ekonomi-radar'
 import type { EkonomiRasyo } from './ekonomi-tipler'
 
-type TamRasyo = EkonomiRasyo & { marjSirasi: number | null }
+type TamRasyo = EkonomiRasyo & { marjSirasi: number | null; fiyatEndeksi: number | null }
 
 /** Boş EkonomiRasyo — testlerde yalnız ilgili alanlar doldurulur. */
 function bosRasyo(): TamRasyo {
@@ -30,7 +30,7 @@ function bosRasyo(): TamRasyo {
     fiiliDikimDkMaliyet: null, asgariDkCarpani: null, dikimDkAdet: null,
     basabasFiyat: null, adilFiyat: null, fiyatSapmasi: null,
     referans3D: null, dkMaliyet3DOran: null,
-    marjSirasi: null,
+    marjSirasi: null, fiyatEndeksi: null,
   }
 }
 

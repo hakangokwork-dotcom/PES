@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { EKONOMI_SORGUSU, dbSatiriCoz, paramCoz } from '@/lib/pes/ekonomi-sorgu'
 import { hesapla } from '@/lib/pes/ekonomi-hesap'
-import { marjSirasi } from '@/lib/pes/ekonomi-akran'
+import { marjSirasi, fiyatEndeksi } from '@/lib/pes/ekonomi-akran'
 import type { AkranAdayi } from '@/lib/pes/ekonomi-akran'
 import type { AtolyeRasyolari } from '@/lib/pes/ekonomi-radar'
 import RadarClient from './RadarClient'
@@ -62,7 +62,7 @@ export default async function EkonomiSayfa({
         code: r.code as string,
         bolge: r.bolge as number | null,
         veri_var: r.veri_var as boolean,
-        rasyolar: { ...rasyolar, marjSirasi: null }, // geçici
+        rasyolar: { ...rasyolar, marjSirasi: null, fiyatEndeksi: null }, // ikinci geçişte dolar
       }
     })
 
@@ -75,8 +75,12 @@ export default async function EkonomiSayfa({
       marj: a.rasyolar.marj,
     }))
 
+    /* Örnekleme bağlı iki gösterge ikinci geçişte dolar: tek atölyeden
+       hesaplanamazlar. Endeksin paydası bu dönemin dikim dk cirosu medyanı. */
+    const dkCiroOrneklem = rasyolarArr.map(a => a.rasyolar.dikimDkCiro)
     for (const a of rasyolarArr) {
       a.rasyolar.marjSirasi = marjSirasi(a.rasyolar.marj, akranAdaylari)
+      a.rasyolar.fiyatEndeksi = fiyatEndeksi(a.rasyolar.dikimDkCiro, dkCiroOrneklem)
     }
 
     return { donemler, rasyolarArr }

@@ -38,7 +38,7 @@ export type Format =
 
 export type RasyoMeta = {
   /** EkonomiRasyo alanı ya da 'marjSirasi'. */
-  alan: keyof EkonomiRasyo | 'marjSirasi'
+  alan: keyof EkonomiRasyo | 'marjSirasi' | 'fiyatEndeksi'
   /** Ekranda görünen kısa başlık. */
   etiket: string
   /** Birim dizisi: "%", "TL/dk", "TL/adet", "kişi", "adet", "dk", "x", "-" */
@@ -181,6 +181,18 @@ export const RASYO_META: RasyoMeta[] = [
     grup: 'karlilik',
     format: 'int',
     onemAciklama: 'Kârlılıkta kaçıncı olduğu (1 = en kârlı).',
+  },
+  {
+    alan: 'fiyatEndeksi',
+    etiket: 'Fiyat Endeksi',
+    birim: '-',
+    yon: 'notr',
+    grup: 'karlilik',
+    format: 'int',
+    onemAciklama:
+      'Dikim dakikasını kaça sattığı, örneklem medyanına göre: 100 = ortada, '
+      + '115 üstü pahalı, 85 altı ucuz. Verimlilik değil FİYAT göstergesi — '
+      + 'yüksek endeks + yüksek üretkenlik faturada pahalı ama toplam maliyette ucuz olabilir.',
   },
 
   // ─── İŞGÜCÜ ─────────────────────────────────────────────────────────────────

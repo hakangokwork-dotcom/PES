@@ -94,3 +94,38 @@ export function marjSirasi(marj: number | null, orneklem: AkranAdayi[]): number 
   const ustunde = orneklem.filter(a => a.marj !== null && a.marj > marj).length
   return ustunde + 1
 }
+
+/**
+ * FORMULLER!C57 (Pano 05) — dikim dk cirosu ÷ örneklem medyanı × 100.
+ *
+ * 100 = örneklemin ortasında. Bu bir FİYAT göstergesidir, verimlilik değil:
+ * atölyenin bir dikim dakikasını kaça sattığını söyler. Yüksek endeks +
+ * yüksek üretkenlik, faturada pahalı ama toplam ekonomik maliyette ucuz
+ * olabilir — ikisi birlikte okunur.
+ *
+ * Örnekleme bağlı olduğu için hesapla() içinde değil burada: tek atölyeden
+ * hesaplanamaz, marjSirasi gibi ikinci geçişte doldurulur.
+ */
+export function fiyatEndeksi(
+  deger: number | null,
+  orneklem: Array<number | null>,
+): number | null {
+  if (deger === null) return null
+  const med = medyan(orneklem)
+  if (med === null || med === 0) return null
+  return (deger / med) * 100
+}
+
+export type EndeksOkumasi = 'ucuz' | 'ortalama' | 'pahali'
+
+/**
+ * FORMULLER!E57 eşikleri: 115 üstü dakika başına pahalı, 85 altı ucuz.
+ * Sınırlar (85 ve 115) 'ortalama' sayılır — eşikte oynayan bir atölyeyi
+ * uca atmamak için.
+ */
+export function endeksOkumasi(endeks: number | null): EndeksOkumasi | null {
+  if (endeks === null) return null
+  if (endeks > 115) return 'pahali'
+  if (endeks < 85) return 'ucuz'
+  return 'ortalama'
+}

@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { medyan, yuzdelikSkor, buyuklukBandi, akranGrubu, marjSirasi } from './ekonomi-akran'
+import {
+  medyan, yuzdelikSkor, buyuklukBandi, akranGrubu, marjSirasi,
+  fiyatEndeksi, endeksOkumasi,
+} from './ekonomi-akran'
 import type { AkranAdayi } from './ekonomi-akran'
 
 function aday(
@@ -124,5 +127,57 @@ describe('marjSirasi', () => {
 
   it('marjı olmayan sıralanmaz', () => {
     expect(marjSirasi(null, ORNEKLEM)).toBeNull()
+  })
+})
+
+describe('fiyatEndeksi', () => {
+  it('medyana eşitse 100', () => {
+    expect(fiyatEndeksi(5, [3, 5, 7])).toBe(100)
+  })
+
+  it('medyanın %20 üstü 120', () => {
+    expect(fiyatEndeksi(6, [3, 5, 7])).toBeCloseTo(120, 10)
+  })
+
+  it('medyanın altı 100 altında', () => {
+    expect(fiyatEndeksi(4, [3, 5, 7])).toBeCloseTo(80, 10)
+  })
+
+  it('değer null ise null', () => {
+    expect(fiyatEndeksi(null, [3, 5, 7])).toBeNull()
+  })
+
+  it('örneklemde hiç sayı yoksa null', () => {
+    expect(fiyatEndeksi(5, [null, null])).toBeNull()
+  })
+
+  it('medyan sıfırsa null — bölme yok', () => {
+    expect(fiyatEndeksi(5, [0, 0, 0])).toBeNull()
+  })
+
+  it('null değerleri atlayarak medyan alır', () => {
+    expect(fiyatEndeksi(5, [3, null, 7])).toBe(100)
+  })
+})
+
+describe('endeksOkumasi', () => {
+  it('115 üstü pahalı', () => {
+    expect(endeksOkumasi(120)).toBe('pahali')
+    expect(endeksOkumasi(115.1)).toBe('pahali')
+  })
+
+  it('85 altı ucuz', () => {
+    expect(endeksOkumasi(80)).toBe('ucuz')
+    expect(endeksOkumasi(84.9)).toBe('ucuz')
+  })
+
+  it('85-115 arası ortalama — sınırlar dahil', () => {
+    expect(endeksOkumasi(100)).toBe('ortalama')
+    expect(endeksOkumasi(85)).toBe('ortalama')
+    expect(endeksOkumasi(115)).toBe('ortalama')
+  })
+
+  it('null ise null', () => {
+    expect(endeksOkumasi(null)).toBeNull()
   })
 })

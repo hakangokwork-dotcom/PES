@@ -12,11 +12,15 @@ import type { Grup, RasyoMeta } from '@/lib/pes/ekonomi-rasyo-meta'
 import { RASYO_META } from '@/lib/pes/ekonomi-rasyo-meta'
 import type { EkonomiRasyo } from '@/lib/pes/ekonomi-tipler'
 import { fmtRasyo } from './formatlayici'
+import Link from 'next/link'
+import { alanFormulu } from '@/lib/pes/formul-katalogu'
 
 type Props = {
   veri: AtolyeRasyolari[]
   istatistik: Record<string, RasyoIstatistik>
   siralarTablosu: Record<string, Record<number, number>>
+  /** Formül kütüphanesi bağlantısı için; verilmezse bağlantı gösterilmez. */
+  donem?: string
 }
 
 const GRUPLAR: Array<{ id: Grup | 'tumu'; etiket: string }> = [
@@ -27,7 +31,7 @@ const GRUPLAR: Array<{ id: Grup | 'tumu'; etiket: string }> = [
   { id: 'referans', etiket: 'Referans' },
 ]
 
-export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu }: Props) {
+export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu, donem }: Props) {
   const [seciliGrup, setSeciliGrup] = useState<Grup | 'tumu'>('tumu')
   const [seciliAlan, setSeciliAlan] = useState<string>(RASYO_META[0].alan)
 
@@ -127,6 +131,19 @@ export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu }: 
             </h3>
             <p className="text-[12px] text-neutral-400 dark:text-neutral-500 mt-0.5 mb-3">
               {meta.onemAciklama}
+              {/* Gostergenin ne oldugunu anlatir; NASIL hesaplandigi formul
+                  kutuphanesinde, gercek sayilarla birlikte duruyor. */}
+              {donem && alanFormulu(gercekAlan) && (
+                <>
+                  {' '}
+                  <Link
+                    href={`/pes/ekonomi/formuller?donem=${donem}&formul=${alanFormulu(gercekAlan)!.id}#${alanFormulu(gercekAlan)!.id}`}
+                    className="underline hover:text-neutral-600 dark:hover:text-neutral-300"
+                  >
+                    formülü ve hesap izi →
+                  </Link>
+                </>
+              )}
             </p>
 
             {/* Badges */}

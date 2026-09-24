@@ -8,7 +8,7 @@ import {
   Boxes, Shapes, Droplets, Gauge, Waypoints, ClipboardCheck,
   CircleCheck, CirclePause, Lightbulb,
   Users, Wallet, Calculator,
-  ChartColumn, Upload, Search, ArrowLeft, MapPin,
+  ChartColumn, Upload, Search, ArrowLeft, MapPin, Coins, Award,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -63,6 +63,8 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'İşgücü',       href: '/workshop/workforce',    icon: Users },
       { label: 'Maliyet',      href: '/workshop/costs',        icon: Wallet },
       { label: 'Eder Maliyet', href: '/workshop/eder-maliyet', icon: Calculator },
+      { label: 'Ekonomi Verisi', href: '/workshop/ekonomi',       icon: Coins },
+      { label: 'Karnem',         href: '/workshop/ekonomi/karne', icon: Award },
     ],
   },
   {

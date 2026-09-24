@@ -58,7 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Klasman Kıyası', href: '/pes/ekonomi/klasman', icon: Layers },
       { label: 'Formül Kütüphanesi', href: '/pes/ekonomi/formuller', icon: FunctionSquare },
       { label: 'Veri Toplama', href: '/pes/ekonomi/talep', icon: ClipboardPen },
-      { label: 'Model Fiyatlama', href: '/pes/model',          icon: Ruler },
+      { label: 'Model Fiyatlama (MTM)', href: '/pes/model',      icon: Ruler },
       { label: 'Gider Panosu',   href: '/pes/gider-panosu',  icon: ChartColumn },
       { label: 'Benchmark',      href: '/pes/benchmark',     icon: Gauge },
       { label: 'Yetenek Raporu', href: '/pes/yetenek-rapor', icon: ClipboardList },
@@ -73,7 +73,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Modeller',         href: '/pes/models',            icon: Shapes },
       { label: 'Süreçler',         href: '/pes/processes',         icon: Workflow },
       { label: 'VSM / Simülasyon', href: '/pes/uretim-simulasyon', icon: Waypoints },
-      { label: 'Atölye Fiyatlama', href: '/pes/eder-maliyet',      icon: Calculator },
+      { label: 'Eder Maliyet (eski)', href: '/pes/eder-maliyet',    icon: Calculator },
     ],
   },
   {

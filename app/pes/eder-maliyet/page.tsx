@@ -257,10 +257,23 @@ function EderMaliyetPage() {
   /* ───────── UI ───────── */
   return (
     <div className="space-y-5">
+      {/* İKİ FİYATLAMA EKRANI VAR ve karışıyorlar. Fark burada yazılı ki
+          kullanıcı hangisine bakacağını bilsin: bu ekran konfeksiyon_v3
+          kataloğundan (kv3_urun) çalışır ve kv3/eder tabloları BOŞ; E3'ün
+          Model Fiyatlama ekranı 30.319 satırlık MTM kütüphanesinden ve
+          gerçek bültenden çalışır. */}
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+        <strong className="font-medium">Bu eski fiyatlama ekranı.</strong>{' '}
+        konfeksiyon_v3 kataloğuna dayanır ve kataloğu şu an boştur.
+        Bülten ve MTM ölçümlerinden atölyeye özel fiyat için{' '}
+        <a href="/pes/model" className="underline font-medium">Model Fiyatlama (MTM)</a>{' '}
+        ekranını kullanın.
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-ink">Atölye Fiyatlama (Eder Maliyet)</h1>
+          <h1 className="text-2xl font-semibold text-ink">Eder Maliyet (eski)</h1>
           <p className="text-sm text-faint mt-1">
             konfeksiyon_v3 · Kumaş › Ürün › Özellik · Ana Grup: Ön Bant / Arka Bant / Montaj / UKP / Son Montaj
           </p>

@@ -214,14 +214,10 @@ function WorkshopModelsPage() {
                   </tbody>
                 </table>
 
-                {/* Eder Maliyet merkez tarafına taşındı: /pes/eder-maliyet */}
+                {/* Buradan /pes/eder-maliyet'e bağlantı vardı ve ÇALIŞMIYORDU:
+                    /pes/* atölye kullanıcısını kendi paneline geri yönlendirir
+                    (panel-guard), yani bağlantı döngüye giriyordu. */}
                 <div className="mt-3 pt-3 border-t border-line-soft flex items-center justify-between">
-                  <Link
-                    href={`/pes/eder-maliyet`}
-                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
-                    Atölye Fiyatlama (Merkez) →
-                  </Link>
                   <div className="text-xs text-faint">
                     konfeksiyon_v3 veri modeli
                   </div>

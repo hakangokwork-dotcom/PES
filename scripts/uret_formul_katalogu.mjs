@@ -39,7 +39,7 @@ const ESLEME = {
   },
   'PARAMETRE|3D referans dk maliyeti (bölge)': {
     id: 'param.referans-3d', alan: null, kod: null,
-    girdiler: [E('Atölye bölgesi', 'giris.bolge')],
+    girdiler: [E('Atölye bölgesi', 'atolye.bolge')],
   },
   'HESAP|Toplam kişi': {
     id: 'hesap.toplam-kisi', alan: 'toplamKisi', kod: 'lib/pes/ekonomi-hesap.ts#toplamKisi',
@@ -181,7 +181,7 @@ const ESLEME = {
   },
   'HESAP|3D referans dk maliyeti': {
     id: 'hesap.referans-3d', alan: 'referans3D', kod: null,
-    girdiler: [E('Atölye bölgesi', 'giris.bolge')],
+    girdiler: [E('Atölye bölgesi', 'atolye.bolge')],
   },
   'HESAP|Dikim dk maliyeti ÷ 3D referans': {
     id: 'hesap.3d-oran', alan: 'dkMaliyet3DOran', kod: 'lib/pes/ekonomi-hesap.ts#dkMaliyet3DOran',
@@ -331,7 +331,7 @@ export type FormulKaynak = 'PARAMETRE' | 'HESAP' | 'MODEL_HESAP' | 'OZET' | 'PAN
 /** Hesap izinde gösterilecek bir girdi; anahtar değer havuzuna işaret eder. */
 export type FormulGirdi = {
   etiket: string
-  /** 'rasyo.<alan>' | 'param.<alan>' | 'giris.<alan>' | 'gider.<alan>' */
+  /** 'rasyo.<alan>' | 'param.<alan>' | 'giris.<alan>' | 'gider.<alan>' | 'atolye.<alan>' */
   anahtar: string
 }
 

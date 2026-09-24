@@ -662,7 +662,7 @@ export const FORMUL_KATALOGU: FormulGirdisi[] = [
     alanlar: [],
     kod: null,
     girdiler: [
-      { etiket: 'Atölye bölgesi', anahtar: 'giris.bolge' },
+      { etiket: 'Atölye bölgesi', anahtar: 'atolye.bolge' },
     ],
   },
   {
@@ -675,7 +675,7 @@ export const FORMUL_KATALOGU: FormulGirdisi[] = [
     alanlar: ['referans3D'],
     kod: null,
     girdiler: [
-      { etiket: 'Atölye bölgesi', anahtar: 'giris.bolge' },
+      { etiket: 'Atölye bölgesi', anahtar: 'atolye.bolge' },
     ],
   },
   {

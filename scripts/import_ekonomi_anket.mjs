@@ -86,8 +86,19 @@ const sql = postgres(env.DATABASE_URL,
   { max: 1, prepare: false, connect_timeout: 15 })
 
 const atolyeler = await sql`SELECT id, code, name, tenant_id FROM workshop`
-const tenantId = atolyeler[0]?.tenant_id
-if (!tenantId) { console.error('HATA: workshop tablosu boş, tenant belirlenemedi'); await sql.end(); process.exit(1) }
+if (atolyeler.length === 0) {
+  console.error('HATA: workshop tablosu boş, eşleştirme yapılamaz')
+  await sql.end(); process.exit(1)
+}
+
+/* KİRACI SATIR BAŞINA BELİRLENİR — global DEĞİL.
+   Eski hâli `atolyeler[0]?.tenant_id` alıp bütün satırlara yazıyordu:
+   sırasız bir sorgunun ilk satırının kiracısı. 33 ekonomi + 11 anket +
+   33 gider satırı yanlış kiracıya yazıldı ve RLS onları uygulamada
+   görünmez yaptı; hata yönetici bağlantısıyla (BYPASSRLS) yapılan
+   doğrulamalarda görünmediği için aylarca fark edilmedi.
+   Migration 041 veriyi onardı. Doğrusu: satırın kiracısı, satırın ait
+   olduğu ATÖLYENİN kiracısıdır. */
 
 // Override dosyasındaki ID'lerin workshop tablosunda gerçekten bulunduğunu doğrula
 for (const [kisaAd, id] of Object.entries(eslesmeOverride)) {
@@ -195,7 +206,7 @@ await sql.begin(async (tx) => {
       INSERT INTO economy_survey_staging
         (tenant_id, raw, workshop_name_raw, workshop_id, match_status,
          period_start, period_months, promoted_at)
-      VALUES (${tenantId}, ${sql.json(s.ham)}, ${s.cozum.kisaAd},
+      VALUES (${s.eslesme.atolye.tenant_id}, ${sql.json(s.ham)}, ${s.cozum.kisaAd},
               ${s.eslesme.atolye.id}, 'kesin', ${BASLANGIC},
               ${s.cozum.aySayisi}, now())
       RETURNING id`
@@ -213,7 +224,7 @@ await sql.begin(async (tx) => {
           vehicle_depr, vehicle, stationery, isg, consulting,
           official_fees, insurance, communication, other, incentive_amount)
         VALUES (
-          ${s.eslesme.atolye.id}, ${tenantId}, ${ay.year}, ${ay.month},
+          ${s.eslesme.atolye.id}, ${s.eslesme.atolye.tenant_id}, ${ay.year}, ${ay.month},
           ${Math.round(ay.ekonomi.actual_days ?? 22)},
           ${Math.round(g.personnel ?? 0)}, ${g.overtime ?? null}, ${g.bonus ?? null},
           ${Math.round(g.sgk ?? 0)}, ${g.severance_reserve ?? null},
@@ -256,7 +267,7 @@ await sql.begin(async (tx) => {
           cutting_staff, sewing_staff, ukp_staff, office_staff,
           area_m2, source, survey_id, note)
         VALUES (
-          ${s.eslesme.atolye.id}, ${tenantId}, ${ay.year}, ${ay.month},
+          ${s.eslesme.atolye.id}, ${s.eslesme.atolye.tenant_id}, ${ay.year}, ${ay.month},
           ${e.revenue_declared}, ${e.idle_days},
           ${e.qty_declared === null ? null : Math.round(e.qty_declared)},
           ${e.nominal_days}, ${e.actual_days}, ${e.hours_per_day},

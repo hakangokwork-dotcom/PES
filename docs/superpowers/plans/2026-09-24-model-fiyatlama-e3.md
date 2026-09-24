@@ -1,6 +1,6 @@
 # Model Fiyatlama (E3) Uygulama Planı
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Bir modelin belirli bir atölyede kaça dikileceğini, o atölyenin kendi dakika maliyetiyle hesaplamak; teorik süreyle gerçekleşeni yan yana koymak.
 
@@ -64,7 +64,7 @@ Kaynak dosya `C:\Users\bhaka\Desktop\WORK\PES\Konfeksiyon_operasyonları\konfeks
 1. **Başlık satırı sayfaya göre değişiyor.** Altı sayfada düzen `r1=başlık metni, r2=boş, r3=kolon adları, r4+=veri`. Ama `04_operasyon_grup`'ta **kolon adları r1'de, veri r2'den** başlıyor. Tek bir offset varsayılırsa o sayfanın ilk satırı başlık sanılıp atılır ya da başlık veri sanılıp yazılır.
 2. **`02_ek_parca_tipi`'nin ilk veri satırında `ad` BOŞ** (id=1). `ref_ek_parca_tipi.ad` `NOT NULL`. Üstelik `03_ek_parca_varyant`'ta bir varyant bu id'ye bağlı, yani satır atılamaz — atılırsa varyant ve ona bağlı `operasyon_zamani` satırları yabancı anahtar hatası verir.
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/kutuphane-sayfa.test.ts`:
 
@@ -139,12 +139,12 @@ describe('adDuzelt', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npx vitest run lib/pes/kutuphane-sayfa.test.ts`
 Expected: FAIL — `Failed to resolve import "./kutuphane-sayfa"`
 
-- [ ] **Step 3: Uygulamayı yaz**
+- [x] **Step 3: Uygulamayı yaz**
 
 `lib/pes/kutuphane-sayfa.ts`:
 
@@ -264,12 +264,12 @@ export function adDuzelt(ad: unknown, id: number | string): string {
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/kutuphane-sayfa.test.ts`
 Expected: PASS — 12 test
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/kutuphane-sayfa.ts lib/pes/kutuphane-sayfa.test.ts
@@ -294,7 +294,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Dosyadaki `id` değerleri **korunur**; `07_operasyon_zamani`'nin dört yabancı anahtarı onlara dayanıyor. Bu yüzden yükleme sonunda `SERIAL` dizileri elle ileri alınır, yoksa bir sonraki elle ekleme çakışır.
 
-- [ ] **Step 1: Script'i yaz**
+- [x] **Step 1: Script'i yaz**
 
 ```js
 /**
@@ -435,7 +435,7 @@ try {
 }
 ```
 
-- [ ] **Step 2: Kuru çalıştır**
+- [x] **Step 2: Kuru çalıştır**
 
 Run: `node scripts/import_operasyon_kutuphanesi.mjs`
 Expected:
@@ -453,7 +453,7 @@ KURU ÇALIŞMA — hiçbir şey yazılmadı.
 
 Satır sayısı tutmuyorsa **dur**. `04_operasyon_grup` 272 ya da 274 çıkıyorsa başlık satırı varsayımı bozulmuş demektir; `02_ek_parca_tipi`'de "boş ad dolduruldu" satırı görünmüyorsa o tuzak kaybolmuş ya da sayfa değişmiş.
 
-- [ ] **Step 3: Uygula**
+- [x] **Step 3: Uygula**
 
 Run: `node scripts/import_operasyon_kutuphanesi.mjs --uygula`
 Expected:
@@ -469,7 +469,7 @@ YAZILDI. Güven seviyesi dağılımı:
   ORTA          1861
 ```
 
-- [ ] **Step 4: Yabancı anahtar bütünlüğünü doğrula**
+- [x] **Step 4: Yabancı anahtar bütünlüğünü doğrula**
 
 Run:
 ```bash
@@ -491,7 +491,7 @@ import('postgres').then(async ({default:pg})=>{
 ```
 Expected: ikisi de `n: 0`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/import_operasyon_kutuphanesi.mjs
@@ -516,7 +516,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 30.319 satır tek sayfada gösterilmez. Gezinti: **ürün tipi seç → o tipin operasyon grupları → grubun operasyonları ve MTM'leri.** Güven seviyesi her satırda rozet; `DUSUK` ayrıca filtrelenebilir çünkü kaynak doküman "önce bunlar doğrulanmalı" diyor.
 
-- [ ] **Step 1: API ucunu yaz**
+- [x] **Step 1: API ucunu yaz**
 
 `app/api/pes/model/kutuphane/route.ts`:
 
@@ -583,7 +583,7 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Sayfayı yaz**
+- [x] **Step 2: Sayfayı yaz**
 
 `app/pes/model/kutuphane/page.tsx`:
 
@@ -777,14 +777,14 @@ export default async function Kutuphane({
 }
 ```
 
-- [ ] **Step 3: Derle ve aç**
+- [x] **Step 3: Derle ve aç**
 
 Run: `npm run build`
 Expected: derleme başarılı, `/pes/model/kutuphane` listede
 
 Tarayıcıda aç: ürün tipi listesi ölçüm sayısına göre sıralı gelir; bir tip seç → gruplar; bir grup seç → operasyonlar, MTM medyanı ve güven rozetiyle.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/pes/model/kutuphane/page.tsx app/api/pes/model/kutuphane/route.ts
@@ -809,7 +809,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Task 5'in kural motoru 70 gerçek satıra karşı test edilecek; satırları koda gömmek yerine kaynaktan üretiyoruz ki dosya değişince fixture yeniden üretilebilsin (E0'daki `ekonomi_fixture_uret.mjs` deseni).
 
-- [ ] **Step 1: Script'i yaz**
+- [x] **Step 1: Script'i yaz**
 
 ```js
 /**
@@ -864,14 +864,14 @@ writeFileSync(HEDEF, JSON.stringify({
 console.log(`OK  ${ops.length} operasyon, toplam ${toplam} sn (${(toplam / 60).toFixed(2)} dk) → ${HEDEF}`)
 ```
 
-- [ ] **Step 2: Çalıştır ve doğrula**
+- [x] **Step 2: Çalıştır ve doğrula**
 
 Run: `node scripts/bulten_fixture_uret.mjs`
 Expected: `OK  70 operasyon, toplam 1368 sn (22.80 dk) → ...`
 
 70 ve 1368 tutmuyorsa kaynak dosya değişmiş demektir; devam etmeden önce nedenini bul.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add scripts/bulten_fixture_uret.mjs lib/pes/__fixtures__/bulten-ornek.json
@@ -890,7 +890,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Spec §3'te ölçülen sonuç: tohum kurallarla örnek dosya **KESİM 28 / DİKİM 1241 / UKP 99** saniyeye ayrışmalı. Kural sırası kritik — tip tabanlı DİKİM kuralı (30), `Son İşlem → UKP` kuralından (40) **önce** gelmeli; yoksa paça kıvırma ve punteriz UKP'ye yazılır.
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/bulten-bolum.test.ts`:
 
@@ -977,12 +977,12 @@ describe('bolumToplamlari — gerçek dosya', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npx vitest run lib/pes/bulten-bolum.test.ts`
 Expected: FAIL — `Failed to resolve import "./bulten-bolum"`
 
-- [ ] **Step 3: Uygulamayı yaz**
+- [x] **Step 3: Uygulamayı yaz**
 
 `lib/pes/bulten-bolum.ts`:
 
@@ -1086,14 +1086,14 @@ export function bolumToplamlari(
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/bulten-bolum.test.ts`
 Expected: PASS — 14 test
 
 Özellikle `KESİM 28 / DİKİM 1241 / UKP 99` üçlüsü geçmeli. Geçmiyorsa ya kural sırası bozulmuştur (tip kuralı `Son İşlem` kuralından sonra kalmıştır) ya da fixture yeniden üretilmemiştir.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/bulten-bolum.ts lib/pes/bulten-bolum.test.ts
@@ -1122,7 +1122,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 1. **`OR workshop_id IS NULL` KULLANILMAYACAK** (035 kalıbı). Beş yeni tablo iç ekip verisi; `current_workshop_id() IS NULL` ile atölye kullanıcısı tamamen dışarıda. 037 ve 038 aynı şekilde.
 2. **`ref_*` tablolarına DOKUNULMAYACAK** — ortak katalog, mevcut politikaları var.
 
-- [ ] **Step 1: Migration'ı yaz**
+- [x] **Step 1: Migration'ı yaz**
 
 ```sql
 -- ============================================================
@@ -1390,7 +1390,7 @@ COMMIT;
 --   COMMIT;
 ```
 
-- [ ] **Step 2: Commit (henüz uygulama yok)**
+- [x] **Step 2: Commit (henüz uygulama yok)**
 
 ```bash
 git add supabase/migrations/039_model_fiyatlama.sql
@@ -1406,12 +1406,12 @@ Tohum kurallar lib/pes/bulten-bolum.ts ile birebir; tip kurallari
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ```
 
-- [ ] **Step 3: Uygula**
+- [x] **Step 3: Uygula**
 
 Run: `node scripts/_migrate_one.mjs 039_model_fiyatlama.sql`
 Expected: `OK   039_model_fiyatlama.sql`
 
-- [ ] **Step 4: Tohum kuralları ve izolasyonu doğrula**
+- [x] **Step 4: Tohum kuralları ve izolasyonu doğrula**
 
 Run:
 ```bash
@@ -1437,7 +1437,7 @@ Expected: beş yeni tablo için `erisim yok (HTTP 401)`
 Run: `node scripts/verify_workshop_isolation.mjs`
 Expected: geçer
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
@@ -1456,7 +1456,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Excel'den okunan ham satırları `model_bulten` + `model_bulten_operasyon` şekline çevirir. Saf: dosya okumaz, kendisine verilen satır dizilerini çevirir — böylece test edilebilir.
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/bulten-oku.test.ts`:
 
@@ -1558,12 +1558,12 @@ describe('bultenOzeti', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npx vitest run lib/pes/bulten-oku.test.ts`
 Expected: FAIL — `Failed to resolve import "./bulten-oku"`
 
-- [ ] **Step 3: Uygulamayı yaz**
+- [x] **Step 3: Uygulamayı yaz**
 
 `lib/pes/bulten-oku.ts`:
 
@@ -1662,12 +1662,12 @@ export function bultenOzeti(satirlar: BultenSatiri[]): BultenOzet {
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/bulten-oku.test.ts`
 Expected: PASS — 13 test
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/bulten-oku.ts lib/pes/bulten-oku.test.ts
@@ -1687,7 +1687,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 **Files:**
 - Create: `scripts/import_model_bulten.mjs`
 
-- [ ] **Step 1: Script'i yaz**
+- [x] **Step 1: Script'i yaz**
 
 ```js
 /**
@@ -1795,7 +1795,7 @@ console.log(`\nYAZILDI: bülten #${bulten.id} — ${bulten.model_adi}, ${bolumlu
 await sql.end()
 ```
 
-- [ ] **Step 2: Kuru çalıştır**
+- [x] **Step 2: Kuru çalıştır**
 
 Run: `node scripts/import_model_bulten.mjs --dosya "C:\Users\bhaka\Desktop\pantolon-jean-uretim-case.xlsx"`
 Expected:
@@ -1809,12 +1809,12 @@ KURU ÇALIŞMA — hiçbir şey yazılmadı.
 
 Bölüm dağılımı bu üçlüyü vermiyorsa Task 5'in kuralları veritabanına doğru yazılmamıştır.
 
-- [ ] **Step 3: Uygula**
+- [x] **Step 3: Uygula**
 
 Run: `node scripts/import_model_bulten.mjs --dosya "C:\Users\bhaka\Desktop\pantolon-jean-uretim-case.xlsx" --klasman PANTOLON --uygula`
 Expected: `YAZILDI: bülten #1 — Erkek 5 Cep Denim Jean (regular fit), 70 operasyon`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add scripts/import_model_bulten.mjs
@@ -1839,7 +1839,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Excel `MODEL_HESAP` ile birebir. Fixture değerleri spec §9'dan: Netclass, klasik gömlek, MTM 150/1380/300 sn, bölüm dk maliyeti 3,322142950541009 TL, bölge 6 → 3D 5,05, CMT 377, günlük adet 1.200, dikim kapasitesi 32.400 dk/gün, nominal 22 gün.
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/model-fiyat.test.ts`:
 
@@ -1970,12 +1970,12 @@ describe('modelFiyati — eksik veri', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npx vitest run lib/pes/model-fiyat.test.ts`
 Expected: FAIL — `Failed to resolve import "./model-fiyat"`
 
-- [ ] **Step 3: Uygulamayı yaz**
+- [x] **Step 3: Uygulamayı yaz**
 
 `lib/pes/model-fiyat.ts`:
 
@@ -2108,14 +2108,14 @@ export function hukum(f: FiyatSonucu, hedefMarj: number): Hukum {
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/model-fiyat.test.ts`
 Expected: PASS — 18 test
 
 Bir gösterge tutmuyorsa önce Excel'in mi kodun mu doğru olduğuna karar ver: `FORMULLER` sayfasındaki sözlü tanımı oku ve elle hesapla. 3D referansta verimlilik kullanılmadığına dikkat.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/model-fiyat.ts lib/pes/model-fiyat.test.ts
@@ -2144,7 +2144,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Create: `app/pes/model/[id]/BolumEz.tsx`
 - Create: `app/api/pes/model/[id]/bolum/route.ts`
 
-- [ ] **Step 1: Bölüm ezme ucunu yaz**
+- [x] **Step 1: Bölüm ezme ucunu yaz**
 
 `app/api/pes/model/[id]/bolum/route.ts`:
 
@@ -2173,7 +2173,7 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
 })
 ```
 
-- [ ] **Step 2: Liste sayfasını yaz**
+- [x] **Step 2: Liste sayfasını yaz**
 
 `app/pes/model/page.tsx`:
 
@@ -2273,7 +2273,7 @@ export default async function ModelListesi() {
 }
 ```
 
-- [ ] **Step 3: Bölüm ezme bileşenini yaz**
+- [x] **Step 3: Bölüm ezme bileşenini yaz**
 
 `app/pes/model/[id]/BolumEz.tsx`:
 
@@ -2320,7 +2320,7 @@ export default function BolumEz({ bultenId, operasyonId, bolum, kaynak }: {
 }
 ```
 
-- [ ] **Step 4: Detay sayfasını yaz**
+- [x] **Step 4: Detay sayfasını yaz**
 
 `app/pes/model/[id]/page.tsx`:
 
@@ -2451,14 +2451,14 @@ export default async function BultenDetay({ params }: { params: Promise<{ id: st
 }
 ```
 
-- [ ] **Step 5: Derle ve aç**
+- [x] **Step 5: Derle ve aç**
 
 Run: `npm run build`
 Expected: derleme başarılı; `/pes/model` ve `/pes/model/[id]` listede
 
 Tarayıcıda `/pes/model` → bülten → bölüm şeridi K %2 · D %91 · U %7 görünür; bir satırın bölümünü değiştir, “elle” etiketi çıkar.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/pes/model/page.tsx "app/pes/model/[id]/page.tsx" "app/pes/model/[id]/BolumEz.tsx" "app/api/pes/model/[id]/bolum/route.ts"
@@ -2480,7 +2480,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 E3'ün asıl ekranı. Bültenin bölüm süreleri × her atölyenin E0'dan gelen dakika maliyeti → yan yana fiyat.
 
-- [ ] **Step 1: Hesaplama ucunu yaz**
+- [x] **Step 1: Hesaplama ucunu yaz**
 
 `app/api/pes/model/[id]/fiyat/route.ts`:
 
@@ -2582,7 +2582,7 @@ export const POST = withTenantRoute(async (req, { sql, tenantId }) => {
 })
 ```
 
-- [ ] **Step 2: Fiyat sayfasını yaz**
+- [x] **Step 2: Fiyat sayfasını yaz**
 
 `app/pes/model/[id]/fiyat/page.tsx`:
 
@@ -2795,7 +2795,7 @@ export default function FiyatHesapla({ bultenId, donem, varsayilanAdet }: {
 }
 ```
 
-- [ ] **Step 3: Derle, hesapla ve doğrula**
+- [x] **Step 3: Derle, hesapla ve doğrula**
 
 Run: `npm run build`
 Expected: derleme başarılı
@@ -2803,7 +2803,7 @@ Expected: derleme başarılı
 Tarayıcıda `/pes/model/1/fiyat?donem=2026-01` → CMT 377, günlük adet 1200 → Hesapla.
 Expected: 11 atölye için satır; her birinin toplam maliyeti kendi dakika maliyetine göre farklı; 3D referans sütunu bölgeye göre.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "app/pes/model/[id]/fiyat" "app/api/pes/model/[id]/fiyat/route.ts"
@@ -2826,7 +2826,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Create: `lib/pes/gercek-sure.ts`
 - Test: `lib/pes/gercek-sure.test.ts`
 
-- [ ] **Step 1: Başarısız testi yaz**
+- [x] **Step 1: Başarısız testi yaz**
 
 `lib/pes/gercek-sure.test.ts`:
 
@@ -2892,12 +2892,12 @@ describe('sureTuret', () => {
 })
 ```
 
-- [ ] **Step 2: Testi çalıştır, başarısız olduğunu gör**
+- [x] **Step 2: Testi çalıştır, başarısız olduğunu gör**
 
 Run: `npx vitest run lib/pes/gercek-sure.test.ts`
 Expected: FAIL — `Failed to resolve import "./gercek-sure"`
 
-- [ ] **Step 3: Uygulamayı yaz**
+- [x] **Step 3: Uygulamayı yaz**
 
 `lib/pes/gercek-sure.ts`:
 
@@ -2954,12 +2954,12 @@ export function sureTuret(gunler: UretimGunu[], kadro: Kadro): TuretmeSonucu {
 }
 ```
 
-- [ ] **Step 4: Testi çalıştır, geçtiğini gör**
+- [x] **Step 4: Testi çalıştır, geçtiğini gör**
 
 Run: `npx vitest run lib/pes/gercek-sure.test.ts`
 Expected: PASS — 9 test
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/pes/gercek-sure.ts lib/pes/gercek-sure.test.ts
@@ -2988,7 +2988,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Task 12 türetmeyi hesaplıyor ama hiçbir yere yazmıyor. Bu görev üç süreyi — **teorik / üretimden türetilen / atölye beyanı** — `model_gercek_sure`'ye yazar ve fiyat ekranının altında yan yana gösterir.
 
-- [ ] **Step 1: Ucu yaz**
+- [x] **Step 1: Ucu yaz**
 
 `app/api/pes/model/[id]/gercek-sure/route.ts`:
 
@@ -3103,7 +3103,7 @@ export const POST = withTenantRoute(async (req, { sql, tenantId }) => {
 })
 ```
 
-- [ ] **Step 2: Karşılaştırma bileşenini yaz**
+- [x] **Step 2: Karşılaştırma bileşenini yaz**
 
 `app/pes/model/[id]/fiyat/SureKarsilastirma.tsx`:
 
@@ -3214,7 +3214,7 @@ export default function SureKarsilastirma({ bultenId, donem, satirlar }: {
 }
 ```
 
-- [ ] **Step 3: Fiyat sayfasına bağla**
+- [x] **Step 3: Fiyat sayfasına bağla**
 
 `app/pes/model/[id]/fiyat/page.tsx` içinde, `withServerTenant` bloğunun sonuna (`return { bulten, bolum, fiyatlar, donemler }` satırından önce):
 
@@ -3258,7 +3258,7 @@ import SureKarsilastirma, { type SureSatiri } from './SureKarsilastirma'
       )}
 ```
 
-- [ ] **Step 4: Derle ve dene**
+- [x] **Step 4: Derle ve dene**
 
 Run: `npm run build`
 Expected: derleme başarılı
@@ -3267,7 +3267,7 @@ Tarayıcıda `/pes/model/1/fiyat?donem=2026-01` → fiyat tablosunun altında s�
 "üretimden türet" → bültene bağlı iş emri yoksa açık hata: *"Bu bültene bağlı üretim kaydı yok. İş emrine bülten bağlanmadan türetilemez."* Bu **beklenen** davranış; `work_order.model_bulten_id` henüz doldurulmadı.
 "beyan gir" → bir sayı gir, satırda görünür.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "app/api/pes/model/[id]/gercek-sure/route.ts" "app/pes/model/[id]/fiyat/SureKarsilastirma.tsx" "app/pes/model/[id]/fiyat/page.tsx"
@@ -3290,7 +3290,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 **Files:**
 - Modify: `components/pes/PesDevSidebar.tsx`
 
-- [ ] **Step 1: Sidebar'a ekle**
+- [x] **Step 1: Sidebar'a ekle**
 
 `components/pes/PesDevSidebar.tsx` — "Klasman Kıyası" satırının altına, aynı grup içine:
 
@@ -3300,19 +3300,19 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 `lucide-react` import listesine `Ruler` eklenir. Kütüphane ve fiyat ekranları menüde ayrı satır almaz; `/pes/model` başlığından bağlantılılar.
 
-- [ ] **Step 2: Tüm testleri çalıştır**
+- [x] **Step 2: Tüm testleri çalıştır**
 
 Run: `npm test`
 Expected: PASS — hepsi; yeni dosyalar dahil
 
 `malzeme-uyari` ya da `yerlestir-kaydet` kırılırsa **ikinci kez çalıştır**: ikisi gerçek uzak veritabanına bağlanıyor ve paralel yükte 30 sn zaman aşımını ara sıra aşıyor (`vitest.config.ts` bunu açıklıyor). İki turda da kırılıyorsa gerçek hatadır.
 
-- [ ] **Step 3: Derle**
+- [x] **Step 3: Derle**
 
 Run: `npm run build`
 Expected: derleme başarılı; `/pes/model`, `/pes/model/[id]`, `/pes/model/[id]/fiyat`, `/pes/model/kutuphane` listede
 
-- [ ] **Step 4: Uçtan uca doğrula**
+- [x] **Step 4: Uçtan uca doğrula**
 
 Run: `node scripts/verify_public_api.mjs` → beş yeni tablo 401
 Run: `node scripts/verify_workshop_isolation.mjs` → geçer
@@ -3325,7 +3325,7 @@ Tarayıcıda sırayla:
 - `/pes/model/1/fiyat` → CMT 377, günlük adet 1200 → 11 atölye için fiyat
 - `/pes/ekonomi` → **kırılmamış** (E3, E0'ın çekirdeğini okuyor ama değiştirmiyor)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add components/pes/PesDevSidebar.tsx
@@ -3349,3 +3349,32 @@ E3 tamamlandığında:
 **Sonraki tur (E5)** bunun üstüne biner: parti büyüklüğü (50.000 tek sipariş ↔ 10×5.000), model değişim süresi etkisi, öğrenme eğrisi ve fast-track teşvik yapısı — hepsi bu fiyat çekirdeğini çağırır.
 
 **Açık kalan:** `work_order.model_bulten_id` eklendi ama geçmiş iş emirlerinde NULL. Üretimden türetme (Task 12'nin çekirdeği) ancak yeni iş emirleri bültene bağlandıkça gerçek veri üretir. Atölye beyanı (`model_gercek_sure.kaynak='beyan'`) girişi bu turda şema düzeyinde hazır, ekranı yok — ilk beyan geldiğinde eklenecek.
+
+---
+
+## Uygulama kaydı — 2026-09-24
+
+14 görevin tamamı uygulandı. Doğrulama:
+
+- `npm test` → **1198 geçti / 65 dosya**
+- `npm run build` → temiz; `/pes/model`, `/pes/model/[id]`, `/pes/model/[id]/fiyat`, `/pes/model/kutuphane` ve üç API ucu
+- `verify_ekonomi.mjs --donem 2026-01` → 132 kontrol, 0 sapma (E0 bozulmadı)
+- `verify_public_api.mjs` → yeni beş tablo + `ref_operasyon_zamani` 401
+- Kütüphane: 30.319 MTM ölçümü yüklü, güven dağılımı kaynak dokümanla birebir
+- Bülten: 70 operasyon, 28/1241/99 sn — hesaplananla yazılan aynı
+- Fiyat: 11 atölye, 109,77–271,32 TL aralığı
+
+### Plan yazılırken öngörülmeyen, uygulamada çıkan üç şey
+
+**1. `blankrows: false` altı sayfada ilk veri satırını yutuyordu.** Planın koyduğu
+satır sayısı kontrolü yakaladı; `blankrows: true` ile düzeltildi. Kontrol
+olmasaydı 6 kayıt sessizce eksik yüklenecekti.
+
+**2. `verify_public_api.mjs` yeni tabloları hiç kontrol etmiyordu.** Listesi
+statik; yeşil veriyordu ama 039'un tablolarına bakmamıştı. Eklendi.
+
+**3. `workshop.bolge` hiç doldurulmamış.** Varsayılanı 1 ve 139 atölyenin 134'ü
+o varsayılanda. Anketteki bölge `workshop`'a hiç taşınmıyordu — E0'ın eksiği.
+Sonuç 3D referansta göründü: 9 pilotta 6,00 TL/dk yerine 4,76 olmalıydı, yani
+referans %26 yüksekti. Canlı veri düzeltildi ve `import_ekonomi_anket.mjs`'e
+yazma adımı eklendi.

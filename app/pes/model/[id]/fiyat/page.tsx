@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import FiyatHesapla from './FiyatHesapla'
+import SureKarsilastirma, { type SureSatiri } from './SureKarsilastirma'
 
 /**
  * /pes/model/[id]/fiyat — E3'ün asıl ekranı.
@@ -47,11 +48,27 @@ export default async function FiyatSayfasi({
     const donemler = await sql`
       SELECT DISTINCT year::int AS yil, month::int AS ay FROM workshop_economy
       ORDER BY yil DESC, ay DESC LIMIT 12`
-    return { bulten, bolum, fiyatlar, donemler }
+    const sureler = await sql`
+      SELECT mf.workshop_id, w.name AS atolye,
+             mf.dikim_dk::float AS teorik_dk,
+             u.dk_adet::float AS uretim_dk, u.gun_sayisi, u.atlanan_gun,
+             b2.dk_adet::float AS beyan_dk
+      FROM model_fiyat mf
+      JOIN workshop w ON w.id = mf.workshop_id
+      LEFT JOIN model_gercek_sure u
+             ON u.bulten_id = mf.bulten_id AND u.workshop_id = mf.workshop_id
+            AND u.donem = mf.donem AND u.kaynak = 'uretim'
+      LEFT JOIN model_gercek_sure b2
+             ON b2.bulten_id = mf.bulten_id AND b2.workshop_id = mf.workshop_id
+            AND b2.donem = mf.donem AND b2.kaynak = 'beyan'
+      WHERE mf.bulten_id = ${bultenId} AND mf.donem = ${donem}
+      ORDER BY w.name`
+
+    return { bulten, bolum, fiyatlar, donemler, sureler }
   })
 
   if (!data) redirect('/login')
-  const { bulten, bolum, fiyatlar, donemler } = data
+  const { bulten, bolum, fiyatlar, donemler, sureler } = data
   const hedefMarj = 0.15
 
   return (
@@ -136,6 +153,22 @@ export default async function FiyatSayfasi({
             </tbody>
           </table>
         </div>
+      )}
+
+      {fiyatlar.length > 0 && (
+        <SureKarsilastirma
+          bultenId={bultenId}
+          donem={donem}
+          satirlar={(sureler as Array<Record<string, unknown>>).map(s => ({
+            workshopId: Number(s.workshop_id),
+            atolye: String(s.atolye),
+            teorikDk: s.teorik_dk === null ? null : Number(s.teorik_dk),
+            uretimDk: s.uretim_dk === null ? null : Number(s.uretim_dk),
+            uretimGun: s.gun_sayisi === null ? null : Number(s.gun_sayisi),
+            uretimAtlanan: s.atlanan_gun === null ? null : Number(s.atlanan_gun),
+            beyanDk: s.beyan_dk === null ? null : Number(s.beyan_dk),
+          })) satisfies SureSatiri[]}
+        />
       )}
 
       <p className="text-xs text-slate-400">

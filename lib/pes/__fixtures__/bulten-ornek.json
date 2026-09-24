@@ -1,0 +1,715 @@
+{
+  "uretildi": "2026-09-24T05:26:30.733Z",
+  "kaynak": "C:\\Users\\bhaka\\Desktop\\pantolon-jean-uretim-case.xlsx",
+  "bilgi": {
+    "Model Adı": "Erkek 5 Cep Denim Jean (regular fit)",
+    "Model No / PLM ID": "JN-2026-001",
+    "Kumaş Tipi": "Denim %100 pamuk ~12 oz (+ cepçilik astarı)",
+    "Sipariş Adedi": "10000",
+    "Sezon": "2026",
+    "Notlar": "Toplam SMV ~22.33 dk. Süreler saniye ve PF&D dahil (uygulamada PF&D=0 gir). Kaynak: ORDNUR/OnlineClothingStudy operasyon bültenleri."
+  },
+  "operasyonlar": [
+    {
+      "sira_no": 1,
+      "seviye1": "Kesim",
+      "seviye2": "Serme (kat açma)",
+      "seviye3": "",
+      "cevrim_sn": 4,
+      "tip": "Serme",
+      "makine_kodu": "Serme",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 2,
+      "seviye1": "Kesim",
+      "seviye2": "Pastal kesim",
+      "seviye3": "",
+      "cevrim_sn": 10,
+      "tip": "Kesim",
+      "makine_kodu": "Kesim",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 3,
+      "seviye1": "Kesim",
+      "seviye2": "Numaralama",
+      "seviye3": "",
+      "cevrim_sn": 6,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 4,
+      "seviye1": "Kesim",
+      "seviye2": "Tasnif / paketleme",
+      "seviye3": "",
+      "cevrim_sn": 8,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 5,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Patelet tela yapıştırma",
+      "seviye3": "",
+      "cevrim_sn": 12,
+      "tip": "Ütü/Pres",
+      "makine_kodu": "IRN",
+      "oncesi": "Kesim"
+    },
+    {
+      "sira_no": 6,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön panel işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 7,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Patelet yapım + ön ağ overlok",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 3iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 8,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Çift patelet + ağ overlok",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 3iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 9,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Cep ağzı dikiş işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 10,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Saat cebi takma",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 11,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön cep dikiş + torba astarı",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 12,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön cep torbası bedene takma",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 13,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Tek patelet takma + üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 14,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Fermuar takma (patelet)",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Çift İğne",
+      "makine_kodu": "DNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 15,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "J-dikiş işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 12,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 16,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "J-dikiş üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Çift İğne",
+      "makine_kodu": "DNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 17,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Çift patelet ön panele birleştirme",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 18,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön beden kapama (patelet+fermuar)",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 19,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön ağ iç punteriz + kıvırma",
+      "seviye3": "",
+      "cevrim_sn": 21,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 20,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön ağ üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 21,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön ağ 2. üst dikiş (elmas)",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 22,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön cep ağzı reçme (biye)",
+      "seviye3": "",
+      "cevrim_sn": 33,
+      "tip": "Çift İğne",
+      "makine_kodu": "DNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 23,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön cep punteriz",
+      "seviye3": "",
+      "cevrim_sn": 24,
+      "tip": "Punteriz",
+      "makine_kodu": "Bartack",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 24,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön cep torbası overlok + çevirme",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 3iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 25,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön cep torbası çeyrek üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 24,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 26,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Etiket yapım",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 27,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön parça etiket takma",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 28,
+      "seviye1": "Ön Hazırlık",
+      "seviye2": "Ön parça bel işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 29,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka panel işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": "Kesim"
+    },
+    {
+      "sira_no": 30,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka yaka (kalça) birleştirme overlok",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 3iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 31,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka yaka üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Zincir (FOA)",
+      "makine_kodu": "FOA",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 32,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka cep ağzı reçme",
+      "seviye3": "",
+      "cevrim_sn": 27,
+      "tip": "Zincir Dikiş",
+      "makine_kodu": "CHIN",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 33,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka cep overlok (kenar)",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 3iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 34,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka cep ütü (şablon)",
+      "seviye3": "",
+      "cevrim_sn": 36,
+      "tip": "Ütü/Pres",
+      "makine_kodu": "IRN",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 35,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka cep yeri işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 24,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 36,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka cep bedene takma",
+      "seviye3": "",
+      "cevrim_sn": 36,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 37,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka cep üst dikiş (dekoratif)",
+      "seviye3": "",
+      "cevrim_sn": 30,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 38,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka ağ (orta arka) birleştirme",
+      "seviye3": "",
+      "cevrim_sn": 17,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 3iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 39,
+      "seviye1": "Arka Hazırlık",
+      "seviye2": "Arka ağ üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Zincir (FOA)",
+      "makine_kodu": "FOA",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 40,
+      "seviye1": "Kemer Hazırlık",
+      "seviye2": "Kemer katı overlok",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 5iğne",
+      "oncesi": "Kesim"
+    },
+    {
+      "sira_no": 41,
+      "seviye1": "Kemer Hazırlık",
+      "seviye2": "Kemer tela yapıştırma",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Ütü/Pres",
+      "makine_kodu": "IRN",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 42,
+      "seviye1": "Kemer Hazırlık",
+      "seviye2": "Kemer işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 43,
+      "seviye1": "Kemer Hazırlık",
+      "seviye2": "Kemer eşleştirme",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 44,
+      "seviye1": "Kemer Hazırlık",
+      "seviye2": "Kemer köprü (bilezik) yapım + kesim",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 45,
+      "seviye1": "Montaj",
+      "seviye2": "Ön-arka parça eşleştirme",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": "Ön Hazırlık, Arka Hazırlık"
+    },
+    {
+      "sira_no": 46,
+      "seviye1": "Montaj",
+      "seviye2": "İç dikiş birleştirme + üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 33,
+      "tip": "Zincir (FOA)",
+      "makine_kodu": "FOA",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 47,
+      "seviye1": "Montaj",
+      "seviye2": "Dış (yan) dikiş birleştirme (güvenlik)",
+      "seviye3": "",
+      "cevrim_sn": 36,
+      "tip": "Overlok",
+      "makine_kodu": "O/L 5iğne",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 48,
+      "seviye1": "Montaj",
+      "seviye2": "Yan dikiş güvenlik üst dikiş",
+      "seviye3": "",
+      "cevrim_sn": 36,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 49,
+      "seviye1": "Montaj",
+      "seviye2": "Yan dikiş dekoratif kord",
+      "seviye3": "",
+      "cevrim_sn": 24,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 50,
+      "seviye1": "Montaj",
+      "seviye2": "Yan dikiş etiket takma",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 51,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Kemer takma + üst dikiş (bedene)",
+      "seviye3": "",
+      "cevrim_sn": 39,
+      "tip": "Kemer (Kansai)",
+      "makine_kodu": "K-S",
+      "oncesi": "Montaj, Kemer Hazırlık"
+    },
+    {
+      "sira_no": 52,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Kemer ağzı kesim + iplik temizleme",
+      "seviye3": "",
+      "cevrim_sn": 27,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 53,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Kemer ağzı kapama",
+      "seviye3": "",
+      "cevrim_sn": 48,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 54,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Kemer + köprü ütü",
+      "seviye3": "",
+      "cevrim_sn": 16,
+      "tip": "Ütü/Pres",
+      "makine_kodu": "IRN",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 55,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Köprü (bilezik) takma (5 adet)",
+      "seviye3": "",
+      "cevrim_sn": 30,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 56,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Köprü kapama / punteriz",
+      "seviye3": "",
+      "cevrim_sn": 21,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 57,
+      "seviye1": "Kemer Montaj",
+      "seviye2": "Kemer etiket takma (orta arka)",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 58,
+      "seviye1": "Son İşlem",
+      "seviye2": "Paça kıvırma + üst dikiş (iki paça)",
+      "seviye3": "",
+      "cevrim_sn": 36,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": "Kemer Montaj"
+    },
+    {
+      "sira_no": 59,
+      "seviye1": "Son İşlem",
+      "seviye2": "İplik temizleme",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 60,
+      "seviye1": "Son İşlem",
+      "seviye2": "Ön cep yıkama-punteriz",
+      "seviye3": "",
+      "cevrim_sn": 18,
+      "tip": "Düz Dikiş",
+      "makine_kodu": "SNLS",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 61,
+      "seviye1": "Son İşlem",
+      "seviye2": "Köprü punteriz (5 köprü)",
+      "seviye3": "",
+      "cevrim_sn": 20,
+      "tip": "Punteriz",
+      "makine_kodu": "Bartack",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 62,
+      "seviye1": "Son İşlem",
+      "seviye2": "Arka cep punteriz + kord",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Punteriz",
+      "makine_kodu": "Bartack",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 63,
+      "seviye1": "Son İşlem",
+      "seviye2": "Ön cep + patelet punteriz",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Punteriz",
+      "makine_kodu": "Bartack",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 64,
+      "seviye1": "Son İşlem",
+      "seviye2": "Bel kuş gözü / perçin deliği",
+      "seviye3": "",
+      "cevrim_sn": 8,
+      "tip": "Pres/Aksesuar",
+      "makine_kodu": "Press",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 65,
+      "seviye1": "Son İşlem",
+      "seviye2": "Son görsel kontrol işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 10,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 66,
+      "seviye1": "Son İşlem",
+      "seviye2": "Perçin takma (cep köşeleri)",
+      "seviye3": "",
+      "cevrim_sn": 10,
+      "tip": "Pres/Aksesuar",
+      "makine_kodu": "Press",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 67,
+      "seviye1": "Son İşlem",
+      "seviye2": "Bel düğme/çıtçıt takma",
+      "seviye3": "",
+      "cevrim_sn": 10,
+      "tip": "Pres/Aksesuar",
+      "makine_kodu": "Press",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 68,
+      "seviye1": "Son İşlem",
+      "seviye2": "Bel son işaretleme",
+      "seviye3": "",
+      "cevrim_sn": 8,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 69,
+      "seviye1": "Son İşlem",
+      "seviye2": "Son ütü / buhar",
+      "seviye3": "",
+      "cevrim_sn": 20,
+      "tip": "Ütü/Pres",
+      "makine_kodu": "IRN",
+      "oncesi": ""
+    },
+    {
+      "sira_no": 70,
+      "seviye1": "Son İşlem",
+      "seviye2": "İplik alma, katlama, paket",
+      "seviye3": "",
+      "cevrim_sn": 15,
+      "tip": "Yardımcı (El)",
+      "makine_kodu": "",
+      "oncesi": ""
+    }
+  ],
+  "toplamSn": 1368
+}

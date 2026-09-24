@@ -24,7 +24,7 @@ const bosGirdi = {
     revenue_declared: null, idle_days: null, qty_declared: null,
     nominal_days: null, actual_days: null, hours_per_day: null,
     cutting_staff: null, sewing_staff: null, ukp_staff: null, office_staff: null,
-    area_m: null, source: 'beyan' as const,
+    area_m2: null, source: 'anket' as const,
   },
   param: VARSAYILAN_PARAM,
   dkMaliyet3D: null,

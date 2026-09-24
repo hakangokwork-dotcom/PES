@@ -102,6 +102,7 @@ export default function RadarClient({ veri, secilenDonem, donemler, dnaProfiller
             veri={veri}
             istatistik={istatistik}
             siralarTablosu={siralarTablosu}
+            donem={secilenDonem}
           />
 
           {/* Bölüm 4 — Isı haritası */}

@@ -62,7 +62,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'İşgücü',       href: '/workshop/workforce',    icon: Users },
       { label: 'Maliyet',      href: '/workshop/costs',        icon: Wallet },
-      { label: 'Eder Maliyet', href: '/workshop/eder-maliyet', icon: Calculator },
       { label: 'Ekonomi Verisi', href: '/workshop/ekonomi',       icon: Coins },
       { label: 'Karnem',         href: '/workshop/ekonomi/karne', icon: Award },
     ],

@@ -187,7 +187,7 @@ if (!UYGULA) {
 }
 
 // ---------- 7. Yaz ----------
-let yazilanStaging = 0, yazilanGider = 0, yazilanEkonomi = 0
+let yazilanStaging = 0, yazilanGider = 0, yazilanEkonomi = 0, yazilanBolge = 0
 
 await sql.begin(async (tx) => {
   for (const s of kesinler) {
@@ -278,6 +278,19 @@ await sql.begin(async (tx) => {
           survey_id = EXCLUDED.survey_id, note = EXCLUDED.note,
           updated_at = now()`
       yazilanEkonomi++
+    }
+
+    /* Teşvik bölgesini workshop'a yaz. workshop.bolge'nin varsayılanı 1 ve
+       139 atölyenin 134'ü o varsayılanda duruyordu; anketteki bölge hiç
+       taşınmıyordu. Sonuç: model fiyatlamanın 3D referansı 9 pilotta 6,00
+       TL/dk ile hesaplanıyordu, olması gereken 4,76 — %26 yüksek, ve o
+       sütun pazarlıkta kıyas noktası. */
+    if (s.cozum.bolge !== null && s.cozum.bolge >= 1 && s.cozum.bolge <= 6) {
+      const guncel = await tx`
+        UPDATE workshop SET bolge = ${s.cozum.bolge}
+        WHERE id = ${s.eslesme.atolye.id} AND bolge IS DISTINCT FROM ${s.cozum.bolge}
+        RETURNING id`
+      if (guncel.length) yazilanBolge++
     }
   }
 })

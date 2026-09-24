@@ -57,6 +57,12 @@ const UCLAR = [
   'workshop_kapasite_gun', 'kumas_cekme_testi',
   // 037 — atölye ekonomi (iç ekip verisi, atölye kullanıcısı göremez)
   'workshop_economy', 'economy_param', 'economy_survey_staging',
+  // 039 — model fiyatlama (iç ekip verisi)
+  'model_bulten', 'model_bulten_operasyon', 'bulten_bolum_kurali',
+  'model_fiyat', 'model_gercek_sure',
+  // 012 — operasyon zamanı kütüphanesi; ref_urun_tipi ve ref_operasyon
+  // listede zaten var, yalnız ana veri tablosu eksikti.
+  'ref_operasyon_zamani',
 ]
 
 let sizan = 0

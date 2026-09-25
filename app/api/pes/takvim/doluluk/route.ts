@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { cozumle, bosMu, boyutSayisi, ciftler } from '@/lib/pes/yetenek-filtre'
 
 /**
  * Takvimin TEK okuma ucu (tasarım §5, plan Task 5).
  *
  *   GET /api/pes/takvim/doluluk?baslangic=2027-01-01&bitis=2027-01-31
- *       &tedarik=Tedarik%20395&bolge=Ege&yetkinlik=Denim
+ *       &tedarik=Tedarik%20395&bolge=Ege&yetenek=klasman:PANTOLON,ana_grup:DENIM
  *
  * NEDEN TEK UÇ: eski ekran /workshops, /lines ve /work-orders'ı ayrı ayrı
  * çekip istemcide birleştiriyordu. 131 atölyede bu üç tur ağ gecikmesi
@@ -42,7 +43,18 @@ export const GET = withTenantRoute(async (req, { sql }) => {
 
   const tedarik = u.searchParams.get('tedarik')
   const bolge = u.searchParams.get('bolge')
-  const yetkinlik = u.searchParams.get('yetkinlik')
+  /* YETENEK FİLTRESİ (yapısal). Eski `yetkinlik` serbest metindi ve boyut
+     farkı gözetmiyordu: "DENIM" ana_grup'ta, "PANTOLON" klasman'da geçiyor
+     ve ikisini birlikte sormanın yolu yoktu. İki ayrı yetenek filtresi
+     tutmak zamanla iki farklı sonuç demekti; eskisi kaldırıldı. */
+  const secim = cozumle(u.searchParams.get('yetenek'))
+  const yetenekYok = bosMu(secim)
+  /* PARALEL DİZİ + unnest, JSON DEĞİL. jsonb_array_elements'e bağlanan
+     parametre "cannot extract elements from a scalar" veriyordu; unnest
+     iki text[]'i konum konum eşler ve tip belirsizliği bırakmaz. */
+  const yBoyutlar = ciftler(secim).map((c) => c[0])
+  const yDegerler = ciftler(secim).map((c) => c[1])
+  const yetenekBoyutu = boyutSayisi(secim)
 
   /* workshop_profil'de kolon adı bolge_ad (bolge DEĞİL).
      line_capability değere value_code ile bağlanır (value_id DEĞİL);
@@ -56,13 +68,19 @@ export const GET = withTenantRoute(async (req, { sql }) => {
      WHERE w.is_active
        AND (${tedarik}::text IS NULL OR p.tedarik_mudurlugu = ${tedarik})
        AND (${bolge}::text   IS NULL OR p.bolge_ad = ${bolge})
-       AND (${yetkinlik}::text IS NULL OR EXISTS (
-             SELECT 1
+       /* Boyut İÇİNDE veya, boyutlar ARASINDA ve: HAVING count(DISTINCT
+          dimension_code) seçilen boyut sayısına eşitse atölye HEPSİNİ
+          karşılıyor demektir. Atölye seviyesinde süzülür — yetenek bant
+          seviyesinde tutuluyor ama 136 atölyenin yalnız 5'inde bantlar
+          birbirinden farklı. */
+       AND (${yetenekYok} OR w.id IN (
+             SELECT pl2.workshop_id
                FROM line_capability lc
                JOIN production_line pl2 ON pl2.id = lc.line_id
-               LEFT JOIN capability_value cv ON cv.code = lc.value_code
-              WHERE pl2.workshop_id = w.id
-                AND (lc.value_code = ${yetkinlik} OR cv.label = ${yetkinlik})))
+               JOIN unnest(${yBoyutlar}::text[], ${yDegerler}::text[]) AS f(d, v)
+                 ON f.d = lc.dimension_code AND f.v = lc.value_code
+              GROUP BY pl2.workshop_id
+             HAVING count(DISTINCT lc.dimension_code) = ${yetenekBoyutu}))
      ORDER BY p.tedarik_mudurlugu NULLS LAST, w.name`
 
   const atolyeIdleri = atolyeler.map(a => a.id as number)

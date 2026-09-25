@@ -9,6 +9,8 @@ import {
 import GanttSatirlari from './GanttSatirlari'
 import PoPaneli from './PoPaneli'
 import DolulukMatrisi from './DolulukMatrisi'
+import YetenekFiltresi from './YetenekFiltresi'
+import { metinle, bosMu, type YetenekSecim } from '@/lib/pes/yetenek-filtre'
 
 /* Sayfanın üç sorumluluğu: dönem/kip durumu, filtreler, veri çekme.
    Çizim GanttSatirlari'nda, hesap lib/pes/bant-doluluk'ta. */
@@ -23,7 +25,8 @@ export default function TakvimSayfasi() {
   })
   const [gunSecili, setGunSecili] = useState(bugun)
   const [kip, setKip] = useState<Kip>('ay')
-  const [filtre, setFiltre] = useState({ tedarik: '', bolge: '', yetkinlik: '' })
+  const [filtre, setFiltre] = useState({ tedarik: '', bolge: '' })
+  const [yetenek, setYetenek] = useState<YetenekSecim>({})
   const [vurgu, setVurgu] = useState<Vurgu>('')
   const [veri, setVeri] = useState<TakvimVerisi>(BOS_VERI)
   const [secenekler, setSecenekler] = useState<Secenekler>({ tedarik: [], bolge: [] })
@@ -38,7 +41,7 @@ export default function TakvimSayfasi() {
   ), [kip, gunSecili, ay])
   const gunler = useMemo(() => gunListesi(aralik.baslangic, aralik.bitis), [aralik])
 
-  const filtreliMi = !!(filtre.tedarik || filtre.bolge || filtre.yetkinlik)
+  const filtreliMi = !!(filtre.tedarik || filtre.bolge) || !bosMu(yetenek)
 
   const yukle = useCallback(async () => {
     setYukleniyor(true); setHata(null)
@@ -46,7 +49,7 @@ export default function TakvimSayfasi() {
       const q = new URLSearchParams({ baslangic: aralik.baslangic, bitis: aralik.bitis })
       if (filtre.tedarik) q.set('tedarik', filtre.tedarik)
       if (filtre.bolge) q.set('bolge', filtre.bolge)
-      if (filtre.yetkinlik.trim()) q.set('yetkinlik', filtre.yetkinlik.trim())
+      if (!bosMu(yetenek)) q.set('yetenek', metinle(yetenek))
       const r = await fetch(`/api/pes/takvim/doluluk?${q}`)
       if (!r.ok) throw new Error(`Takvim yüklenemedi (${r.status})`)
       const gelen = (await r.json()) as TakvimVerisi
@@ -67,7 +70,7 @@ export default function TakvimSayfasi() {
     } finally {
       setYukleniyor(false)
     }
-  }, [aralik, filtre, filtreliMi])
+  }, [aralik, filtre, yetenek, filtreliMi])
 
   useEffect(() => { yukle() }, [yukle])
 
@@ -139,11 +142,7 @@ export default function TakvimSayfasi() {
             {secenekler.bolge.map(b => <option key={b} value={b}>{b}</option>)}
           </select>
         </label>
-        <label className="inline-flex items-center gap-1.5 text-xs text-faint">Yetkinlik
-          <input id="f-yetkinlik" value={filtre.yetkinlik}
-            onChange={e => setFiltre({ ...filtre, yetkinlik: e.target.value })}
-            placeholder="kod ya da ad" className="w-32 rounded-lg border border-line bg-surface px-2 py-1.5 text-sm text-ink" />
-        </label>
+        <YetenekFiltresi secim={yetenek} onDegis={setYetenek} />
 
         {/* Uyarı sayaçları — sıfırken alarm rengi taşımaz, tıklanınca filtreye dönüşür */}
         <div className="ml-auto flex flex-wrap gap-1.5">

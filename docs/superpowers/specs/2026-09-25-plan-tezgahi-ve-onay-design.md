@@ -1,7 +1,7 @@
 # Planlama tezgâhı ve iki taraflı onay (tasarım)
 
 **Tarih:** 2026-09-25
-**Durum:** 1. tur uygulandı (tezgâh + taslak); 2. tur (onay döngüsü) bekliyor
+**Durum:** tamamı uygulandı — tezgâh, onay döngüsü, yumuşak rezervasyon, bildirimler
 
 ## İstek
 
@@ -68,20 +68,42 @@ bandın günlük hedefi değişince ya da araya tatil girince sessizce eskirdi.
 **Çakışma engellenmez, gösterilir.** Planlamacı bilerek üst üste koyabilmeli
 (mesai düşünüyor olabilir); engelleyen bir tezgâh onu yine Excel'e iter.
 
-## 2. tur — yapılacaklar
+## 2. tur — uygulandı (044, 045)
 
-- `plan_taslak.durum` → `'gonderildi'`; teklif kaydı ve tur geçmişi
-- Yumuşak rezervasyonun `bant-doluluk`'a üçüncü katman olarak girmesi
-  (bugün: gerçek + plan; olacak: gerçek + onaylı + teklif)
-- Atölye tarafı: `/workshop/plan` — gelen teklif, kabul/revizyon/ret
-- Revizyon önerisi yapısal olmalı: yeni tarih + yeni adet + **gerekçe kodu**
-  (serbest metin tek başına aksiyon alınabilir değil)
-- Gecikme bildirimi → `plan-gercek.ts` zaten hazır, TNA'nın "gecikme günü"
-  sütununun karşılığı
-- Zaman çiti içindeki değişikliğin atölyeye bildirilmesi
+**Teklif ve onay (044).** `plan_teklif` + `plan_teklif_kalem`. Her atölyeye
+ayrı teklif; tek teklif olsaydı bir reddin bütün planı bloklaması gerekirdi.
+Cevap bekleyen tur varken yenisi açılmaz.
+
+Kalemler **kopyalanır, işaret edilmez**: taslak gönderildikten sonra da
+değişmeye devam eder, teklif ise değişmemeli.
+
+Cevap **yapısal**: ret ve revizyonda gerekçe kodu zorunlu (8 kod), `DIGER`
+seçilirse serbest metin de. Kural hem TS'te hem `CHECK`'te.
+
+**Karşı öneri varsa o geçerlidir**; uygulandığında atölyenin tarihleri
+yazılır. `yerlestir()` çağrılmaz — o teslimden geriye planlıyor ve tezgâhta
+seçilen tarihleri ezerdi.
+
+**Yumuşak rezervasyon (bant-doluluk).** `Doluluk` dördüncü katman kazandı:
+`teklif`. Plana EKLENMEZ, ayrı durur — takvim "bu iş kesin" ile "bu iş
+sorulmuş" arasındaki farkı göstermek zorunda. İki oran: `oran` (kesinleşmiş)
+ve `oranTeklifli`. Matriste amber çerçeve ve `*`. Yalnız `durum='bekliyor'`
+sayılır: kabul edilen zaten gerçek atamaya döndü, reddedilen yer kaplamamalı.
+
+**Bildirimler (045).** `plan_bildirim`, iki yön tek mekanizma:
+`tip='gecikme'` (atölye → planlamacı), `tip='degisiklik'` (planlamacı →
+atölye, çit içi değişiklik). TNA'nın gecikme günü sütunu — **gün saklanmaz,
+türetilir**; eski tarih yoksa `null` döner, sıfır değil. Erkene çekme
+gizlenmez. Tipi kim yazabilir API'de sınırlanır: rol kuralı olduğu için
+RLS ile ifade edilemez.
 
 ## Kapsam dışı
 
 Otomatik optimizasyon (en iyi yerleşimi kendi bulan algoritma). Çok aşamalı
 zincirin (kesim→dikim→UKP) tezgâhta ayrı ayrı sürüklenmesi — bugün yalnız
 dikim yerleştiriliyor; zincir `yerlestir-kaydet.ts`'te zaten var.
+
+Çit içi değişiklikte bildirimin **otomatik** oluşturulması: altyapı hazır
+(`bildirimGerekir` + `tip='degisiklik'`), ama `uygula` ucu bunu kendiliğinden
+yazmıyor — planlamacı elle bildiriyor. Otomatik yazmak için "önceki
+kararlaştırılmış tarih" kaydının ayrıca tutulması gerekir.

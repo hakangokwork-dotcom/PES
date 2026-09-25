@@ -5,21 +5,28 @@
  * (`line_capability`) aynı katalogdan besleniyor ve boyut adları birebir
  * aynı; eşleştirme bu yüzden mümkün.
  *
- * DÖRT DURUM, ÜÇÜ "HAYIR" DEĞİL:
+ * BEŞ DURUM, DÖRDÜ "HAYIR" DEĞİL:
  *
- *   uygun         künye dolu, atölyede o yetenek var
- *   uygun-degil   künye dolu, atölyede YOK  → gerçek uyarı
- *   kunye-bos     iş emrinde o alan girilmemiş → SORULAMADI
- *   izlenmiyor    boyut yetenek kataloğunda hiç tutulmuyor (ör. kalite)
+ *   uygun          künye dolu, atölyede o yetenek var
+ *   uygun-degil    künye dolu, atölyede o boyutta kayıt VAR ama bu değer YOK
+ *   kunye-bos      iş emrinde o alan girilmemiş → sorulamadı
+ *   atolye-kayitsiz atölyenin O BOYUTTA hiç kaydı yok → sorulamadı
+ *   izlenmiyor     boyut yetenek kataloğunda hiç tutulmuyor (ör. kalite)
  *
- * Bu ayrım işin özü. "Künye boş" ile "uygun değil"i birleştirmek iki yönde
- * de yalan söyler: ya her işi her atölyeye uygun gösterir, ya hiçbirini.
- * PES'te bugün 16 iş emrinin HEPSİNİN künyesi boş — birleştirilseydi ekran
- * ya hep yeşil ya hep kırmızı olurdu ve ikisi de bilgi taşımazdı.
+ * Bu ayrım işin özü ve İKİ TARAFI DA var. "Künye boş" ile "uygun değil"i
+ * birleştirmek her işi her atölyeye uygunsuz gösterir. Aynı şekilde
+ * "atölyenin klasman kaydı yok" ile "bu klasmanı dikemez"i birleştirmek de
+ * yanlış: kaydın olmaması yeteneğin olmadığını göstermez, kaydedilmediğini
+ * gösterir.
+ *
+ * İkincisi canlı veride yakalandı: Ege Denim'in 11 yetenek kaydı var ama
+ * hiçbiri klasman boyutunda değil. Eski kural onu her klasmanda "uygun
+ * değil" sayıyordu — atölyeyi olmadığı bir şeyle suçlamak.
  */
 import { KUNYE_BOYUTLARI, type Kunye, type KunyeKolonu } from './kunye'
 
-export type UyumDurumu = 'uygun' | 'uygun-degil' | 'kunye-bos' | 'izlenmiyor'
+export type UyumDurumu =
+  | 'uygun' | 'uygun-degil' | 'kunye-bos' | 'atolye-kayitsiz' | 'izlenmiyor'
 
 export type BoyutUyumu = {
   kolon: KunyeKolonu
@@ -35,6 +42,7 @@ export const DURUM_ETIKET: Record<UyumDurumu, string> = {
   uygun: 'Uygun',
   'uygun-degil': 'Uygun değil',
   'kunye-bos': 'Künye boş',
+  'atolye-kayitsiz': 'Atölyenin bu boyutta kaydı yok',
   izlenmiyor: 'İzlenmiyor',
 }
 
@@ -65,6 +73,12 @@ export function boyutUyumlari(
     if (istenen === null) {
       return { kolon, boyut, istenen: null, durum: 'kunye-bos' as const }
     }
+    /* Atölyenin O BOYUTTA hiç kaydı yoksa yargı verilemez. Kaydın olmaması
+       yeteneğin olmadığını değil, kaydedilmediğini gösterir. */
+    const boyuttaKayitVar = atolyeYetenekleri.some((y) => y.boyut === boyut)
+    if (!boyuttaKayitVar) {
+      return { kolon, boyut, istenen, durum: 'atolye-kayitsiz' as const }
+    }
     const var_ = atolyeYetenekleri.some((y) => y.boyut === boyut && y.deger === istenen)
     return { kolon, boyut, istenen, durum: (var_ ? 'uygun' : 'uygun-degil') as UyumDurumu }
   })
@@ -74,7 +88,7 @@ export type UyumOzeti = {
   /** Gerçek uyumsuzluk sayısı — yalnız künyesi dolu ve izlenen boyutlar. */
   uyumsuz: number
   uygun: number
-  /** Künyesi boş olduğu için sorulamayan alan sayısı. */
+  /** Künyesi boş ya da atölyede kayıt olmadığı için sorulamayan alan sayısı. */
   sorulamayan: number
   /** Karar verilebilen alan var mı — yoksa "bilinmiyor". */
   kararVerilebilir: boolean
@@ -85,12 +99,12 @@ export type UyumOzeti = {
 export function uyumOzeti(uyumlar: BoyutUyumu[]): UyumOzeti {
   const uyumsuzlar = uyumlar.filter((u) => u.durum === 'uygun-degil')
   const uygunlar = uyumlar.filter((u) => u.durum === 'uygun')
-  const bos = uyumlar.filter((u) => u.durum === 'kunye-bos')
+  const bos = uyumlar.filter((u) => u.durum === 'kunye-bos' || u.durum === 'atolye-kayitsiz')
   return {
     uyumsuz: uyumsuzlar.length,
     uygun: uygunlar.length,
     sorulamayan: bos.length,
-    /* İzlenmeyen boyut karar verdirmez; sayılmaz. */
+    /* İzlenmeyen boyut ve atölyede kaydı olmayan boyut karar verdirmez. */
     kararVerilebilir: uyumsuzlar.length + uygunlar.length > 0,
     eksikBoyutlar: uyumsuzlar.map((u) => u.boyut),
   }
@@ -112,7 +126,7 @@ export function genelUyum(ozet: UyumOzeti): GenelUyum {
 export const GENEL_ETIKET: Record<GenelUyum, string> = {
   uygun: 'Yetenek uyumlu',
   uyumsuz: 'Yetenek uyumsuz',
-  bilinmiyor: 'Künye boş — kontrol edilemedi',
+  bilinmiyor: 'Kontrol edilemedi — künye ya da yetenek kaydı eksik',
 }
 
 /**

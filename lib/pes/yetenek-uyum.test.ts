@@ -24,9 +24,23 @@ describe('boyut uyumu — dört durum', () => {
     expect(u.find((x) => x.boyut === 'klasman')!.durum).toBe('uygun')
   })
 
-  it('künye dolu ama yetenek yoksa UYGUN-DEĞİL', () => {
+  it('künye dolu, boyutta kayıt var ama bu değer yoksa UYGUN-DEĞİL', () => {
     const u = boyutUyumlari({ klasman_kodu: 'ETEK' }, ATOLYE, IZLENEN)
     expect(u.find((x) => x.boyut === 'klasman')!.durum).toBe('uygun-degil')
+  })
+
+  it('atölyenin O BOYUTTA hiç kaydı yoksa ATOLYE-KAYITSIZ — "uygun değil" DEĞİL', () => {
+    /* Canlı veride yakalandı: Ege Denim'in 11 yetenek kaydı var ama hiçbiri
+       klasman boyutunda değil. Eski kural onu her klasmanda "uygun değil"
+       sayıyordu — atölyeyi olmadığı bir şeyle suçlamak. */
+    const kumassiz = [{ boyut: 'klasman', deger: 'PANTOLON' }]
+    const u = boyutUyumlari({ kumas_turu_kodu: 'DENIM' }, kumassiz, IZLENEN)
+    expect(u.find((x) => x.boyut === 'kumas_turu')!.durum).toBe('atolye-kayitsiz')
+  })
+
+  it('yeteneği HİÇ olmayan atölye her boyutta kayıtsız', () => {
+    const u = boyutUyumlari({ klasman_kodu: 'PANTOLON' }, [], IZLENEN)
+    expect(u.find((x) => x.boyut === 'klasman')!.durum).toBe('atolye-kayitsiz')
   })
 
   it('künye boşsa KUNYE-BOS — "uygun değil" DEĞİL', () => {
@@ -42,9 +56,12 @@ describe('boyut uyumu — dört durum', () => {
     expect(u.find((x) => x.boyut === 'kalite')!.durum).toBe('izlenmiyor')
   })
 
-  it('izlenen küme verilmezse hepsi sorulur', () => {
+  it('izlenen küme verilmese bile atölyede kayıt yoksa suçlamaz', () => {
+    /* İzlenen küme olmadan `kalite` sorulur, ama bu atölyenin kalite
+       kaydı da yok — sonuç yine "sorulamadı" olmalı, "uygun değil" değil.
+       Yeni kural eskisini daha doğru biçimde kapsıyor. */
     const u = boyutUyumlari({ kalite_kodu: 'A' }, ATOLYE)
-    expect(u.find((x) => x.boyut === 'kalite')!.durum).toBe('uygun-degil')
+    expect(u.find((x) => x.boyut === 'kalite')!.durum).toBe('atolye-kayitsiz')
   })
 
   it('künyenin her kolonu için bir satır döner', () => {
@@ -64,6 +81,13 @@ describe('özet', () => {
     expect(o.uyumsuz).toBe(1)
     expect(o.sorulamayan).toBeGreaterThan(0)
     expect(o.eksikBoyutlar).toEqual(['ana_grup'])
+  })
+
+  it('atölyede kayıt yoksa KARAR VERİLEMEZ', () => {
+    const o = uyumOzeti(boyutUyumlari({ klasman_kodu: 'PANTOLON' }, [], IZLENEN))
+    expect(o.kararVerilebilir).toBe(false)
+    expect(o.uyumsuz).toBe(0)
+    expect(o.sorulamayan).toBeGreaterThan(0)
   })
 
   it('künye tamamen boşken KARAR VERİLEMEZ', () => {
@@ -89,11 +113,14 @@ describe('genel uyum', () => {
 
   it('künye boşken BİLİNMİYOR — ne yeşil ne kırmızı', () => {
     expect(genelUyum(oz({}))).toBe('bilinmiyor')
-    expect(GENEL_ETIKET.bilinmiyor).toContain('Künye boş')
+    /* Etiket iki sebebi birden kapsamalı: künye boş olabilir ya da
+       atölyenin o boyutta kaydı olmayabilir. */
+    expect(GENEL_ETIKET.bilinmiyor).toContain('Kontrol edilemedi')
   })
 
   it('her durumun etiketi var', () => {
-    for (const d of ['uygun', 'uygun-degil', 'kunye-bos', 'izlenmiyor'] as const) {
+    for (const d of
+      ['uygun', 'uygun-degil', 'kunye-bos', 'atolye-kayitsiz', 'izlenmiyor'] as const) {
       expect(DURUM_ETIKET[d]).toBeTruthy()
     }
   })

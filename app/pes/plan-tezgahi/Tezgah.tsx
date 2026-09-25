@@ -2,6 +2,12 @@
 
 import { useState, useTransition, useMemo, Fragment } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import {
+  boyutUyumlari, uyumOzeti, genelUyum, uyariMetni,
+  type AtolyeYetenegi, type GenelUyum,
+} from '@/lib/pes/yetenek-uyum'
+import { boyutAdi } from '@/lib/pes/yetenek-filtre'
+import type { Kunye } from '@/lib/pes/kunye'
 
 /**
  * Sürükle-bırak tezgâhı.
@@ -64,7 +70,8 @@ function gunEtiketi(t: string) {
 
 export default function Tezgah({
   taslaklar, seciliTaslak, bantlar, gunler, havuz, yerlesik,
-  cakismalar, citUyarilari, citGun, bugun,
+  cakismalar, atolyeYetenekleri, kunyeler, izlenenBoyutlar,
+  citUyarilari, citGun, bugun,
 }: {
   taslaklar: Array<{ id: number; ad: string; kalem: number }>
   seciliTaslak: number
@@ -73,6 +80,9 @@ export default function Tezgah({
   havuz: HavuzKarti[]
   yerlesik: YerlesikKalem[]
   cakismalar: Cakisma[]
+  atolyeYetenekleri: Record<number, AtolyeYetenegi[]>
+  kunyeler: Record<number, Kunye>
+  izlenenBoyutlar: string[]
   citUyarilari: CitUyarisi[]
   citGun: number
   bugun: string
@@ -97,6 +107,34 @@ export default function Tezgah({
   const citKalem = useMemo(
     () => new Map(citUyarilari.map((u) => [u.kalemId, u.kalanGun])),
     [citUyarilari])
+
+  const izlenen = useMemo(() => new Set(izlenenBoyutlar), [izlenenBoyutlar])
+
+  /* (iş emri, atölye) -> uyum. ENGELLEMEZ, gösterir: planlamacı bilerek
+     uyumsuz atölyeye verebilmeli (numune olabilir, atölye yeni yetenek
+     kazanmış ama katalog güncellenmemiş olabilir). */
+  const uyum = useMemo(() => {
+    const f = (woId: number, wsId: number): GenelUyum => {
+      const k = kunyeler[woId]
+      if (!k) return 'bilinmiyor'
+      return genelUyum(uyumOzeti(boyutUyumlari(k, atolyeYetenekleri[wsId] ?? [], izlenen)))
+    }
+    return f
+  }, [kunyeler, atolyeYetenekleri, izlenen])
+
+  const uyariyi = useMemo(() => {
+    return (woId: number, wsId: number): string | null => {
+      const k = kunyeler[woId]
+      if (!k) return null
+      return uyariMetni(
+        uyumOzeti(boyutUyumlari(k, atolyeYetenekleri[wsId] ?? [], izlenen)), boyutAdi)
+    }
+  }, [kunyeler, atolyeYetenekleri, izlenen])
+
+  /* Sürüklenen işin bu atölyeye uyumu — grup başlığını boyamak için. */
+  const suruklenenWoId = suruklenen
+    ? (suruklenen.tip === 'havuz' ? suruklenen.wo.workOrderId : suruklenen.kalem.workOrderId)
+    : null
 
   const gorunenHavuz = useMemo(() => {
     const q = arama.trim().toLocaleLowerCase('tr')
@@ -286,8 +324,33 @@ export default function Tezgah({
                 <Fragment key={wsId}>
                   <tr>
                     <td colSpan={gunler.length + 1}
-                        className="sticky left-0 bg-slate-100 border-b border-slate-200 px-2 py-1 font-medium">
+                        className={`sticky left-0 border-b border-slate-200 px-2 py-1 font-medium ${
+                          suruklenenWoId !== null && uyum(suruklenenWoId, wsId) === 'uyumsuz'
+                            ? 'bg-amber-100' : 'bg-slate-100'}`}>
                       {grup.ad} {grup.kod && <span className="text-slate-400">· {grup.kod}</span>}
+                      {/* Sürüklenen iş bu atölyeye uymuyorsa söyler, ENGELLEMEZ. */}
+                      {suruklenenWoId !== null && (() => {
+                        const u = uyum(suruklenenWoId, wsId)
+                        if (u === 'uyumsuz') {
+                          return (
+                            <span className="ml-2 text-xs font-normal text-amber-800">
+                              {uyariyi(suruklenenWoId, wsId)}
+                            </span>
+                          )
+                        }
+                        if (u === 'bilinmiyor') {
+                          return (
+                            <span className="ml-2 text-xs font-normal text-slate-400">
+                              künye boş — uygunluk kontrol edilemedi
+                            </span>
+                          )
+                        }
+                        return (
+                          <span className="ml-2 text-xs font-normal text-emerald-700">
+                            yetenek uyumlu
+                          </span>
+                        )
+                      })()}
                     </td>
                   </tr>
                   {grup.bantlar.map((b) => {
@@ -388,6 +451,18 @@ export default function Tezgah({
                           teslimi aşıyor
                         </span>
                       )}
+                      {(() => {
+                        const bant = bantlar.find((b) => b.lineId === k.lineId)
+                        if (!bant) return null
+                        const u = uyum(k.workOrderId, bant.workshopId)
+                        if (u !== 'uyumsuz') return null
+                        return (
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800"
+                                title={uyariyi(k.workOrderId, bant.workshopId) ?? ''}>
+                            yetenek uyumsuz
+                          </span>
+                        )
+                      })()}
                     </td>
                     <td className="px-3 py-1.5 text-right">
                       <button

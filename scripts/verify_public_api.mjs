@@ -57,6 +57,8 @@ const UCLAR = [
   'workshop_kapasite_gun', 'kumas_cekme_testi',
   // 037 — atölye ekonomi (iç ekip verisi, atölye kullanıcısı göremez)
   'workshop_economy', 'economy_param', 'economy_survey_staging',
+  // 042 — atolye uretim parametreleri
+  'workshop_uretim_param',
   // 043 — planlama tezgahi taslagi (ic ekip araci)
   'plan_taslak', 'plan_taslak_kalem',
   // 044 — iki tarafli onay

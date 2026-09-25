@@ -292,7 +292,18 @@ export default function SiparisYerlestirSihirbazi({ asamalar, havuzPo, onAtolyeI
                         s.includes(a.code) ? s.filter(x => x !== a.code) : [...s, a.code])}
                     />
                     <span className="flex-1">{a.name}</span>
-                    <span className="text-[11px] text-faint">{a.sira_no}</span>
+                    {/* Burada `sira_no` çıplak basılıyordu (3, 10, 15, 20…) ve
+                        kullanıcı bunu SÜRE sandı. O sayı üretim sırasının iç
+                        numarası; aradaki boşluklar araya aşama eklenebilsin
+                        diye var. Liste zaten o sıraya göre dizili olduğu için
+                        ekranda hiçbir şey anlatmıyordu, yanlış anlatıyordu.
+                        Yerine gerçekten işe yarayan tek bilgi: hangi aşama
+                        kaldırılamaz. */}
+                    {a.code === 'DIKIM' && (
+                      <span className="rounded bg-warn-soft px-1.5 py-0.5 text-[10px] text-warn">
+                        zorunlu
+                      </span>
+                    )}
                   </label>
                 )
               })}

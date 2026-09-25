@@ -27,6 +27,8 @@ import Tezgah, {
 import Teklifler, { type TeklifSatiri } from './Teklifler'
 import Bildirimler, { type BildirimSatiri } from './Bildirimler'
 import type { BildirimTipi } from '@/lib/pes/plan-bildirim'
+import type { Kunye } from '@/lib/pes/kunye'
+import type { AtolyeYetenegi } from '@/lib/pes/yetenek-uyum'
 import type { TeklifDurumu, GerekceKodu, TeklifKalem } from '@/lib/pes/plan-onay'
 
 export const dynamic = 'force-dynamic'
@@ -121,7 +123,9 @@ export default async function PlanTezgahiSayfasi({
     const havuzSatirlari = await sql`
       SELECT w.id, w.is_emri_no, w.model_adi, w.musteri, w.siparis_miktari,
              w.teslim_tarihi::text AS teslim, w.durum, w.workshop_id,
-             a.name AS atolye_adi
+             a.name AS atolye_adi,
+             w.ana_grup_kodu, w.klasman_kodu, w.kumas_turu_kodu,
+             w.kumas_grubu_kodu, w.cinsiyet_yas_kodu, w.kalite_kodu
         FROM work_order w
         LEFT JOIN workshop a ON a.id = w.workshop_id
        WHERE w.durum IN ('Taslak', 'Planlandi', 'Bekleniyor')
@@ -160,8 +164,24 @@ export default async function PlanTezgahiSayfasi({
        LIMIT 50
     ` as unknown as Array<Record<string, unknown>>
 
+    /* Tahtadaki atölyelerin yetenekleri — "bu işi bu atölye dikebilir mi". */
+    const yetenekSatirlari = atolyeIdler.length ? await sql`
+      SELECT DISTINCT pl.workshop_id, lc.dimension_code AS boyut, lc.value_code AS deger
+        FROM line_capability lc
+        JOIN production_line pl ON pl.id = lc.line_id
+       WHERE pl.workshop_id = ANY(${atolyeIdler})
+    ` as unknown as Array<Record<string, unknown>> : []
+
+    /* Katalogda GERÇEKTEN izlenen boyutlar. Künyede olup burada hiç
+       geçmeyen boyut (kalite) "uygun değil" sayılamaz — her atölyeyi
+       haksız yere elerdi. */
+    const izlenenSatirlari = await sql`
+      SELECT DISTINCT dimension_code FROM line_capability
+    ` as unknown as Array<{ dimension_code: string }>
+
     return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar,
-             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari }
+             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
+             yetenekSatirlari, izlenenSatirlari }
   })
 
   if (!veri) redirect('/login')
@@ -224,6 +244,28 @@ export default async function PlanTezgahiSayfasi({
       gunler: p.gunler,
     }
   })
+
+  const atolyeYetenekleri: Record<number, AtolyeYetenegi[]> = {}
+  for (const y of veri.yetenekSatirlari) {
+    const wsId = y.workshop_id as number
+    ;(atolyeYetenekleri[wsId] ??= []).push({
+      boyut: y.boyut as string, deger: y.deger as string,
+    })
+  }
+  const izlenenBoyutlar = veri.izlenenSatirlari.map((r) => r.dimension_code)
+
+  /* Künye: havuzdaki ve yerleşen işlerin hepsi için. */
+  const kunyeler: Record<number, Kunye> = {}
+  for (const h of veri.havuzSatirlari) {
+    kunyeler[h.id as number] = {
+      ana_grup_kodu: (h.ana_grup_kodu as string | null) ?? null,
+      klasman_kodu: (h.klasman_kodu as string | null) ?? null,
+      kumas_turu_kodu: (h.kumas_turu_kodu as string | null) ?? null,
+      kumas_grubu_kodu: (h.kumas_grubu_kodu as string | null) ?? null,
+      cinsiyet_yas_kodu: (h.cinsiyet_yas_kodu as string | null) ?? null,
+      kalite_kodu: (h.kalite_kodu as string | null) ?? null,
+    }
+  }
 
   const havuz: HavuzKarti[] = veri.havuzSatirlari
     .filter((h) => !veri.yerlesikWo.has(h.id as number))
@@ -296,7 +338,8 @@ export default async function PlanTezgahiSayfasi({
         <Tezgah
           taslaklar={[]} seciliTaslak={0}
           bantlar={[]} gunler={gunler} havuz={havuz} yerlesik={[]}
-          cakismalar={[]} citUyarilari={[]} citGun={ZAMAN_CITI_GUN} bugun={bugun}
+          cakismalar={[]} atolyeYetenekleri={{}} kunyeler={{}} izlenenBoyutlar={[]}
+          citUyarilari={[]} citGun={ZAMAN_CITI_GUN} bugun={bugun}
         />
       ) : (
         <Tezgah
@@ -307,6 +350,9 @@ export default async function PlanTezgahiSayfasi({
           havuz={havuz}
           yerlesik={yerlesik}
           cakismalar={catismalar}
+          atolyeYetenekleri={atolyeYetenekleri}
+          kunyeler={kunyeler}
+          izlenenBoyutlar={izlenenBoyutlar}
           citUyarilari={citUyarilari}
           citGun={ZAMAN_CITI_GUN}
           bugun={bugun}

@@ -61,6 +61,8 @@ const UCLAR = [
   'plan_taslak', 'plan_taslak_kalem',
   // 044 — iki tarafli onay
   'plan_teklif', 'plan_teklif_kalem',
+  // 045 — plan bildirimleri
+  'plan_bildirim',
   // 040 — ekonomi veri talebi
   'economy_data_request',
   // 039 — model fiyatlama (iç ekip verisi)

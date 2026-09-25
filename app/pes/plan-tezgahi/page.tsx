@@ -25,6 +25,8 @@ import Tezgah, {
   type BantSatiri, type HavuzKarti, type YerlesikKalem,
 } from './Tezgah'
 import Teklifler, { type TeklifSatiri } from './Teklifler'
+import Bildirimler, { type BildirimSatiri } from './Bildirimler'
+import type { BildirimTipi } from '@/lib/pes/plan-bildirim'
 import type { TeklifDurumu, GerekceKodu, TeklifKalem } from '@/lib/pes/plan-onay'
 
 export const dynamic = 'force-dynamic'
@@ -144,8 +146,22 @@ export default async function PlanTezgahiSayfasi({
        WHERE teklif_id = ANY(${teklifSatirlari.map((t) => t.id as number)})
     ` as unknown as Array<Record<string, unknown>> : []
 
+    /* Atölyelerden gelen gecikme bildirimleri (045). */
+    const bildirimSatirlari = await sql`
+      SELECT b.id, b.tip, b.work_order_id, b.workshop_id,
+             b.eski_bitis::text AS eski_bitis, b.yeni_bitis::text AS yeni_bitis,
+             b.gerekce_kodu, b.not_metni, b.created_at, b.okundu_at,
+             wo.is_emri_no, wo.model_adi, w.name AS atolye_adi
+        FROM plan_bildirim b
+        JOIN work_order wo ON wo.id = b.work_order_id
+        JOIN workshop w ON w.id = b.workshop_id
+       WHERE b.tip = 'gecikme'
+       ORDER BY (b.okundu_at IS NULL) DESC, b.created_at DESC
+       LIMIT 50
+    ` as unknown as Array<Record<string, unknown>>
+
     return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar,
-             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri }
+             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari }
   })
 
   if (!veri) redirect('/login')
@@ -246,6 +262,22 @@ export default async function PlanTezgahiSayfasi({
       })),
   }))
 
+  const bildirimler: BildirimSatiri[] = veri.bildirimSatirlari.map((b) => ({
+    id: b.id as number,
+    tip: b.tip as BildirimTipi,
+    workOrderId: b.work_order_id as number,
+    workshopId: b.workshop_id as number,
+    eskiBitis: (b.eski_bitis as string | null) ?? null,
+    yeniBitis: b.yeni_bitis as string,
+    gerekceKodu: b.gerekce_kodu as GerekceKodu,
+    not: (b.not_metni as string | null) ?? null,
+    olusturulma: String(b.created_at ?? '').slice(0, 10),
+    okunduAt: b.okundu_at ? String(b.okundu_at).slice(0, 10) : null,
+    isEmriNo: (b.is_emri_no as string) ?? `#${b.work_order_id}`,
+    modelAdi: (b.model_adi as string) ?? '',
+    atolyeAdi: (b.atolye_adi as string) ?? '',
+  }))
+
   return (
     <main className="p-4 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
@@ -288,6 +320,8 @@ export default async function PlanTezgahiSayfasi({
           kalemVar={kalemler.length > 0}
         />
       )}
+
+      <Bildirimler bildirimler={bildirimler} />
     </main>
   )
 }

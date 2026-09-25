@@ -4,6 +4,7 @@ import { requireSession } from '@/lib/auth/panel-guard'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { DURUM_ETIKET, GEREKCE_ETIKET, type TeklifDurumu, type GerekceKodu } from '@/lib/pes/plan-onay'
 import Cevapla, { type TeklifGorunum } from './Cevapla'
+import GecikmeBildir, { type PlanliIs, type GecmisBildirim } from './GecikmeBildir'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,7 +49,30 @@ export default async function AtolyePlanSayfasi() {
        ORDER BY k.baslangic
     ` as unknown as Array<Record<string, unknown>> : []
 
-    return { atolye: w, teklifler, kalemler }
+    /* Bu atölyeye yazılmış GERÇEK plan — gecikme bildirimi buna dayanır. */
+    const planliIsler = await sql`
+      SELECT DISTINCT wo.id, wo.is_emri_no, wo.model_adi,
+             max(st.plan_bitis)::text AS plan_bitis,
+             wo.teslim_tarihi::text AS teslim
+        FROM work_order_stage st
+        JOIN work_order wo ON wo.id = st.work_order_id
+       WHERE st.workshop_id = ${tenant.workshopId}
+         AND wo.durum NOT IN ('Tamamlandi', 'Sevk Edildi', 'İptal')
+       GROUP BY wo.id, wo.is_emri_no, wo.model_adi, wo.teslim_tarihi
+       ORDER BY wo.is_emri_no
+    ` as unknown as Array<Record<string, unknown>>
+
+    const bildirimler = await sql`
+      SELECT b.id, b.work_order_id, b.eski_bitis::text AS eski_bitis,
+             b.yeni_bitis::text AS yeni_bitis, b.gerekce_kodu, b.not_metni,
+             b.created_at, wo.is_emri_no
+        FROM plan_bildirim b
+        JOIN work_order wo ON wo.id = b.work_order_id
+       WHERE b.tip = 'gecikme'
+       ORDER BY b.created_at DESC LIMIT 20
+    ` as unknown as Array<Record<string, unknown>>
+
+    return { atolye: w, teklifler, kalemler, planliIsler, bildirimler }
   })
 
   if (!veri) redirect('/login')
@@ -81,6 +105,25 @@ export default async function AtolyePlanSayfasi() {
       })),
   }))
 
+  const planliIsler: PlanliIs[] = veri.planliIsler.map((r) => ({
+    workOrderId: r.id as number,
+    isEmriNo: (r.is_emri_no as string) ?? `#${r.id}`,
+    modelAdi: (r.model_adi as string) ?? '',
+    planBitis: (r.plan_bitis as string | null) ?? null,
+    teslim: (r.teslim as string | null) ?? null,
+  }))
+
+  const gecmisBildirimler: GecmisBildirim[] = veri.bildirimler.map((r) => ({
+    id: r.id as number,
+    workOrderId: r.work_order_id as number,
+    isEmriNo: (r.is_emri_no as string) ?? `#${r.work_order_id}`,
+    eskiBitis: (r.eski_bitis as string | null) ?? null,
+    yeniBitis: r.yeni_bitis as string,
+    gerekceKodu: r.gerekce_kodu as GerekceKodu,
+    not: (r.not_metni as string | null) ?? null,
+    olusturulma: String(r.created_at ?? '').slice(0, 10),
+  }))
+
   const bekleyen = gorunumler.filter((t) => t.durum === 'bekliyor')
   const gecmis = gorunumler.filter((t) => t.durum !== 'bekliyor')
 
@@ -102,6 +145,8 @@ export default async function AtolyePlanSayfasi() {
       )}
 
       {bekleyen.map((t) => <Cevapla key={t.id} teklif={t} />)}
+
+      <GecikmeBildir isler={planliIsler} gecmis={gecmisBildirimler} />
 
       {gecmis.length > 0 && (
         <section className="space-y-2">

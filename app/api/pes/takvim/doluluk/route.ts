@@ -154,7 +154,20 @@ export const GET = withTenantRoute(async (req, { sql }) => {
       JOIN work_order wo ON wo.id = t.work_order_id
      WHERE wo.workshop_id IN ${sql(atolyeIdleri)}`
 
+  /* YUMUŞAK REZERVASYON (044): cevap BEKLEYEN teklifler. Cevaplanmış
+     teklif buraya girmez — kabul edilense zaten gerçek atamaya döndü,
+     reddedilense takvimde yer kaplamamalı. */
+  const teklifler = await sql`
+    SELECT k.id, k.line_id, k.adet, k.baslangic::text, k.bitis::text,
+           k.work_order_id, t.id AS teklif_id, t.workshop_id,
+           wo.is_emri_no, wo.model_adi
+      FROM plan_teklif_kalem k
+      JOIN plan_teklif t ON t.id = k.teklif_id
+      JOIN work_order wo ON wo.id = k.work_order_id
+     WHERE t.durum = 'bekliyor' AND t.workshop_id IN ${sql(atolyeIdleri)}`
+
   return NextResponse.json({
-    atolyeler, bantlar, atamalar, bloklar, kapasiteGun, gunluk, asamalar, malzemeler, testler,
+    atolyeler, bantlar, atamalar, bloklar, kapasiteGun, gunluk, asamalar,
+    malzemeler, testler, teklifler,
   })
 })

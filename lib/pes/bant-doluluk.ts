@@ -159,10 +159,23 @@ export type Doluluk = {
   plan: number
   gercek: number
   rezerve: number
+  /**
+   * YUMUŞAK REZERVASYON: atölyeye gönderilmiş ama HENÜZ CEVAPLANMAMIŞ
+   * teklifler (044). Onaylı plandan ayrı tutulur — teklif reddedilirse
+   * kendiliğinden düşer ve takvimde yer açılır.
+   *
+   * `plan`a EKLENMEZ: takvim "bu iş kesin" ile "bu iş sorulmuş" arasındaki
+   * farkı göstermek zorunda, yoksa boş atölye araması yanlış cevap verir.
+   */
+  teklif: number
   kapasite: number
-  /** (plan + rezerve) / kapasite. Kapasite 0 ise 0. */
+  /** (plan + rezerve) / kapasite — YALNIZ kesinleşmiş yük. Kapasite 0 ise 0. */
   oran: number
+  /** Teklifler de sayılınca oran. Çift rezervasyonu bu gösterir. */
+  oranTeklifli: number
   asim: boolean
+  /** Teklifler de sayılınca aşım — henüz kesin değil ama uyarılmalı. */
+  asimTeklifli: boolean
 }
 
 /** atamaId → { tarih: gerçekleşen adet }. Girilmemiş gün ANAHTAR OLARAK YOKTUR. */
@@ -176,6 +189,8 @@ export function gunlukDoluluk(
   atamalar: AtamaTanim[],
   ctx: HesapBaglami,
   gercekler: GercekHaritasi,
+  /** Cevap bekleyen teklif kalemleri; atamalarla aynı biçimde dağıtılır. */
+  teklifler: AtamaTanim[] = [],
 ): Doluluk {
   let plan = 0
   let gercek = 0
@@ -194,16 +209,29 @@ export function gunlukDoluluk(
     rezerve += b.adet ?? bantPayi(b.lineId, ctx.bantlar, ctx.bloklar, tarih, ctx.override(tarih))
   }
 
+  /* Teklif, atamayla AYNI kuralla güne dağıtılır: aynı bant payı, aynı
+     tatil atlama. Farklı dağıtmak, aynı işin teklifken başka onaylıyken
+     başka yer kaplaması demekti. */
+  let teklif = 0
+  for (const t of teklifler) {
+    const g = gunlukPlan(t, ctx).find(x => x.tarih === tarih)
+    if (g) teklif += g.adet
+  }
+
   const kapasite = efektifKapasite(ctx.bantlar, ctx.bloklar, tarih, ctx.override(tarih))
-  const oran = kapasite > 0 ? (plan + rezerve) / kapasite : 0
+  const kesin = plan + rezerve
+  const oran = kapasite > 0 ? kesin / kapasite : 0
+  const oranTeklifli = kapasite > 0 ? (kesin + teklif) / kapasite : 0
   return {
-    tarih, plan, gercek, rezerve, kapasite, oran,
-    asim: kapasite > 0 && plan + rezerve > kapasite,
+    tarih, plan, gercek, rezerve, teklif, kapasite, oran, oranTeklifli,
+    asim: kapasite > 0 && kesin > kapasite,
+    asimTeklifli: kapasite > 0 && kesin + teklif > kapasite,
   }
 }
 
 export type AylikDoluluk = {
-  ay: string; plan: number; gercek: number; kapasite: number; oran: number
+  ay: string; plan: number; gercek: number; teklif: number
+  kapasite: number; oran: number; oranTeklifli: number
 }
 
 /** Ayın günlerini 'YYYY-MM' biçiminden üretir. */
@@ -226,14 +254,20 @@ export function aylikDoluluk(
   atamalar: AtamaTanim[],
   ctx: HesapBaglami,
   gercekler: GercekHaritasi,
+  teklifler: AtamaTanim[] = [],
 ): AylikDoluluk | null {
-  let plan = 0, gercek = 0, kapasite = 0
+  let plan = 0, gercek = 0, teklif = 0, kapasite = 0
   for (const t of ayinGunleri(ay)) {
-    const d = gunlukDoluluk(t, atamalar, ctx, gercekler)
+    const d = gunlukDoluluk(t, atamalar, ctx, gercekler, teklifler)
     plan += d.plan + d.rezerve
     gercek += d.gercek
+    teklif += d.teklif
     kapasite += d.kapasite
   }
   if (kapasite === 0) return null
-  return { ay, plan, gercek, kapasite, oran: plan / kapasite }
+  return {
+    ay, plan, gercek, teklif, kapasite,
+    oran: plan / kapasite,
+    oranTeklifli: (plan + teklif) / kapasite,
+  }
 }

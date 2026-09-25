@@ -9,7 +9,7 @@ import {
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
   Shapes, Workflow, Waypoints, Calculator,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
-  ArrowRight, Coins, Layers, Ruler, FunctionSquare, ClipboardPen,
+  ArrowRight, Coins, Layers, Ruler, FunctionSquare, ClipboardPen, LayoutGrid,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -33,6 +33,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Atölye Takvimleri', href: '/pes/takvim',       icon: CalendarDays },
       { label: 'Siparişler',        href: '/pes/siparisler',     icon: Inbox },
       { label: 'Sipariş Yerleştir', href: '/pes/siparis-yerlestir', icon: PackagePlus },
+      { label: 'Planlama Tezgâhı', href: '/pes/plan-tezgahi', icon: LayoutGrid },
     ],
   },
   {

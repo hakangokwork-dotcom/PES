@@ -238,3 +238,63 @@ describe('aylikDoluluk', () => {
     expect(aylikDoluluk('2027-01', atamalar, kapali, {})).toBeNull()
   })
 })
+
+describe('yumuşak rezervasyon — teklif katmanı (044)', () => {
+  const ctx = { bantlar: BANTLAR, bloklar: [] as BlokTanim[], override: () => null }
+  const atamalar: AtamaTanim[] = [
+    { atamaId: 1, lineId: 101, adet: 2000, planBaslangic: '2027-01-04', elleplan: {} },
+  ]
+  const teklifler: AtamaTanim[] = [
+    { atamaId: 99, lineId: 102, adet: 2000, planBaslangic: '2027-01-04', elleplan: {} },
+  ]
+
+  it('teklif PLANA EKLENMEZ — ayrı alanda durur', () => {
+    /* Takvim "bu iş kesin" ile "bu iş sorulmuş" arasındaki farkı göstermek
+       zorunda; birleştirilirse boş atölye araması yanlış cevap verir. */
+    const d = gunlukDoluluk('2027-01-04', atamalar, ctx, {}, teklifler)
+    expect(d.plan).toBe(2000)
+    expect(d.teklif).toBe(2000)
+  })
+
+  it('iki ayrı oran: kesinleşmiş ve teklifli', () => {
+    const d = gunlukDoluluk('2027-01-04', atamalar, ctx, {}, teklifler)
+    expect(d.oran).toBeCloseTo(2000 / 5000, 6)
+    expect(d.oranTeklifli).toBeCloseTo(4000 / 5000, 6)
+  })
+
+  it('teklif verilmezse davranış AYNI kalır', () => {
+    /* Eski çağrılar bozulmamalı — katman eklendi, anlam değişmedi. */
+    const yok = gunlukDoluluk('2027-01-04', atamalar, ctx, {})
+    const bos = gunlukDoluluk('2027-01-04', atamalar, ctx, {}, [])
+    expect(yok.teklif).toBe(0)
+    expect(yok.oranTeklifli).toBeCloseTo(yok.oran, 10)
+    expect(bos).toEqual(yok)
+  })
+
+  it('teklif kapasiteyi aşırınca YALNIZ asimTeklifli yanar', () => {
+    /* Her kalem kendi bandının günlük hedefiyle sınırlı; tek kalem
+       kapasiteyi aşamaz. Aşım, AYNI banda plan ve teklif birlikte
+       düşünce oluşur — çift rezervasyonun gerçek hâli.
+       Kapasite 5000; plan 2000 (101) + teklif 2000 (101) + 2000 (102). */
+    const ustUste: AtamaTanim[] = [
+      { atamaId: 98, lineId: 101, adet: 2000, planBaslangic: '2027-01-04', elleplan: {} },
+      { atamaId: 99, lineId: 102, adet: 2000, planBaslangic: '2027-01-04', elleplan: {} },
+    ]
+    const d = gunlukDoluluk('2027-01-04', atamalar, ctx, {}, ustUste)
+    expect(d.plan + d.teklif).toBeGreaterThan(d.kapasite)
+    /* Kesinleşmiş yük tek başına aşmıyor: kırmızı alarm değil, uyarı. */
+    expect(d.asim).toBe(false)
+    expect(d.asimTeklifli).toBe(true)
+  })
+
+  it('teklif atamayla AYNI kuralla güne dağılır — Pazar atlanır', () => {
+    const d = gunlukDoluluk('2027-01-10', [], ctx, {}, teklifler)
+    expect(d.teklif).toBe(0)
+  })
+
+  it('aylık doluluk teklifi ayrı toplar', () => {
+    const a = aylikDoluluk('2027-01', atamalar, ctx, {}, teklifler)!
+    expect(a.teklif).toBeGreaterThan(0)
+    expect(a.oranTeklifli).toBeGreaterThan(a.oran)
+  })
+})

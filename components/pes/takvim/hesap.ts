@@ -115,6 +115,8 @@ export type AtolyePaketi = {
   gercekler: GercekHaritasi
   /** atamaId → türetilmiş bitiş (K4) */
   bitisler: Map<number, string>
+  /** Cevap bekleyen tekliflerin atama biçimi — yumuşak rezervasyon. */
+  teklifler: AtamaTanim[]
 }
 
 export function atolyePaketleri(veri: TakvimVerisi): Map<number, AtolyePaketi> {
@@ -126,8 +128,21 @@ export function atolyePaketleri(veri: TakvimVerisi): Map<number, AtolyePaketi> {
     const kaynak = veri.atamalar.filter(a => bantIdleri.has(a.line_id))
     const atamalar = kaynak.map(a => atamaTanimi(a, elle))
     const bitisler = new Map(atamalar.map(a => [a.atamaId, planBitisi(a, ctx)]))
+
+    /* Teklif kalemi atamayla aynı biçime çevrilir ki aynı kuralla güne
+       dağılsın; elle plan taşımaz — henüz onaylanmamış bir iş için
+       atölyenin gün gün yazdığı bir plan olamaz. */
+    const teklifler: AtamaTanim[] = veri.teklifler
+      .filter(t => bantIdleri.has(t.line_id))
+      .map(t => ({
+        atamaId: -t.id,  // negatif: gerçek atama id'leriyle çakışmasın
+        lineId: t.line_id,
+        adet: t.adet,
+        planBaslangic: t.baslangic,
+        elleplan: {},
+      }))
     out.set(w.id, {
-      ctx, atamalar, gercekler, bitisler,
+      ctx, atamalar, gercekler, bitisler, teklifler,
       atamaKaynak: new Map(kaynak.map(a => [a.id, a])),
     })
   }

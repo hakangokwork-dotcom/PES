@@ -36,7 +36,7 @@ export default function DolulukMatrisi({ veri, paketler, yil, onAySec }: Props) 
   const satirlar = useMemo<Satir[]>(() => veri.atolyeler.map(w => {
     const p = paketler.get(w.id)
     const aylar = Array.from({ length: 12 }, (_, m) =>
-      p ? aylikDoluluk(`${yil}-${iki(m + 1)}`, p.atamalar, p.ctx, p.gercekler) : null)
+      p ? aylikDoluluk(`${yil}-${iki(m + 1)}`, p.atamalar, p.ctx, p.gercekler, p.teklifler) : null)
     const kapasite = aylar.reduce((s, a) => s + (a?.kapasite ?? 0), 0)
     const yerlesen = aylar.reduce((s, a) => s + (a?.plan ?? 0), 0)
     return {
@@ -93,6 +93,11 @@ export default function DolulukMatrisi({ veri, paketler, yil, onAySec }: Props) 
                       </td>
                     )
                     const st = adim(a.oran), asim = a.oran > 1
+                    /* Yumuşak rezervasyon (044): cevap bekleyen teklif.
+                       Onaylı yükten AYRI gösterilir — amber çerçeve ve *.
+                       Renge KATILMAZ: teklif reddedilirse yer kendiliğinden
+                       açılır, dolu göstermek boş atölye aramasını yanıltır. */
+                    const teklifli = a.teklif > 0
                     return (
                       <td key={m} className="px-1 py-1 text-center">
                         <button type="button" onClick={() => onAySec(m)}
@@ -100,10 +105,13 @@ export default function DolulukMatrisi({ veri, paketler, yil, onAySec }: Props) 
                           style={{
                             background: st ? RAMP[st - 1] : 'var(--color-line-soft)',
                             color: st >= 4 ? '#fff' : 'var(--color-ink)',
-                            boxShadow: asim ? 'inset 0 0 0 2px var(--color-danger)' : undefined,
+                            boxShadow: asim
+                              ? 'inset 0 0 0 2px var(--color-danger)'
+                              : teklifli ? 'inset 0 0 0 2px var(--color-warn)' : undefined,
                           }}
-                          title={`${TR_AY[m]} ${yil} · plan ${nf(a.plan)} / kapasite ${nf(a.kapasite)}${a.gercek ? ` · gerçekleşen ${nf(a.gercek)}` : ''}${asim ? '\n⚠ Kapasite aşımı' : ''}`}>
+                          title={`${TR_AY[m]} ${yil} · plan ${nf(a.plan)} / kapasite ${nf(a.kapasite)}${a.gercek ? ` · gerçekleşen ${nf(a.gercek)}` : ''}${teklifli ? `\n⏳ Teklif (cevap bekliyor): ${nf(a.teklif)} → %${Math.round(a.oranTeklifli * 100)}` : ''}${asim ? '\n⚠ Kapasite aşımı' : ''}`}>
                           %{Math.round(a.oran * 100)}
+                          {teklifli && <span className="ml-0.5 opacity-70">*</span>}
                         </button>
                       </td>
                     )

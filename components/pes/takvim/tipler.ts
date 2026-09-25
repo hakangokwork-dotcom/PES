@@ -46,15 +46,22 @@ export type CekmeTesti = {
   en_cekme_pct: number | null; boy_cekme_pct: number | null
   may_kaymasi_pct: number | null; sonuc: string; yapan: string | null
 }
+/* Cevap bekleyen teklif kalemi — yumuşak rezervasyon (044). Onaylı
+   atamadan AYRI tutulur: reddedilirse takvimde yer kendiliğinden açılır. */
+export type TeklifKalemDto = {
+  id: number; teklif_id: number; line_id: number; workshop_id: number
+  adet: number; baslangic: string; bitis: string
+  work_order_id: number; is_emri_no: string; model_adi: string
+}
 export type TakvimVerisi = {
   atolyeler: Atolye[]; bantlar: Bant[]; atamalar: Atama[]; bloklar: Blok[]
   kapasiteGun: KapasiteGun[]; gunluk: GunlukSatirDto[]; asamalar: Asama[]
-  malzemeler: Malzeme[]; testler: CekmeTesti[]
+  malzemeler: Malzeme[]; testler: CekmeTesti[]; teklifler: TeklifKalemDto[]
 }
 
 export const BOS_VERI: TakvimVerisi = {
   atolyeler: [], bantlar: [], atamalar: [], bloklar: [],
-  kapasiteGun: [], gunluk: [], asamalar: [], malzemeler: [], testler: [],
+  kapasiteGun: [], gunluk: [], asamalar: [], malzemeler: [], testler: [], teklifler: [],
 }
 
 export type Kip = 'ay' | 'hafta' | 'gun' | 'matris'

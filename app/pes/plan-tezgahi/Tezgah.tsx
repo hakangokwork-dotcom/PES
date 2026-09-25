@@ -341,7 +341,7 @@ export default function Tezgah({
                         if (u === 'bilinmiyor') {
                           return (
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                              künye boş — uygunluk kontrol edilemedi
+                              uygunluk kontrol edilemedi — künye ya da yetenek kaydı eksik
                             </span>
                           )
                         }

@@ -92,6 +92,10 @@ function kunyeBul(modelAdi) {
  *   rozeti ekranda gerçekten görünsün.
  * `yerlestir: null`      → HAVUZDA kalır; planlamacı sürükleyip uyumu canlı
  *   görsün.
+ *
+ * HAVUZDAKİ İŞ EMRİ 'Taslak' DURUMUNDA OLMALI. yerlestir-kaydet.ts'in havuz
+ * modu "workshop_id IS NULL AND durum = 'Taslak'" arıyor; 'Bekleniyor'
+ * yazılınca sihirbaz "bu sipariş zaten yerleştirilmiş" deyip reddediyordu.
  */
 const ORNEK_EMIRLER = [
   { no: '001', model: 'Erkek Chino Pantolon', musteri: 'LC Waikiki', adet: 12000, gun: 45, yerlestir: 'uygun' },
@@ -174,7 +178,14 @@ try {
     }
 
     console.log(`Silinen örnek taslak   : ${taslaklar.length}`)
+    /* Aşama kapasitesi: yalnız ÖRNEK işaretli satırlar. Ekip gerçek
+       kapasite girerse notlar'ı farklı olur ve dokunulmaz. */
+    const kapasiteler = await sql`
+      DELETE FROM workshop_stage_capacity WHERE notlar = 'ÖRNEK'
+      RETURNING workshop_id`
+
     console.log(`Silinen örnek iş emri  : ${emirler.length}`)
+    console.log(`Silinen aşama kapasitesi: ${kapasiteler.length}`)
     console.log(`Künyesi temizlenen     : ${temizlenen}`)
     console.log(`KORUNDU (elle düzenlenmiş): ${korunan}`)
     await sql.end()
@@ -280,7 +291,7 @@ try {
            cinsiyet_yas_kodu, kalite_kodu)
         VALUES (${kiraci.id}, ${no}, ${e.model}, ${e.musteri}, ${e.adet},
                 ${tarihEkle(e.gun)}::date,
-                ${atolye ? 'Planlandi' : 'Bekleniyor'},
+                ${atolye ? 'Planlandi' : 'Taslak'},
                 ${atolye?.id ?? null}, ${atolye?.line_id ?? null},
                 ${k[0]}, ${k[1]}, ${k[2]}, ${k[3]}, ${k[4]}, ${k[5]})
         RETURNING id`
@@ -288,6 +299,49 @@ try {
     }
   }
   console.log(`Örnek iş emri ${UYGULA ? 'eklendi' : 'eklenecek'}: ${emirYazilan}`)
+
+  /* ---- 2b) Aşama kapasiteleri ----
+   *
+   * NEDEN GEREKLİ: `workshop_stage_capacity` boş olduğu için sihirbaz bir
+   * siparişi yerleştirdiğinde DİKİM dışındaki aşamalar TARİHSİZ kalıyor
+   * (yerlestir-kaydet `elleTarihGereken` ile uyarıyor). Zincir yarım
+   * görünüyor ve gösterim anlamını yitiriyor.
+   *
+   * DİKİM BİLEREK YAZILMIYOR: bant-doluluk.ts'in kuralı, dikim kapasitesinin
+   * production_line.daily_target toplamından gelmesi. Buraya DİKİM satırı
+   * eklemek o kuralı bozar ve iki farklı kapasite kaynağı yaratır.
+   *
+   * Geri alma: satırlar notlar='ÖRNEK' ile işaretlenir. */
+  const KAPASITE_CARPANI = { KESIM: 1.5, HAZIRLIK: 2, UKP: 1.2 }
+
+  const hedefAtolyeler = await sql`
+    SELECT DISTINCT wo.workshop_id AS id,
+           (SELECT sum(pl.daily_target)::int FROM production_line pl
+             WHERE pl.workshop_id = wo.workshop_id AND pl.is_active) AS dikim
+      FROM work_order wo
+     WHERE wo.tenant_id = ${kiraci.id} AND wo.workshop_id IS NOT NULL`
+
+  const kapasiteAsamalari = await sql`
+    SELECT id, code FROM production_stage WHERE code = ANY(${Object.keys(KAPASITE_CARPANI)})`
+
+  let kapasiteYazilan = 0
+  for (const a of hedefAtolyeler) {
+    if (!a.dikim || a.dikim <= 0) continue
+    for (const s of kapasiteAsamalari) {
+      const deger = Math.round(a.dikim * KAPASITE_CARPANI[s.code])
+      if (deger <= 0) continue
+      kapasiteYazilan++
+      if (UYGULA) {
+        await sql`
+          INSERT INTO workshop_stage_capacity
+            (workshop_id, stage_id, tenant_id, gunluk_kapasite, notlar)
+          VALUES (${a.id}, ${s.id}, ${kiraci.id}, ${deger}, 'ÖRNEK')
+          ON CONFLICT (workshop_id, stage_id) DO NOTHING`
+      }
+    }
+  }
+  console.log(`Aşama kapasitesi ${UYGULA ? 'yazıldı' : 'yazılacak'}: ${kapasiteYazilan} satır ` +
+    `(${hedefAtolyeler.length} atölye × ${kapasiteAsamalari.length} aşama, DİKİM hariç)`)
 
   /* ---- 3) Örnek plan taslağı ---- */
   const [taslakVar] = await sql`SELECT id FROM plan_taslak WHERE ad = ${TASLAK_ADI}`

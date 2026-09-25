@@ -8,7 +8,7 @@ import {
   Boxes, Shapes, Droplets, Gauge, Waypoints, ClipboardCheck,
   CircleCheck, CirclePause, Lightbulb,
   Users, Wallet, Calculator,
-  ChartColumn, Upload, Search, ArrowLeft, MapPin, Coins, Award,
+  ChartColumn, Upload, Search, ArrowLeft, MapPin, Coins, Award, CalendarCheck,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -32,6 +32,7 @@ const NAV_GROUPS: NavGroup[] = [
     title: 'Sipariş & Plan',
     items: [
       { label: 'İş Emri',      href: '/workshop/is-emri', icon: ClipboardList },
+      { label: 'Gelen Plan',   href: '/workshop/plan',    icon: CalendarCheck },
       { label: 'Bant Takvimi', href: '/workshop/takvim',  icon: CalendarDays },
     ],
   },

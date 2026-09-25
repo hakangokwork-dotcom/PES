@@ -24,6 +24,8 @@ import {
 import Tezgah, {
   type BantSatiri, type HavuzKarti, type YerlesikKalem,
 } from './Tezgah'
+import Teklifler, { type TeklifSatiri } from './Teklifler'
+import type { TeklifDurumu, GerekceKodu, TeklifKalem } from '@/lib/pes/plan-onay'
 
 export const dynamic = 'force-dynamic'
 
@@ -125,7 +127,25 @@ export default async function PlanTezgahiSayfasi({
        LIMIT 200
     ` as unknown as Array<Record<string, unknown>>
 
-    return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar, havuzSatirlari, yerlesikWo }
+    /* ---- Gönderilen teklifler ve atölye cevapları ---- */
+    const teklifSatirlari = seciliId ? await sql`
+      SELECT t.id, t.workshop_id, t.tur_no, t.durum, t.gonderildi_at,
+             t.gerekce_kodu, t.cevap_notu, w.name AS atolye_adi
+        FROM plan_teklif t JOIN workshop w ON w.id = t.workshop_id
+       WHERE t.taslak_id = ${seciliId}
+       ORDER BY t.gonderildi_at DESC
+    ` as unknown as Array<Record<string, unknown>> : []
+
+    const teklifKalemleri = teklifSatirlari.length ? await sql`
+      SELECT id, teklif_id, work_order_id, line_id,
+             baslangic::text AS baslangic, bitis::text AS bitis, adet,
+             karsi_baslangic::text AS karsi_baslangic, karsi_adet, karsi_not
+        FROM plan_teklif_kalem
+       WHERE teklif_id = ANY(${teklifSatirlari.map((t) => t.id as number)})
+    ` as unknown as Array<Record<string, unknown>> : []
+
+    return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar,
+             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri }
   })
 
   if (!veri) redirect('/login')
@@ -202,6 +222,30 @@ export default async function PlanTezgahiSayfasi({
       atolyeAdi: (h.atolye_adi as string) ?? null,
     }))
 
+  const teklifler: TeklifSatiri[] = veri.teklifSatirlari.map((t) => ({
+    id: t.id as number,
+    workshopId: t.workshop_id as number,
+    atolyeAdi: (t.atolye_adi as string) ?? '',
+    turNo: t.tur_no as number,
+    durum: t.durum as TeklifDurumu,
+    gonderildi: String(t.gonderildi_at ?? '').slice(0, 10),
+    gerekceKodu: (t.gerekce_kodu as GerekceKodu | null) ?? null,
+    cevapNotu: (t.cevap_notu as string | null) ?? null,
+    kalemler: veri.teklifKalemleri
+      .filter((k) => k.teklif_id === t.id)
+      .map((k): TeklifKalem => ({
+        id: k.id as number,
+        workOrderId: k.work_order_id as number,
+        lineId: k.line_id as number,
+        baslangic: k.baslangic as string,
+        bitis: k.bitis as string,
+        adet: k.adet as number,
+        karsiBaslangic: (k.karsi_baslangic as string | null) ?? null,
+        karsiAdet: (k.karsi_adet as number | null) ?? null,
+        karsiNot: (k.karsi_not as string | null) ?? null,
+      })),
+  }))
+
   return (
     <main className="p-4 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
@@ -234,6 +278,14 @@ export default async function PlanTezgahiSayfasi({
           citUyarilari={citUyarilari}
           citGun={ZAMAN_CITI_GUN}
           bugun={bugun}
+        />
+      )}
+
+      {veri.seciliId > 0 && (
+        <Teklifler
+          teklifler={teklifler}
+          taslakId={veri.seciliId}
+          kalemVar={kalemler.length > 0}
         />
       )}
     </main>

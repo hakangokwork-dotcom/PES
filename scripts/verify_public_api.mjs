@@ -59,6 +59,8 @@ const UCLAR = [
   'workshop_economy', 'economy_param', 'economy_survey_staging',
   // 043 — planlama tezgahi taslagi (ic ekip araci)
   'plan_taslak', 'plan_taslak_kalem',
+  // 044 — iki tarafli onay
+  'plan_teklif', 'plan_teklif_kalem',
   // 040 — ekonomi veri talebi
   'economy_data_request',
   // 039 — model fiyatlama (iç ekip verisi)

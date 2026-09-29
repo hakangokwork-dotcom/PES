@@ -11,6 +11,7 @@ import {
 import { uid } from '../engine/flow.js';
 import { DEFAULT_TRANSPORT } from '../engine/logistics.js';
 import { LayoutDefs, LayoutItem, SymbolIcon, INK } from './LayoutSymbols.jsx';
+import IsoView from './IsoView.jsx';
 import { promptDialog, confirmDialog } from './dialogs/dialogService.js';
 
 /* Yerleşim sekmesi — atölyeyi gerçek ölçüde kur, spagetti haritasını ve
@@ -51,6 +52,7 @@ export default function LayoutView({ data, onPatch }) {
   const [marquee, setMarquee] = useState(null);     // { x0,y0,x1,y1 } metre
   const [layers, setLayers] = useState({ routes: true, dims: false });
   const [compareOpen, setCompareOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('plan');      // 'plan' | 'iso'
   const [allRoutesInInspector, setAllRoutesInInspector] = useState(false);
   const wrapRef = useRef(null);
   const svgRef = useRef(null);
@@ -423,6 +425,12 @@ export default function LayoutView({ data, onPatch }) {
           m
         </label>
         <div className="flex-1" />
+        <div className="flex items-center gap-0.5 bg-surface-2 rounded-lg p-0.5">
+          {[['plan', 'Üstten plan'], ['iso', 'İzometrik']].map(([m, ad]) => (
+            <button key={m} onClick={() => setViewMode(m)}
+              className={`h-8 px-3 rounded-md text-xs font-medium border ${viewMode === m ? 'bg-accent-tint text-accent-ink border-accent' : 'bg-surface text-ink-soft border-line hover:bg-surface-2'}`}>{ad}</button>
+          ))}
+        </div>
         <label className="flex items-center gap-1.5 text-xs text-ink min-h-9"><input type="checkbox" checked={layers.routes} onChange={e => setLayers(l => ({ ...l, routes: e.target.checked }))} />Spagetti</label>
         <label className="flex items-center gap-1.5 text-xs text-ink min-h-9"><input type="checkbox" checked={layers.dims} onChange={e => setLayers(l => ({ ...l, dims: e.target.checked }))} />Mesafeler</label>
         <button className={iconBtn} onClick={undo} disabled={!hist.current.past.length} aria-label="Geri al" title="Geri al (Ctrl+Z)"><Undo2 className="w-4 h-4" /></button>
@@ -527,7 +535,11 @@ export default function LayoutView({ data, onPatch }) {
         </aside>
 
         {/* ORTA: ZEMİN */}
-        <div ref={wrapRef} tabIndex={0} onKeyDown={onKeyDown} onKeyUp={onKeyUp}
+        {viewMode === 'iso' && (
+          <IsoView data={data} layout={displayLayout} height="100%" minHeight={0}
+            overlay={{ routes: layers.routes ? metrics.routes : [], sharedIds: sharedItemIds, routesOpacity: 0.85 }} />
+        )}
+        <div ref={wrapRef} tabIndex={0} style={viewMode === 'iso' ? { display: 'none' } : undefined} onKeyDown={onKeyDown} onKeyUp={onKeyUp}
           className="relative flex-1 min-w-0 rounded-lg border border-line bg-[#EEF1F3] overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="Atölye zemini">
           <svg ref={svgRef} width="100%" height="100%" className="block touch-none select-none"

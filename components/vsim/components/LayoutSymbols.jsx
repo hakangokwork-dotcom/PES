@@ -8,7 +8,8 @@ import { SYMBOLS, itemRect } from '../engine/layout.js';
 
 export const INK = '#1F2A33';
 const LINE = '#6F7780';
-const HEAD = { idle: '#37414A', down: '#A61B1B', maint: '#B7791F', neck: '#37414A' };
+const HEAD = { idle: '#37414A', down: '#A61B1B', maint: '#B7791F', neck: '#37414A',
+  work: '#1F7A4D', starved: '#B9B3A8', blocked: '#C2410C' };   // son üçü: canlı simülasyon
 const HAIR = '#2B2420';
 
 /* SVG <defs> — sayfada bir kez */

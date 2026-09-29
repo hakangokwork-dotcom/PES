@@ -9,6 +9,7 @@ import {
   itemRect, itemFootprint, stationSlots, DEFAULT_FLOOR,
 } from '../engine/layout.js';
 import { uid } from '../engine/flow.js';
+import { DEFAULT_TRANSPORT } from '../engine/logistics.js';
 import { LayoutDefs, LayoutItem, SymbolIcon, INK } from './LayoutSymbols.jsx';
 import { promptDialog, confirmDialog } from './dialogs/dialogService.js';
 
@@ -341,6 +342,9 @@ export default function LayoutView({ data, onPatch }) {
   const setFloor = (patch) => active && onPatch(d => ({
     layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, floor: { ...l.floor, ...patch } } : l)),
   }));
+  const setTransport = (patch) => active && onPatch(d => ({
+    layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, transport: { ...DEFAULT_TRANSPORT, ...(l.transport || {}), ...patch } } : l)),
+  }));
 
   /* ---------- boş durum ---------- */
   if (!active) {
@@ -663,6 +667,23 @@ export default function LayoutView({ data, onPatch }) {
               ))}
             </section>
           )}
+
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[11px] font-bold tracking-wider text-ink-soft">TAŞIMA (SİMÜLASYONA GİRER)</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Yürüme hızı (m/sn)
+                <input type="number" step={0.1} min={0.1} max={3} value={(active.transport || DEFAULT_TRANSPORT).speedMps}
+                  onChange={e => { const v = Number(e.target.value); if (v > 0) setTransport({ speedMps: v }); }}
+                  className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink font-mono" />
+              </label>
+              <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Demet (adet)
+                <input type="number" step={1} min={1} max={200} value={(active.transport || DEFAULT_TRANSPORT).bundle}
+                  onChange={e => { const v = Math.round(Number(e.target.value)); if (v >= 1) setTransport({ bundle: v }); }}
+                  className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink font-mono" />
+              </label>
+            </div>
+            <p className="text-[10px] text-ink-soft leading-snug">Parçalar demet dolunca taşınır; yol süresi = mesafe ÷ hız. Ara stok alanının kapasitesi dolunca besleyen istasyon durur.</p>
+          </section>
 
           <section className="flex flex-col gap-1.5">
             <h3 className="text-[11px] font-bold tracking-wider text-ink-soft">UYARILAR · {metrics.warnings.length}</h3>

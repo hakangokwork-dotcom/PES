@@ -33,7 +33,37 @@ export function cloneSimState(prev) {
     for (const k of Object.keys(prev.groupInbox)) groupInbox[k] = { ...prev.groupInbox[k] };
     clone.groupInbox = groupInbox;
   }
+  // Lojistik alanları (yalnız yerleşimli simülasyonda var)
+  if (prev.transit) clone.transit = prev.transit.map(t => ({ ...t }));
+  if (prev.outbox) clone.outbox = { ...prev.outbox };
+  if (prev.blocked) clone.blocked = { ...prev.blocked };
+  if (prev.blockedSec) clone.blockedSec = { ...prev.blockedSec };
+  if (prev.starvedSec) clone.starvedSec = { ...prev.starvedSec };
+  if (prev.bufferPeak) clone.bufferPeak = { ...prev.bufferPeak };
   return clone;
+}
+
+/* Ara stok alanının anlık doluluğu (lojistik): demet bekleyen + yoldaki +
+   teslim edilip henüz tüketilmemiş parçalar. Görünüm de bunu kullanır. */
+export function bufferOccupancy(state, lg, bufferId, bridges) {
+  const b = lg?.buffers?.[bufferId];
+  if (!b) return 0;
+  let n = 0;
+  const seenInbox = new Set();
+  for (const key of b.keys) {
+    n += state.outbox?.[key] || 0;
+    for (const tr of state.transit || []) if (tr.key === key) n += tr.count;
+    if (key.includes('>>')) {
+      const [a, G] = key.split('>>');
+      const g = bridges?.groupOf?.[a];
+      const k2 = `${G}|${g}`;
+      if (!seenInbox.has(k2)) { seenInbox.add(k2); n += Math.max(0, state.groupInbox?.[G]?.[g] || 0); }
+    } else {
+      const [a, bb] = key.split('>');
+      n += Math.max(0, state.pending?.[bb]?.[a] || 0);
+    }
+  }
+  return n;
 }
 
 /* Grup köprüleri (A2): ana-op DAG'ını simülasyona bağlar.
@@ -89,6 +119,47 @@ export function advanceSimStep(state, d, dt) {
   // Grup köprüleri: mainOps yoksa hasGroups=false → köprüsüz eski davranış
   const bridges = buildGroupBridges(d);
 
+  /* Lojistik (yerleşimli simülasyon): d.logistics varsa parçalar demet dolunca
+     taşınır, yolda delaySec kadar kalır; ara stok doluysa kaynak istasyon BLOKE olur.
+     Yoksa aktarım anlıktır (eski davranış, alanlar hiç oluşmaz). */
+  const lg = d.logistics || null;
+  const deliver = (tr) => {
+    if (tr.kind === 'inbox') {
+      if (!state.groupInbox[tr.target]) state.groupInbox[tr.target] = {};
+      state.groupInbox[tr.target][tr.src] = (state.groupInbox[tr.target][tr.src] || 0) + tr.count;
+    } else {
+      if (!state.pending[tr.target]) state.pending[tr.target] = {};
+      state.pending[tr.target][tr.src] = (state.pending[tr.target][tr.src] || 0) + tr.count;
+    }
+  };
+  if (lg) {
+    state.transit ??= []; state.outbox ??= {}; state.blocked ??= {};
+    state.blockedSec ??= {}; state.starvedSec ??= {}; state.bufferPeak ??= {};
+    const arrived = state.transit.filter(t => t.due <= state.elapsed);
+    if (arrived.length) {
+      state.transit = state.transit.filter(t => t.due > state.elapsed);
+      arrived.forEach(deliver);
+    }
+  }
+  // Bir aktarımı gönder: lojistik yoksa anında; varsa demete ekle, demet dolunca yola çıkar.
+  const send = (key, kind, target, src) => {
+    if (!lg) { deliver({ kind, target, src, count: 1 }); return; }
+    const link = lg.links?.[key];
+    const bundle = lg.bundle || 1;
+    state.outbox[key] = (state.outbox[key] || 0) + 1;
+    if (state.outbox[key] < bundle) return;
+    const count = state.outbox[key];
+    state.outbox[key] = 0;
+    const delay = link?.delaySec || 0;
+    if (delay <= 0) deliver({ kind, target, src, count });
+    else state.transit.push({ key, kind, target, src, count, start: state.elapsed, due: state.elapsed + delay });
+  };
+  const bufferFull = (key) => {
+    const bid = lg?.links?.[key]?.bufferId;
+    if (!bid) return false;
+    return bufferOccupancy(state, lg, bid, bridges) + 1 > lg.buffers[bid].capacity;
+  };
+
   // Bir hedefin kuyruk uzunluğu (SPLIT en-kısa-kuyruk seçimi için) — negatifler sayılmaz.
   const pendQueue = (nId) => Object.values(state.pending[nId] || {}).reduce((a, v) => a + (v > 0 ? v : 0), 0);
   const inboxQueue = (gId) => Object.values(state.groupInbox[gId] || {}).reduce((a, v) => a + (v > 0 ? v : 0), 0);
@@ -114,34 +185,38 @@ export function advanceSimStep(state, d, dt) {
     if (state.inProgress[opId].remainingSec <= 0) justDone.push(opId);
   }
   for (const opId of justDone) {
-    delete state.inProgress[opId];
-    state.completed[opId] = (state.completed[opId] || 0) + 1;
     const op = d.subOps.find(x => x.id === opId);
+    // Hedefleri belirle: [{ key, kind, target, src }] — boşsa hattan çıkış
+    let sends = [];
     if (!op || !op.nextIds || op.nextIds.length === 0) {
       // Grup-içi ardıl yok (terminal alt-op): grup köprüsüne bak.
       const g = bridges.hasGroups && op ? bridges.groupOf[op.id] : null;
       const mainOp = g != null ? (d.mainOps || []).find(m => m.id === g) : null;
       const groupNexts = mainOp?.nextIds || [];
-      if (groupNexts.length === 0) {
-        state.exited += 1;                 // grup ardılı da yok → hattan çıkış (eski davranış)
-      } else {
+      if (groupNexts.length > 0) {
         // Kaynak grup böler mi? SPLIT + >1 ardıl → tek hedefe (en kısa inbox); değilse hepsi (DUP).
         const gSplit = (bridges.splitType[g] || 'DUP') === 'SPLIT' && groupNexts.length > 1;
         const dests = gSplit ? [pickShortest(groupNexts, inboxQueue)] : groupNexts;
-        for (const t of dests) {           // parça hatta devam ediyor → ardıl grupların inbox'ına
-          if (!state.groupInbox[t]) state.groupInbox[t] = {};
-          state.groupInbox[t][g] = (state.groupInbox[t][g] || 0) + 1;
-        }
+        sends = dests.map(t => ({ key: `${opId}>>${t}`, kind: 'inbox', target: t, src: g }));
       }
     } else {
       // op böler mi? SPLIT + >1 ardıl → tek hedefe (en kısa kuyruk); değilse hepsi (DUP).
       const opSplit = (op.splitType || 'DUP') === 'SPLIT' && op.nextIds.length > 1;
       const dests = opSplit ? [pickShortest(op.nextIds, pendQueue)] : op.nextIds;
-      for (const nId of dests) {
-        if (!state.pending[nId]) state.pending[nId] = {};
-        state.pending[nId][opId] = (state.pending[nId][opId] || 0) + 1;
-      }
+      sends = dests.map(nId => ({ key: `${opId}>${nId}`, kind: 'pend', target: nId, src: opId }));
     }
+    // Ara stok dolu → istasyon parçayı elinde tutar (bloke), bir sonraki adımda yeniden dener.
+    if (lg && sends.some(x => bufferFull(x.key))) {
+      state.inProgress[opId].remainingSec = 0;
+      state.blocked[opId] = true;
+      state.blockedSec[opId] = (state.blockedSec[opId] || 0) + dt;
+      continue;
+    }
+    if (lg) delete state.blocked[opId];
+    delete state.inProgress[opId];
+    state.completed[opId] = (state.completed[opId] || 0) + 1;
+    if (sends.length === 0) state.exited += 1;          // hattan çıkış (eski davranış)
+    for (const x of sends) send(x.key, x.kind, x.target, x.src);
   }
 
   // 2) Boşta kalan istasyonları başlat
@@ -204,7 +279,12 @@ export function advanceSimStep(state, d, dt) {
           for (const pid of prevs) state.pending[op.id][pid] = (state.pending[op.id][pid] || 0) - 1;
         }
       }
-      state.inProgress[op.id] = { remainingSec: op.cycleTime, totalSec: op.cycleTime };
+      // Yerleşimde aynı operasyonun N paralel istasyonu varsa efektif çevrim ct/N.
+      const par = lg ? Math.max(1, lg.stations?.[op.id] || Math.round(op.stationCount || 1)) : 1;
+      const ct = op.cycleTime / par;
+      state.inProgress[op.id] = { remainingSec: ct, totalSec: ct };
+    } else if (lg) {
+      state.starvedSec[op.id] = (state.starvedSec[op.id] || 0) + dt;   // girdi bekliyor (aç)
     }
   }
 
@@ -218,6 +298,12 @@ export function advanceSimStep(state, d, dt) {
       q += Object.values(inbox).reduce((a, v) => a + (v > 0 ? v : 0), 0);
     }
     if (q > (state.peakQueue[op.id] || 0)) state.peakQueue[op.id] = q;
+  }
+  if (lg) {
+    for (const bid of Object.keys(lg.buffers || {})) {
+      const occ = bufferOccupancy(state, lg, bid, bridges);
+      if (occ > (state.bufferPeak[bid] || 0)) state.bufferPeak[bid] = occ;
+    }
   }
 
   return state;

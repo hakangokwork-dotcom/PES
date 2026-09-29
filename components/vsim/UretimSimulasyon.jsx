@@ -34,6 +34,8 @@ import { confirmDialog, alertDialog, promptDialog } from './components/dialogs/d
 import VsmView from './components/VsmView.jsx';
 import FabrikaView from './components/FabrikaView.jsx';
 import LayoutView from './components/LayoutView.jsx';
+import LayoutSimView from './components/LayoutSimView.jsx';
+import { buildLogistics } from './engine/logistics.js';
 import InfoTip from './components/InfoTip.jsx';
 import { GUIDES } from './help/guides.js';
 import { GLOSSARY } from './help/glossary.js';
@@ -65,7 +67,16 @@ const simSignature = (d) => JSON.stringify({
     ({ id, cycleTime, nextIds, parentId, mainOpId, stationCount })),
   m: (d.mainOps || []).map(({ id, nextIds, joinType }) => ({ id, nextIds, joinType })),
   n: d.settings?.netMinutes,
+  // yerleşimli simülasyon: taşıma süreleri, demet, ara stok kapasitesi, paralel istasyon
+  l: d.logistics ? {
+    b: d.logistics.bundle, st: d.logistics.stations,
+    k: Object.entries(d.logistics.links).map(([k, v]) => [k, v.delaySec, v.bufferId]),
+    c: Object.entries(d.logistics.buffers).map(([k, v]) => [k, v.capacity]),
+  } : null,
 });
+
+/* Aktif yerleşim (varsa) ve simülasyonda kullanılsın mı? */
+const activeLayoutOf = (d) => (d.layouts || []).find(l => l.id === d.activeLayoutId) || (d.layouts || [])[0] || null;
 
 /* Kalıcılık: varsa gömülü window.storage, yoksa localStorage.
    (Bu Next.js uygulamasında window.storage tanımsız olduğundan localStorage'a düşer.) */
@@ -173,17 +184,21 @@ export default function AtolyePlatform({ storageKey } = {}) {
 
   /* ---------- Simülasyon state ---------- */
   const [simState, setSimState] = useState(initialSimState);
-  const dataRef = useRef(data);
-  useEffect(() => { dataRef.current = data; }, [data]);
+  /* Simülasyonun gördüğü veri: yerleşim açıksa lojistik (taşıma/demet/ara stok) eklenir.
+     Süreç verisi değişmez; lojistik her render'da aktif yerleşimden türetilir. */
+  const simLayout = data.simUseLayout === false ? null : activeLayoutOf(data);
+  const simData = useMemo(() => (simLayout ? { ...data, logistics: buildLogistics(data, simLayout) } : data), [data, simLayout]);
+  const dataRef = useRef(simData);
+  useEffect(() => { dataRef.current = simData; }, [simData]);
 
-  const simStartSim  = () => setSimState(s => ({ ...s, running: true, signature: simSignature(data) }));
+  const simStartSim  = () => setSimState(s => ({ ...s, running: true, signature: simSignature(simData) }));
   const simPauseSim  = () => setSimState(s => ({ ...s, running: false }));
   const simResetSim  = () => setSimState(initialSimState());
-  const simRestartSim = () => setSimState({ ...initialSimState(), running: true, signature: simSignature(data) });
+  const simRestartSim = () => setSimState({ ...initialSimState(), running: true, signature: simSignature(simData) });
   const simSetSpeed  = (sp) => setSimState(s => ({ ...s, speed: sp }));
   // A6: sonuçlar model değiştikten sonra da ekranda kalabiliyordu (bayat) — imza karşılaştırması
   // bunu görünür kılar (SimView: uyarı bandı + KPI soluklaşma + Yeniden Başlat).
-  const simStale = simState.elapsed > 0 && simState.signature !== simSignature(data);
+  const simStale = simState.elapsed > 0 && simState.signature !== simSignature(simData);
 
   /* Simülasyon adım döngüsü — yüksek hız için tick içi iterasyon */
   useEffect(() => {
@@ -982,7 +997,10 @@ export default function AtolyePlatform({ storageKey } = {}) {
         {tab === 'dashboard' && <DashboardView data={data} calc={calc} />}
         {tab === 'sim' && (
           <SimView
-            data={data}
+            data={simData}
+            simLayout={simLayout}
+            hasLayouts={(data.layouts || []).length > 0}
+            onToggleLayout={(v) => setData(d => ({ ...d, simUseLayout: v }))}
             calc={calc}
             simState={simState}
             simStale={simStale}
@@ -2827,7 +2845,7 @@ function SettingsModal({ settings, onSave, onClose }) {
 /* ============================================================
    Sekme 5: SİMÜLASYON — Discrete-event, canlı WIP birikimi ve gün sonu tahmini
    ============================================================ */
-function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, onRestart, onSpeed, onFastForward, onAutoSetup,
+function SimView({ data, simLayout, hasLayouts, onToggleLayout, calc, simState, simStale, onStart, onPause, onReset, onRestart, onSpeed, onFastForward, onAutoSetup,
                    onSaveScenario, onLoadScenario, onDeleteScenario, onDuplicateScenario, onRenameScenario }) {
   const L = useLabels();
   const itemLower = lower(L.item);            // 100ms tick döngüsünde tekrar tekrar hesaplamamak için hoist
@@ -2838,7 +2856,7 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
      diye mount sonrası okunur (ilk render hep 'liste') */
   const [hatGorunum, setHatGorunum] = useState('liste');
   useEffect(() => {
-    try { if (localStorage.getItem('vsim.simViewMode') === 'fabrika') setHatGorunum('fabrika'); } catch { /* gizli mod vb. */ }
+    try { const v = localStorage.getItem('vsim.simViewMode'); if (v === 'fabrika' || v === 'yerlesim') setHatGorunum(v); } catch { /* gizli mod vb. */ }
   }, []);
   const degistirHatGorunum = (m) => {
     setHatGorunum(m);
@@ -3173,8 +3191,14 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
             )}
           </div>
           {/* Liste | Fabrika görünüm anahtarı */}
+          {hasLayouts && (
+            <label className="flex items-center gap-1.5 text-xs text-ink flex-shrink-0" title="Açıksa aktif yerleşimin taşıma süreleri, demet büyüklüğü, ara stok kapasiteleri ve paralel istasyonları simülasyona girer">
+              <input type="checkbox" checked={!!simLayout} onChange={e => onToggleLayout(e.target.checked)} />
+              Yerleşimi hesaba kat{simLayout ? ` (${simLayout.name})` : ''}
+            </label>
+          )}
           <div className="flex items-center gap-0.5 bg-surface-2 rounded-lg p-0.5 flex-shrink-0">
-            {[['liste', 'Liste'], ['fabrika', 'Fabrika']].map(([m, ad]) => (
+            {[['liste', 'Liste'], ['fabrika', 'Fabrika'], ...(hasLayouts ? [['yerlesim', 'Yerleşim']] : [])].map(([m, ad]) => (
               <button key={m} onClick={() => degistirHatGorunum(m)}
                 className={`text-xs px-3 py-1.5 rounded-md font-medium border transition ${
                   hatGorunum === m ? 'bg-accent-tint text-accent-ink border-accent' : 'bg-surface text-ink-soft border-line hover:bg-surface-2'
@@ -3184,7 +3208,11 @@ function SimView({ data, calc, simState, simStale, onStart, onPause, onReset, on
             ))}
           </div>
         </div>
-        {hatGorunum === 'fabrika' ? (
+        {hatGorunum === 'yerlesim' && hasLayouts ? (
+          simLayout
+            ? <LayoutSimView data={data} layout={simLayout} simState={simState} />
+            : <div className="py-12 text-center text-sm text-ink-soft">Yerleşim görünümü için "Yerleşimi hesaba kat" seçeneğini aç.</div>
+        ) : hatGorunum === 'fabrika' ? (
           <FabrikaView data={data} simState={simState} worstStationId={worstStationId} projectedEOD={projectedEOD} />
         ) : (
         <div className="overflow-x-auto">

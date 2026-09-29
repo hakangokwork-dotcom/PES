@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+import { ATOLYE_COOKIE, KAPSAM_HEADER, gecerliAtolyeId } from '@/lib/auth/atolye-kapsam'
 import { createClient } from '@/lib/supabase/server'
 import { getDB } from '@/lib/supabase/db'
 
@@ -15,6 +16,11 @@ export type TenantContext = {
   /** 033: kullanıcı bir atölyeye bağlıysa o atölyenin id'si; merkez
       kullanıcısında null. RLS kısıtı buna göre uygulanır. */
   workshopId: number | null
+  /** workshopId oturum bağından değil, merkez yöneticisinin atölye
+      panelinde yaptığı seçimden geliyor (bkz. lib/auth/atolye-kapsam.ts).
+      Yetki açısından fark YOK — bu yalnız "atölye değiştir" bağlantısını
+      göstermek ve değiştirmeye izin vermek için. */
+  atolyeSecimi: boolean
   role: 'owner' | 'admin' | 'editor' | 'viewer'
   tenantType: 'individual' | 'parent' | 'internal'
   isInternalAdmin: boolean
@@ -71,13 +77,29 @@ export async function getTenantContext(req?: NextRequest | null): Promise<Tenant
     SELECT resolve_workshop_id(${user.id}::uuid) AS workshop_id
   ` as Array<{ workshop_id: number | null }>
 
+  const isInternalAdmin = tenant_type === 'internal' && (role === 'owner' || role === 'admin')
+  const bagliAtolye = wsRows[0]?.workshop_id ?? null
+  const secilen = bagliAtolye == null ? await secilenAtolye(isInternalAdmin) : null
+
   return {
     tenantId: tenant_id,
     userId: user.id,
     userEmail: user.email ?? null,
-    workshopId: wsRows[0]?.workshop_id ?? null,
+    workshopId: bagliAtolye ?? secilen,
+    atolyeSecimi: secilen != null,
     role,
     tenantType: tenant_type,
-    isInternalAdmin: tenant_type === 'internal' && (role === 'owner' || role === 'admin'),
+    isInternalAdmin,
   }
+}
+
+/**
+ * Merkez yöneticisinin atölye panelinde seçtiği atölye; kapsam dışındaysa
+ * null. Bağlı olmayan kullanıcı için çağrılır. Kurallar ve gerekçe:
+ * lib/auth/atolye-kapsam.ts.
+ */
+export async function secilenAtolye(isInternalAdmin: boolean): Promise<number | null> {
+  if (!isInternalAdmin) return null
+  if ((await headers()).get(KAPSAM_HEADER) !== '1') return null
+  return gecerliAtolyeId((await cookies()).get(ATOLYE_COOKIE)?.value)
 }

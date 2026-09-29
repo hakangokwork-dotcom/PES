@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import {
   LayoutDashboard, Factory, ClipboardList, CalendarDays,
   Boxes, Shapes, Droplets, Gauge, Waypoints, ClipboardCheck,
@@ -81,20 +81,19 @@ const NAV_GROUPS: NavGroup[] = [
 interface WsItem { id: number; code: string; name: string }
 
 export default function WorkshopSidebar({
-  eposta = null, tenantAdi = null, sabitAtolye = null, merkezGorunumu = false,
+  eposta = null, tenantAdi = null, sabitAtolye = null, atolyeSecimi = false,
 }: {
   eposta?: string | null
   tenantAdi?: string | null
   /* Kullanıcı bir atölyeye bağlıysa seçici gösterilmez: seçecek bir şey
      yok ve "Atölye seçin" boş ekranı da bundan doğuyordu. */
   sabitAtolye?: WsItem | null
-  /* Merkez kullanıcısı bir atölyeye girmiş (sabitAtolye çerezden gelir).
-     Bağlı kullanıcıdan farkı: atölye değiştirebilir ve merkeze dönebilir. */
-  merkezGorunumu?: boolean
+  /* Merkez yöneticisi bu atölyeyi seçerek girmiş. Yetkisi atölye
+     hesabınınkiyle aynı; farkı atölye değiştirebilmesi ve merkeze dönebilmesi. */
+  atolyeSecimi?: boolean
 }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const router = useRouter()
   const wid = sabitAtolye ? String(sabitAtolye.id) : (searchParams.get('wid') || '')
 
   const [workshops, setWorkshops] = useState<WsItem[]>([])
@@ -115,7 +114,8 @@ export default function WorkshopSidebar({
   /* Giriş /workshop/gir'den geçer: seçim çereze yazılır ve panelin her
      ekranı — sunucu ekranları dahil — aynı atölyeyi görür. */
   function switchWorkshop(newWid: string) {
-    router.push(newWid ? `/workshop/gir?wid=${newWid}` : '/workshop/gir')
+    /* Tam sayfa yüklemesi: panel çerçevesi (layout) yeni atölyeyle çizilmeli. */
+    window.location.assign(newWid ? `/workshop/gir?wid=${newWid}` : '/workshop/gir')
   }
 
   /* Atölye layout'tan geliyorsa bağlantılar wid taşımaz (gerek yok).
@@ -161,19 +161,18 @@ export default function WorkshopSidebar({
             <span className="text-ink">{sabitAtolye.name}</span>
           </div>
         ) : null}
-        {sabitAtolye && merkezGorunumu && (
-          /* Merkez kullanıcısı atölyenin gözünden bakıyor; bunu ve çıkış
-             yolunu açıkça söyle. */
+        {sabitAtolye && atolyeSecimi && (
+          /* Atölye hesabı yerine merkezden seçilerek girildi; yaptığı her
+             iş bu atölyenin adına. Çıkış yolu açık dursun. */
           <div className="mt-1.5 flex items-center justify-between gap-2 px-1">
-            <span className="text-[11px] font-medium text-faint">Merkez görünümü</span>
-            <Link
+            <span className="text-[11px] font-medium text-faint">Bu atölye adına çalışıyorsunuz</span>
+            <a
               href="/workshop/gir"
-              prefetch={false}
               className="flex items-center gap-1 text-[11px] font-medium text-accent hover:underline"
             >
               <Repeat className="size-3" strokeWidth={1.8} />
               Atölye değiştir
-            </Link>
+            </a>
           </div>
         )}
         {!sabitAtolye && (
@@ -221,7 +220,7 @@ export default function WorkshopSidebar({
 
       {/* Bağlı atölye kullanıcısının merkez paneline işi yok (/pes onu zaten
           geri gönderir); bağlantı yalnız merkez kullanıcısına gösterilir. */}
-      {(merkezGorunumu || !sabitAtolye) && (
+      {(atolyeSecimi || !sabitAtolye) && (
       <div className="shrink-0 border-t border-line-soft px-3 py-2">
         <Link
           href="/pes"

@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
-import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
-import MerkezGorunumuUyari from '@/components/pes/MerkezGorunumuUyari'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { DURUM_ETIKET, GEREKCE_ETIKET, type TeklifDurumu, type GerekceKodu } from '@/lib/pes/plan-onay'
 import Cevapla, { type TeklifGorunum } from './Cevapla'
@@ -20,16 +18,13 @@ export const dynamic = 'force-dynamic'
  * ATÖLYE YALNIZ KENDİ TEKLİFİNİ GÖRÜR (RLS 044, eşitlik kalıbı) ve
  * taslakları hiç görmez — planlamacının denemeleri buraya düşmez.
  *
- * Merkez kullanıcısı da bu ekranı bir atölyenin gözünden görebilir
- * (/workshop/gir). Onda RLS süzmez; bu yüzden sorgular atölyeyi AÇIKÇA
- * süzer. Cevap vermek atölyenin işidir: /api/workshop/plan merkez
- * kullanıcısını kabul etmez, ekran da cevap formunu kilitler.
+ * Sorgular atölyeyi ayrıca AÇIKÇA da süzer: RLS'e ek bir emniyet, kısıt
+ * bir gün gevşerse ekran başka atölyenin teklifini göstermesin.
  */
 export default async function AtolyePlanSayfasi() {
   const tenant = await requireSession()
-  const wid = await aktifAtolyeId()
+  const wid = tenant.workshopId
   if (!wid) redirect('/workshop')
-  const merkezGorunumu = !tenant.workshopId
 
   const veri = await withServerTenant(async (sql) => {
     const [w] = await sql`
@@ -154,13 +149,7 @@ export default async function AtolyePlanSayfasi() {
         </p>
       )}
 
-      {merkezGorunumu && bekleyen.length > 0 && (
-        <MerkezGorunumuUyari>Teklife cevabı atölye kendi hesabından verir.</MerkezGorunumuUyari>
-      )}
-
-      <fieldset disabled={merkezGorunumu} className="space-y-5 disabled:opacity-60">
-        {bekleyen.map((t) => <Cevapla key={t.id} teklif={t} />)}
-      </fieldset>
+      {bekleyen.map((t) => <Cevapla key={t.id} teklif={t} />)}
 
       <GecikmeBildir isler={planliIsler} gecmis={gecmisBildirimler} />
 

@@ -2,6 +2,7 @@ import postgres from 'postgres'
 import { createClient } from './server'
 import { getDB } from './db'
 import { withTenant } from './tenant-db'
+import { secilenAtolye } from '@/lib/auth/tenant-context'
 
 /**
  * Server Component'lar için tenant-aware DB query helper.
@@ -32,8 +33,8 @@ export async function withServerTenant<T>(
   // tenant_user politikaları 0 satır döndürür.
   const sql = getDB()
   const tenantRows = await sql`
-    SELECT tenant_id FROM resolve_tenant_context(${user.id}::uuid)
-  ` as Array<{ tenant_id: string }>
+    SELECT tenant_id, role, tenant_type FROM resolve_tenant_context(${user.id}::uuid)
+  ` as Array<{ tenant_id: string; role: string; tenant_type: string }>
   if (tenantRows.length === 0) return null
 
   const tenantId = tenantRows[0].tenant_id
@@ -44,6 +45,12 @@ export async function withServerTenant<T>(
     SELECT resolve_workshop_id(${user.id}::uuid) AS workshop_id
   ` as Array<{ workshop_id: number | null }>
 
-  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id),
-    { workshopId: ws?.workshop_id ?? null })
+  /* Bağ yoksa: merkez yöneticisi atölye panelinde bir atölye seçmişse o
+     atölyenin hesabıyla girmiş gibi kısıtlanır (lib/auth/atolye-kapsam.ts).
+     getTenantContext ile AYNI kural — sayfa ile API farklı atölye görmesin. */
+  const { role, tenant_type } = tenantRows[0]
+  const workshopId = ws?.workshop_id ??
+    await secilenAtolye(tenant_type === 'internal' && (role === 'owner' || role === 'admin'))
+
+  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id), { workshopId })
 }

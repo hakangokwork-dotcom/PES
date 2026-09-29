@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Inbox, Factory, ShieldCheck, CalendarDays, PackagePlus, Radar,
@@ -144,13 +143,15 @@ export default function PesDevSidebar({
       </nav>
 
       <div className="shrink-0 border-t border-line-soft px-3 py-2">
-        <Link
-          href="/workshop"
+        {/* /workshop/gir önceki seçimi temizler: panele her girişte
+            "hangi atölyede çalışacaksınız?" sorusu gelir. */}
+        <a
+          href="/workshop/gir"
           className="flex items-center gap-2 rounded px-3 py-1.5 text-xs text-faint transition-colors hover:bg-canvas hover:text-ink"
         >
           <ArrowRight className="size-3.5" strokeWidth={1.8} />
           Atölye Paneli
-        </Link>
+        </a>
       </div>
 
       <SidebarIdentity eposta={eposta} tenantAdi={tenantAdi} />

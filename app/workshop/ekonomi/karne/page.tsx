@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
-import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { EKONOMI_SORGUSU, dbSatiriCoz, paramCoz } from '@/lib/pes/ekonomi-sorgu'
 import { hesapla } from '@/lib/pes/ekonomi-hesap'
@@ -43,7 +42,7 @@ export default async function KarneSayfasi({
   searchParams: Promise<{ donem?: string }>
 }) {
   const tenant = await requireSession()
-  const wid = await aktifAtolyeId()
+  const wid = tenant.workshopId
   if (!wid) redirect('/workshop')
 
   const sp = await searchParams

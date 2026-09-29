@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import {
   SYMBOLS, snap, createItem, symbolForSubOp, newLayout, layoutMetrics, autoPlace, layoutSummary,
-  itemRect, itemFootprint, stationSlots, DEFAULT_FLOOR,
+  itemRect, itemFootprint, stationSlots, DEFAULT_FLOOR, insertSubOpAfter,
 } from '../engine/layout.js';
 import { uid } from '../engine/flow.js';
 import { DEFAULT_TRANSPORT } from '../engine/logistics.js';
@@ -26,10 +26,13 @@ const fmt = (v, d = 1) => (v == null ? '—' : Number(v).toFixed(d).replace('.',
 
 const CATALOG = [
   { title: 'Makineler', types: ['duz', 'ov', 'rc', 'kl', 'il', 'oto'] },
-  { title: 'Tezgâhlar', types: ['utu', 'kt', 'pk', 'kesim'] },
+  { title: 'Masa ve tezgâhlar', types: ['masa', 'kt', 'utu', 'pk', 'kesim'] },
+  { title: 'Çalışan', types: ['calisan'] },
   { title: 'Ara stok', types: ['raf', 'araba', 'palet'] },
   { title: 'Altyapı', types: ['bant', 'koridor', 'kolon'] },
 ];
+/* Boş masaya süreçte operasyon açılırken varsayılan operasyon türü */
+const OPTYPE_OF_SYMBOL = { duz: 'DİKİM', ov: 'OVERLOK', rc: 'REÇME', kl: 'DİKİM', il: 'DİKİM', oto: 'OTOMAT', utu: 'ÜTÜ', kt: 'KONTROL', pk: 'AKSESUAR', kesim: 'KESİM', masa: 'DESTEK' };
 const MACHINE_TABLE_TYPES = [...CATALOG[0].types, ...CATALOG[1].types];
 
 function rotateItem(it, delta) {
@@ -55,6 +58,7 @@ export default function LayoutView({ data, onPatch }) {
   const [viewMode, setViewMode] = useState('plan');      // 'plan' | 'iso'
   const [allRoutesInInspector, setAllRoutesInInspector] = useState(false);
   const wrapRef = useRef(null);
+  const isoWrapRef = useRef(null);
   const svgRef = useRef(null);
   const dragRef = useRef(null);
   const spaceRef = useRef(false);
@@ -281,6 +285,12 @@ export default function LayoutView({ data, onPatch }) {
     setSelection([it.id]);
   };
   const addAtCenter = (payload) => {
+    if (viewMode === 'iso') {
+      // izometrikte: seçili öğenin yanına, yoksa zemin ortasına
+      const ref = items.find(i => selSet.has(i.id));
+      if (ref) { const f = itemFootprint(ref); addAt(payload, f.x + f.w + 1, f.y + f.h / 2); } else addAt(payload, floor.w / 2, floor.h / 2);
+      return;
+    }
     const el = wrapRef.current;
     const x = el ? (el.clientWidth / 2 - view.x) / scale : floor.w / 2;
     const y = el ? (el.clientHeight / 2 - view.y) / scale : floor.h / 2;
@@ -347,6 +357,26 @@ export default function LayoutView({ data, onPatch }) {
   const setTransport = (patch) => active && onPatch(d => ({
     layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, transport: { ...DEFAULT_TRANSPORT, ...(l.transport || {}), ...patch } } : l)),
   }));
+  /* --- süreçle ilgili hızlı işlemler (atölye sahibi için) --- */
+  const assignOperator = (subOpId, operatorId) => onPatch(d => ({
+    subOps: (d.subOps || []).map(s => (s.id === subOpId ? { ...s, operatorId: operatorId || null } : s)),
+  }));
+  const addOperator = async (subOpId) => {
+    const name = await promptDialog({ message: 'Yeni çalışanın adı:', defaultValue: '' });
+    if (!name) return;
+    const id = `o_${uid()}`;
+    onPatch(d => ({
+      operators: [...(d.operators || []), { id, name }],
+      subOps: subOpId ? (d.subOps || []).map(s => (s.id === subOpId ? { ...s, operatorId: id } : s)) : d.subOps,
+    }));
+  };
+  const createOpForItem = (itemId, args) => onPatch(d => {
+    const { subOps, id } = insertSubOpAfter(d, args);
+    const ls = (d.layouts || []).map(l => (l.id === activeId
+      ? { ...l, items: (l.items || []).map(i => (i.id === itemId ? { ...i, subOpId: id, slot: 0 } : i)) } : l));
+    return { subOps, layouts: ls };
+  });
+
   const setLayoutField = (patch) => active && onPatch(d => ({
     layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, ...patch } : l)),
   }));
@@ -536,8 +566,21 @@ export default function LayoutView({ data, onPatch }) {
 
         {/* ORTA: ZEMİN */}
         {viewMode === 'iso' && (
-          <IsoView data={data} layout={displayLayout} height="100%" minHeight={0}
-            overlay={{ routes: layers.routes ? metrics.routes : [], sharedIds: sharedItemIds, routesOpacity: 0.85 }} />
+          <div ref={isoWrapRef} tabIndex={0} onKeyDown={onKeyDown} onKeyUp={onKeyUp} className="flex-1 min-w-0 flex outline-none" aria-label="İzometrik atölye">
+            <IsoView data={data} layout={displayLayout} height="100%" minHeight={0}
+              overlay={{ routes: layers.routes ? metrics.routes : [], sharedIds: sharedItemIds, routesOpacity: 0.85 }}
+              editable={{
+                selection,
+                onSelect: setSelection,
+                focus: () => isoWrapRef.current?.focus({ preventScroll: true }),
+                onDragPreview: setDrag,
+                onDragEnd: (dx, dy) => {
+                  if (dx || dy) commit(its => its.map(it => (selSet.has(it.id) ? { ...it, x: r2(it.x + dx), y: r2(it.y + dy) } : it)));
+                  setDrag(null);
+                },
+                onDrop: (payload, x, y) => addAt(payload, x, y),
+              }} />
+          </div>
         )}
         <div ref={wrapRef} tabIndex={0} style={viewMode === 'iso' ? { display: 'none' } : undefined} onKeyDown={onKeyDown} onKeyUp={onKeyUp}
           className="relative flex-1 min-w-0 rounded-lg border border-line bg-[#EEF1F3] overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -647,6 +690,8 @@ export default function LayoutView({ data, onPatch }) {
               subById={subById} opById={opById} mcById={mcById} mainById={mainById}
               allRoutes={allRoutesInInspector} setAllRoutes={setAllRoutesInInspector}
               onPatch={(p) => patchItem(single.id, p)}
+              onAssignOperator={assignOperator} onAddOperator={addOperator}
+              onCreateOp={(args) => createOpForItem(single.id, args)}
               onRotate={rotateSelected} onDuplicate={duplicateSelected} onDelete={removeSelected}
             />
           )}
@@ -774,13 +819,13 @@ function Tile({ label, value, hint, tone }) {
   );
 }
 
-function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, mainById, allRoutes, setAllRoutes, onPatch, onRotate, onDuplicate, onDelete }) {
+function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, mainById, allRoutes, setAllRoutes, onPatch, onRotate, onDuplicate, onDelete, onAssignOperator, onAddOperator, onCreateOp }) {
   const sym = SYMBOLS[it.type] || SYMBOLS.duz;
   const s = it.subOpId ? subById.get(it.subOpId) : null;
   const canBind = sym.kind === 'machine' || sym.kind === 'table';
   const taken = new Set(items.filter(i => i.subOpId && i.id !== it.id).map(i => `${i.subOpId}#${i.slot || 0}`));
   const input = 'h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink w-full';
-  const typeOptions = canBind ? MACHINE_TABLE_TYPES : sym.kind === 'buffer' ? CATALOG[2].types : [it.type];
+  const typeOptions = canBind ? MACHINE_TABLE_TYPES : sym.kind === 'buffer' ? CATALOG[3].types : [it.type];
   const numField = (label, key, min = 0.1) => (
     <label className="flex flex-col gap-1 text-[11px] text-ink-soft">{label}
       <input type="number" step={0.1} min={min} value={it[key]} className={`${input} font-mono`}
@@ -836,10 +881,27 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         <div className="rounded-lg bg-surface-2/50 px-3 py-2 text-xs flex flex-col gap-1">
           <Row k="Bölüm" v={mainById.get(slots.find(x => x.subOpId === s.id)?.groupId)?.name || '—'} />
           <Row k="Çevrim" v={`${s.cycleTime} sn`} mono />
-          <Row k="Operatör" v={opById.get(s.operatorId)?.name || 'atanmamış'} />
-          <Row k="Makine" v={mcById.get(s.machineId)?.name || '—'} />
-          <p className="text-[10px] text-ink-soft mt-1">Süre ve atamalar Operasyonlar sekmesinden değişir.</p>
+          <Row k="Makine" v={mcById.get(s.machineId)?.name || (sym.kind === 'table' ? 'makinesiz (masa)' : '—')} />
         </div>
+      )}
+      {s && (
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-soft">Çalışan</span>
+          <div className="flex gap-1.5">
+            <select className={`${input} flex-1 min-w-0`} value={s.operatorId || ''} onChange={e => onAssignOperator(s.id, e.target.value)} aria-label="Çalışan">
+              <option value="">— atanmamış —</option>
+              {(data.operators || []).filter((o, i, arr) => arr.findIndex(x => x.id === o.id) === i).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+            <button onClick={() => onAddOperator(s.id)} className="h-9 px-2.5 rounded-lg border border-line bg-surface hover:bg-surface-2 text-ink text-xs font-medium flex-shrink-0" title="Yeni çalışan oluştur ve buraya ata">+ Yeni</button>
+          </div>
+          <p className="text-[10px] text-ink-soft">Aynı çalışanı iki istasyona atarsan meydancı olarak görünür.</p>
+        </div>
+      )}
+      {canBind && !it.subOpId && !it.isSpare && <NewOpForm data={data} sym={it.type} onCreate={onCreateOp} />}
+      {sym.kind === 'person' && (
+        <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Ad / görev
+          <input className={input} value={it.name || ''} placeholder="ör. Derya · meydancı" onChange={e => onPatch({ name: e.target.value })} />
+        </label>
       )}
 
       {canBind && it.subOpId && (
@@ -890,6 +952,56 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         <button className="h-9 px-3 rounded-lg border border-line bg-surface hover:bg-danger-tint text-danger text-xs flex items-center gap-1.5" onClick={onDelete}><Trash2 className="w-4 h-4" /> Sil</button>
       </div>
     </section>
+  );
+}
+
+/* Süreçte olmayan bir iş için boş masaya/makineye yeni operasyon aç — akışta
+   seçilen adımın ARKASINA girer (ör. etiket takma, ara kontrol). */
+function NewOpForm({ data, sym, onCreate }) {
+  const mains = [...(data.mainOps || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const [open, setOpen] = useState(false);
+  const [mainOpId, setMainOpId] = useState(mains[0]?.id || '');
+  const [afterId, setAfterId] = useState('');
+  const [name, setName] = useState('');
+  const [ct, setCt] = useState(30);
+  const input = 'h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink w-full';
+  const members = (data.subOps || []).filter(s => (s.parentId ?? s.mainOpId) === mainOpId && s.kind !== 'input' && s.kind !== 'output');
+  if (!mains.length) return <p className="text-[11px] text-ink-soft">Süreçte bölüm yok — önce Akış sekmesinde bir bölüm oluştur.</p>;
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="h-9 rounded-lg border border-dashed border-accent text-accent-ink bg-accent-tint/40 hover:bg-accent-tint text-xs font-semibold">
+        + Bu masaya süreçte yeni iş ekle
+      </button>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2">
+      <div className="text-[11px] font-bold tracking-wider text-ink-soft">YENİ İŞ</div>
+      <label className="flex flex-col gap-1 text-[11px] text-ink-soft">İşin adı
+        <input className={input} value={name} placeholder="ör. Etiket takma" onChange={e => setName(e.target.value)} />
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Bölüm
+          <select className={input} value={mainOpId} onChange={e => { setMainOpId(e.target.value); setAfterId(''); }}>
+            {mains.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Süre (sn)
+          <input type="number" min={1} className={`${input} font-mono`} value={ct} onChange={e => setCt(e.target.value)} />
+        </label>
+      </div>
+      <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Akışta hangi işten sonra?
+        <select className={input} value={afterId} onChange={e => setAfterId(e.target.value)}>
+          <option value="">Bölümün başına</option>
+          {members.map(m => <option key={m.id} value={m.id}>{m.name || m.id}</option>)}
+        </select>
+      </label>
+      <div className="flex gap-2">
+        <button disabled={!name.trim()} onClick={() => { onCreate({ mainOpId, afterId: afterId || null, name: name.trim(), cycleTime: Number(ct) || 30, type: OPTYPE_OF_SYMBOL[sym] || 'DESTEK' }); setOpen(false); setName(''); }}
+          className="h-9 flex-1 rounded-lg bg-accent hover:bg-accent-strong text-white text-xs font-semibold disabled:opacity-40">Ekle ve bağla</button>
+        <button onClick={() => setOpen(false)} className="h-9 px-3 rounded-lg border border-line bg-surface hover:bg-surface-2 text-ink text-xs">Vazgeç</button>
+      </div>
+    </div>
   );
 }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   SYMBOLS, symbolForSubOp, itemRect, itemFootprint, createItem, newLayout,
-  stationSlots, leafFlowEdges, lPath, countCrossings, layoutMetrics, autoPlace, snap,
+  stationSlots, leafFlowEdges, lPath, countCrossings, layoutMetrics, autoPlace, snap, insertSubOpAfter,
 } from './layout.js';
 
 const main = (id, extra = {}) => ({ id, name: id, color: '#123456', nextIds: [], ...extra });
@@ -203,5 +203,41 @@ describe('otomatik yerleşim · geniş tezgâh ve zemin', () => {
     const L = newLayout('T');
     L.items = autoPlace(d, L);
     expect(layoutMetrics(d, L).shared).toEqual([]);
+  });
+});
+
+describe('makinesiz masa, serbest çalışan, süreçe ekleme', () => {
+  it('makine atanmamış el işleri masaya, kalite kontrol tezgâha düşer', () => {
+    expect(symbolForSubOp({ name: 'Etiket takma', type: 'DİKİM' })).toBe('masa');
+    expect(symbolForSubOp({ name: 'İplik temizleme', type: 'TEMİZLİK' })).toBe('masa');
+    expect(symbolForSubOp({ name: 'Ara kalite kontrol', type: 'DİKİM' })).toBe('kt');
+    // makine atanmışsa makine kazanır
+    expect(symbolForSubOp({ name: 'Etiket takma', machineId: 'm' }, [{ id: 'm', type: 'Düz Dikiş' }])).toBe('duz');
+  });
+  it('serbest çalışan kişi sayısına girer, çakışma üretmez', () => {
+    const d = fixture();
+    const L = newLayout('T');
+    L.items = [createItem('duz', 0, 0, { subOpId: 'm1' }), createItem('calisan', 0.3, 0.2)];
+    const m = layoutMetrics(d, L);
+    expect(m.persons).toBe(2);
+    expect(m.freeWorkers).toBe(1);
+    expect(m.warnings.filter(w => w.code === 'overlap')).toEqual([]);
+  });
+  it('seçilen adımın arkasına yeni operasyon ekler, akış korunur', () => {
+    const d = fixture();
+    const { subOps, id } = insertSubOpAfter(d, { afterId: 'b1', name: 'Etiket takma', cycleTime: 20 });
+    const b1 = subOps.find(s => s.id === 'b1');
+    const n = subOps.find(s => s.id === id);
+    expect(b1.nextIds).toEqual([id]);
+    expect(n.nextIds).toEqual(['b2']);
+    expect(n.mainOpId).toBe('BEDEN');
+    const keys = leafFlowEdges({ ...d, subOps }).map(e => e.key).sort();
+    expect(keys).toEqual([`${id}>b2`, `b1>${id}`, 'b2>m1', 'k1>m1'].sort());
+    expect(d.subOps.find(s => s.id === 'b1').nextIds).toEqual(['b2']);   // girdi değişmedi
+  });
+  it('adım seçilmezse grubun başına eklenir ve girişleri besler', () => {
+    const d = fixture();
+    const { subOps, id } = insertSubOpAfter(d, { mainOpId: 'BEDEN', name: 'Hazırlık', cycleTime: 10 });
+    expect(subOps.find(s => s.id === id).nextIds).toEqual(['b1']);
   });
 });

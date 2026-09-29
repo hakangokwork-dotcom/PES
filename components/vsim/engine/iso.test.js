@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { project, rotPoint, rotRect, rotatedFloor, boxFaces, itemDrawables, sceneBounds } from './iso.js';
+import { project, unproject, rotPoint, rotRect, rotatedFloor, boxFaces, itemDrawables, sceneBounds } from './iso.js';
 import { createItem } from './layout.js';
 
 const floor = { w: 20, h: 10 };
@@ -55,5 +55,24 @@ describe('çizilebilirler', () => {
     const c = project(20, 10, 0);
     expect(c.x).toBeLessThanOrEqual(b.x + b.w);
     expect(c.y).toBeLessThanOrEqual(b.y + b.h);
+  });
+});
+
+describe('ters izdüşüm', () => {
+  it('her döndürmede zemindeki nokta geri bulunur', () => {
+    for (let k = 0; k < 4; k++) {
+      const w = { x: 7.25, y: 3.5 };
+      const r = rotPoint(w, floor, k);
+      const s = project(r.x, r.y, 0);
+      const back = unproject(s.x, s.y, floor, k);
+      expect(back.x).toBeCloseTo(w.x);
+      expect(back.y).toBeCloseTo(w.y);
+    }
+  });
+  it('el işi masası makinesiz, oturan operatörlü; serbest çalışan figür', () => {
+    const m = itemDrawables(createItem('masa', 1, 1, { subOpId: 's' }), floor, 0);
+    expect(m.parts.find(p => p.type === 'person').standing).toBe(false);
+    const w = itemDrawables(createItem('calisan', 1, 1), floor, 0);
+    expect(w.parts.filter(p => p.type === 'person')).toHaveLength(1);
   });
 });

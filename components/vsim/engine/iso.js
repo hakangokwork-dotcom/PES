@@ -14,6 +14,14 @@ const S30 = 0.5;
 
 export const project = (x, y, z = 0) => ({ x: (x - y) * C30, y: (x + y) * S30 - z });
 
+/* Ekran noktasını (izdüşüm uzayı) zemin düzlemine (z=0) geri çevirir, sonra
+   döndürmeyi geri alır → yerleşimin METRE koordinatı. Sürükle-bırak için. */
+export function unproject(sx, sy, floor0, k) {
+  const a = sx / C30, b = sy / S30;          // a = x − y, b = x + y
+  const p = { x: (a + b) / 2, y: (b - a) / 2 };
+  return rotPoint(p, rotatedFloor(floor0, k), (4 - (((k % 4) + 4) % 4)) % 4);
+}
+
 /* Zemin boyutu döndürmeyle yer değiştirir (90°/270°). */
 export const rotatedFloor = (floor, k) => (k % 2 ? { w: floor.h, h: floor.w } : { w: floor.w, h: floor.h });
 
@@ -47,6 +55,8 @@ export function boxFaces(r, z0, z1) {
 const H = { machineTop: 0.75, head: 0.3, table: 0.9, kesim: 0.9, raf: 1.4, araba: 0.8, palet: 0.15, bant: 0.8, kolon: 2.6 };
 export const ISO_COLORS = {
   table: ['#FFFFFF', '#D5DADF', '#BCC3C9'],
+  top: ['#F7F5F0', '#D9D4CA', '#C4BEB2'],
+  wood: ['#E2C79B', '#C7AA7A', '#B09366'],
   fabric: ['#F2CF5B', '#D9B23E', '#C49F31'],
   head: { idle: '#37414A', work: '#1F7A4D', starved: '#9CA3AA', blocked: '#C2410C', down: '#A61B1B', maint: '#B7791F' },
   rack: ['#E7E1D6', '#C9C0AF', '#B3A994'],
@@ -81,15 +91,35 @@ export function itemDrawables(it, floor, k, opts = {}) {
   };
 
   if (s.kind === 'machine') {
-    table(body, H.machineTop);
-    box({ x: body.x + body.w * 0.35, y: body.y + body.h * 0.35, w: 0.25, h: 0.25 }, 0.1, H.machineTop - 0.05, tri('#6F7780'));   // motor
-    const head = { x: body.x + body.w * 0.3, y: body.y + body.h * 0.3, w: Math.max(0.2, body.w * 0.4), h: Math.max(0.15, body.h * 0.4) };
-    box(head, H.machineTop, H.machineTop + (it.type === 'oto' ? 0.45 : H.head), tri(ISO_COLORS.head[headState] || ISO_COLORS.head.idle));
+    table(body, H.machineTop, ISO_COLORS.top);
+    box({ x: body.x + body.w * 0.55, y: body.y + body.h * 0.3, w: 0.22, h: 0.24 }, 0.12, H.machineTop - 0.06, tri('#6F7780'));   // motor
+    const st = tri(ISO_COLORS.head[headState] || ISO_COLORS.head.idle);
+    // makine: yatak + sağda dikme + üstte kol + solda iğne başı (dönüş yönünden bağımsız: gövdenin uzun ekseni boyunca)
+    const long = body.w >= body.h;
+    const L = long ? body.w : body.h, Wd = long ? body.h : body.w;
+    const at = (u, v, du, dv) => (long
+      ? { x: body.x + u * L, y: body.y + v * Wd, w: du * L, h: dv * Wd }
+      : { x: body.x + v * Wd, y: body.y + u * L, w: dv * Wd, h: du * L });
+    const t0 = H.machineTop;
     if (it.type === 'ov') {
-      ['#E8B931', '#2A9D8F', '#C8553D'].forEach((c, i) => box({ x: body.x + 0.06 + i * 0.1, y: body.y + 0.06, w: 0.07, h: 0.07 }, H.machineTop, H.machineTop + 0.18, tri(c)));
+      box(at(0.25, 0.25, 0.4, 0.5), t0, t0 + 0.26, st);                       // overlok gövdesi (blok)
+      ['#E8B931', '#2A9D8F', '#C8553D', '#264653'].forEach((c, i) => box(at(0.3 + i * 0.08, 0.12, 0.05, 0.1), t0 + 0.26, t0 + 0.42, tri(c)));
+    } else if (it.type === 'oto') {
+      box(at(0.15, 0.2, 0.7, 0.6), t0, t0 + 0.45, st);
+    } else {
+      box(at(0.15, 0.35, 0.6, 0.3), t0, t0 + 0.06, st);                      // yatak
+      box(at(0.62, 0.35, 0.12, 0.3), t0 + 0.06, t0 + 0.34, st);              // dikme
+      box(at(0.2, 0.38, 0.54, 0.24), t0 + 0.28, t0 + 0.38, st);              // kol
+      box(at(0.18, 0.4, 0.08, 0.2), t0 + 0.14, t0 + 0.38, st);               // iğne başı
+      if (it.type === 'kl') box(at(0.05, 0.4, 0.2, 0.2), t0 - 0.2, t0 + 0.06, st);   // kol (silindir) makinesi çıkıntısı
+      box(at(0.66, 0.25, 0.05, 0.06), t0 + 0.34, t0 + 0.48, tri('#E8B931'));  // makara
     }
   } else if (s.kind === 'table') {
-    table(body, it.type === 'kesim' ? H.kesim : H.table);
+    table(body, it.type === 'kesim' ? H.kesim : it.type === 'masa' ? H.machineTop : H.table, it.type === 'masa' ? ISO_COLORS.wood : ISO_COLORS.top);
+    if (it.type === 'masa') {
+      box({ x: body.x + body.w * 0.15, y: body.y + body.h * 0.2, w: body.w * 0.3, h: body.h * 0.5 }, H.machineTop, H.machineTop + 0.05, tri('#DCE7F5'));   // parça
+      box({ x: body.x + body.w * 0.6, y: body.y + body.h * 0.25, w: 0.2, h: 0.15 }, H.machineTop, H.machineTop + 0.08, tri('#C8553D'));                  // etiket kutusu
+    }
     if (it.type === 'kesim') box(inset(body, 0.12), H.kesim, H.kesim + 0.08, ISO_COLORS.fabric);
     if (it.type === 'utu') box({ x: body.x + body.w * 0.55, y: body.y + body.h * 0.3, w: 0.25, h: body.h * 0.4 }, H.table, H.table + 0.12, tri(ISO_COLORS.head[headState] || ISO_COLORS.head.idle));
     if (it.type === 'kt' || it.type === 'pk') box(inset(body, 0.15), H.table, H.table + 0.04, tri('#DCE7F5'));
@@ -112,6 +142,8 @@ export function itemDrawables(it, floor, k, opts = {}) {
     box(body, 0, H.kolon, ISO_COLORS.column);
   } else if (s.kind === 'aisle') {
     parts.push({ type: 'floor', r: body, fill: '#FBE9DC' });
+  } else if (s.kind === 'person') {
+    parts.push({ type: 'person', p: { x: body.x + body.w / 2, y: body.y + body.h / 2 }, standing: true, color: it.color || '#7A4FB0' });
   }
 
   // operatör: gövde dışındaki ayak izi bandının ortası

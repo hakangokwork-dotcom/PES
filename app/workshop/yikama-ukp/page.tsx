@@ -1,14 +1,14 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 
 export default function Wrapper() {
   return <Suspense fallback={<div className="p-6 text-faint">Yukleniyor...</div>}><YikamaUkpPage /></Suspense>
 }
 
 function YikamaUkpPage() {
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   const [tab, setTab] = useState<'yikama' | 'ukp'>('yikama')
   const [yikamaRecords, setYikamaRecords] = useState<Record<string, unknown>[]>([])
   const [ukpRecords, setUkpRecords] = useState<Record<string, unknown>[]>([])

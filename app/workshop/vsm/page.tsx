@@ -1,9 +1,9 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 /* VSM Analiz — atölye panelinde VSIM modülü. Akış atölye başına saklanır. */
 
 import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import VsimEmbed from '@/components/pes/VsimEmbed'
 
 export default function VsmPage() {
@@ -15,7 +15,7 @@ export default function VsmPage() {
 }
 
 function VsmContent() {
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   /* Atölye seçilmemişken ortak "taslak" kovası — veri atölyelere karışmasın. */
   const storageKey = wid ? `provsm_studio_w${wid}_v1` : 'provsm_studio_taslak_v1'
 

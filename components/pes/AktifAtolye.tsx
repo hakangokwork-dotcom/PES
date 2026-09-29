@@ -16,8 +16,11 @@ import { useSearchParams } from 'next/navigation'
  * ve merkez kullanıcısının atölye değiştirmesi hâlâ ona dayanıyor. On yedi
  * ekranı yeniden yazmak yerine kaynağı düzeltmek yeterli.
  *
- * Sıra: URL'deki wid > oturumdaki atölye. Merkez kullanıcısında sabit
- * atölye null'dır ve davranış aynen eskisi gibi kalır.
+ * Sıra: layout'un verdiği atölye > URL'deki wid. Layout'un verdiği değer
+ * bağlı kullanıcıda oturum atölyesi, merkez kullanıcısında /workshop/gir
+ * ile seçilen atölyedir (bkz. lib/auth/aktif-atolye.ts). URL'deki wid
+ * yalnız ikisi de yokken — eski bağlantılar için — okunur; aksi halde
+ * elle yazılmış bir wid ekranı kenar çubuğundaki atölyeden koparırdı.
  */
 
 const Ctx = createContext<number | null>(null)
@@ -44,6 +47,6 @@ export function useSabitAtolyeId(): number | null {
 export function useAktifAtolyeId(): string | null {
   const sabit = useContext(Ctx)
   const wid = useSearchParams().get('wid')
-  if (wid) return wid
-  return sabit != null ? String(sabit) : null
+  if (sabit != null) return String(sabit)
+  return wid
 }

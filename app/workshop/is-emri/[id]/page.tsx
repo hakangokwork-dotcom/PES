@@ -1,7 +1,8 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
-import { useSearchParams, useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PlanGercekSekmesi from '@/components/pes/PlanGercekSekmesi'
 
@@ -126,7 +127,7 @@ export default function Wrapper() {
 
 function WoDetailPage() {
   const params = useParams()
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   const router = useRouter()
   const id = Number(params.id)
 

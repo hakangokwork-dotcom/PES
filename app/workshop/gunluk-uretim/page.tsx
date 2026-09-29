@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { EmptyState, PageHeader } from '@/components/ui'
 import GunlukUretimTablo from '@/components/pes/GunlukUretimTablo'
 
@@ -14,7 +14,7 @@ export default function Sayfa() {
 }
 
 function GunlukUretimSayfasi() {
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   const workshopId = wid ? Number(wid) : null
 
   return (

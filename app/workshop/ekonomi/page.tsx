@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
+import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
+import MerkezGorunumuUyari from '@/components/pes/MerkezGorunumuUyari'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { donemCoz, eksikAlanlar, doluluk, DOLULUK_ETIKET } from '@/lib/pes/ekonomi-talep'
 import EkonomiForm from './EkonomiForm'
@@ -23,7 +25,9 @@ export default async function AtolyeEkonomiSayfasi({
   searchParams: Promise<{ donem?: string }>
 }) {
   const tenant = await requireSession()
-  if (!tenant.workshopId) redirect('/pes/ekonomi')
+  const wid = await aktifAtolyeId()
+  if (!wid) redirect('/workshop')
+  const merkezGorunumu = !tenant.workshopId
 
   const sp = await searchParams
   const simdi = new Date()
@@ -33,25 +37,25 @@ export default async function AtolyeEkonomiSayfasi({
 
   const veri = await withServerTenant(async (sql) => {
     const [w] = await sql`
-      SELECT id, code, name FROM workshop WHERE id = ${tenant.workshopId}
+      SELECT id, code, name FROM workshop WHERE id = ${wid}
     ` as unknown as Array<{ id: number; code: string; name: string }>
 
     const [kayit] = await sql`
       SELECT to_jsonb(we) - 'id' - 'tenant_id' - 'created_at' AS k
         FROM workshop_economy we
-       WHERE we.workshop_id = ${tenant.workshopId}
+       WHERE we.workshop_id = ${wid}
          AND we.year = ${d.yil} AND we.month = ${d.ay}
     ` as unknown as Array<{ k: Record<string, unknown> }>
 
     const [gider] = await sql`
       SELECT 1 AS var FROM monthly_expense
-       WHERE workshop_id = ${tenant.workshopId}
+       WHERE workshop_id = ${wid}
          AND year = ${d.yil} AND month = ${d.ay} LIMIT 1
     ` as unknown as Array<{ var: number }>
 
     const [talep] = await sql`
       SELECT note, requested_at FROM economy_data_request
-       WHERE workshop_id = ${tenant.workshopId}
+       WHERE workshop_id = ${wid}
          AND year = ${d.yil} AND month = ${d.ay} AND cancelled_at IS NULL
     ` as unknown as Array<{ note: string | null; requested_at: string }>
 
@@ -63,7 +67,7 @@ export default async function AtolyeEkonomiSayfasi({
                       WHERE me.workshop_id = we.workshop_id
                         AND me.year = we.year AND me.month = we.month) AS gider_var
         FROM workshop_economy we
-       WHERE we.workshop_id = ${tenant.workshopId}
+       WHERE we.workshop_id = ${wid}
        ORDER BY we.year DESC, we.month DESC LIMIT 12
     ` as unknown as Array<{ yil: number; ay: number; k: Record<string, unknown>; gider_var: boolean }>
 
@@ -114,7 +118,13 @@ export default async function AtolyeEkonomiSayfasi({
         )}
       </div>
 
-      <EkonomiForm donem={donem} kayit={veri.kayit} />
+      {merkezGorunumu && (
+        <MerkezGorunumuUyari>Aylık veriyi atölye kendi hesabından girer.</MerkezGorunumuUyari>
+      )}
+
+      <fieldset disabled={merkezGorunumu} className="disabled:opacity-60">
+        <EkonomiForm donem={donem} kayit={veri.kayit} />
+      </fieldset>
 
       {veri.gecmis.length > 0 && (
         <section className="space-y-2">

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
+import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { EKONOMI_SORGUSU, dbSatiriCoz, paramCoz } from '@/lib/pes/ekonomi-sorgu'
 import { hesapla } from '@/lib/pes/ekonomi-hesap'
@@ -42,7 +43,8 @@ export default async function KarneSayfasi({
   searchParams: Promise<{ donem?: string }>
 }) {
   const tenant = await requireSession()
-  if (!tenant.workshopId) redirect('/pes/ekonomi')
+  const wid = await aktifAtolyeId()
+  if (!wid) redirect('/workshop')
 
   const sp = await searchParams
   const donem = donemCoz(sp.donem ?? '') ? (sp.donem as string) : '2026-01'
@@ -51,7 +53,7 @@ export default async function KarneSayfasi({
   /* 1) Kendi rasyoları — atölyenin KENDİ RLS bağlamında. */
   const kendi = await withServerTenant(async (sql) => {
     const [w] = await sql`
-      SELECT id, code, name FROM workshop WHERE id = ${tenant.workshopId}
+      SELECT id, code, name FROM workshop WHERE id = ${wid}
     ` as unknown as Array<{ id: number; code: string; name: string }>
 
     const paramSatirlari = await sql`
@@ -63,11 +65,11 @@ export default async function KarneSayfasi({
 
     const ham = await sql.unsafe(EKONOMI_SORGUSU, [donem, d.yil, d.ay])
     const satir = (ham as unknown as Array<Record<string, unknown>>)
-      .find((r) => r.workshop_id === tenant.workshopId)
+      .find((r) => r.workshop_id === wid)
 
     const donemler = await sql`
       SELECT year::int AS yil, month::int AS ay FROM workshop_economy
-       WHERE workshop_id = ${tenant.workshopId}
+       WHERE workshop_id = ${wid}
        ORDER BY yil DESC, ay DESC LIMIT 12
     ` as unknown as Array<{ yil: number; ay: number }>
 

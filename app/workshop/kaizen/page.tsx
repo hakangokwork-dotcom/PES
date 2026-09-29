@@ -1,7 +1,7 @@
 'use client'
 
+import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 
 interface KaizenItem { id: number; baslik: string; kategori: string; hedef_metrik: string; mevcut_deger: number; hedef_deger: number; sonuc_deger: number | null; sorumlu: string; baslangic_tarihi: string; bitis_tarihi: string; durum: string; notlar: string }
 
@@ -15,7 +15,7 @@ export default function Wrapper() {
 }
 
 function KaizenPage() {
-  const wid = useSearchParams().get('wid')
+  const wid = useAktifAtolyeId()
   const [actions, setActions] = useState<KaizenItem[]>([])
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)

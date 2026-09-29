@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
+import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
+import MerkezGorunumuUyari from '@/components/pes/MerkezGorunumuUyari'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { DURUM_ETIKET, GEREKCE_ETIKET, type TeklifDurumu, type GerekceKodu } from '@/lib/pes/plan-onay'
 import Cevapla, { type TeklifGorunum } from './Cevapla'
@@ -17,14 +19,21 @@ export const dynamic = 'force-dynamic'
  *
  * ATÖLYE YALNIZ KENDİ TEKLİFİNİ GÖRÜR (RLS 044, eşitlik kalıbı) ve
  * taslakları hiç görmez — planlamacının denemeleri buraya düşmez.
+ *
+ * Merkez kullanıcısı da bu ekranı bir atölyenin gözünden görebilir
+ * (/workshop/gir). Onda RLS süzmez; bu yüzden sorgular atölyeyi AÇIKÇA
+ * süzer. Cevap vermek atölyenin işidir: /api/workshop/plan merkez
+ * kullanıcısını kabul etmez, ekran da cevap formunu kilitler.
  */
 export default async function AtolyePlanSayfasi() {
   const tenant = await requireSession()
-  if (!tenant.workshopId) redirect('/pes/plan-tezgahi')
+  const wid = await aktifAtolyeId()
+  if (!wid) redirect('/workshop')
+  const merkezGorunumu = !tenant.workshopId
 
   const veri = await withServerTenant(async (sql) => {
     const [w] = await sql`
-      SELECT id, code, name FROM workshop WHERE id = ${tenant.workshopId}
+      SELECT id, code, name FROM workshop WHERE id = ${wid}
     ` as unknown as Array<{ id: number; code: string; name: string }>
 
     const teklifler = await sql`
@@ -32,6 +41,7 @@ export default async function AtolyePlanSayfasi() {
              t.gerekce_kodu, t.cevap_notu, s.ad AS taslak_adi
         FROM plan_teklif t
         JOIN plan_taslak s ON s.id = t.taslak_id
+       WHERE t.workshop_id = ${wid}
        ORDER BY (t.durum = 'bekliyor') DESC, t.gonderildi_at DESC
        LIMIT 50
     ` as unknown as Array<Record<string, unknown>>
@@ -56,7 +66,7 @@ export default async function AtolyePlanSayfasi() {
              wo.teslim_tarihi::text AS teslim
         FROM work_order_stage st
         JOIN work_order wo ON wo.id = st.work_order_id
-       WHERE st.workshop_id = ${tenant.workshopId}
+       WHERE st.workshop_id = ${wid}
          AND wo.durum NOT IN ('Tamamlandi', 'Sevk Edildi', 'İptal')
        GROUP BY wo.id, wo.is_emri_no, wo.model_adi, wo.teslim_tarihi
        ORDER BY wo.is_emri_no
@@ -68,7 +78,7 @@ export default async function AtolyePlanSayfasi() {
              b.created_at, wo.is_emri_no
         FROM plan_bildirim b
         JOIN work_order wo ON wo.id = b.work_order_id
-       WHERE b.tip = 'gecikme'
+       WHERE b.tip = 'gecikme' AND b.workshop_id = ${wid}
        ORDER BY b.created_at DESC LIMIT 20
     ` as unknown as Array<Record<string, unknown>>
 
@@ -144,7 +154,13 @@ export default async function AtolyePlanSayfasi() {
         </p>
       )}
 
-      {bekleyen.map((t) => <Cevapla key={t.id} teklif={t} />)}
+      {merkezGorunumu && bekleyen.length > 0 && (
+        <MerkezGorunumuUyari>Teklife cevabı atölye kendi hesabından verir.</MerkezGorunumuUyari>
+      )}
+
+      <fieldset disabled={merkezGorunumu} className="space-y-5 disabled:opacity-60">
+        {bekleyen.map((t) => <Cevapla key={t.id} teklif={t} />)}
+      </fieldset>
 
       <GecikmeBildir isler={planliIsler} gecmis={gecmisBildirimler} />
 

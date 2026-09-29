@@ -144,7 +144,7 @@ function Kart({
       }`}
     >
       <div className="flex items-center justify-between gap-4">
-        <Link href={`/workshop?wid=${a.id}`} className="flex-1 min-w-0">
+        <Link href={`/workshop/gir?wid=${a.id}`} prefetch={false} className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-accent font-bold text-lg">{a.code}</span>
             <span className="text-ink font-medium">{a.name}</span>

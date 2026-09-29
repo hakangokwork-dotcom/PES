@@ -16,6 +16,7 @@ export const GUIDES = [
       'Akış — operasyonları ve aralarındaki bağlantıları kur (asıl model burada).',
       'Kaynaklar — makine ve operatörleri tanımla (atamadan önce var olmalılar).',
       'Operasyonlar — adım sürelerini gir, makine/operatör ata.',
+      'Yerleşim — makineleri, tezgâhları ve ara stok alanlarını zemine yerleştir, spagetti haritasını gör.',
       'Hesaplama — kapasiteni ve darboğazını gör.',
       'Simülasyon — hattı çalıştır, WIP birikimini izle.',
       'VSM — değer akışını haritala, envanter ve kaizen notlarını ekle.',
@@ -67,6 +68,19 @@ export const GUIDES = [
       'Değişiklikler hesaplamalara otomatik yansır.',
     ],
     tip: 'Makine/operatör atamasının yapıldığı tek yer burasıdır (sürükle-bırak).',
+  },
+  {
+    id: 'yerlesim',
+    tab: 'yerlesim',
+    title: 'Yerleşim — atölyeyi gerçek ölçüde kur',
+    steps: [
+      'Otomatik yerleşimle başla ya da yerleşmemiş istasyonları soldan zemine sürükle.',
+      'Makineleri taşı (R döndürür, Ctrl+D çoğaltır); ara stok alanı, bant, koridor ve kolon ekle.',
+      'Ara stok alanını seç, içinden geçen akışları işaretle — rota uzunluğu buna göre hesaplanır.',
+      'Sağdaki karnede adet başına taşıma, alan, kesişme ve uyarıları izle.',
+      'Denemeyi çoğalt, kopyada değişiklik yap, Kıyasla ile denemeleri yan yana gör.',
+    ],
+    tip: 'Yerleşim süreci değiştirmez: aynı süreçle istediğin kadar deneme yapabilirsin. Çizgi renkleri bölümlerin (Akış sekmesindeki ana adımların) rengidir.',
   },
   {
     id: 'dashboard',

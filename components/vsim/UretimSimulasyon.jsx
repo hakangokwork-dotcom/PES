@@ -26,13 +26,14 @@ import {
   Copy, FolderOpen, Sparkles, Check,
   Play, Pause, RotateCcw, Clock, TrendingUp, Zap, CheckCircle2,
   Download, Upload, FileSpreadsheet, LayoutGrid, Star, Scale,
-  Map as MapIcon, Route, HelpCircle,
+  Map as MapIcon, Route, HelpCircle, Factory,
 } from 'lucide-react';
 import { downloadTemplate, parseSimFile, validateRows, buildSimDataFromRows } from './sim-excel';
 import Gallery from './components/Gallery.jsx';
 import { confirmDialog, alertDialog, promptDialog } from './components/dialogs/dialogService.js';
 import VsmView from './components/VsmView.jsx';
 import FabrikaView from './components/FabrikaView.jsx';
+import LayoutView from './components/LayoutView.jsx';
 import InfoTip from './components/InfoTip.jsx';
 import { GUIDES } from './help/guides.js';
 import { GLOSSARY } from './help/glossary.js';
@@ -880,6 +881,7 @@ export default function AtolyePlatform({ storageKey } = {}) {
             <TabBtn active={tab === 'flow'} onClick={() => setTab('flow')} icon={Network}>Akış</TabBtn>
             <TabBtn active={tab === 'resources'} onClick={() => setTab('resources')} icon={Wrench}>Kaynaklar</TabBtn>
             <TabBtn active={tab === 'ops'} onClick={() => setTab('ops')} icon={Layers}>Operasyonlar</TabBtn>
+            <TabBtn active={tab === 'yerlesim'} onClick={() => setTab('yerlesim')} icon={Factory}>Yerleşim</TabBtn>
             <TabBtn active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={BarChart3}>Hesaplama</TabBtn>
             <TabBtn active={tab === 'sim'} onClick={() => setTab('sim')} icon={Play}>Simülasyon</TabBtn>
             <TabBtn active={tab === 'vsm'} onClick={() => setTab('vsm')} icon={MapIcon}>VSM</TabBtn>
@@ -888,7 +890,7 @@ export default function AtolyePlatform({ storageKey } = {}) {
         </div>
       </header>
 
-      <main className={tab === 'surec' ? 'w-full px-3 py-4' : 'max-w-[1600px] mx-auto px-6 py-6'}>
+      <main className={tab === 'surec' || tab === 'yerlesim' ? 'w-full px-3 py-4' : 'max-w-[1600px] mx-auto px-6 py-6'}>
         {tab === 'ops' && (
           (data.mainOps || []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -973,6 +975,9 @@ export default function AtolyePlatform({ storageKey } = {}) {
             onUpdate={updateProcessMaps}
             onDeleteMap={deleteProcessMap}
           />
+        )}
+        {tab === 'yerlesim' && (
+          <LayoutView data={data} onPatch={(fn) => setData(d => ({ ...d, ...fn(d) }))} />
         )}
         {tab === 'dashboard' && <DashboardView data={data} calc={calc} />}
         {tab === 'sim' && (

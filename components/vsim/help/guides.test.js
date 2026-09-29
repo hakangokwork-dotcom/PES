@@ -12,16 +12,16 @@ describe('guides', () => {
   });
 
   it('sekme rehberleri çalışma akışı sırasında (üst menüyle aynı)', () => {
-    // Üst menü sırası: Çiz → Modelle → Kaynakla → Detaylandır → Hesapla → Çalıştır → Haritala → Raporla.
+    // Üst menü sırası: Çiz → Modelle → Kaynakla → Detaylandır → Yerleştir → Hesapla → Çalıştır → Haritala → Raporla.
     // guides.js bu sırayı izlemeli; sekme çubuğu değişirse (UretimSimulasyon.jsx) burası da güncellenmeli.
-    const tabGuides = GUIDES.filter(g => g.tab && ['surec','flow','resources','ops','dashboard','sim','vsm','rapor'].includes(g.id));
-    expect(tabGuides.map(g => g.id)).toEqual(['surec','flow','resources','ops','dashboard','sim','vsm','rapor']);
+    const tabGuides = GUIDES.filter(g => g.tab && ['surec','flow','resources','ops','yerlesim','dashboard','sim','vsm','rapor'].includes(g.id));
+    expect(tabGuides.map(g => g.id)).toEqual(['surec','flow','resources','ops','yerlesim','dashboard','sim','vsm','rapor']);
   });
 
-  it('çalışma sırası rehberi var ve 8 adımı sayar', () => {
+  it('çalışma sırası rehberi var ve 9 adımı sayar', () => {
     const wf = GUIDES.find(g => g.id === 'workflow');
     expect(wf, 'workflow rehberi yok').toBeTruthy();
     expect(wf.tab).toBe('');            // sekmeye bağlı değil → panoda "bu sekmeye git" çıkmaz
-    expect(wf.steps).toHaveLength(8);   // 8 sekmenin her biri
+    expect(wf.steps).toHaveLength(9);   // 9 sekmenin her biri
   });
 });

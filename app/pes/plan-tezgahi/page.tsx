@@ -1,5 +1,10 @@
 /**
- * /pes/plan-tezgahi — Planlamacının tezgâhı
+ * /pes/plan-tezgahi — Planlama Masası
+ *
+ * ROTA ADI 'plan-tezgahi' KALDI: kullanıcı ekrandaki adı "Planlama Masası"
+ * olarak istedi (2026-09-29). URL ve API yolları değiştirilmedi — görünen
+ * adı düzeltmek için 7 dosyayı ve yayinla.mjs'in kanıt yollarını kırmaya
+ * değmez. İstenirse ayrı bir işte yönlendirmeyle taşınır.
  *
  * Sol panelde yerleştirilmemiş iş emirleri, sağda bant × gün ızgarası.
  * Kart bir hücreye sürüklenir; bitiş tarihi kapasiteden TÜRETİLİR.
@@ -324,7 +329,7 @@ export default async function PlanTezgahiSayfasi({
     <main className="p-4 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Planlama Tezgâhı</h1>
+          <h1 className="text-xl font-semibold">Planlama Masası</h1>
           <p className="text-sm text-slate-500">
             Taslak — atölye görmez, kapasite tüketmez ·{' '}
             <Link href="/pes/takvim" className="underline">bant takvimi →</Link>

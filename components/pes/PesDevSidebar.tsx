@@ -33,7 +33,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Atölye Takvimleri', href: '/pes/takvim',       icon: CalendarDays },
       { label: 'Siparişler',        href: '/pes/siparisler',     icon: Inbox },
       { label: 'Sipariş Yerleştir', href: '/pes/siparis-yerlestir', icon: PackagePlus },
-      { label: 'Planlama Tezgâhı', href: '/pes/plan-tezgahi', icon: LayoutGrid },
+      { label: 'Planlama Masası', href: '/pes/plan-tezgahi', icon: LayoutGrid },
     ],
   },
   {

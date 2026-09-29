@@ -201,7 +201,7 @@ export default function Tezgah({
       <div className="rounded border border-slate-200 p-6 space-y-3">
         <h2 className="font-medium">Henüz taslak yok</h2>
         <p className="text-sm text-slate-500 max-w-prose">
-          Tezgâh bir taslak üzerinde çalışır. Taslak atölyeye görünmez ve
+          Masa bir taslak üzerinde çalışır. Taslak atölyeye görünmez ve
           kapasite tüketmez; denemelerinizi serbestçe yapabilirsiniz.
         </p>
         <div className="flex gap-2">
@@ -368,6 +368,12 @@ export default function Tezgah({
                           const buGun = kalemler.filter((k) => k.gunler.some((x) => x.tarih === g))
                           const dolu = buGun.length > 0
                           const citli = buGun.some((k) => citKalem.has(k.id))
+                          /* Çubuğun İLK günü: iş emri numarası burada yazılır ve
+                             kaldırma düğmesi burada durur. Hücreler dar olduğu
+                             için etiket taşacak biçimde konumlanıyor — hangi PO
+                             olduğu ancak böyle okunabiliyor, yoksa ızgarada
+                             yalnız rakam görünüyordu. */
+                          const baslayan = buGun.filter((k) => k.gunler[0]?.tarih === g)
 
                           return (
                             <td
@@ -381,7 +387,7 @@ export default function Tezgah({
                                       k.gunler.find((x) => x.tarih === g)?.adet ?? 0)} adet`).join('\n')
                                   : kap > 0 ? `kapasite ${tr.format(kap)}` : 'kapasite yok'
                               }
-                              className={`border-b border-slate-100 h-9 align-middle text-center cursor-pointer ${
+                              className={`relative border-b border-slate-100 h-9 align-middle text-center cursor-pointer ${
                                 uzerinde ? 'bg-slate-900/10 outline outline-1 outline-slate-900' :
                                 cakisik ? 'bg-red-200' :
                                 dolu ? (citli ? 'bg-amber-200' : 'bg-emerald-200') :
@@ -393,6 +399,31 @@ export default function Tezgah({
                                     t + (k.gunler.find((x) => x.tarih === g)?.adet ?? 0), 0))}
                                 </span>
                               )}
+
+                              {/* İş emri etiketi + kaldırma — yalnız çubuğun ilk gününde.
+                                  Kap hücreyi aşıyor (pointer-events-none) ki dar hücrede
+                                  okunabilsin ve altındaki bırakma hedefini engellemesin. */}
+                              {baslayan.map((k, i) => (
+                                <span
+                                  key={k.id}
+                                  className="pointer-events-none absolute left-0.5 z-10 flex items-center gap-1 whitespace-nowrap rounded bg-slate-900/85 px-1 text-[10px] leading-4 text-white"
+                                  style={{ top: 2 + i * 14 }}
+                                >
+                                  {k.isEmriNo}
+                                  <button
+                                    type="button"
+                                    title={`${k.isEmriNo} planlamadan kaldır`}
+                                    disabled={bekliyor}
+                                    onClick={(ev) => {
+                                      ev.stopPropagation()
+                                      cagir('/api/pes/plan-tezgahi/kalem', 'DELETE', { id: k.id })
+                                    }}
+                                    className="pointer-events-auto rounded px-0.5 text-white/70 hover:bg-white/20 hover:text-white disabled:opacity-50"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))}
                             </td>
                           )
                         })}
@@ -481,7 +512,7 @@ export default function Tezgah({
       )}
 
       <p className="text-xs text-slate-400">
-        Kartı ızgaraya sürükleyin. Bitiş tarihi bandın kapasitesinden türetilir.
+        Kartı ızgaraya sürükleyin. Bitiş tarihi bandın kapasitesinden türetilir. Çubuktaki × ile kaldırabilirsiniz.
         Kırmızı hücre kapasite aşımıdır — engellenmez, yalnız gösterilir.
       </p>
     </div>

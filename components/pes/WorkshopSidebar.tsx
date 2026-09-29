@@ -9,6 +9,7 @@ import {
   CircleCheck, CirclePause, Lightbulb,
   Users, Wallet, Calculator,
   ChartColumn, Upload, Search, ArrowLeft, MapPin, Coins, Award, CalendarCheck,
+  Repeat,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -80,18 +81,21 @@ const NAV_GROUPS: NavGroup[] = [
 interface WsItem { id: number; code: string; name: string }
 
 export default function WorkshopSidebar({
-  eposta = null, tenantAdi = null, sabitAtolye = null,
+  eposta = null, tenantAdi = null, sabitAtolye = null, merkezGorunumu = false,
 }: {
   eposta?: string | null
   tenantAdi?: string | null
   /* Kullanıcı bir atölyeye bağlıysa seçici gösterilmez: seçecek bir şey
      yok ve "Atölye seçin" boş ekranı da bundan doğuyordu. */
   sabitAtolye?: WsItem | null
+  /* Merkez kullanıcısı bir atölyeye girmiş (sabitAtolye çerezden gelir).
+     Bağlı kullanıcıdan farkı: atölye değiştirebilir ve merkeze dönebilir. */
+  merkezGorunumu?: boolean
 }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const wid = searchParams.get('wid') || (sabitAtolye ? String(sabitAtolye.id) : '')
+  const wid = sabitAtolye ? String(sabitAtolye.id) : (searchParams.get('wid') || '')
 
   const [workshops, setWorkshops] = useState<WsItem[]>([])
   const [arama, setArama] = useState('')
@@ -108,12 +112,14 @@ export default function WorkshopSidebar({
 
   const currentWs = sabitAtolye ?? workshops.find(w => w.id === Number(wid)) ?? null
 
+  /* Giriş /workshop/gir'den geçer: seçim çereze yazılır ve panelin her
+     ekranı — sunucu ekranları dahil — aynı atölyeyi görür. */
   function switchWorkshop(newWid: string) {
-    if (!newWid) { router.push('/workshop'); return }
-    router.push(`${pathname}?wid=${newWid}`)
+    router.push(newWid ? `/workshop/gir?wid=${newWid}` : '/workshop/gir')
   }
 
-  /* Seçili atölye her bağlantıda taşınır; aksi halde sayfa değişince
+  /* Atölye layout'tan geliyorsa bağlantılar wid taşımaz (gerek yok).
+     Yalnız eski ?wid= girişlerinde taşınır; aksi halde sayfa değişince
      kullanıcı hangi atölyeye baktığını kaybediyor. */
   const gruplar = useMemo(() => {
     const q = arama.trim().toLocaleLowerCase('tr-TR')
@@ -122,10 +128,10 @@ export default function WorkshopSidebar({
         ...g,
         items: g.items
           .filter(i => !q || i.label.toLocaleLowerCase('tr-TR').includes(q))
-          .map(i => (wid ? { ...i, href: `${i.href}?wid=${wid}` } : i)),
+          .map(i => (wid && !sabitAtolye ? { ...i, href: `${i.href}?wid=${wid}` } : i)),
       }))
       .filter(g => g.items.length > 0)
-  }, [arama, wid])
+  }, [arama, wid, sabitAtolye])
 
   // Çekmecede (fixed, inset-y-0) h-full; masaüstü sütununda min-h-screen.
   return (
@@ -154,7 +160,23 @@ export default function WorkshopSidebar({
             <span className="num text-faint">{sabitAtolye.code}</span>{' '}
             <span className="text-ink">{sabitAtolye.name}</span>
           </div>
-        ) : (
+        ) : null}
+        {sabitAtolye && merkezGorunumu && (
+          /* Merkez kullanıcısı atölyenin gözünden bakıyor; bunu ve çıkış
+             yolunu açıkça söyle. */
+          <div className="mt-1.5 flex items-center justify-between gap-2 px-1">
+            <span className="text-[11px] font-medium text-faint">Merkez görünümü</span>
+            <Link
+              href="/workshop/gir"
+              prefetch={false}
+              className="flex items-center gap-1 text-[11px] font-medium text-accent hover:underline"
+            >
+              <Repeat className="size-3" strokeWidth={1.8} />
+              Atölye değiştir
+            </Link>
+          </div>
+        )}
+        {!sabitAtolye && (
           <select
             value={wid}
             onChange={e => switchWorkshop(e.target.value)}
@@ -197,6 +219,9 @@ export default function WorkshopSidebar({
         )}
       </nav>
 
+      {/* Bağlı atölye kullanıcısının merkez paneline işi yok (/pes onu zaten
+          geri gönderir); bağlantı yalnız merkez kullanıcısına gösterilir. */}
+      {(merkezGorunumu || !sabitAtolye) && (
       <div className="shrink-0 border-t border-line-soft px-3 py-2">
         <Link
           href="/pes"
@@ -206,6 +231,7 @@ export default function WorkshopSidebar({
           Merkez Paneli
         </Link>
       </div>
+      )}
 
       <SidebarIdentity eposta={eposta} tenantAdi={tenantAdi} />
 

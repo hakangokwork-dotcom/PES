@@ -98,3 +98,100 @@ describe('lojistikli simülasyon', () => {
     expect(st.completed.a1).toBe(3);       // 5 sn efektif çevrim
   });
 });
+
+describe('giriş kontrolü (kesim serbest bırakma)', () => {
+  it('sabit hız kaynağı saatte N parça ile sınırlar', () => {
+    const d = fixture();
+    const L = layoutFor();
+    L.release = { mode: 'rate', perHour: 60 };             // dakikada 1
+    d.logistics = buildLogistics(d, L);
+    const st = run(d, 600);
+    expect(st.released.a1).toBeLessThanOrEqual(11);
+    expect(st.released.a1).toBeGreaterThanOrEqual(10);
+    expect(st.gatedSec.a1).toBeGreaterThan(0);
+  });
+  it('WIP sınırı hattaki (çıkmamış) parça sayısını tutar', () => {
+    const d = fixture();
+    d.subOps.find(s => s.id === 'b1').cycleTime = 60;       // yavaş son istasyon
+    const L = layoutFor();
+    L.release = { mode: 'conwip', wipCap: 5 };
+    d.logistics = buildLogistics(d, L);
+    const st = run(d, 1200);
+    expect(st.released.a1 - st.exited).toBeLessThanOrEqual(5);
+    const free = run({ ...d, logistics: buildLogistics(d, layoutFor()) }, 1200);
+    expect(free.released.a1 - free.exited).toBeGreaterThan(20);
+  });
+});
+
+describe('parça takibi', () => {
+  it('izleme isteği sonraki parçayı çıkışa kadar izler', () => {
+    const d = fixture();
+    d.logistics = buildLogistics(d, layoutFor());
+    const st = initialSimState();
+    st.traceReq = 'a1';
+    for (let t = 0; t < 300; t++) advanceSimStep(st, d, 1);
+    expect(st.trace.done).toBe(true);
+    const kinds = st.trace.events.map(e => e.kind);
+    expect(kinds[0]).toBe('process');
+    expect(kinds).toContain('transit');
+    expect(kinds).toContain('queue');
+    expect(kinds[kinds.length - 1]).toBe('exit');
+    const procAt = st.trace.events.filter(e => e.kind === 'process').map(e => e.at);
+    expect(procAt).toEqual(['a1', 'a2', 'b1']);
+    expect(st.traces).toHaveLength(1);
+  });
+  it('demet dolana kadar bekleyişi kaydeder', () => {
+    const d = fixture();
+    d.logistics = buildLogistics(d, layoutFor({ transport: { bundle: 3 } }));
+    const st = initialSimState();
+    st.traceReq = 'a1';
+    for (let t = 0; t < 200; t++) advanceSimStep(st, d, 1);
+    expect(st.trace.events.map(e => e.kind)).toContain('bundle');
+  });
+});
+
+describe('arıza, bakım ve yedek', () => {
+  const withRel = (rel, extra = []) => {
+    const L = layoutFor();
+    L.items.find(i => i.subOpId === 'a2').reliability = rel;
+    L.items.push(...extra);
+    return L;
+  };
+  it('planlı bakım süresince operasyon durur ve olay kaydı düşer', () => {
+    const d = fixture();
+    d.logistics = buildLogistics(d, withRel({ maintAtMin: 2, maintDurMin: 5 }));
+    const st = run(d, 600);
+    const base = run({ ...d, logistics: buildLogistics(d, layoutFor()) }, 600);
+    expect(st.completed.a2).toBeLessThan(base.completed.a2);
+    const kinds = st.events.map(e => e.kind);
+    expect(kinds).toContain('bakim');
+    expect(kinds).toContain('bakim-bitti');
+    const id = Object.keys(d.logistics.machines)[0];
+    expect(st.downSec[id]).toBeCloseTo(300, -1);
+  });
+  it('arızalar tohuma bağlı, tekrarlanabilir', () => {
+    const d = fixture();
+    const L = withRel({ mtbfH: 0.05, mttrMin: 2 });         // ~3 dk'da bir arıza
+    L.seed = 7;
+    d.logistics = buildLogistics(d, L);
+    const a = run(d, 1800), b = run(d, 1800);
+    expect(a.events).toEqual(b.events);
+    expect(a.events.filter(e => e.kind === 'ariza').length).toBeGreaterThan(2);
+    L.seed = 8;
+    const c = run({ ...d, logistics: buildLogistics(d, L) }, 1800);
+    expect(c.events).not.toEqual(a.events);
+  });
+  it('uyumlu yedek makine duruşu kısaltır', () => {
+    const d = fixture();
+    const spare = createItem('duz', 6, 3, { isSpare: true });   // aynı tür, yakın
+    const rel = { maintAtMin: 1, maintDurMin: 60 };
+    const noSpare = buildLogistics(d, withRel(rel));
+    const withSpare = buildLogistics(d, { ...withRel(rel, [spare]), transport: { speedMps: 1, bundle: 1, spareSetupMin: 2 } });
+    const m = Object.values(withSpare.machines)[0];
+    expect(m.spares).toHaveLength(1);
+    const s1 = run({ ...d, logistics: noSpare }, 1800);
+    const s2 = run({ ...d, logistics: withSpare }, 1800);
+    expect(s2.completed.a2).toBeGreaterThan(s1.completed.a2);
+    expect(s2.events.map(e => e.kind)).toContain('yedek-devrede');
+  });
+});

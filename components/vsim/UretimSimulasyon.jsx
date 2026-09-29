@@ -1001,6 +1001,8 @@ export default function AtolyePlatform({ storageKey } = {}) {
             simLayout={simLayout}
             hasLayouts={(data.layouts || []).length > 0}
             onToggleLayout={(v) => setData(d => ({ ...d, simUseLayout: v }))}
+            onTrace={(src) => setSimState(s => ({ ...s, traceReq: src, trace: s.trace && !s.trace.done ? s.trace : null }))}
+            onClearTrace={() => setSimState(s => ({ ...s, trace: null, traceReq: null }))}
             calc={calc}
             simState={simState}
             simStale={simStale}
@@ -2845,7 +2847,7 @@ function SettingsModal({ settings, onSave, onClose }) {
 /* ============================================================
    Sekme 5: SİMÜLASYON — Discrete-event, canlı WIP birikimi ve gün sonu tahmini
    ============================================================ */
-function SimView({ data, simLayout, hasLayouts, onToggleLayout, calc, simState, simStale, onStart, onPause, onReset, onRestart, onSpeed, onFastForward, onAutoSetup,
+function SimView({ data, simLayout, hasLayouts, onToggleLayout, onTrace, onClearTrace, calc, simState, simStale, onStart, onPause, onReset, onRestart, onSpeed, onFastForward, onAutoSetup,
                    onSaveScenario, onLoadScenario, onDeleteScenario, onDuplicateScenario, onRenameScenario }) {
   const L = useLabels();
   const itemLower = lower(L.item);            // 100ms tick döngüsünde tekrar tekrar hesaplamamak için hoist
@@ -3210,7 +3212,7 @@ function SimView({ data, simLayout, hasLayouts, onToggleLayout, calc, simState, 
         </div>
         {hatGorunum === 'yerlesim' && hasLayouts ? (
           simLayout
-            ? <LayoutSimView data={data} layout={simLayout} simState={simState} />
+            ? <LayoutSimView data={data} layout={simLayout} simState={simState} onTrace={onTrace} onClearTrace={onClearTrace} />
             : <div className="py-12 text-center text-sm text-ink-soft">Yerleşim görünümü için "Yerleşimi hesaba kat" seçeneğini aç.</div>
         ) : hatGorunum === 'fabrika' ? (
           <FabrikaView data={data} simState={simState} worstStationId={worstStationId} projectedEOD={projectedEOD} />

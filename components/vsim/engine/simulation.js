@@ -40,8 +40,34 @@ export function cloneSimState(prev) {
   if (prev.blockedSec) clone.blockedSec = { ...prev.blockedSec };
   if (prev.starvedSec) clone.starvedSec = { ...prev.starvedSec };
   if (prev.bufferPeak) clone.bufferPeak = { ...prev.bufferPeak };
+  if (prev.released) clone.released = { ...prev.released };
+  if (prev.gatedSec) clone.gatedSec = { ...prev.gatedSec };
+  if (prev.trace) clone.trace = { ...prev.trace, pos: { ...prev.trace.pos }, events: [...prev.trace.events] };
+  if (prev.traces) clone.traces = [...prev.traces];
+  if (prev.mstate) {
+    const ms = {};
+    for (const k of Object.keys(prev.mstate)) ms[k] = { ...prev.mstate[k], down: prev.mstate[k].down ? { ...prev.mstate[k].down } : null };
+    clone.mstate = ms;
+  }
+  if (prev.downSec) clone.downSec = { ...prev.downSec };
+  if (prev.spareBusy) clone.spareBusy = { ...prev.spareBusy };
+  if (prev.events) clone.events = [...prev.events];
   return clone;
 }
+
+/* Tohumlu, saf rastgele sayı (0,1): aynı tohum + makine + sıra → aynı değer.
+   Simülasyon tekrarlanabilir kalır; tohum değişince farklı bir "şans" oynanır. */
+export function seededRandom(seed, key, k) {
+  let h = 2166136261 >>> 0;
+  const str = `${seed}|${key}|${k}`;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  let t = (h + 0x6D2B79F5) >>> 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  const r = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  return Math.min(1 - 1e-9, Math.max(1e-9, r));
+}
+const expSample = (mean, u) => -Math.log(u) * mean;
 
 /* Ara stok alanının anlık doluluğu (lojistik): demet bekleyen + yoldaki +
    teslim edilip henüz tüketilmemiş parçalar. Görünüm de bunu kullanır. */
@@ -132,18 +158,86 @@ export function advanceSimStep(state, d, dt) {
       state.pending[tr.target][tr.src] = (state.pending[tr.target][tr.src] || 0) + tr.count;
     }
   };
+  /* İzlenen parça (trace): kümelenmiş sayımlar üzerinde FIFO konumu tutulur —
+     kuyrukta önündeki parça sayısı (ahead) tüketildikçe azalır. */
+  const tr0 = state.trace && !state.trace.done ? state.trace : null;
+  const tEvent = (kind, at, extra) => { if (tr0) tr0.events.push({ t: state.elapsed, kind, at, ...(extra || {}) }); };
+  const queueNow = (kind, target, src) => Math.max(0, kind === 'inbox'
+    ? (state.groupInbox[target]?.[src] || 0) : (state.pending[target]?.[src] || 0));
+  const deliverTracked = (tr) => {
+    if (tr0 && tr.traced) {
+      const ahead = queueNow(tr.kind, tr.target, tr.src) + tr.count - 1;
+      tr0.pos = { where: tr.kind, target: tr.target, src: tr.src, ahead };
+      tEvent('queue', tr.target, { ahead });
+    }
+    deliver(tr);
+  };
   if (lg) {
     state.transit ??= []; state.outbox ??= {}; state.blocked ??= {};
     state.blockedSec ??= {}; state.starvedSec ??= {}; state.bufferPeak ??= {};
+    state.released ??= {}; state.gatedSec ??= {};
     const arrived = state.transit.filter(t => t.due <= state.elapsed);
     if (arrived.length) {
       state.transit = state.transit.filter(t => t.due > state.elapsed);
-      arrived.forEach(deliver);
+      arrived.forEach(deliverTracked);
+    }
+  }
+
+  /* Arıza / planlı bakım / yedek makine (lojistik + lg.machines).
+     Makine duruşu o operasyonun çalışan paralel istasyon sayısını düşürür;
+     yedek makine uyumluysa (aynı tür) taşınıp kurulunca (swapSec) boşluğu kapatır. */
+  const upFrac = {};
+  if (lg?.machines && Object.keys(lg.machines).length) {
+    state.mstate ??= {}; state.downSec ??= {}; state.spareBusy ??= {}; state.events ??= [];
+    const ev = (e) => { state.events.push({ t: state.elapsed, ...e }); if (state.events.length > 80) state.events.shift(); };
+    const seed = lg.seed ?? 1;
+    const downBySub = {};
+    for (const [id, m] of Object.entries(lg.machines)) {
+      const ms = state.mstate[id] ??= { fails: 0, nextFail: m.mtbfSec > 0 ? expSample(m.mtbfSec, seededRandom(seed, id, 0)) : Infinity, maintDone: false, down: null };
+      if (!ms.down) {
+        let kind = null, until = 0;
+        if (m.maintAtSec != null && !ms.maintDone && state.elapsed >= m.maintAtSec) {
+          kind = 'bakim'; until = state.elapsed + (m.maintDurSec || 0); ms.maintDone = true;
+        } else if (state.elapsed >= ms.nextFail) {
+          kind = 'ariza'; until = state.elapsed + (m.mttrSec || 0); ms.fails += 1;
+        }
+        if (kind) {
+          ms.down = { kind, since: state.elapsed, until, spareId: null, coverAt: null, covered: false };
+          ev({ kind, itemId: id, subOpId: m.subOpId });
+          // en yakın boşta uyumlu yedek
+          const cands = (m.spares || []).filter(sp => !state.spareBusy[sp.id]).sort((a, b) => a.swapSec - b.swapSec);
+          if (cands.length && until - state.elapsed > cands[0].swapSec) {
+            ms.down.spareId = cands[0].id; ms.down.coverAt = state.elapsed + cands[0].swapSec;
+            state.spareBusy[cands[0].id] = id;
+            ev({ kind: 'yedek-yolda', itemId: id, spareId: cands[0].id, subOpId: m.subOpId });
+          }
+        }
+      } else {
+        const dn = ms.down;
+        if (state.elapsed >= dn.until) {
+          if (dn.spareId) delete state.spareBusy[dn.spareId];
+          ev({ kind: dn.kind === 'bakim' ? 'bakim-bitti' : 'onarildi', itemId: id, subOpId: m.subOpId });
+          if (dn.kind === 'ariza') ms.nextFail = state.elapsed + (m.mtbfSec > 0 ? expSample(m.mtbfSec, seededRandom(seed, id, ms.fails)) : Infinity);
+          ms.down = null;
+        } else if (dn.spareId && !dn.covered && state.elapsed >= dn.coverAt) {
+          dn.covered = true;
+          ev({ kind: 'yedek-devrede', itemId: id, spareId: dn.spareId, subOpId: m.subOpId });
+        }
+      }
+      if (ms.down && !ms.down.covered) {
+        state.downSec[id] = (state.downSec[id] || 0) + dt;
+        downBySub[m.subOpId] = (downBySub[m.subOpId] || 0) + 1;
+      }
+    }
+    for (const [sub, n] of Object.entries(downBySub)) {
+      const total = Math.max(1, lg.stations?.[sub] || 1);
+      upFrac[sub] = Math.max(0, (total - n) / total);
     }
   }
   // Bir aktarımı gönder: lojistik yoksa anında; varsa demete ekle, demet dolunca yola çıkar.
   const send = (key, kind, target, src) => {
-    if (!lg) { deliver({ kind, target, src, count: 1 }); return; }
+    const tracedHere = !!(tr0 && tr0.pos.where === 'outbox' && tr0.pos.key === key);
+    if (!lg) { deliverTracked({ kind, target, src, count: 1, traced: tracedHere }); return; }
     const link = lg.links?.[key];
     const bundle = lg.bundle || 1;
     state.outbox[key] = (state.outbox[key] || 0) + 1;
@@ -151,8 +245,11 @@ export function advanceSimStep(state, d, dt) {
     const count = state.outbox[key];
     state.outbox[key] = 0;
     const delay = link?.delaySec || 0;
-    if (delay <= 0) deliver({ kind, target, src, count });
-    else state.transit.push({ key, kind, target, src, count, start: state.elapsed, due: state.elapsed + delay });
+    if (delay <= 0) deliverTracked({ kind, target, src, count, traced: tracedHere });
+    else {
+      state.transit.push({ key, kind, target, src, count, start: state.elapsed, due: state.elapsed + delay, traced: tracedHere || undefined });
+      if (tracedHere) { tr0.pos = { where: 'transit', key }; tEvent('transit', key); }
+    }
   };
   const bufferFull = (key) => {
     const bid = lg?.links?.[key]?.bufferId;
@@ -181,7 +278,7 @@ export function advanceSimStep(state, d, dt) {
   // 1) İşlenen parçaları ilerlet ve biterse sonraki istasyonlara geçir
   const justDone = [];
   for (const opId of Object.keys(state.inProgress)) {
-    state.inProgress[opId].remainingSec -= dt;
+    state.inProgress[opId].remainingSec -= dt * (upFrac[opId] ?? 1);   // makine duruşu ilerlemeyi yavaşlatır/durdurur
     if (state.inProgress[opId].remainingSec <= 0) justDone.push(opId);
   }
   for (const opId of justDone) {
@@ -208,6 +305,7 @@ export function advanceSimStep(state, d, dt) {
     // Ara stok dolu → istasyon parçayı elinde tutar (bloke), bir sonraki adımda yeniden dener.
     if (lg && sends.some(x => bufferFull(x.key))) {
       state.inProgress[opId].remainingSec = 0;
+      if (!state.blocked[opId] && tr0 && tr0.pos.where === 'process' && tr0.pos.op === opId) tEvent('blocked', opId);
       state.blocked[opId] = true;
       state.blockedSec[opId] = (state.blockedSec[opId] || 0) + dt;
       continue;
@@ -215,8 +313,21 @@ export function advanceSimStep(state, d, dt) {
     if (lg) delete state.blocked[opId];
     delete state.inProgress[opId];
     state.completed[opId] = (state.completed[opId] || 0) + 1;
-    if (sends.length === 0) state.exited += 1;          // hattan çıkış (eski davranış)
-    for (const x of sends) send(x.key, x.kind, x.target, x.src);
+    const isTraced = !!(tr0 && tr0.pos.where === 'process' && tr0.pos.op === opId);
+    if (sends.length === 0) {
+      state.exited += 1;          // hattan çıkış (eski davranış)
+      if (isTraced) {
+        tEvent('exit', opId);
+        tr0.done = true;
+        tr0.pos = { where: 'exit' };
+        state.traces = [...(state.traces || []), tr0].slice(-5);
+      }
+    }
+    sends.forEach((x, i) => {
+      if (isTraced && i === 0) { tr0.pos = { where: 'outbox', key: x.key }; }
+      send(x.key, x.kind, x.target, x.src);
+      if (isTraced && i === 0 && tr0.pos.where === 'outbox') tEvent('bundle', x.key);
+    });
   }
 
   // 2) Boşta kalan istasyonları başlat
@@ -265,18 +376,49 @@ export function advanceSimStep(state, d, dt) {
       gate2 = prevs.every(pid => (pend[pid] || 0) >= 1);
     }
 
-    if (gate1 && gate2) {
+    // Tüm makineleri duruşta olan operasyon başlayamaz.
+    const machinesDown = upFrac[op.id] === 0;
+    // Giriş (kesim serbest bırakma) kontrolü — yalnız kaynak istasyonlar (girdisi olmayan).
+    const isSource = prevs.length === 0 && !needsInbox;
+    let gated = false;
+    if (lg && isSource && lg.release && lg.release.mode !== 'free') {
+      const rel = state.released[op.id] || 0;
+      if (lg.release.mode === 'rate') {
+        const allowed = Math.floor(state.elapsed * (lg.release.perHour || 0) / 3600) + 1;
+        gated = rel >= allowed;
+      } else if (lg.release.mode === 'conwip') {
+        gated = rel - state.exited >= (lg.release.wipCap || 1);
+      }
+    }
+
+    if (gate1 && gate2 && !gated && !machinesDown) {
+      // izlenen parça bu tüketimle işleme girdi mi?
+      const consumeTrace = (where, target, src) => {
+        if (!tr0 || tr0.pos.where !== where || tr0.pos.target !== target || tr0.pos.src !== src) return;
+        tr0.pos.ahead -= 1;
+        if (tr0.pos.ahead < 0) { tr0.pos = { where: 'process', op: op.id }; tEvent('process', op.id); }
+      };
       if (needsInbox) {
         const inbox = state.groupInbox[g];             // gate1 açık → mutlaka mevcut
-        if (jt === 'DUP') inbox[dupPid] -= 1;
-        else for (const pid of groupPreds) inbox[pid] -= 1;
+        if (jt === 'DUP') { inbox[dupPid] -= 1; consumeTrace('inbox', g, dupPid); }
+        else for (const pid of groupPreds) { inbox[pid] -= 1; consumeTrace('inbox', g, pid); }
       }
       if (prevs.length > 0) {
         if (!state.pending[op.id]) state.pending[op.id] = {};
         if (subJt === 'DUP') {
           state.pending[op.id][subDupPid] = (state.pending[op.id][subDupPid] || 0) - 1;
+          consumeTrace('pend', op.id, subDupPid);
         } else {
-          for (const pid of prevs) state.pending[op.id][pid] = (state.pending[op.id][pid] || 0) - 1;
+          for (const pid of prevs) { state.pending[op.id][pid] = (state.pending[op.id][pid] || 0) - 1; consumeTrace('pend', op.id, pid); }
+        }
+      }
+      if (lg && isSource) {
+        state.released[op.id] = (state.released[op.id] || 0) + 1;
+        // izleme isteği bu kaynaktaysa yeni parçayı izlemeye al
+        if (state.traceReq === op.id && !(state.trace && !state.trace.done)) {
+          state.trace = { id: `${op.id}@${Math.round(state.elapsed)}`, src: op.id, startedAt: state.elapsed, done: false,
+            pos: { where: 'process', op: op.id }, events: [{ t: state.elapsed, kind: 'process', at: op.id }] };
+          state.traceReq = null;
         }
       }
       // Yerleşimde aynı operasyonun N paralel istasyonu varsa efektif çevrim ct/N.
@@ -284,7 +426,8 @@ export function advanceSimStep(state, d, dt) {
       const ct = op.cycleTime / par;
       state.inProgress[op.id] = { remainingSec: ct, totalSec: ct };
     } else if (lg) {
-      state.starvedSec[op.id] = (state.starvedSec[op.id] || 0) + dt;   // girdi bekliyor (aç)
+      if (gated && gate1 && gate2) state.gatedSec[op.id] = (state.gatedSec[op.id] || 0) + dt;   // giriş kontrolü bekletti
+      else if (!machinesDown) state.starvedSec[op.id] = (state.starvedSec[op.id] || 0) + dt;   // girdi bekliyor (aç)
     }
   }
 

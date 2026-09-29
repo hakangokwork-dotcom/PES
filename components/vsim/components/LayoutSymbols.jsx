@@ -168,6 +168,14 @@ export function LayoutItem({ item, station, selected, dim, onPointerDown }) {
           </text>
         </g>
       )}
+      {item.isSpare && (
+        <g>
+          <rect x={-0.08} y={-0.08} width={w + 0.16} height={h + 0.16} rx={0.08} fill="none" stroke="#1F5FAE" strokeWidth={0.04} strokeDasharray="0.12 0.08" />
+          <g transform={`translate(${w / 2} ${h / 2}) rotate(${upright})`}>
+            <text x={0} y={0.07} textAnchor="middle" fontSize={0.2} fontWeight="800" fill="#15457F" paintOrder="stroke" stroke="#FFFFFF" strokeWidth={0.05} style={{ pointerEvents: 'none' }}>YEDEK</text>
+          </g>
+        </g>
+      )}
       {s.kind === 'buffer' && item.capacity != null && (
         <g transform={`translate(${w / 2} ${h / 2}) rotate(${upright})`}>
           <text x={0} y={0.26} textAnchor="middle" fontSize={0.14} fill="#5E5A52" style={{ pointerEvents: 'none' }}>kap. {item.capacity}</text>

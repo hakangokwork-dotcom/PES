@@ -8,10 +8,10 @@
    Motor d.logistics VARSA taşıma süresi, demet (bundle) ve ara stok kapasitesi
    uygular; yoksa eski davranış birebir korunur. */
 
-import { layoutMetrics } from './layout.js';
+import { layoutMetrics, itemRect } from './layout.js';
 import { buildGroupBridges } from './simulation.js';
 
-export const DEFAULT_TRANSPORT = { speedMps: 0.8, bundle: 10, handlingSec: 0 };
+export const DEFAULT_TRANSPORT = { speedMps: 0.8, bundle: 10, handlingSec: 0, spareSetupMin: 10 };
 
 export function buildLogistics(data, layout) {
   if (!layout) return null;
@@ -61,7 +61,35 @@ export function buildLogistics(data, layout) {
   const stations = {};
   for (const it of layout.items || []) if (it.subOpId) stations[it.subOpId] = (stations[it.subOpId] || 0) + 1;
 
-  return { speedMps: speed, bundle, links, buffers, stations, layoutId: layout.id };
+  // Arıza / planlı bakım / yedek makine. Yedek: bağsız ve isSpare işaretli makine;
+  // uyumluluk = aynı sembol türü. Devreye alma = yürüme süresi + kurulum.
+  const setupSec = Math.max(0, Number(t.spareSetupMin ?? DEFAULT_TRANSPORT.spareSetupMin) * 60);
+  const centerOf = (it) => { const r = itemRect(it); return { x: r.x + r.w / 2, y: r.y + r.h / 2 }; };
+  const spareItems = (layout.items || []).filter(i => i.isSpare && !i.subOpId);
+  const machines = {};
+  for (const it of layout.items || []) {
+    if (!it.subOpId || !stations[it.subOpId]) continue;
+    const r = it.reliability || {};
+    const mtbfSec = Number(r.mtbfH) > 0 ? Number(r.mtbfH) * 3600 : 0;
+    const maintAtSec = r.maintAtMin != null && r.maintAtMin !== '' && Number(r.maintDurMin) > 0 ? Number(r.maintAtMin) * 60 : null;
+    if (!mtbfSec && maintAtSec == null) continue;
+    const c = centerOf(it);
+    const spares = spareItems.filter(sp => sp.type === it.type).map(sp => {
+      const sc = centerOf(sp);
+      const dist = Math.abs(sc.x - c.x) + Math.abs(sc.y - c.y);
+      return { id: sp.id, swapSec: Math.round(dist / speed + setupSec) };
+    });
+    machines[it.id] = {
+      subOpId: it.subOpId, mtbfSec, mttrSec: Math.max(0, Number(r.mttrMin) || 0) * 60,
+      maintAtSec, maintDurSec: Math.max(0, Number(r.maintDurMin) || 0) * 60, spares,
+    };
+  }
+
+  // Kesim / giriş serbest bırakma kontrolü
+  const rl = layout.release || {};
+  const release = { mode: rl.mode || 'free', perHour: Math.max(0, Number(rl.perHour) || 0), wipCap: Math.max(1, Math.round(Number(rl.wipCap) || 1)) };
+
+  return { speedMps: speed, bundle, links, buffers, stations, machines, release, seed: Number(layout.seed) || 1, layoutId: layout.id };
 }
 
 // Doluluk hesabı motorla aynı yerde yaşar (döngüsel import olmasın diye).

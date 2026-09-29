@@ -345,6 +345,16 @@ export default function LayoutView({ data, onPatch }) {
   const setTransport = (patch) => active && onPatch(d => ({
     layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, transport: { ...DEFAULT_TRANSPORT, ...(l.transport || {}), ...patch } } : l)),
   }));
+  const setLayoutField = (patch) => active && onPatch(d => ({
+    layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, ...patch } : l)),
+  }));
+  // çoklu seçimde ilk seçili makinenin arıza/bakım ayarını diğer makinelere kopyala
+  const copyReliability = () => {
+    const sel = items.filter(i => selSet.has(i.id) && (SYMBOLS[i.type]?.kind === 'machine' || SYMBOLS[i.type]?.kind === 'table'));
+    const src = sel.find(i => i.reliability);
+    if (!src) return;
+    commit(its => its.map(i => (selSet.has(i.id) && i.id !== src.id && sel.includes(i) ? { ...i, reliability: { ...src.reliability } } : i)));
+  };
 
   /* ---------- boş durum ---------- */
   if (!active) {
@@ -641,6 +651,7 @@ export default function LayoutView({ data, onPatch }) {
                 <button className={iconBtn} onClick={duplicateSelected} aria-label="Çoğalt" title="Çoğalt (Ctrl+D)"><Copy className="w-4 h-4" /></button>
                 <button className={iconBtn} onClick={removeSelected} aria-label="Sil" title="Sil (Delete)"><Trash2 className="w-4 h-4" /></button>
               </div>
+              <button className={btn} onClick={copyReliability} title="Arıza/bakım ayarı olan ilk seçili makinenin değerleri diğer seçili makinelere yazılır">Arıza/bakım ayarını seçilenlere kopyala</button>
             </section>
           )}
 
@@ -683,6 +694,41 @@ export default function LayoutView({ data, onPatch }) {
               </label>
             </div>
             <p className="text-[10px] text-ink-soft leading-snug">Parçalar demet dolunca taşınır; yol süresi = mesafe ÷ hız. Ara stok alanının kapasitesi dolunca besleyen istasyon durur.</p>
+            <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Kesim / giriş kontrolü
+              <select value={active.release?.mode || 'free'} onChange={e => setLayoutField({ release: { ...(active.release || {}), mode: e.target.value } })}
+                className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink">
+                <option value="free">Sınırsız (her kaynak hep üretir)</option>
+                <option value="rate">Sabit hız (saatte N parça)</option>
+                <option value="conwip">WIP sınırı (hat çektikçe)</option>
+              </select>
+            </label>
+            {active.release?.mode === 'rate' && (
+              <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Her kaynaktan saatte (adet)
+                <input type="number" min={1} step={1} value={active.release?.perHour ?? 60}
+                  onChange={e => setLayoutField({ release: { ...active.release, perHour: Math.max(1, Number(e.target.value) || 1) } })}
+                  className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink font-mono" />
+              </label>
+            )}
+            {active.release?.mode === 'conwip' && (
+              <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Her parça hattında en çok (adet)
+                <input type="number" min={1} step={1} value={active.release?.wipCap ?? 60}
+                  onChange={e => setLayoutField({ release: { ...active.release, wipCap: Math.max(1, Number(e.target.value) || 1) } })}
+                  className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink font-mono" />
+              </label>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Yedek kurulum (dk)
+                <input type="number" min={0} step={1} value={(active.transport || DEFAULT_TRANSPORT).spareSetupMin ?? DEFAULT_TRANSPORT.spareSetupMin}
+                  onChange={e => setTransport({ spareSetupMin: Math.max(0, Number(e.target.value) || 0) })}
+                  className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink font-mono" />
+              </label>
+              <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Arıza tohumu
+                <input type="number" min={1} step={1} value={active.seed ?? 1}
+                  onChange={e => setLayoutField({ seed: Math.max(1, Math.round(Number(e.target.value) || 1)) })}
+                  className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink font-mono" />
+              </label>
+            </div>
+            <p className="text-[10px] text-ink-soft leading-snug">Tohumu değiştirmek arızaların zamanlamasını değiştirir (başka bir "gün" oynatır); aynı tohum hep aynı sonucu verir.</p>
           </section>
 
           <section className="flex flex-col gap-1.5">
@@ -784,6 +830,16 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         </div>
       )}
 
+      {canBind && it.subOpId && (
+        <ReliabilityFields rel={it.reliability || {}} onChange={(r) => onPatch({ reliability: r })} />
+      )}
+      {sym.kind === 'machine' && !it.subOpId && (
+        <label className="flex items-center gap-2 text-xs text-ink min-h-9">
+          <input type="checkbox" checked={!!it.isSpare} onChange={e => onPatch({ isSpare: e.target.checked || undefined })} />
+          Yedek makine (aynı türden arızalı/bakımdaki makinenin yerine geçer)
+        </label>
+      )}
+
       {sym.kind === 'buffer' && (
         <>
           <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Ad
@@ -822,6 +878,43 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         <button className="h-9 px-3 rounded-lg border border-line bg-surface hover:bg-danger-tint text-danger text-xs flex items-center gap-1.5" onClick={onDelete}><Trash2 className="w-4 h-4" /> Sil</button>
       </div>
     </section>
+  );
+}
+
+/* Vardiya 08:00'de başlar; bakım saati vardiya başından dakika olarak saklanır. */
+const SHIFT_START_MIN = 8 * 60;
+const toClock = (min) => {
+  if (min == null || min === '') return '';
+  const t = SHIFT_START_MIN + Number(min);
+  return `${String(Math.floor(t / 60) % 24).padStart(2, '0')}:${String(Math.round(t % 60)).padStart(2, '0')}`;
+};
+const fromClock = (v) => {
+  if (!v) return undefined;
+  const [h, m] = v.split(':').map(Number);
+  return Math.max(0, h * 60 + (m || 0) - SHIFT_START_MIN);
+};
+function ReliabilityFields({ rel, onChange }) {
+  const input = 'h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink w-full font-mono';
+  const num = (label, key, step = 1) => (
+    <label className="flex flex-col gap-1 text-[11px] text-ink-soft">{label}
+      <input type="number" min={0} step={step} value={rel[key] ?? ''} placeholder="—" className={input}
+        onChange={e => onChange({ ...rel, [key]: e.target.value === '' ? undefined : Math.max(0, Number(e.target.value)) })} />
+    </label>
+  );
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2">
+      <div className="text-[11px] font-bold tracking-wider text-ink-soft">ARIZA &amp; BAKIM</div>
+      <div className="grid grid-cols-2 gap-2">
+        {num('Arızalar arası ort. (saat)', 'mtbfH', 0.5)}
+        {num('Onarım süresi (dk)', 'mttrMin')}
+        <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Bakım saati
+          <input type="time" value={toClock(rel.maintAtMin)} className={input}
+            onChange={e => onChange({ ...rel, maintAtMin: fromClock(e.target.value) })} />
+        </label>
+        {num('Bakım süresi (dk)', 'maintDurMin')}
+      </div>
+      <p className="text-[10px] text-ink-soft leading-snug">Boş bırakılan alan hesaba girmez. Arızalar tohuma bağlı rastgele gelir; bakım vardiyada bir kez, verilen saatte yapılır.</p>
+    </div>
   );
 }
 

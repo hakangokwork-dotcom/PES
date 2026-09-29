@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/* Uygulamanın koyu teması YOK. Tailwind 4'te `dark:` varsayılan olarak cihazın
+   koyu tema ayarına bağlıdır; ekonomi ekranındaki `dark:` sınıfları bu yüzden
+   koyu temalı cihazda kartları siyaha çeviriyordu, sayfanın geri kalanı açık
+   kalırken. `dark:` artık yalnız .dark sınıfıyla çalışır — bu sınıf hiçbir
+   yerde uygulanmıyor. Koyu tema bilerek eklenecekse burası değişir. */
+@custom-variant dark (&:where(.dark, .dark *));
 /* VSIM (Değer Akışı Simülasyonu) — /workshop/vsm ve /pes/uretim-simulasyon sayfaları.
    Bu iki dosya app/styles altında durmak ZORUNDA: Tailwind 4'ün @import çözümleyicisi
    üst dizine (`../`) çıkan göreli yolları çözemiyor, alt dizine inenleri çözüyor.

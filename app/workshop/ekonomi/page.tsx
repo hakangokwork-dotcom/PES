@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
-import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
-import MerkezGorunumuUyari from '@/components/pes/MerkezGorunumuUyari'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { donemCoz, eksikAlanlar, doluluk, DOLULUK_ETIKET } from '@/lib/pes/ekonomi-talep'
 import EkonomiForm from './EkonomiForm'
@@ -25,9 +23,8 @@ export default async function AtolyeEkonomiSayfasi({
   searchParams: Promise<{ donem?: string }>
 }) {
   const tenant = await requireSession()
-  const wid = await aktifAtolyeId()
+  const wid = tenant.workshopId
   if (!wid) redirect('/workshop')
-  const merkezGorunumu = !tenant.workshopId
 
   const sp = await searchParams
   const simdi = new Date()
@@ -118,13 +115,7 @@ export default async function AtolyeEkonomiSayfasi({
         )}
       </div>
 
-      {merkezGorunumu && (
-        <MerkezGorunumuUyari>Aylık veriyi atölye kendi hesabından girer.</MerkezGorunumuUyari>
-      )}
-
-      <fieldset disabled={merkezGorunumu} className="disabled:opacity-60">
-        <EkonomiForm donem={donem} kayit={veri.kayit} />
-      </fieldset>
+      <EkonomiForm donem={donem} kayit={veri.kayit} />
 
       {veri.gecmis.length > 0 && (
         <section className="space-y-2">

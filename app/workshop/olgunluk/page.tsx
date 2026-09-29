@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireSession } from '@/lib/auth/panel-guard'
-import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
-import MerkezGorunumuUyari from '@/components/pes/MerkezGorunumuUyari'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 import { atolyeOlgunluk } from '@/lib/pes/olgunluk-denetim'
 import AtolyeOzDegerlendirme from '@/components/pes/AtolyeOzDegerlendirme'
@@ -16,15 +14,12 @@ export const dynamic = 'force-dynamic'
  * `?wid=` okuyor; buradaki desen onun da gideceği yer: hangi atölye
  * olduğunu kullanıcı söylemez, oturum bilir.
  *
- * Merkez kullanıcısı bir atölyeye girmişse (/workshop/gir) o atölyenin öz
- * değerlendirmesini salt okunur görür: buradan kaydetse API onu resmi
- * DENETIM olarak yazardı, öz değerlendirme değil.
+ * Atölye seçilmemişse "hangi atölye?" ekranına döner.
  */
 export default async function AtolyeOlgunlukPage() {
   const tenant = await requireSession()
-  const wid = await aktifAtolyeId()
+  const wid = tenant.workshopId
   if (!wid) redirect('/workshop')
-  const merkezGorunumu = !tenant.workshopId
 
   const data = await withServerTenant(async (sql) => {
     const olgunluk = await atolyeOlgunluk(sql, wid)
@@ -52,16 +47,7 @@ export default async function AtolyeOlgunlukPage() {
         Amacı, denetim öncesi nerede olduğunuzu görmeniz ve eksikleri önceden kapatmanız.
       </p>
 
-      {merkezGorunumu && (
-        <MerkezGorunumuUyari>
-          Öz değerlendirmeyi atölye kendi hesabından yapar. Resmi denetim için{' '}
-          <Link href="/pes/olgunluk" className="underline">merkez olgunluk ekranı</Link>.
-        </MerkezGorunumuUyari>
-      )}
-
-      <fieldset disabled={merkezGorunumu} className="disabled:opacity-60">
-        <AtolyeOzDegerlendirme workshopId={wid} veri={data.olgunluk} />
-      </fieldset>
+      <AtolyeOzDegerlendirme workshopId={wid} veri={data.olgunluk} />
     </div>
   )
 }

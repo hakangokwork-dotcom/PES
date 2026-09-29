@@ -74,9 +74,10 @@ export default function AtolyeSecici({
         <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span className="text-white font-bold text-xl">PES</span>
         </div>
-        <h1 className="text-2xl font-bold text-ink">Atölye Seçin</h1>
+        <h1 className="text-2xl font-bold text-ink">Hangi atölyede çalışacaksınız?</h1>
         <p className="text-faint mt-1">
-          Verimlilik paneline erişmek için atölyenizi seçin
+          Seçtiğiniz atölyenin hesabıyla girmiş gibi çalışırsınız: yalnız onun
+          verisini görür, yaptığınız her işlem o atölye adına kaydedilir.
         </p>
       </div>
 
@@ -144,7 +145,9 @@ function Kart({
       }`}
     >
       <div className="flex items-center justify-between gap-4">
-        <Link href={`/workshop/gir?wid=${a.id}`} prefetch={false} className="flex-1 min-w-0">
+        {/* Düz <a>: seçim çerezi değişince panel çerçevesi (layout) de
+            yeniden çizilmeli; istemci gezintisi onu eski hâliyle bırakıyor. */}
+        <a href={`/workshop/gir?wid=${a.id}`} className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-accent font-bold text-lg">{a.code}</span>
             <span className="text-ink font-medium">{a.name}</span>
@@ -162,7 +165,7 @@ function Kart({
           {baskasinda && (
             <p className="text-xs text-faint mt-1">Sahiplenen: {a.owner_email ?? 'başka kullanıcı'}</p>
           )}
-        </Link>
+        </a>
 
         <button
           onClick={() => onSahiplik(a.id, !benimMi)}

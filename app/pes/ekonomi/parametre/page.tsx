@@ -23,6 +23,8 @@ const TANIMLAR: ParamTanim[] = [
   { anahtar: 'weight_ukp', etiket: 'UKP maaş ağırlığı', aciklama: '' },
   { anahtar: 'revenue_adj_on', etiket: 'Boş gün ciro düzeltmesi', aciklama: '1 = açık, 0 = kapalı. Dışarı geçen günleri kapasiteye geri ekler.' },
   { anahtar: 'revenue_adj_divisor', etiket: 'Boş gün düzeltme paydası', aciklama: 'Ciro × (1 + boş gün ÷ bu sayı).' },
+  { anahtar: 'ref_kesim_personel_orani', etiket: 'Referans model: kesim ÷ dikim personeli', aciklama: 'MTM kesimi içermez; referans kesim süresi = dikim sn × bu oran × (kesim verimliliği ÷ dikim verimliliği). Varsayılan 11 pilotun medyanı.' },
+  { anahtar: 'ref_ukp_personel_orani', etiket: 'Referans model: UKP ÷ dikim personeli', aciklama: 'MTM ütü-kontrol-paketi içermez; UKP süresi aynı yolla tahmin edilir. Varsayılan 11 pilotun medyanı.' },
 ]
 
 export default async function ParametreSayfasi({

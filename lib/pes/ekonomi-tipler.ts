@@ -42,6 +42,11 @@ export type EkonomiParam = {
   revenue_adj_on: number
   /** Boş gün düzeltme paydası (gün). PARAMETRE!B24 */
   revenue_adj_divisor: number
+  /** Referans model: kesim personeli ÷ dikim personeli. MTM'de kesim yok,
+      kesim süresi bu oranla dikimden tahmin edilir (lib/pes/referans-model.ts). */
+  ref_kesim_personel_orani: number
+  /** Referans model: UKP personeli ÷ dikim personeli. */
+  ref_ukp_personel_orani: number
 }
 
 /** 2026-01 başlangıç değerleri. economy_param boşsa seed olarak yazılır. */
@@ -62,6 +67,10 @@ export const VARSAYILAN_PARAM: EkonomiParam = {
   weight_ukp: 1,
   revenue_adj_on: 1,
   revenue_adj_divisor: 24,
+  // 11 pilot atölyenin 2026-01…03 beyanından medyan. Kesimde, kesim
+  // personeli olmayan 2 atölye (kesimi dışarıdan alıyor) hariç.
+  ref_kesim_personel_orani: 0.067,
+  ref_ukp_personel_orani: 0.4,
 }
 
 /**

@@ -32,7 +32,8 @@ export default async function ModelListesi() {
           <h1 className="text-xl font-semibold">Model Fiyatlama</h1>
           <p className="text-sm text-slate-500">
             {data.length} bülten ·{' '}
-            <Link href="/pes/model/kutuphane" className="underline">operasyon kütüphanesi →</Link>
+            <Link href="/pes/model/kutuphane" className="underline">operasyon kütüphanesi →</Link>{' '}·{' '}
+            <Link href="/pes/model/referans" className="underline">referans model fiyatları →</Link>
           </p>
         </div>
       </header>

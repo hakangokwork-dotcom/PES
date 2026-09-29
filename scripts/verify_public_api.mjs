@@ -73,6 +73,7 @@ const UCLAR = [
   // 012 — operasyon zamanı kütüphanesi; ref_urun_tipi ve ref_operasyon
   // listede zaten var, yalnız ana veri tablosu eksikti.
   'ref_operasyon_zamani',
+  'ref_parca_sure',
 ]
 
 let sizan = 0

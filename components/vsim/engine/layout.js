@@ -22,6 +22,8 @@ export const SYMBOLS = {
   kt:     { kind: 'table',   name: 'Kontrol tezgâhı', w: 1.8, h: 0.8, op: 0.7, seat: false },
   pk:     { kind: 'table',   name: 'Paket tezgâhı',   w: 1.9, h: 0.8, op: 0.7, seat: false },
   kesim:  { kind: 'table',   name: 'Kesim masası',    w: 6.0, h: 1.8, op: 0.7, seat: false },
+  masa:   { kind: 'table',   name: 'El işi masası',   w: 1.2, h: 0.7, op: 0.7, seat: true },   // makinesiz: etiket, iplik temizleme, elde kontrol
+  calisan:{ kind: 'person',  name: 'Serbest çalışan', w: 0.6, h: 0.6, op: 0 },              // meydancı, taşıyıcı, ütücü…
   raf:    { kind: 'buffer',  name: 'Ara stok alanı',  w: 1.5, h: 1.0, op: 0 },
   araba:  { kind: 'buffer',  name: 'Demet arabası',   w: 0.8, h: 0.5, op: 0 },
   palet:  { kind: 'buffer',  name: 'Palet',           w: 1.2, h: 1.0, op: 0 },
@@ -44,8 +46,8 @@ const RESOURCE_SYMBOL = {
 };
 const OPTYPE_SYMBOL = {
   'DİKİM': 'duz', 'OVERLOK': 'ov', 'ÇİMA': 'duz', 'REÇME': 'rc', 'PUNTEREZ': 'oto',
-  'OTOMAT': 'oto', 'ÜTÜ': 'utu', 'KESİM': 'kesim', 'KONTROL': 'kt', 'TEMİZLİK': 'kt',
-  'AKSESUAR': 'kt', 'DESTEK': 'kt',
+  'OTOMAT': 'oto', 'ÜTÜ': 'utu', 'KESİM': 'kesim', 'KONTROL': 'kt', 'TEMİZLİK': 'masa',
+  'AKSESUAR': 'masa', 'DESTEK': 'masa',
 };
 export function symbolForSubOp(subOp, machines = []) {
   const name = (subOp?.name || '').toLocaleLowerCase('tr');
@@ -55,6 +57,9 @@ export function symbolForSubOp(subOp, machines = []) {
   const byRes = m && RESOURCE_SYMBOL[(m.type || '').toLocaleLowerCase('tr')];
   if (byRes) return byRes;
   if (/kollu/.test(name)) return 'kl';
+  // Makine atanmamış el işleri: masada yapılır (kalite kontrol ayakta tezgâhta)
+  if (/kontrol|kalite/.test(name)) return 'kt';
+  if (/etiket|iplik|temizl|katla|ayıkla|işaretle|el ile|elde/.test(name)) return 'masa';
   return OPTYPE_SYMBOL[subOp?.type] || 'duz';
 }
 
@@ -285,7 +290,7 @@ export function layoutMetrics(data, layout) {
   }
 
   // alan: katı öğelerin sınır kutusu
-  const solids = items.filter(i => ['machine', 'table', 'buffer', 'belt', 'column'].includes(SYMBOLS[i.type]?.kind));
+  const solids = items.filter(i => ['machine', 'table', 'buffer', 'belt', 'column', 'person'].includes(SYMBOLS[i.type]?.kind));
   let usedArea = 0;
   if (solids.length) {
     const fps = solids.map(itemFootprint);
@@ -306,6 +311,7 @@ export function layoutMetrics(data, layout) {
   // Paylaşımlı operatör (meydancı): aynı kişi FARKLI operasyonlarda. Aynı operasyonun
   // paralel istasyonları (stationCount>1) meydancı sayılmaz.
   const itemSub = new Map(items.map(i => [i.id, i.subOpId]));
+  const freeWorkers = items.filter(i => SYMBOLS[i.type]?.kind === 'person').length;
   const shared = [...opItems].filter(([, ids]) => new Set(ids.map(id => itemSub.get(id))).size > 1).map(([operatorId, itemIds]) => ({ operatorId, itemIds }));
   const bufferCapacity = buffers.reduce((a, b) => a + (Number(b.capacity) || 0), 0);
 
@@ -351,8 +357,8 @@ export function layoutMetrics(data, layout) {
 
   return {
     routes, perGroup, totalDist, crossings, merges, usedArea,
-    floorArea: r2(floor.w * floor.h), persons: operatorIds.size,
-    areaPerPerson: operatorIds.size ? r2(usedArea / operatorIds.size) : null,
+    floorArea: r2(floor.w * floor.h), persons: operatorIds.size + freeWorkers, freeWorkers,
+    areaPerPerson: operatorIds.size + freeWorkers ? r2(usedArea / (operatorIds.size + freeWorkers)) : null,
     shared, bufferCapacity, warnings, unplaced, slotsTotal: slots.length,
   };
 }
@@ -434,6 +440,30 @@ export function autoPlace(data, layout, opts = {}) {
     rowH = Math.max(rowH, b.h);
   }
   return out;
+}
+
+/* ---------- yerleşimden süreç düzenleme (atölye sahibi kolaylığı) ---------- */
+/* Yeni operasyonu akışta `afterId`'nin hemen ARKASINA ekler: yeni.nextIds = önceki.nextIds,
+   önceki.nextIds = [yeni]. afterId yoksa grubun (mainOpId) başına, girdisiz eklenir ve
+   grubun giriş operasyonlarını besler. Döner: { subOps, id }. Saf. */
+export function insertSubOpAfter(data, { mainOpId, afterId, name, cycleTime, type, operatorId }) {
+  const subOps = (data.subOps || []).map(s => ({ ...s }));
+  const id = `s_${uid()}`;
+  const node = { id, mainOpId, name: name || 'Yeni operasyon', type: type || 'DESTEK', cycleTime: Math.max(1, Number(cycleTime) || 1), nextIds: [], machineId: null, operatorId: operatorId || null, stationCount: 1 };
+  const prev = afterId ? subOps.find(s => s.id === afterId) : null;
+  if (prev) {
+    node.mainOpId = prev.mainOpId;
+    if (prev.parentId) node.parentId = prev.parentId;
+    node.nextIds = [...(prev.nextIds || [])];
+    prev.nextIds = [id];
+  } else {
+    // grubun girişleri: grup içinde kimsenin beslemediği operasyonlar
+    const members = subOps.filter(s => (s.parentId ?? s.mainOpId) === mainOpId);
+    const targeted = new Set(members.flatMap(s => s.nextIds || []));
+    node.nextIds = members.filter(s => !targeted.has(s.id)).map(s => s.id);
+  }
+  subOps.push(node);
+  return { subOps, id };
 }
 
 /* Denemeleri kıyas için kısa özet. */

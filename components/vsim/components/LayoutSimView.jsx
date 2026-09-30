@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { SYMBOLS, itemRect, itemFootprint, layoutMetrics, DEFAULT_FLOOR } from '../engine/layout.js';
 import { buildGroupBridges, bufferOccupancy } from '../engine/simulation.js';
 import { LayoutDefs, LayoutItem, INK } from './LayoutSymbols.jsx';
+import IsoView from './IsoView.jsx';
 
 /* Simülasyon sekmesi · Yerleşim görünümü — canlı zemin.
    Salt okunur: aktif yerleşimi çizer, simState'ten istasyon durumu, kuyruk
@@ -101,6 +102,7 @@ export default function LayoutSimView({ data, layout, simState, onTrace, onClear
   const sources = (data.subOps || []).filter(s => itemsBySub.has(s.id) && !(data.subOps || []).some(x => (x.nextIds || []).includes(s.id))
     && !((bridges.groupPreds[bridges.groupOf[s.id]] || []).length && (bridges.entrySubs[bridges.groupOf[s.id]] || []).includes(s.id)));
   const [traceSrc, setTraceSrc] = useState('');
+  const [viewMode, setViewMode] = useState('plan');
   const nameOfNode = (id) => subById.get(id)?.name || mainById.get(id)?.name || id;
   const trace = simState.trace || null;
   const traceRows = (() => {
@@ -200,9 +202,29 @@ export default function LayoutSimView({ data, layout, simState, onTrace, onClear
     return <div className="py-16 text-center text-sm text-ink-soft">Yerleşim yok — önce Yerleşim sekmesinde atölyeyi kur.</div>;
   }
 
+  // izometrik görünüm için aynı canlı verinin dünya (metre) koordinatlı hali
+  const bufById = new Map(buffers.map(b => [b.id, b]));
+  const isoOverlay = viewMode !== 'iso' ? null : {
+    headState: itemState,
+    fill: (it) => { const b = bufById.get(it.id); return b ? b.occ / b.cap : 0; },
+    bufferText: (it) => { const b = bufById.get(it.id); return b ? `${b.occ}/${b.cap}` : ''; },
+    queues: stationRows.filter(r => r.q > 0).map(r => ({ subId: r.subId, q: r.q, at: { x: r.fp.x - 0.4, y: r.fp.y + 0.1 } })),
+    bundle,
+    transit: transit.map(t => ({ p: t.p, color: t.color, traced: t.traced })),
+    downs: Object.fromEntries(items.filter(it => simState.mstate?.[it.id]?.down).map(it => {
+      const dn = simState.mstate[it.id].down;
+      const left = Math.max(0, Math.ceil((dn.until - simState.elapsed) / 60));
+      return [it.id, { text: `${dn.covered ? 'YEDEK DEVREDE' : dn.kind === 'bakim' ? 'BAKIM' : 'ARIZA'} · ${left} dk`, color: dn.covered ? '#15457F' : dn.kind === 'bakim' ? '#8A5A0F' : '#A61B1B' }];
+    })),
+    routes: m.routes, routesOpacity: 0.25,
+    heat: stationRows.filter(r => r.q > 0).map(r => ({ at: r.center, r: 0.8 + 2.2 * Math.sqrt(r.q / maxQ) })),
+    tracePoint,
+  };
+
   return (
     <div className="flex gap-3" style={{ height: 'calc(100vh - 330px)', minHeight: 520 }}>
-      <div ref={wrapRef} className="relative flex-1 min-w-0 rounded-lg border border-line bg-[#EEF1F3] overflow-hidden">
+      {viewMode === 'iso' && <IsoView data={data} layout={layout} overlay={isoOverlay} height="100%" minHeight={0} />}
+      <div ref={wrapRef} className="relative flex-1 min-w-0 rounded-lg border border-line bg-[#EEF1F3] overflow-hidden" style={viewMode === 'iso' ? { display: 'none' } : undefined}>
         <svg width="100%" height="100%" className="block select-none">
           <LayoutDefs />
           <defs>
@@ -338,6 +360,12 @@ export default function LayoutSimView({ data, layout, simState, onTrace, onClear
       </div>
 
       <aside className="w-72 flex-shrink-0 rounded-lg border border-line bg-surface p-3 overflow-y-auto flex flex-col gap-4">
+        <div className="flex items-center gap-0.5 bg-surface-2 rounded-lg p-0.5 self-start">
+          {[['plan', 'Üstten'], ['iso', 'İzometrik']].map(([mm, ad]) => (
+            <button key={mm} onClick={() => setViewMode(mm)}
+              className={`h-8 px-3 rounded-md text-xs font-medium border ${viewMode === mm ? 'bg-accent-tint text-accent-ink border-accent' : 'bg-surface text-ink-soft border-line hover:bg-surface-2'}`}>{ad}</button>
+          ))}
+        </div>
         <section className="grid grid-cols-2 gap-2">
           <Tile label="Toplam ara mamul" value={wip} hint="adet (kuyruk+yol+demet+işlenen)" />
           <Tile label="Yolda" value={totals.transit} hint={`${transit.length} demet`} />

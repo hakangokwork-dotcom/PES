@@ -126,6 +126,21 @@ function Body({ type, w, h, state }) {
       return <rect x={0} y={0} width={w} height={h} fill="url(#ly-aisle)" stroke="#C2410C" strokeWidth="0.025" strokeDasharray="0.12 0.08" opacity="0.9" />;
     case 'kolon':
       return <rect x={0} y={0} width={w} height={h} fill={INK} />;
+    case 'masa':
+      return (
+        <g>
+          <rect x={0} y={0} width={w} height={h} rx={0.05} fill="#E9D4AE" stroke="#9C7F52" strokeWidth={0.03} />
+          <rect x={0.14} y={0.12} width={w * 0.34} height={h - 0.24} rx={0.03} fill="#DCE7F5" stroke="#9FB6D3" strokeWidth={0.02} />
+          <rect x={w * 0.6} y={0.14} width={0.22} height={0.16} rx={0.02} fill="#C8553D" />
+        </g>
+      );
+    case 'calisan':
+      return (
+        <g>
+          <ellipse cx={w / 2} cy={h / 2 + 0.04} rx={0.26} ry={0.14} fill="#7A4FB0" />
+          <circle cx={w / 2} cy={h / 2 - 0.02} r={0.12} fill="#2B2420" stroke="#FFFFFF" strokeWidth={0.03} />
+        </g>
+      );
     default:
       return table;
   }
@@ -138,7 +153,7 @@ export function LayoutItem({ item, station, selected, dim, onPointerDown }) {
   const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
   const w = item.w, h = item.h;
   const withOp = s.kind === 'machine' || s.kind === 'table';
-  const label = station?.label ?? (s.kind === 'buffer' ? (item.name || s.name) : '');
+  const label = station?.label ?? (s.kind === 'buffer' ? (item.name || s.name) : s.kind === 'person' ? (item.name || '') : '');
   const fontSize = Math.min(0.2, Math.max(0.12, w / 9));
   // Metin daima dik okunur: 180°'de gövde ters döner, yazıyı geri çeviriyoruz.
   const upright = item.rot === 180 ? 180 : item.rot === 90 ? -90 : item.rot === 270 ? 90 : 0;

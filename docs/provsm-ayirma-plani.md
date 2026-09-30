@@ -47,15 +47,15 @@ Sektör bağımsızlığı zaten var: `domains/textile.js`, `domains/blank.js`.
 ## Fazlar
 
 ### Faz 0 — Mevcut işi kapat
-- [ ] `feat/vsim-bant-bagla` → main, v1.7.2, canlı doğrula.
+- [x] `feat/vsim-bant-bagla` → main, v1.7.2, canlı doğrula. (2026-09-30)
 
 ### Faz 1 — Adaptör (PES içinde, davranış değişmez)
-- [ ] `components/vsim/depo/pesDepo.js` — bugünkü `/api/pes/vsim` çağrıları.
-- [ ] `components/vsim/depo/yerelDepo.js` — localStorage üstünde aynı arayüz (ProVSM v1 + testler).
-- [ ] `AtolyeKayitPanel` ve `UretimSimulasyon` `depo` prop'u alır; `fetch` çekirdekten kalkar.
-- [ ] `VsimEmbed.tsx`: `kayitKapsami` → `pesDepo({ yazabilir })`.
-- [ ] Test: `yerelDepo` sözleşme testi; mevcut vitest + build yeşil; tarayıcıda atölye/merkez akışı.
-- Kabul: `grep -r "fetch\|/api/" components/vsim` yalnız `depo/pesDepo.js`'i gösterir.
+- [x] `components/pes/vsimPesDepo.ts` — bugünkü `/api/pes/vsim` çağrıları (çekirdeğin DIŞINDA).
+- [x] `components/vsim/depo/yerelDepo.js` — localStorage üstünde aynı arayüz (ProVSM v1 + testler).
+- [x] `AtolyeKayitPanel` ve `UretimSimulasyon` `depo` prop'u alır; `fetch` çekirdekten kalkar.
+- [x] `VsimEmbed.tsx`: `kayitKapsami` → `vsimPesDepo(kapsam)`.
+- [x] Test: `yerelDepo` sözleşme testi; mevcut vitest + build yeşil; tarayıcıda atölye/merkez akışı.
+- Kabul: `grep -r "fetch(\|/api/" components/vsim` kodda sonuç vermez (yalnız sozlesme.js yorumu). ✓
 
 ### Faz 2 — Monorepo
 - [ ] npm workspaces; `components/vsim` → `packages/vsim-core` (git mv, geçmiş korunur).

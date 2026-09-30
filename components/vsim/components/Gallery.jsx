@@ -46,7 +46,7 @@ function TemplateCard({ tpl, onSelect, onDelete, onExport }) {
   );
 }
 
-export default function Gallery({ userTemplates, onSelect, onDeleteUser, onExportUser, onImportUser, onClose, hasWork, onOpenKayit, kayitKapsami }) {
+export default function Gallery({ userTemplates, onSelect, onDeleteUser, onExportUser, onImportUser, onClose, hasWork, onOpenKayit, kayitDepo }) {
   const fileRef = useRef(null);
   return (
     <div className="min-h-screen bg-paper text-ink font-sans">
@@ -80,9 +80,11 @@ export default function Gallery({ userTemplates, onSelect, onDeleteUser, onExpor
             <div>
               <h2 className="text-sm font-bold text-ink">Atölye kayıtları</h2>
               <p className="text-xs text-ink-soft">
-                {kayitKapsami === 'merkez'
-                  ? 'Atölyelerin kaydettiği hatları ve ürün gruplarını aç.'
-                  : 'Kayıtlı hatlarını ve ürün gruplarını aç — ya da PES referans MTM süreleriyle yeni bir ürün grubu başlat.'}
+                {!kayitDepo?.yazabilir
+                  ? 'Kaydedilmiş hatları ve ürün gruplarını aç.'
+                  : kayitDepo.referans
+                    ? `Kayıtlı hatlarını ve ürün gruplarını aç — ya da ${kayitDepo.referans.ad} referans süreleriyle yeni bir ürün grubu başlat.`
+                    : 'Kayıtlı hatlarını ve ürün gruplarını aç.'}
               </p>
             </div>
             <button onClick={onOpenKayit} className="px-4 py-2 bg-accent hover:bg-accent-strong text-white rounded-lg text-sm font-medium">Kayıtları aç</button>

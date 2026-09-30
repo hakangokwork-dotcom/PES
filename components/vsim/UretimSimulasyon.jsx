@@ -115,10 +115,10 @@ const DEFAULT_DATA = buildDataFromTemplate(blankTemplate);
    `provsm_studio_w<wid>_v1`). Verilmezse standalone sürümün sabit anahtarı kullanılır.
    Anahtar değişince bileşen REMOUNT edilmeli (React `key`) — yükleme effect'i yalnız
    mount'ta çalışır, çalışırken anahtar değiştirmek veriyi karıştırır. */
-/* `kayitKapsami`: PES içinde sunucu kayıtları (hat + ürün grubu) açılır.
-   'atolye' = atölye paneli (kendi kayıtlarını yazar), 'merkez' = merkez (tümünü görür, yazamaz).
-   Verilmezse (standalone) panel yoktur. */
-export default function AtolyePlatform({ storageKey, kayitKapsami } = {}) {
+/* `depo`: kayıtlı hat + ürün grubu deposu (sözleşme: ./depo/sozlesme.js). Gömen
+   uygulama verir — PES'te sunucu API'si, ProVSM'de tarayıcı ya da kendi bulutu.
+   `depo.yazabilir` false ise kayıtlar yalnız görülür/açılır. Verilmezse panel yoktur. */
+export default function AtolyePlatform({ storageKey, depo } = {}) {
   const STORAGE_KEY = storageKey || DEFAULT_STORAGE_KEY;
   const [data, setData] = useState(DEFAULT_DATA);
   const [loaded, setLoaded] = useState(false);
@@ -367,12 +367,12 @@ export default function AtolyePlatform({ storageKey, kayitKapsami } = {}) {
           }
         }
       } catch (e) { /* ilk kullanım */ }
-      // Atölye panelinde yerel veri yoksa: sunucudaki varsayılan hat + ürün grubunu yükle.
-      if (!found && kayitKapsami === 'atolye') {
+      // Yerel çalışma yoksa: depodaki varsayılan hat + ürün grubunu yükle (yazabilen kapsamda).
+      if (!found && depo?.yazabilir) {
         try {
-          const get = (u) => fetch(u).then(r => (r.ok ? r.json() : { kayitlar: [] })).catch(() => ({ kayitlar: [] }));
-          const [t, u] = await Promise.all([get('/api/pes/vsim/tesis?varsayilan=1'), get('/api/pes/vsim/urun-grubu?varsayilan=1')]);
-          const tv = t.kayitlar?.[0], uv = u.kayitlar?.[0];
+          const get = (tur) => depo.listele(tur, { varsayilan: true }).catch(() => []);
+          const [t, u] = await Promise.all([get('tesis'), get('urun-grubu')]);
+          const tv = t[0], uv = u[0];
           if (tv || uv) {
             let d = JSON.parse(JSON.stringify(DEFAULT_DATA));
             if (uv) d = { ...d, ...applyProduct(d, uv.veri, { ad: uv.ad }) };
@@ -869,11 +869,11 @@ export default function AtolyePlatform({ storageKey, kayitKapsami } = {}) {
         onImportUser={importUserTpl}
         onClose={() => setView('work')}
         hasWork={galleryFromWork}
-        onOpenKayit={kayitKapsami ? () => setKayitOpen(true) : undefined}
-        kayitKapsami={kayitKapsami}
+        onOpenKayit={depo ? () => setKayitOpen(true) : undefined}
+        kayitDepo={depo}
       />
-      {kayitKapsami && (
-        <AtolyeKayitPanel open={kayitOpen} onClose={() => setKayitOpen(false)} kapsam={kayitKapsami}
+      {depo && (
+        <AtolyeKayitPanel open={kayitOpen} onClose={() => setKayitOpen(false)} depo={depo}
           data={data} onApplyFacility={kayittanHatYukle} onApplyProduct={kayittanUrunYukle} />
       )}
       <DialogHost />
@@ -920,10 +920,10 @@ export default function AtolyePlatform({ storageKey, kayitKapsami } = {}) {
             <button onClick={resetWorkbench} className="p-2 border border-header-ink/25 text-header-ink hover:bg-header-ink/10 rounded transition flex items-center gap-1.5 text-xs" title="Sayfayı sıfırla — temel akış kalır">
               <RefreshCw className="w-4 h-4" /> Sıfırla
             </button>
-            {kayitKapsami && (
+            {depo && (
               <button onClick={() => setKayitOpen(true)}
                 className="p-2 border border-header-ink/40 bg-header-ink/10 text-header-ink hover:bg-header-ink/20 rounded transition flex items-center gap-1.5 text-xs font-semibold"
-                title={kayitKapsami === 'atolye' ? 'Hatlarını ve ürün gruplarını sunucuya kaydet / aç' : 'Atölyelerin kayıtlı hat ve ürün gruplarını görüntüle'}>
+                title={depo.yazabilir ? 'Hatlarını ve ürün gruplarını kaydet / aç' : 'Kayıtlı hat ve ürün gruplarını görüntüle'}>
                 <Factory className="w-4 h-4" /> Atölye kayıtları
               </button>
             )}
@@ -1113,8 +1113,8 @@ export default function AtolyePlatform({ storageKey, kayitKapsami } = {}) {
         tab={tab}
         onGoTab={(t) => { setTab(t); setHelpOpen(false); }}
       />
-      {kayitKapsami && (
-        <AtolyeKayitPanel open={kayitOpen} onClose={() => setKayitOpen(false)} kapsam={kayitKapsami}
+      {depo && (
+        <AtolyeKayitPanel open={kayitOpen} onClose={() => setKayitOpen(false)} depo={depo}
           data={data} onApplyFacility={kayittanHatYukle} onApplyProduct={kayittanUrunYukle} />
       )}
       <DialogHost />

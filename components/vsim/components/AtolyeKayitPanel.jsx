@@ -5,25 +5,16 @@ import { promptDialog, confirmDialog, alertDialog } from './dialogs/dialogServic
 
 /* Atölye kayıtları — sunucuda saklanan HATLAR (yerleşim + çalışan + makine) ve
    ÜRÜN GRUPLARI (adımlar + MTM süreleri). Atölye kendi kayıtlarını yönetir;
-   merkez tüm atölyelerinkini görür ve açar (yazamaz — bkz. lib/pes/vsim-kayit.ts).
-   Ürün grubu PES referans MTM kütüphanesinden de başlatılabilir. */
+   gömen uygulamanın deposu yazmaya izin vermiyorsa yalnız görür ve açar.
+   Depo bir referans kaynağı veriyorsa (PES'te MTM) ürün grubu oradan başlatılabilir.
+   Tüm okuma/yazma `depo` üzerinden — sözleşme: ../depo/sozlesme.js */
 
-const API = '/api/pes/vsim';
-async function api(path, opts = {}) {
-  const res = await fetch(`${API}${path}`, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error || `İstek başarısız (${res.status})`);
-  return json;
-}
 const fmtTarih = (s) => { try { return new Date(s).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch { return ''; } };
 const fmtSn = (sn) => (sn == null ? '—' : sn >= 60 ? `${Math.floor(sn / 60)} dk ${Math.round(sn % 60)} sn` : `${Math.round(sn)} sn`);
 
-export default function AtolyeKayitPanel({ open, onClose, kapsam, data, onApplyFacility, onApplyProduct }) {
-  const yazabilir = kapsam === 'atolye';
+export default function AtolyeKayitPanel({ open, onClose, depo, data, onApplyFacility, onApplyProduct }) {
+  const yazabilir = depo.yazabilir;
+  const referans = depo.referans;
   const [tesisler, setTesisler] = useState([]);
   const [urunler, setUrunler] = useState([]);
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -33,16 +24,16 @@ export default function AtolyeKayitPanel({ open, onClose, kapsam, data, onApplyF
   const [esik, setEsik] = useState('0.5');
   const [onizleme, setOnizleme] = useState(null);
 
-  const tipleriYukle = useCallback(() => api('/referans').then(r => setTipler(r.tipler || [])).catch(e => setHata(`Ürün tipleri alınamadı: ${e.message}`)), []);
+  const tipleriYukle = useCallback(() => (referans ? referans.tipler().then(setTipler).catch(e => setHata(`Ürün tipleri alınamadı: ${e.message}`)) : Promise.resolve()), [referans]);
   const tazele = useCallback(async () => {
     setYukleniyor(true); setHata(null);
     try {
-      const [t, u] = await Promise.all([api('/tesis'), api('/urun-grubu')]);
-      setTesisler(t.kayitlar || []); setUrunler(u.kayitlar || []);
+      const [t, u] = await Promise.all([depo.listele('tesis'), depo.listele('urun-grubu')]);
+      setTesisler(t); setUrunler(u);
     } catch (e) { setHata(e.message); }
     if (!tipler.length) await tipleriYukle();
     setYukleniyor(false);
-  }, [tipler.length, tipleriYukle]);
+  }, [depo, tipler.length, tipleriYukle]);
   useEffect(() => { if (open) tazele(); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dene = async (fn, basari) => {
@@ -56,51 +47,51 @@ export default function AtolyeKayitPanel({ open, onClose, kapsam, data, onApplyF
     const ad = await promptDialog({ message: 'Hat / tesis adı:', defaultValue: layout.name || 'Bant 1' });
     if (!ad) return;
     const veri = facilityPayload(data, layout);
-    await api('/tesis', { method: 'POST', body: { ad, veri, oge_sayisi: veri.layout.items.length, varsayilan: tesisler.filter(t => t.workshop_id).length === 0 } });
+    await depo.olustur('tesis', { ad, veri, oge_sayisi: veri.layout.items.length, varsayilan: tesisler.length === 0 });
   }, true);
   const tesisGuncelle = (k) => dene(async () => {
     if (!layout) throw new Error('Yerleşim yok.');
     if (!(await confirmDialog({ message: `"${k.ad}" kaydı mevcut yerleşimle (${layout.name}) değiştirilecek. Devam?` }))) return;
     const veri = facilityPayload(data, layout);
-    await api(`/tesis/${k.id}`, { method: 'PUT', body: { veri, oge_sayisi: veri.layout.items.length } });
+    await depo.guncelle('tesis', k.id, { veri, oge_sayisi: veri.layout.items.length });
   }, true);
   const tesisAc = (k) => dene(async () => {
-    const { kayit } = await api(`/tesis/${k.id}`);
+    const kayit = await depo.getir('tesis', k.id);
     onApplyFacility(kayit.veri, { id: kayit.id, ad: kayit.ad });
   });
 
   /* ---- ürün grubu ---- */
   const urunKaydet = () => dene(async () => {
-    if (!(data.subOps || []).length) throw new Error('Süreçte adım yok — önce adımları gir ya da referanstan başlat.');
+    if (!(data.subOps || []).length) throw new Error(`Süreçte adım yok — önce adımları gir${referans ? ' ya da referanstan başlat' : ''}.`);
     const ad = await promptDialog({ message: 'Ürün grubu adı (ör. Polo tişört):', defaultValue: data.meta?.modelAdi || '' });
     if (!ad) return;
     const p = productPayload(data);
-    await api('/urun-grubu', { method: 'POST', body: {
+    await depo.olustur('urun-grubu', {
       ad, veri: p.veri, adim_sayisi: p.adimSayisi, toplam_sn: p.toplamSn,
       urun_tipi_id: data.meta?.refUrunTipiId || null, kaynak: data.meta?.kaynak || 'manuel',
-      varsayilan: urunler.filter(u => u.workshop_id).length === 0,
-    } });
+      varsayilan: urunler.length === 0,
+    });
   }, true);
   const urunGuncelle = (k) => dene(async () => {
     if (!(await confirmDialog({ message: `"${k.ad}" ürün grubu mevcut süreçle değiştirilecek. Devam?` }))) return;
     const p = productPayload(data);
-    await api(`/urun-grubu/${k.id}`, { method: 'PUT', body: { veri: p.veri, adim_sayisi: p.adimSayisi, toplam_sn: p.toplamSn } });
+    await depo.guncelle('urun-grubu', k.id, { veri: p.veri, adim_sayisi: p.adimSayisi, toplam_sn: p.toplamSn });
   }, true);
   const urunAc = (k) => dene(async () => {
     if ((data.subOps || []).length && !(await confirmDialog({ message: `Mevcut süreç "${k.ad}" ile değiştirilecek. Yerleşimdeki makineler aynı adlı adımlara yeniden bağlanır. Devam?` }))) return;
-    const { kayit } = await api(`/urun-grubu/${k.id}`);
+    const kayit = await depo.getir('urun-grubu', k.id);
     onApplyProduct(kayit.veri, { ad: kayit.ad });
   });
 
-  const varsayilanYap = (tur, k) => dene(() => api(`/${tur}/${k.id}`, { method: 'PUT', body: { varsayilan: true } }), true);
+  const varsayilanYap = (tur, k) => dene(() => depo.guncelle(tur, k.id, { varsayilan: true }), true);
   const sil = (tur, k) => dene(async () => {
     if (!(await confirmDialog({ message: `"${k.ad}" silinecek. Emin misin?`, danger: true }))) return;
-    await api(`/${tur}/${k.id}`, { method: 'DELETE' });
+    await depo.sil(tur, k.id);
   }, true);
 
   /* ---- referans ---- */
   const onizle = () => dene(async () => {
-    const r = await api(`/referans?urun_tipi_id=${tipId}&esik=${esik}`);
+    const r = await referans.surec(tipId, esik);
     setOnizleme(r);
   });
   const referansiYukle = () => dene(async () => {
@@ -129,7 +120,7 @@ export default function AtolyeKayitPanel({ open, onClose, kapsam, data, onApplyF
                 {k.ad}
               </div>
               <div className="text-[11px] text-ink-soft truncate">
-                {kapsam === 'merkez' && k.atolye_adi ? `${k.atolye_adi} · ` : ''}{ozet(k)} · {fmtTarih(k.updated_at)}
+                {k.sahip ? `${k.sahip} · ` : ''}{ozet(k)} · {fmtTarih(k.updated_at)}
               </div>
             </div>
             <button className={btn} onClick={() => onAc(k)} title="Bu kaydı çalışma alanına yükle"><FolderOpen className="w-3.5 h-3.5" /> Aç</button>
@@ -184,9 +175,9 @@ export default function AtolyeKayitPanel({ open, onClose, kapsam, data, onApplyF
             onAc={urunAc} onGuncelle={urunGuncelle} />
         </section>
 
-        <section className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-3 py-3">
-          <h3 className="text-sm font-bold text-ink flex items-center gap-1.5"><Wand2 className="w-4 h-4" /> Referanstan başlat (PES MTM)</h3>
-          <p className="text-[11px] text-ink-soft leading-snug">Ürün tipini seç; PES MTM kütüphanesindeki tipik modelin adımları ve süreleri sürece yüklenir. Sonra kendi sürelerine göre düzenleyip ürün grubu olarak kaydet.</p>
+        {referans && <section className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-3 py-3">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-1.5"><Wand2 className="w-4 h-4" /> Referanstan başlat ({referans.ad})</h3>
+          <p className="text-[11px] text-ink-soft leading-snug">Ürün tipini seç; {referans.ad} kütüphanesindeki tipik modelin adımları ve süreleri sürece yüklenir. Sonra kendi sürelerine göre düzenleyip ürün grubu olarak kaydet.</p>
           <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Ürün tipi
             <select value={tipId} onChange={e => { setTipId(e.target.value); setOnizleme(null); }} className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink">
               <option value="">Seç…</option>
@@ -213,7 +204,7 @@ export default function AtolyeKayitPanel({ open, onClose, kapsam, data, onApplyF
               <button className="h-9 rounded-lg bg-accent hover:bg-accent-strong text-white text-xs font-semibold" onClick={referansiYukle}>Süreci yükle</button>
             </div>
           )}
-        </section>
+        </section>}
       </aside>
     </div>
   );

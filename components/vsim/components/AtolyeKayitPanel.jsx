@@ -62,7 +62,7 @@ export default function AtolyeKayitPanel({ open, onClose, depo, data, onApplyFac
 
   /* ---- ürün grubu ---- */
   const urunKaydet = () => dene(async () => {
-    if (!(data.subOps || []).length) throw new Error('Süreçte adım yok — önce adımları gir ya da referanstan başlat.');
+    if (!(data.subOps || []).length) throw new Error(`Süreçte adım yok — önce adımları gir${referans ? ' ya da referanstan başlat' : ''}.`);
     const ad = await promptDialog({ message: 'Ürün grubu adı (ör. Polo tişört):', defaultValue: data.meta?.modelAdi || '' });
     if (!ad) return;
     const p = productPayload(data);

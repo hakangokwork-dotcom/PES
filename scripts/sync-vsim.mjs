@@ -1,9 +1,12 @@
 #!/usr/bin/env node
-/* VSIM → PES senkronu.
+/* ProVSM → PES senkronu.
  *
- * VSIM (standalone Vite uygulaması) bu modülün TEK KAYNAĞIDIR; geliştirme orada yapılır.
- * Bu betik VSIM/src ağacını PES/components/vsim altına birebir kopyalar. Hedef dizin
- * TÜRETİLMİŞTİR — elle düzenlenmemelidir, her senkronda silinip yeniden yazılır.
+ * Simülasyon çekirdeğinin TEK KAYNAĞI ProVSM reposudur (2026-09-30'dan beri):
+ *   WORK/ProVSM/packages/vsim-core/src
+ * Geliştirme orada yapılır. Bu betik o ağacı PES/components/vsim altına birebir
+ * kopyalar. Hedef dizin TÜRETİLMİŞTİR — elle düzenlenmemelidir, her senkronda
+ * silinip yeniden yazılır. PES'e özgü parçalar (components/pes/vsimPesDepo.ts,
+ * VsimEmbed.tsx, app/styles/vsim-bridge.css) hedefin DIŞINDA durur, dokunulmaz.
  *
  * Kopyalanmayanlar (yalnız standalone'a ait):
  *   main.jsx    — Vite giriş noktası, createRoot çağrısı
@@ -16,27 +19,30 @@
  *                 bileşen ağacında değil, globals.css'in altındaki styles/ dizininde durur.
  *
  * Kullanım:  npm run sync:vsim
- * VSIM başka bir yoldaysa:  VSIM_DIR=/yol/VSIM npm run sync:vsim
+ * ProVSM başka bir yoldaysa:  VSIM_DIR=/yol/ProVSM/packages/vsim-core npm run sync:vsim
  */
 import { cp, rm, mkdir, readdir, stat, copyFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { join, resolve, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const PES_ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '..')
-const VSIM_DIR = resolve(process.env.VSIM_DIR || join(PES_ROOT, '..', '..', 'IDEAMD', 'VSIM'))
+const VSIM_DIR = resolve(process.env.VSIM_DIR || join(PES_ROOT, '..', 'ProVSM', 'packages', 'vsim-core'))
 const SRC = join(VSIM_DIR, 'src')
 const DEST = join(PES_ROOT, 'components', 'vsim')
 const STYLES = join(PES_ROOT, 'app', 'styles')
 
-// DEVRE DIŞI (2026-07-24 — kullanıcı kararı): Artık PES, VSIM'in KAYNAĞIDIR. Geliştirme
-// doğrudan components/vsim içinde yapılıyor (Akış-n8n vb.). Bu senkron DEST'i siler ve
-// IDEAMD\VSIM'den yeniden yazar → doğrudan yapılan işi EZER. Kazayı önlemek için kapalı.
-// Bilerek çalıştırmak (ör. PES→VSIM backport sonrası tersine kurulumla) için: SYNC_VSIM_FORCE=1
+/* Koruma: components/vsim'de commit'lenmemiş değişiklik varsa DURUR — biri yanlışlıkla
+   PES tarafında düzenlemiş olabilir; senkron o işi ezerdi. Önce değişikliği ProVSM'e
+   taşı (ya da geri al). Bilerek ezmek için: SYNC_VSIM_FORCE=1 */
 if (!process.env.SYNC_VSIM_FORCE) {
-  console.error('sync-vsim DEVRE DIŞI: PES artık source-of-truth; bu senkron components/vsim\'i ezerdi.\n' +
-    'Bilerek çalıştıracaksan: SYNC_VSIM_FORCE=1 npm run sync:vsim');
-  process.exit(1)
+  const kirli = execFileSync('git', ['status', '--porcelain', '--', 'components/vsim', 'app/styles/vsim-theme.css'], { cwd: PES_ROOT, encoding: 'utf8' }).trim()
+  if (kirli) {
+    console.error(`✗ components/vsim içinde commit'lenmemiş değişiklik var — senkron bunları ezer:\n${kirli}`)
+    console.error("  Çekirdek artık ProVSM'de geliştiriliyor; değişikliği oraya taşı. Bilerek ezmek için: SYNC_VSIM_FORCE=1")
+    process.exit(1)
+  }
 }
 
 /* Standalone'a özel dosyalar — kopyalanmaz (yukarıdaki başlıkta gerekçeleri).

@@ -2,7 +2,7 @@
 
 /* VSIM (Değer Akışı Simülasyonu) gömme sarmalayıcısı — hem atölye panelinde
    (/workshop/vsm) hem merkez panelinde (/pes/uretim-simulasyon) kullanılır.
-   Modülün kaynağı VSIM standalone reposudur; components/vsim TÜRETİLMİŞTİR,
+   Modülün kaynağı ProVSM reposudur (WORK/ProVSM/packages/vsim-core); components/vsim TÜRETİLMİŞTİR,
    `npm run sync:vsim` ile güncellenir. Bu dosya senkrondan etkilenmez. */
 
 import dynamic from 'next/dynamic'

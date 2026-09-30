@@ -10,10 +10,9 @@ kullanan ikinci bir uygulama. PES'e özgü her şey (tenant, workshop, `/api/pes
 MTM kütüphanesi) çekirdeğin DIŞINDA, bir `depo` adaptörünün arkasında durur.
 
 ```
-repo/  (npm workspaces)
-├─ packages/vsim-core/   motor + arayüz + domain paketleri (bugünkü components/vsim)
-├─ apps/pes/             PES — depo = PesDepo (/api/pes/vsim)
-└─ apps/provsm/          ProVSM — depo = YerelDepo (v1) → ProvsmDepo (v2)
+WORK/ProVSM  (ayrı repo, TEK KAYNAK)          WORK/PES
+├─ packages/vsim-core/src  ── npm run sync:vsim ──►  components/vsim (türetilmiş)
+└─ apps/web  (depo = yerelDepo → ileride bulut)      components/pes/vsimPesDepo.ts (depo = PES API)
 ```
 
 ## Bugünkü bağlar (keşif)
@@ -57,12 +56,14 @@ Sektör bağımsızlığı zaten var: `domains/textile.js`, `domains/blank.js`.
 - [x] Test: `yerelDepo` sözleşme testi; mevcut vitest + build yeşil; tarayıcıda atölye/merkez akışı.
 - Kabul: `grep -r "fetch(\|/api/" components/vsim` kodda sonuç vermez (yalnız sozlesme.js yorumu). ✓
 
-### Faz 2 — Monorepo
-- [ ] npm workspaces; `components/vsim` → `packages/vsim-core` (git mv, geçmiş korunur).
-- [ ] PES kökü → `apps/pes`; `transpilePackages: ['@promode/vsim-core']`.
-- [ ] Vercel `pes-platform` projesi Root Directory = `apps/pes`; önce preview, sonra canlı + alias.
-- [ ] `scripts/sync-vsim.mjs` ve `sync:vsim` kaldırılır (artık tek kaynak paket).
-- Risk: PES canlı derlemesi. Önce preview deploy, smoke test, sonra promote.
+### Faz 2 — Ayrı repo: `WORK\ProVSM` (2026-09-30, kullanıcı kararıyla monorepo yerine)
+- [x] `git subtree split` ile components/vsim geçmişi (32 commit) → ProVSM `packages/vsim-core/src`.
+- [x] ProVSM: npm workspaces — `@provsm/core` (çekirdek, vitest) + `apps/web` (Next.js 16, port 3021, yerelDepo).
+- [x] PES `sync:vsim` yeniden açıldı, kaynak = ProVSM; `components/vsim` artık TÜRETİLMİŞ.
+      Koruma: components/vsim'de commit'lenmemiş değişiklik varsa senkron durur.
+- [x] PES'e özgü kalanlar: vsimPesDepo.ts, VsimEmbed.tsx, vsim-bridge.css, /api/pes/vsim, 048.
+- [ ] ProVSM GitHub reposu (özel) + Vercel projesi — kullanıcı onayı bekliyor.
+- Geri birleşme: çekirdek PES'te zaten birebir kopya; tam birleşme için `git subtree add` + sayfa taşıma (ProVSM README).
 
 ### Faz 3 — ProVSM v1 (arka uçsuz)
 - [ ] `apps/provsm`: Next.js, landing + `/app` (simülasyon), `yerelDepo`, domain seçici (tekstil / genel).

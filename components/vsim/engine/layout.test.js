@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   SYMBOLS, symbolForSubOp, itemRect, itemFootprint, createItem, newLayout,
   stationSlots, leafFlowEdges, lPath, countCrossings, layoutMetrics, autoPlace, snap, insertSubOpAfter,
+  stationAt, mergeWorkerIntoStation,
 } from './layout.js';
 
 const main = (id, extra = {}) => ({ id, name: id, color: '#123456', nextIds: [], ...extra });
@@ -113,7 +114,7 @@ describe('karne', () => {
     expect(m.perGroup.find(g => g.id === 'BEDEN').dist).toBeCloseTo(5.9);
     expect(m.unplaced.map(u => `${u.subOpId}#${u.slot}`)).toEqual(['k1#1']);
     expect(m.merges.map(x => x.subOpId)).toEqual(['m1']);
-    expect(m.persons).toBe(1);
+    expect(m.persons).toBe(4);   // her istasyonda bir kişi: 1 atanmış (op1) + 3 atanmamış
   });
   it('ara stok üzerinden geçen rota yolu uzatır', () => {
     const { d, L } = placed();
@@ -239,5 +240,37 @@ describe('makinesiz masa, serbest çalışan, süreçe ekleme', () => {
     const d = fixture();
     const { subOps, id } = insertSubOpAfter(d, { mainOpId: 'BEDEN', name: 'Hazırlık', cycleTime: 10 });
     expect(subOps.find(s => s.id === id).nextIds).toEqual(['b1']);
+  });
+});
+
+describe('istasyondaki kişiler', () => {
+  it('her makine/masa bir kişi sayılır; aynı çalışan iki istasyonda bir kez; yedek sayılmaz; yardımcılar eklenir', () => {
+    const d = fixture();
+    const L = newLayout('T');
+    L.items = [
+      createItem('duz', 0, 0, { operatorId: 'x' }),
+      createItem('duz', 2, 0, { operatorId: 'x' }),
+      createItem('masa', 4, 0),
+      createItem('duz', 6, 0, { isSpare: true }),
+      createItem('ov', 8, 0, { helpers: [{ id: 'h1' }, { id: 'h2', operatorId: 'x' }] }),
+      createItem('calisan', 10, 0),
+    ];
+    // x (bir kez) + masa + ov + h1 + serbest çalışan = 5 ; h2 = x zaten sayıldı
+    expect(layoutMetrics(d, L).persons).toBe(5);
+  });
+  it('serbest çalışan istasyonun üstüne bırakılınca yardımcı olur', () => {
+    const st = createItem('duz', 2, 2);
+    const w = createItem('calisan', 2.3, 2.9, { name: 'Derya' });
+    const f = itemFootprint(w);
+    const hit = stationAt([st, w], { x: f.x + f.w / 2, y: f.y + f.h / 2 }, w.id);
+    expect(hit.id).toBe(st.id);
+    const out = mergeWorkerIntoStation([st, w], w.id, st.id);
+    expect(out).toHaveLength(1);
+    expect(out[0].helpers.map(h => h.name)).toEqual(['Derya']);
+  });
+  it('yedek makine ve boş zemin istasyon sayılmaz', () => {
+    const sp = createItem('duz', 0, 0, { isSpare: true });
+    expect(stationAt([sp], { x: 0.5, y: 0.3 })).toBeNull();
+    expect(stationAt([sp], { x: 9, y: 9 })).toBeNull();
   });
 });

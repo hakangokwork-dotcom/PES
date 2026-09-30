@@ -147,12 +147,19 @@ export function itemDrawables(it, floor, k, opts = {}) {
   }
 
   // operatör: gövde dışındaki ayak izi bandının ortası
-  const withOp = (s.kind === 'machine' || s.kind === 'table') && (it.subOpId || s.kind === 'table') && !it.isSpare;
+  // her makine/masa başında bir kişi (yedek hariç); yardımcılar yanında ayakta
+  const withOp = (s.kind === 'machine' || s.kind === 'table') && !it.isSpare;
   if (withOp) {
     const cx = fp.x + fp.w / 2, cy = fp.y + fp.h / 2;
     const bx = body.x + body.w / 2, by = body.y + body.h / 2;
     const p = { x: cx + (cx - bx) * 0.9, y: cy + (cy - by) * 0.9 };
-    parts.push({ type: 'person', p, standing: !s.seat, color: opts.personColor || '#2F6FB5', ghost: opts.noOperator });
+    parts.push({ type: 'person', p, standing: !s.seat, color: opts.personColor || '#2F6FB5' });
+    // yardımcılar: operatör hizasında, gövdenin uzun ekseni boyunca yana
+    const long = body.w >= body.h;
+    (it.helpers || []).forEach((h, i) => {
+      const d = 0.62 * (i + 1);
+      parts.push({ type: 'person', p: long ? { x: p.x + d, y: p.y } : { x: p.x, y: p.y + d }, standing: true, color: '#2A9D8F' });
+    });
   }
   const depth = fp.x + fp.w / 2 + fp.y + fp.h / 2 + (s.kind === 'aisle' ? -1000 : 0);
   return { id: it.id, depth, parts, body, fp };

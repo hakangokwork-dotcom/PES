@@ -163,12 +163,12 @@ export default function IsoView({ data, layout, overlay, editable, height = 'cal
     const d = itemDrawables(it, floor0, k, {
       headState: st,
       fill: overlay?.fill?.(it),
-      noOperator: it.subOpId && !subById.get(it.subOpId)?.operatorId,
-      personColor: overlay?.sharedIds?.has(it.id) ? '#7A4FB0' : '#2F6FB5',
+      personColor: overlay?.sharedIds?.has(it.id) ? '#7A4FB0'
+        : (it.operatorId || (it.subOpId && subById.get(it.subOpId)?.operatorId)) ? '#2F6FB5' : '#9CA3AF',
     });
     const grab = editable ? { onPointerDown: (e) => onItemDown(e, it), style: { cursor: 'move' } } : {};
     d.parts.forEach((p, i) => {
-      if (p.type === 'person') draws.push({ depth: p.p.x + p.p.y + 0.001, el: <g key={`${it.id}p`} {...grab}><Person {...p} /></g> });
+      if (p.type === 'person') draws.push({ depth: p.p.x + p.p.y + 0.001, el: <g key={`${it.id}p${i}`} {...grab}><Person {...p} /></g> });
       else if (p.type === 'floor') draws.push({ depth: -1000, el: <polygon key={`${it.id}f`} {...grab} points={pts(boxFaces(p.r, 0, 0.005).top)} fill={p.fill} stroke="#E9C7AE" strokeWidth={0.03} /> });
       else draws.push({ depth: d.depth - 0.5 + i * 1e-4, el: <g key={`${it.id}b${i}`} {...grab}><Box r={p.r} z0={p.z0} z1={p.z1} colors={p.colors} /></g> });
     });

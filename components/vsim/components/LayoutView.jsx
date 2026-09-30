@@ -7,6 +7,7 @@ import {
 import {
   SYMBOLS, snap, createItem, symbolForSubOp, newLayout, layoutMetrics, autoPlace, layoutSummary,
   itemRect, itemFootprint, stationSlots, DEFAULT_FLOOR, insertSubOpAfter,
+  stationAt, mergeWorkerIntoStation,
 } from '../engine/layout.js';
 import { uid } from '../engine/flow.js';
 import { DEFAULT_TRANSPORT } from '../engine/logistics.js';
@@ -216,10 +217,7 @@ export default function LayoutView({ data, onPatch }) {
     dragRef.current = null;
     if (!d) return;
     if (d.mode === 'move') {
-      if (d.moved && drag && (drag.dx || drag.dy)) {
-        const { dx, dy } = drag;
-        commit(its => its.map(it => (selSet.has(it.id) ? { ...it, x: r2(it.x + dx), y: r2(it.y + dy) } : it)));
-      }
+      if (d.moved && drag && (drag.dx || drag.dy)) finishMove(drag.dx, drag.dy);
       setDrag(null);
     } else if (d.mode === 'marquee' && marquee) {
       const x0 = Math.min(marquee.x0, marquee.x1), x1 = Math.max(marquee.x0, marquee.x1);
@@ -276,9 +274,32 @@ export default function LayoutView({ data, onPatch }) {
     commit(its => its.map(i => (next[i.id] ? { ...i, ...next[i.id] } : i)));
   };
 
+  /* Seçili öğeleri taşı. Tek bir serbest çalışan bir makine/masanın üstüne
+     bırakıldıysa o istasyona yardımcı (ikinci kişi) olarak katılır. */
+  const finishMove = (dx, dy) => {
+    const moved = items.map(it => (selSet.has(it.id) ? { ...it, x: r2(it.x + dx), y: r2(it.y + dy) } : it));
+    if (selection.length === 1) {
+      const w = moved.find(i => i.id === selection[0]);
+      if (w && SYMBOLS[w.type]?.kind === 'person') {
+        const f = itemFootprint(w);
+        const st = stationAt(moved, { x: f.x + f.w / 2, y: f.y + f.h / 2 }, w.id);
+        if (st) { commit(() => mergeWorkerIntoStation(moved, w.id, st.id)); setSelection([st.id]); return; }
+      }
+    }
+    commit(() => moved);
+  };
   const addAt = (payload, x, y) => {
     const sym = SYMBOLS[payload.type];
     if (!sym) return;
+    // paletten serbest çalışan bir istasyonun üstüne bırakıldı → o istasyona yardımcı
+    if (sym.kind === 'person') {
+      const st = stationAt(items, { x, y });
+      if (st) {
+        commit(its => its.map(i => (i.id === st.id ? { ...i, helpers: [...(i.helpers || []), { id: `h_${uid()}`, name: '', operatorId: null }] } : i)));
+        setSelection([st.id]);
+        return;
+      }
+    }
     const it = createItem(payload.type, snap(x - sym.w / 2), snap(y - sym.h / 2),
       payload.subOpId ? { subOpId: payload.subOpId, slot: payload.slot || 0 } : {});
     commit(its => [...its, it]);
@@ -369,6 +390,13 @@ export default function LayoutView({ data, onPatch }) {
       operators: [...(d.operators || []), { id, name }],
       subOps: subOpId ? (d.subOps || []).map(s => (s.id === subOpId ? { ...s, operatorId: id } : s)) : d.subOps,
     }));
+  };
+  const newOperator = async () => {
+    const name = await promptDialog({ message: 'Yeni çalışanın adı:', defaultValue: '' });
+    if (!name) return null;
+    const id = `o_${uid()}`;
+    onPatch(d => ({ operators: [...(d.operators || []), { id, name }] }));
+    return id;
   };
   const createOpForItem = (itemId, args) => onPatch(d => {
     const { subOps, id } = insertSubOpAfter(d, args);
@@ -575,7 +603,7 @@ export default function LayoutView({ data, onPatch }) {
                 focus: () => isoWrapRef.current?.focus({ preventScroll: true }),
                 onDragPreview: setDrag,
                 onDragEnd: (dx, dy) => {
-                  if (dx || dy) commit(its => its.map(it => (selSet.has(it.id) ? { ...it, x: r2(it.x + dx), y: r2(it.y + dy) } : it)));
+                  if (dx || dy) finishMove(dx, dy);
                   setDrag(null);
                 },
                 onDrop: (payload, x, y) => addAt(payload, x, y),
@@ -690,7 +718,7 @@ export default function LayoutView({ data, onPatch }) {
               subById={subById} opById={opById} mcById={mcById} mainById={mainById}
               allRoutes={allRoutesInInspector} setAllRoutes={setAllRoutesInInspector}
               onPatch={(p) => patchItem(single.id, p)}
-              onAssignOperator={assignOperator} onAddOperator={addOperator}
+              onAssignOperator={assignOperator} onAddOperator={addOperator} onNewOperator={newOperator}
               onCreateOp={(args) => createOpForItem(single.id, args)}
               onRotate={rotateSelected} onDuplicate={duplicateSelected} onDelete={removeSelected}
             />
@@ -717,7 +745,7 @@ export default function LayoutView({ data, onPatch }) {
             <div className="grid grid-cols-2 gap-2">
               <Tile label="Taşıma / adet" value={`${fmt(metrics.totalDist)} m`} hint={`${metrics.routes.length} akış`} />
               <Tile label="Kullanılan alan" value={`${fmt(metrics.usedArea, 0)} m²`} hint={`zemin ${fmt(metrics.floorArea, 0)} m²`} />
-              <Tile label="m² / kişi" value={metrics.areaPerPerson == null ? '—' : fmt(metrics.areaPerPerson)} hint={`${metrics.persons} operatör`} />
+              <Tile label="m² / kişi" value={metrics.areaPerPerson == null ? '—' : fmt(metrics.areaPerPerson)} hint={`${metrics.persons} kişi`} />
               <Tile label="Kesişme" value={metrics.crossings.count} hint="akış yolu" tone={metrics.crossings.count ? 'warn' : null} />
               <Tile label="Ara stok kap." value={metrics.bufferCapacity} hint="adet" />
               <Tile label="Yerleşmemiş" value={`${metrics.unplaced.length}`} hint={`/${metrics.slotsTotal} istasyon`} tone={metrics.unplaced.length ? 'warn' : null} />
@@ -819,7 +847,7 @@ function Tile({ label, value, hint, tone }) {
   );
 }
 
-function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, mainById, allRoutes, setAllRoutes, onPatch, onRotate, onDuplicate, onDelete, onAssignOperator, onAddOperator, onCreateOp }) {
+function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, mainById, allRoutes, setAllRoutes, onPatch, onRotate, onDuplicate, onDelete, onAssignOperator, onAddOperator, onNewOperator, onCreateOp }) {
   const sym = SYMBOLS[it.type] || SYMBOLS.duz;
   const s = it.subOpId ? subById.get(it.subOpId) : null;
   const canBind = sym.kind === 'machine' || sym.kind === 'table';
@@ -884,18 +912,9 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
           <Row k="Makine" v={mcById.get(s.machineId)?.name || (sym.kind === 'table' ? 'makinesiz (masa)' : '—')} />
         </div>
       )}
-      {s && (
-        <div className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-soft">Çalışan</span>
-          <div className="flex gap-1.5">
-            <select className={`${input} flex-1 min-w-0`} value={s.operatorId || ''} onChange={e => onAssignOperator(s.id, e.target.value)} aria-label="Çalışan">
-              <option value="">— atanmamış —</option>
-              {(data.operators || []).filter((o, i, arr) => arr.findIndex(x => x.id === o.id) === i).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-            </select>
-            <button onClick={() => onAddOperator(s.id)} className="h-9 px-2.5 rounded-lg border border-line bg-surface hover:bg-surface-2 text-ink text-xs font-medium flex-shrink-0" title="Yeni çalışan oluştur ve buraya ata">+ Yeni</button>
-          </div>
-          <p className="text-[10px] text-ink-soft">Aynı çalışanı iki istasyona atarsan meydancı olarak görünür.</p>
-        </div>
+      {canBind && !it.isSpare && (
+        <StaffFields it={it} s={s} data={data} input={input} onPatch={onPatch}
+          onAssignOperator={onAssignOperator} onAddOperator={onAddOperator} onNewOperator={onNewOperator} />
       )}
       {canBind && !it.subOpId && !it.isSpare && <NewOpForm data={data} sym={it.type} onCreate={onCreateOp} />}
       {sym.kind === 'person' && (
@@ -952,6 +971,52 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         <button className="h-9 px-3 rounded-lg border border-line bg-surface hover:bg-danger-tint text-danger text-xs flex items-center gap-1.5" onClick={onDelete}><Trash2 className="w-4 h-4" /> Sil</button>
       </div>
     </section>
+  );
+}
+
+/* İstasyondaki kişiler: operatör (bağlıysa süreçteki operasyonun çalışanı, değilse
+   istasyonun kendi çalışanı) + yardımcılar (ürün çevirme vb. için ikinci kişi).
+   Yardımcılar şimdilik simülasyon hızını değiştirmez; kişi sayısına ve alana girer. */
+function StaffFields({ it, s, data, input, onPatch, onAssignOperator, onAddOperator, onNewOperator }) {
+  const ops = (data.operators || []).filter((o, i, arr) => arr.findIndex(x => x.id === o.id) === i);
+  const helpers = it.helpers || [];
+  const setHelper = (i, patch) => onPatch({ helpers: helpers.map((h, j) => (j === i ? { ...h, ...patch } : h)) });
+  const smallBtn = 'h-9 px-2.5 rounded-lg border border-line bg-surface hover:bg-surface-2 text-ink text-xs font-medium flex-shrink-0';
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2">
+      <div className="text-[11px] font-bold tracking-wider text-ink-soft">ÇALIŞANLAR · {1 + helpers.length} KİŞİ</div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] text-ink-soft">Operatör</span>
+        <div className="flex gap-1.5">
+          <select className={`${input} flex-1 min-w-0`} aria-label="Operatör"
+            value={(s ? s.operatorId : it.operatorId) || ''}
+            onChange={e => (s ? onAssignOperator(s.id, e.target.value) : onPatch({ operatorId: e.target.value || undefined }))}>
+            <option value="">— atanmamış —</option>
+            {ops.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+          </select>
+          <button className={smallBtn} title="Yeni çalışan oluştur ve buraya ata"
+            onClick={async () => { if (s) onAddOperator(s.id); else { const id = await onNewOperator(); if (id) onPatch({ operatorId: id }); } }}>+ Yeni</button>
+        </div>
+      </div>
+      {helpers.map((h, i) => (
+        <div key={h.id || i} className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-soft">Yardımcı {i + 1}</span>
+          <div className="flex gap-1.5">
+            <select className={`${input} flex-1 min-w-0`} aria-label={`Yardımcı ${i + 1}`} value={h.operatorId || ''}
+              onChange={e => setHelper(i, { operatorId: e.target.value || null })}>
+              <option value="">{h.name ? `${h.name} (listede yok)` : '— atanmamış —'}</option>
+              {ops.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+            <button className={smallBtn} aria-label={`Yardımcı ${i + 1} kaldır`} title="Yardımcıyı kaldır"
+              onClick={() => onPatch({ helpers: helpers.filter((_, j) => j !== i) })}>✕</button>
+          </div>
+        </div>
+      ))}
+      <button className={`${smallBtn} self-start`} onClick={() => onPatch({ helpers: [...helpers, { id: `h_${Math.random().toString(36).slice(2, 8)}`, name: '', operatorId: null }] })}>
+        + Yardımcı kişi ekle
+      </button>
+      <p className="text-[10px] text-ink-soft leading-snug">Serbest çalışanı paletten ya da zeminden bu istasyonun üstüne sürükleyince de yardımcı olur. Aynı çalışanı iki istasyona atarsan meydancı görünür.</p>
+    </div>
   );
 }
 

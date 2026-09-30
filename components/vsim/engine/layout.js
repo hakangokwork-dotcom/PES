@@ -498,6 +498,63 @@ export function insertSubOpAfter(data, { mainOpId, afterId, name, cycleTime, typ
   return { subOps, id };
 }
 
+/* ---------- zeminden akış kurma ---------- */
+/* Operatörün oturduğu taraf ↔ döndürme. rot=0'da operatör gövdenin ALTINDA (güney).
+   side: 'S' | 'W' | 'N' | 'E' (ekranda alt / sol / üst / sağ). */
+export const SIDE_ROT = { S: 0, W: 90, N: 180, E: 270 };
+export const rotSide = (rot) => ({ 0: 'S', 90: 'W', 180: 'N', 270: 'E' }[((rot || 0) % 360 + 360) % 360] || 'S');
+
+const OPTYPE_OF = { duz: 'DİKİM', ov: 'OVERLOK', rc: 'REÇME', kl: 'DİKİM', il: 'DİKİM', oto: 'OTOMAT', utu: 'ÜTÜ', kt: 'KONTROL', pk: 'AKSESUAR', kesim: 'KESİM', masa: 'DESTEK' };
+
+/* Öğe bir operasyona bağlı değilse onun için operasyon aç. Grup: tercih edilen
+   (bağlanacak diğer istasyonun grubu) → ilk ana op → yoksa "Bant" oluşturulur.
+   Döner: { data (yeni mainOps/subOps), subOpId, item (bağlı) }. Saf. */
+export function ensureStationOp(data, item, preferGroupId) {
+  const subOps = data.subOps || [];
+  if (item.subOpId && subOps.some(s => s.id === item.subOpId)) return { data, subOpId: item.subOpId, item };
+  let mainOps = data.mainOps || [];
+  let gid = preferGroupId && mainOps.some(m => m.id === preferGroupId) ? preferGroupId : mainOps[0]?.id;
+  if (!gid) {
+    gid = `g_${uid()}`;
+    mainOps = [{ id: gid, name: 'Bant', color: '#1f5fae', order: 0, nextIds: [], x: 60, y: 60 }];
+  }
+  const sym = SYMBOLS[item.type];
+  const same = subOps.filter(s => (s.name || '').startsWith(sym?.name || 'İş')).length;
+  const id = `s_${uid()}`;
+  const op = { id, mainOpId: gid, name: `${sym?.name || 'İş'} ${same + 1}`, type: OPTYPE_OF[item.type] || 'DİKİM', cycleTime: 30, nextIds: [], machineId: null, operatorId: item.operatorId || null, stationCount: 1 };
+  return { data: { ...data, mainOps, subOps: [...subOps, op] }, subOpId: id, item: { ...item, subOpId: id, slot: 0 } };
+}
+
+/* A istasyonunun işini B'ye ver (A → B). Gerekirse iki taraf için operasyon açar.
+   Döner: { mainOps, subOps, items } — çağıran veri + yerleşime yazar. Döngü
+   oluşturacaksa ya da aynı istasyonsa değişiklik yapmaz (ok:false). */
+export function linkStations(data, items, fromId, toId) {
+  const A0 = items.find(i => i.id === fromId), B0 = items.find(i => i.id === toId);
+  if (!A0 || !B0 || A0.id === B0.id) return { ok: false, reason: 'same' };
+  const bGroup = (data.subOps || []).find(s => s.id === B0.subOpId)?.mainOpId;
+  const a = ensureStationOp(data, A0, bGroup);
+  const aGroup = a.data.subOps.find(s => s.id === a.subOpId)?.mainOpId;
+  const b = ensureStationOp(a.data, B0, aGroup);
+  const d = b.data;
+  if (a.subOpId === b.subOpId) return { ok: false, reason: 'same' };
+  // döngü: B'den ileri gidilerek A'ya ulaşılıyorsa
+  const byId = new Map(d.subOps.map(s => [s.id, s]));
+  const seen = new Set(); const stack = [b.subOpId];
+  while (stack.length) {
+    const x = stack.pop();
+    if (x === a.subOpId) return { ok: false, reason: 'cycle' };
+    if (seen.has(x)) continue; seen.add(x);
+    (byId.get(x)?.nextIds || []).forEach(n => stack.push(n));
+  }
+  const subOps = d.subOps.map(s => (s.id === a.subOpId && !(s.nextIds || []).includes(b.subOpId) ? { ...s, nextIds: [...(s.nextIds || []), b.subOpId] } : s));
+  const nextItems = items.map(i => (i.id === A0.id ? a.item : i.id === B0.id ? b.item : i));
+  return { ok: true, mainOps: d.mainOps, subOps, items: nextItems };
+}
+
+export function unlinkOps(data, fromSubId, toSubId) {
+  return (data.subOps || []).map(s => (s.id === fromSubId ? { ...s, nextIds: (s.nextIds || []).filter(n => n !== toSubId) } : s));
+}
+
 /* Denemeleri kıyas için kısa özet. */
 export function layoutSummary(data, layout) {
   const m = layoutMetrics(data, layout);

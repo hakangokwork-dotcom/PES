@@ -145,6 +145,7 @@ export default function IsoView({ data, layout, overlay, editable, height = 'cal
     if (e.button !== 0) return;
     e.stopPropagation();
     editable.focus?.();
+    if (editable.connectMode) { editable.onConnectClick?.(it); return; }
     let sel = editable.selection || [];
     if (e.shiftKey) sel = sel.includes(it.id) ? sel.filter(x => x !== it.id) : [...sel, it.id];
     else if (!sel.includes(it.id)) sel = [it.id];

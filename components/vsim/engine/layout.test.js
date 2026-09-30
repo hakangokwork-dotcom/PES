@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   SYMBOLS, symbolForSubOp, itemRect, itemFootprint, createItem, newLayout,
   stationSlots, leafFlowEdges, lPath, countCrossings, layoutMetrics, autoPlace, snap, insertSubOpAfter,
-  stationAt, mergeWorkerIntoStation,
+  stationAt, mergeWorkerIntoStation, linkStations, unlinkOps, ensureStationOp, rotSide, SIDE_ROT,
 } from './layout.js';
 
 const main = (id, extra = {}) => ({ id, name: id, color: '#123456', nextIds: [], ...extra });
@@ -272,5 +272,46 @@ describe('istasyondaki kişiler', () => {
     const sp = createItem('duz', 0, 0, { isSpare: true });
     expect(stationAt([sp], { x: 0.5, y: 0.3 })).toBeNull();
     expect(stationAt([sp], { x: 9, y: 9 })).toBeNull();
+  });
+});
+
+describe('zeminden akış kurma', () => {
+  it('bağsız iki makineyi bağlar: operasyon ve gerekirse bant açar, A→B yazar', () => {
+    const d = { mainOps: [], subOps: [] };
+    const A = createItem('duz', 0, 0), B = createItem('ov', 2, 0);
+    const r = linkStations(d, [A, B], A.id, B.id);
+    expect(r.ok).toBe(true);
+    expect(r.mainOps).toHaveLength(1);
+    expect(r.subOps.map(s => s.name)).toEqual(['Düz makine 1', 'Overlok 1']);
+    const [a, b] = r.subOps;
+    expect(a.nextIds).toEqual([b.id]);
+    expect(r.items[0].subOpId).toBe(a.id);
+    expect(r.items[1].subOpId).toBe(b.id);
+    // akış kenarı motorun gördüğü yapıda
+    expect(leafFlowEdges({ mainOps: r.mainOps, subOps: r.subOps }).map(e => e.key)).toEqual([`${a.id}>${b.id}`]);
+  });
+  it('bağlı istasyonun grubunu kullanır; döngü ve kendine bağlamayı reddeder', () => {
+    const d = fixture();
+    const A = createItem('duz', 0, 0, { subOpId: 'b2' });
+    const B = createItem('ov', 2, 0);
+    const r = linkStations(d, [A, B], A.id, B.id);
+    const nb = r.subOps.find(s => s.id === r.items[1].subOpId);
+    expect(nb.mainOpId).toBe('BEDEN');
+    const back = linkStations({ ...d, subOps: r.subOps, mainOps: r.mainOps }, r.items, r.items[1].id, A.id);
+    expect(back.ok).toBe(false);
+    expect(back.reason).toBe('cycle');
+    expect(linkStations(d, [A], A.id, A.id).ok).toBe(false);
+  });
+  it('bağı kaldırır; bağlı öğe için yeni operasyon açmaz', () => {
+    const d = fixture();
+    expect(unlinkOps(d, 'b1', 'b2').find(s => s.id === 'b1').nextIds).toEqual([]);
+    const A = createItem('duz', 0, 0, { subOpId: 'b1' });
+    expect(ensureStationOp(d, A).data).toBe(d);
+  });
+  it('oturma tarafı ↔ döndürme', () => {
+    expect(rotSide(0)).toBe('S');
+    expect(rotSide(90)).toBe('W');
+    expect(rotSide(-90)).toBe('E');
+    expect(SIDE_ROT.N).toBe(180);
   });
 });

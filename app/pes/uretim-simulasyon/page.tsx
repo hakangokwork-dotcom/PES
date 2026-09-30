@@ -6,5 +6,6 @@
 import VsimEmbed from '@/components/pes/VsimEmbed'
 
 export default function PesVsimPage() {
-  return <VsimEmbed storageKey="provsm_studio_merkez_v1" />
+  /* kayitKapsami="merkez": atölyelerin sunucudaki hat/ürün grubu kayıtlarını görür ve açar (yazamaz). */
+  return <VsimEmbed storageKey="provsm_studio_merkez_v1" kayitKapsami="merkez" />
 }

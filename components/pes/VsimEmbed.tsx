@@ -15,12 +15,13 @@ import ErrorBoundary from '@/components/vsim/components/ErrorBoundary'
    varsayılan `= {}` üzerinden boş obje diye çıkarıyor ve `storageKey`i reddediyor.
    Tipi components/vsim içine bir .d.ts ile koyamayız — o dizin türetilmiştir,
    `npm run sync:vsim` her çalıştığında silinip yeniden yazılır. */
-const AtolyePlatform = dynamic<{ storageKey?: string }>(() => import('@/components/vsim/UretimSimulasyon'), {
+const AtolyePlatform = dynamic<{ storageKey?: string; kayitKapsami?: 'atolye' | 'merkez' }>(() => import('@/components/vsim/UretimSimulasyon'), {
   ssr: false,
   loading: () => <div className="p-6 text-ink-faint">Simülasyon yükleniyor…</div>,
 })
 
-export default function VsimEmbed({ storageKey }: { storageKey: string }) {
+/* kayitKapsami: sunucu kayıtları (hat + ürün grubu) paneli. 'atolye' yazar, 'merkez' yalnız görür. */
+export default function VsimEmbed({ storageKey, kayitKapsami }: { storageKey: string; kayitKapsami?: 'atolye' | 'merkez' }) {
   return (
     /* Negatif kenar boşluğu, panel layout'larının p-6/lg:p-8 dolgusunu iptal eder —
        VSIM kendi üst bandı ve tam genişlikli tuvaliyle gelen bir uygulamadır. */
@@ -28,7 +29,7 @@ export default function VsimEmbed({ storageKey }: { storageKey: string }) {
       <ErrorBoundary>
         {/* `key`: anahtar değişince REMOUNT şart — yükleme effect'i yalnız mount'ta
             çalışır, prop güncellemek yeni anahtarı okutmaz. */}
-        <AtolyePlatform key={storageKey} storageKey={storageKey} />
+        <AtolyePlatform key={storageKey} storageKey={storageKey} kayitKapsami={kayitKapsami} />
       </ErrorBoundary>
     </div>
   )

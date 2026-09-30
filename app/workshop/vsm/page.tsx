@@ -19,5 +19,5 @@ function VsmContent() {
   /* Atölye seçilmemişken ortak "taslak" kovası — veri atölyelere karışmasın. */
   const storageKey = wid ? `provsm_studio_w${wid}_v1` : 'provsm_studio_taslak_v1'
 
-  return <VsimEmbed storageKey={storageKey} />
+  return <VsimEmbed storageKey={storageKey} kayitKapsami={wid ? 'atolye' : undefined} />
 }

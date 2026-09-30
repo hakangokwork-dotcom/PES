@@ -74,6 +74,8 @@ const UCLAR = [
   // listede zaten var, yalnız ana veri tablosu eksikti.
   'ref_operasyon_zamani',
   'ref_parca_sure',
+  // 048 — VSIM atölye kayıtları
+  'vsim_tesis', 'vsim_urun_grubu',
 ]
 
 let sizan = 0

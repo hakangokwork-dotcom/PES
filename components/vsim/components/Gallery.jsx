@@ -46,7 +46,7 @@ function TemplateCard({ tpl, onSelect, onDelete, onExport }) {
   );
 }
 
-export default function Gallery({ userTemplates, onSelect, onDeleteUser, onExportUser, onImportUser, onClose, hasWork }) {
+export default function Gallery({ userTemplates, onSelect, onDeleteUser, onExportUser, onImportUser, onClose, hasWork, onOpenKayit, kayitKapsami }) {
   const fileRef = useRef(null);
   return (
     <div className="min-h-screen bg-paper text-ink font-sans">
@@ -75,6 +75,19 @@ export default function Gallery({ userTemplates, onSelect, onDeleteUser, onExpor
       </header>
 
       <main className="max-w-[1100px] mx-auto px-6 py-8 space-y-8">
+        {onOpenKayit && (
+          <section className="rounded-lg border border-accent bg-accent-tint/40 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-bold text-ink">Atölye kayıtları</h2>
+              <p className="text-xs text-ink-soft">
+                {kayitKapsami === 'merkez'
+                  ? 'Atölyelerin kaydettiği hatları ve ürün gruplarını aç.'
+                  : 'Kayıtlı hatlarını ve ürün gruplarını aç — ya da PES referans MTM süreleriyle yeni bir ürün grubu başlat.'}
+              </p>
+            </div>
+            <button onClick={onOpenKayit} className="px-4 py-2 bg-accent hover:bg-accent-strong text-white rounded-lg text-sm font-medium">Kayıtları aç</button>
+          </section>
+        )}
         <section>
           <h2 className="text-[11px] font-semibold text-ink-soft uppercase tracking-[0.08em] mb-3">Hazır Şablonlar</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

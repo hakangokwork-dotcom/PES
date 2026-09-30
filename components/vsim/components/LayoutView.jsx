@@ -3,17 +3,19 @@ import {
   Plus, Copy, Trash2, RotateCw, RotateCcw, Wand2, Undo2, Redo2, Maximize, Pencil, GitCompare,
   AlignStartVertical, AlignStartHorizontal, AlignCenterHorizontal,
   AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter, AlertTriangle,
+  ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Workflow, X as XIcon,
 } from 'lucide-react';
 import {
   SYMBOLS, snap, createItem, symbolForSubOp, newLayout, layoutMetrics, autoPlace, layoutSummary,
   itemRect, itemFootprint, stationSlots, DEFAULT_FLOOR, insertSubOpAfter,
-  stationAt, mergeWorkerIntoStation,
+  stationAt, mergeWorkerIntoStation, linkStations, unlinkOps, SIDE_ROT, rotSide,
 } from '../engine/layout.js';
-import { uid } from '../engine/flow.js';
+import { uid, wouldCreateCycle } from '../engine/flow.js';
+import { deriveEdges } from '../engine/migrate.js';
 import { DEFAULT_TRANSPORT } from '../engine/logistics.js';
 import { LayoutDefs, LayoutItem, SymbolIcon, INK } from './LayoutSymbols.jsx';
 import IsoView from './IsoView.jsx';
-import { promptDialog, confirmDialog } from './dialogs/dialogService.js';
+import { promptDialog, confirmDialog, alertDialog } from './dialogs/dialogService.js';
 
 /* Yerleşim sekmesi — atölyeyi gerçek ölçüde kur, spagetti haritasını ve
    yerleşim karnesini gör, denemeleri kıyasla. Tüm hesap engine/layout.js'te;
@@ -57,6 +59,8 @@ export default function LayoutView({ data, onPatch }) {
   const [layers, setLayers] = useState({ routes: true, dims: false });
   const [compareOpen, setCompareOpen] = useState(false);
   const [viewMode, setViewMode] = useState('plan');      // 'plan' | 'iso'
+  // Akış bağla modu: kaynak istasyon seçilir, sonra hedef — A'nın işi B'ye gider
+  const [connect, setConnect] = useState({ on: false, from: null });
   const [allRoutesInInspector, setAllRoutesInInspector] = useState(false);
   const wrapRef = useRef(null);
   const isoWrapRef = useRef(null);
@@ -173,6 +177,7 @@ export default function LayoutView({ data, onPatch }) {
     if (e.button !== 0) return;
     e.stopPropagation();
     wrapRef.current?.focus({ preventScroll: true });
+    if (connect.on) { onConnectClick(it); return; }
     let sel = selection;
     if (e.shiftKey) sel = selSet.has(it.id) ? selection.filter(x => x !== it.id) : [...selection, it.id];
     else if (!selSet.has(it.id)) sel = [it.id];
@@ -339,7 +344,7 @@ export default function LayoutView({ data, onPatch }) {
     if (mod && e.key.toLowerCase() === 'a') { e.preventDefault(); setSelection(items.map(i => i.id)); return; }
     if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeSelected(); return; }
     if (e.key === 'r' || e.key === 'R') { rotateSelected(e.shiftKey ? -90 : 90); return; }
-    if (e.key === 'Escape') { setSelection([]); return; }
+    if (e.key === 'Escape') { if (connect.on) { setConnect({ on: false, from: null }); return; } setSelection([]); return; }
     const step = e.shiftKey ? 0.5 : 0.1;
     const arrows = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
     if (arrows[e.key]) { e.preventDefault(); nudge(...arrows[e.key]); }
@@ -378,6 +383,45 @@ export default function LayoutView({ data, onPatch }) {
   const setTransport = (patch) => active && onPatch(d => ({
     layouts: (d.layouts || []).map(l => (l.id === active.id ? { ...l, transport: { ...DEFAULT_TRANSPORT, ...(l.transport || {}), ...patch } } : l)),
   }));
+  /* --- zeminden akış kurma --- */
+  const isStation = (it) => ['machine', 'table'].includes(SYMBOLS[it?.type]?.kind) && !it?.isSpare;
+  const doLink = (fromId, toId) => {
+    const r = linkStations(data, items, fromId, toId);
+    if (!r.ok) {
+      if (r.reason === 'cycle') alertDialog({ message: 'Bu bağ akışta döngü oluşturur (iş geri dönüp kendine gelir). Bağlanmadı.', danger: true });
+      return false;
+    }
+    onPatch(d => ({
+      mainOps: r.mainOps, subOps: r.subOps,
+      edges: deriveEdges({ mainOps: r.mainOps, edges: d.edges || [] }),
+      layouts: (d.layouts || []).map(l => (l.id === activeId ? { ...l, items: r.items } : l)),
+    }));
+    return true;
+  };
+  const onConnectClick = (it) => {
+    if (!isStation(it)) return;
+    if (!connect.from) { setConnect({ on: true, from: it.id }); setSelection([it.id]); return; }
+    if (connect.from === it.id) { setConnect({ on: true, from: null }); return; }
+    // bağla ve zincire devam et: hedef, bir sonraki bağın kaynağı olur
+    if (doLink(connect.from, it.id)) { setConnect({ on: true, from: it.id }); setSelection([it.id]); }
+  };
+  const editOp = (subOpId, patch) => onPatch(d => ({ subOps: (d.subOps || []).map(x => (x.id === subOpId ? { ...x, ...patch } : x)) }));
+  const linkOps = (fromSub, toSub) => {
+    const nodes = (data.subOps || []).map(x => ({ id: x.id, nextIds: x.nextIds || [] }));
+    if (fromSub === toSub || wouldCreateCycle(nodes, fromSub, toSub)) {
+      alertDialog({ message: 'Bu bağ akışta döngü oluşturur. Bağlanmadı.', danger: true });
+      return;
+    }
+    onPatch(d => ({ subOps: (d.subOps || []).map(x => (x.id === fromSub && !(x.nextIds || []).includes(toSub) ? { ...x, nextIds: [...(x.nextIds || []), toSub] } : x)) }));
+  };
+  const unlink = (fromSub, toSub) => onPatch(d => ({ subOps: unlinkOps(d, fromSub, toSub) }));
+  // Operatörün oturduğu taraf: seçili makine/masaları merkezleri sabit kalarak döndür
+  const setSide = (side) => {
+    const target = SIDE_ROT[side];
+    commit(its => its.map(i => (selSet.has(i.id) && ['machine', 'table'].includes(SYMBOLS[i.type]?.kind)
+      ? rotateItem(i, target - (i.rot || 0)) : i)));
+  };
+
   /* --- süreçle ilgili hızlı işlemler (atölye sahibi için) --- */
   const assignOperator = (subOpId, operatorId) => onPatch(d => ({
     subOps: (d.subOps || []).map(s => (s.id === subOpId ? { ...s, operatorId: operatorId || null } : s)),
@@ -489,6 +533,11 @@ export default function LayoutView({ data, onPatch }) {
               className={`h-8 px-3 rounded-md text-xs font-medium border ${viewMode === m ? 'bg-accent-tint text-accent-ink border-accent' : 'bg-surface text-ink-soft border-line hover:bg-surface-2'}`}>{ad}</button>
           ))}
         </div>
+        <button className={`${btn} ${connect.on ? 'bg-accent text-white border-accent hover:bg-accent-strong' : ''}`}
+          onClick={() => { setConnect(c => ({ on: !c.on, from: null })); if (!layers.routes) setLayers(l => ({ ...l, routes: true })); }}
+          title="Akış bağla: önce işi veren istasyona, sonra işi alan istasyona tıkla. Zincir halinde devam eder. Esc ile bitir.">
+          <Workflow className="w-4 h-4" /> {connect.on ? 'Bağlamayı bitir' : 'Akış bağla'}
+        </button>
         <label className="flex items-center gap-1.5 text-xs text-ink min-h-9"><input type="checkbox" checked={layers.routes} onChange={e => setLayers(l => ({ ...l, routes: e.target.checked }))} />Spagetti</label>
         <label className="flex items-center gap-1.5 text-xs text-ink min-h-9"><input type="checkbox" checked={layers.dims} onChange={e => setLayers(l => ({ ...l, dims: e.target.checked }))} />Mesafeler</label>
         <button className={iconBtn} onClick={undo} disabled={!hist.current.past.length} aria-label="Geri al" title="Geri al (Ctrl+Z)"><Undo2 className="w-4 h-4" /></button>
@@ -607,6 +656,8 @@ export default function LayoutView({ data, onPatch }) {
                   setDrag(null);
                 },
                 onDrop: (payload, x, y) => addAt(payload, x, y),
+                connectMode: connect.on,
+                onConnectClick,
               }} />
           </div>
         )}
@@ -703,6 +754,13 @@ export default function LayoutView({ data, onPatch }) {
               <div className="flex justify-between text-[10px] font-mono text-ink-soft" style={{ width: scale * 2 }}><span>0</span><span>1</span><span>2 m</span></div>
             </div>
           </div>
+          {connect.on && (
+            <div className="absolute left-1/2 -translate-x-1/2 top-3 px-3 py-1.5 rounded-lg bg-accent text-white text-xs font-semibold shadow pointer-events-none">
+              {connect.from
+                ? `"${stationInfo(items.find(i => i.id === connect.from))?.label || SYMBOLS[items.find(i => i.id === connect.from)?.type]?.name || ''}" işini kime veriyor? İşi alan istasyona tıkla · Esc bitir`
+                : 'İşi VEREN istasyona tıkla · Esc bitir'}
+            </div>
+          )}
           {drag && (
             <div className="absolute right-3 bottom-3 px-2 py-1 rounded bg-ink text-white text-[11px] font-mono pointer-events-none">
               Δ {fmt(drag.dx, 2)} · {fmt(drag.dy, 2)} m
@@ -720,6 +778,7 @@ export default function LayoutView({ data, onPatch }) {
               onPatch={(p) => patchItem(single.id, p)}
               onAssignOperator={assignOperator} onAddOperator={addOperator} onNewOperator={newOperator}
               onCreateOp={(args) => createOpForItem(single.id, args)}
+              onSetSide={setSide} onEditOp={editOp} onLinkOps={linkOps} onUnlink={unlink}
               onRotate={rotateSelected} onDuplicate={duplicateSelected} onDelete={removeSelected}
             />
           )}
@@ -737,6 +796,7 @@ export default function LayoutView({ data, onPatch }) {
                 <button className={iconBtn} onClick={removeSelected} aria-label="Sil" title="Sil (Delete)"><Trash2 className="w-4 h-4" /></button>
               </div>
               <button className={btn} onClick={copyReliability} title="Arıza/bakım ayarı olan ilk seçili makinenin değerleri diğer seçili makinelere yazılır">Arıza/bakım ayarını seçilenlere kopyala</button>
+              <SideButtons rot={null} onSet={setSide} label="Seçilenlerde operatör hangi tarafta?" />
             </section>
           )}
 
@@ -847,7 +907,7 @@ function Tile({ label, value, hint, tone }) {
   );
 }
 
-function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, mainById, allRoutes, setAllRoutes, onPatch, onRotate, onDuplicate, onDelete, onAssignOperator, onAddOperator, onNewOperator, onCreateOp }) {
+function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, mainById, allRoutes, setAllRoutes, onPatch, onRotate, onDuplicate, onDelete, onAssignOperator, onAddOperator, onNewOperator, onCreateOp, onSetSide, onEditOp, onLinkOps, onUnlink }) {
   const sym = SYMBOLS[it.type] || SYMBOLS.duz;
   const s = it.subOpId ? subById.get(it.subOpId) : null;
   const canBind = sym.kind === 'machine' || sym.kind === 'table';
@@ -905,13 +965,9 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         </label>
       )}
 
-      {s && (
-        <div className="rounded-lg bg-surface-2/50 px-3 py-2 text-xs flex flex-col gap-1">
-          <Row k="Bölüm" v={mainById.get(slots.find(x => x.subOpId === s.id)?.groupId)?.name || '—'} />
-          <Row k="Çevrim" v={`${s.cycleTime} sn`} mono />
-          <Row k="Makine" v={mcById.get(s.machineId)?.name || (sym.kind === 'table' ? 'makinesiz (masa)' : '—')} />
-        </div>
-      )}
+      {canBind && !it.isSpare && <SideButtons rot={it.rot} onSet={onSetSide} />}
+      {s && <OpFields s={s} data={data} input={input} mainById={mainById} slots={slots} items={items}
+        onEditOp={onEditOp} onLinkOps={onLinkOps} onUnlink={onUnlink} machineName={mcById.get(s.machineId)?.name || (sym.kind === 'table' ? 'makinesiz (masa)' : '—')} />}
       {canBind && !it.isSpare && (
         <StaffFields it={it} s={s} data={data} input={input} onPatch={onPatch}
           onAssignOperator={onAssignOperator} onAddOperator={onAddOperator} onNewOperator={onNewOperator} />
@@ -971,6 +1027,79 @@ function Inspector({ it, data, slots, metrics, items, subById, opById, mcById, m
         <button className="h-9 px-3 rounded-lg border border-line bg-surface hover:bg-danger-tint text-danger text-xs flex items-center gap-1.5" onClick={onDelete}><Trash2 className="w-4 h-4" /> Sil</button>
       </div>
     </section>
+  );
+}
+
+/* Operatörün oturduğu taraf — dört yön. Makine merkezi sabit kalarak döner. */
+function SideButtons({ rot, onSet, label = 'Operatör hangi tarafta oturuyor?' }) {
+  const cur = rot == null ? null : rotSide(rot);
+  const b = (side, Icon, ad) => (
+    <button key={side} onClick={() => onSet(side)} aria-label={ad} title={ad}
+      className={`h-9 w-9 rounded-lg border flex items-center justify-center ${cur === side ? 'bg-accent text-white border-accent' : 'border-line bg-surface hover:bg-surface-2 text-ink'}`}>
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[11px] text-ink-soft">{label}</span>
+      <div className="flex gap-1.5">
+        {b('N', ArrowUp, 'Üstte')}{b('S', ArrowDown, 'Altta')}{b('W', ArrowLeft, 'Solda')}{b('E', ArrowRight, 'Sağda')}
+      </div>
+    </div>
+  );
+}
+
+/* Bağlı istasyonun operasyonu: ad ve süre düzenlenir; önceki/sonraki işler
+   (akış bağları) buradan eklenir ve kaldırılır — değişiklik sürece yazılır. */
+function OpFields({ s, data, input, mainById, slots, items, onEditOp, onLinkOps, onUnlink, machineName }) {
+  const subs = (data.subOps || []).filter(x => x.kind !== 'input' && x.kind !== 'output');
+  const byId = new Map(subs.map(x => [x.id, x]));
+  const onFloor = new Set(items.filter(i => i.subOpId).map(i => i.subOpId));
+  const nexts = (s.nextIds || []).map(id => byId.get(id)).filter(Boolean);
+  const prevs = subs.filter(x => (x.nextIds || []).includes(s.id));
+  const cands = subs.filter(x => x.id !== s.id && !(s.nextIds || []).includes(x.id))
+    .sort((a, b) => (onFloor.has(b.id) ? 1 : 0) - (onFloor.has(a.id) ? 1 : 0));
+  const chip = (x, onX, ad) => (
+    <span key={x.id} className="inline-flex items-center gap-1 h-7 pl-2 pr-1 rounded-full bg-surface-2 text-xs text-ink">
+      {x.name || x.id}
+      <button onClick={onX} aria-label={ad} title={ad} className="h-5 w-5 rounded-full hover:bg-line flex items-center justify-center"><XIcon className="w-3 h-3" /></button>
+    </span>
+  );
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2">
+      <div className="text-[11px] font-bold tracking-wider text-ink-soft">OPERASYON</div>
+      <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Adı
+        <input className={input} value={s.name || ''} onChange={e => onEditOp(s.id, { name: e.target.value })} />
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="flex flex-col gap-1 text-[11px] text-ink-soft">Çevrim süresi (sn)
+          <input type="number" min={1} step={0.5} className={`${input} font-mono`} value={s.cycleTime ?? ''}
+            onChange={e => { const v = Number(e.target.value); if (v > 0) onEditOp(s.id, { cycleTime: v }); }} />
+        </label>
+        <div className="flex flex-col gap-1 text-[11px] text-ink-soft">Bölüm
+          <span className="h-9 flex items-center text-sm text-ink truncate">{mainById.get(slots.find(x => x.subOpId === s.id)?.groupId)?.name || '—'}</span>
+        </div>
+      </div>
+      <div className="text-[11px] text-ink-soft">Makine: <span className="text-ink">{machineName}</span></div>
+
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] text-ink-soft">İşi aldığı yer (önceki)</span>
+        <div className="flex flex-wrap gap-1">
+          {prevs.length ? prevs.map(x => chip(x, () => onUnlink(x.id, s.id), `${x.name} bağını kaldır`)) : <span className="text-xs text-ink-soft">Başlangıç — işi kesimden/girişten alır</span>}
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] text-ink-soft">İşi verdiği yer (sonraki)</span>
+        <div className="flex flex-wrap gap-1">
+          {nexts.length ? nexts.map(x => chip(x, () => onUnlink(s.id, x.id), `${x.name} bağını kaldır`)) : <span className="text-xs text-ink-soft">Son — iş bölüm çıkışına gider</span>}
+        </div>
+        <select className={input} value="" aria-label="Sonraki iş ekle" onChange={e => { if (e.target.value) onLinkOps(s.id, e.target.value); }}>
+          <option value="">+ İşi şuna ver…</option>
+          {cands.map(x => <option key={x.id} value={x.id}>{x.name || x.id}{onFloor.has(x.id) ? '' : ' (zeminde değil)'}</option>)}
+        </select>
+      </div>
+      <p className="text-[10px] text-ink-soft leading-snug">Zeminde bağlamak için üstteki <b>Akış bağla</b>: işi veren istasyona, sonra işi alana tıkla.</p>
+    </div>
   );
 }
 

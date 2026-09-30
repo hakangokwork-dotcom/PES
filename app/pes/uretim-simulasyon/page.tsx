@@ -1,11 +1,8 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-/* Merkez panelinde VSIM — atölyeden bağımsız, marka tarafının kendi süreç tasarımı
-   için tek bir çalışma alanı (atölye seçimi yok, dolayısıyla wid kapsamı da yok). */
-
-import VsimEmbed from '@/components/pes/VsimEmbed'
-
+/* VSM / simülasyon PES'ten çıkarıldı (2026-09-30) — ayrı ürün ProVSM (provsm.vercel.app).
+   Rota eski yer imleri için duruyor. Geri eklemek için: <VsimEmbed storageKey=… kayitKapsami="merkez" />
+   (components/pes/VsimEmbed.tsx; çekirdek kopyası, API ve 048 tabloları yerinde). */
 export default function PesVsimPage() {
-  /* kayitKapsami="merkez": atölyelerin sunucudaki hat/ürün grubu kayıtlarını görür ve açar (yazamaz). */
-  return <VsimEmbed storageKey="provsm_studio_merkez_v1" kayitKapsami="merkez" />
+  redirect('/pes')
 }

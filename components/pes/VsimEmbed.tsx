@@ -1,7 +1,7 @@
 'use client'
 
-/* VSIM (Değer Akışı Simülasyonu) gömme sarmalayıcısı — hem atölye panelinde
-   (/workshop/vsm) hem merkez panelinde (/pes/uretim-simulasyon) kullanılır.
+/* VSIM (Değer Akışı Simülasyonu) gömme sarmalayıcısı. 2026-09-30 itibarıyla HİÇBİR sayfada kullanılmıyor —
+   simülasyon ayrı ürün ProVSM oldu, panellerden kaldırıldı. Geri eklemek için bkz. app/workshop/vsm/page.tsx.
    Modülün kaynağı ProVSM reposudur (WORK/ProVSM/packages/vsim-core); components/vsim TÜRETİLMİŞTİR,
    `npm run sync:vsim` ile güncellenir. Bu dosya senkrondan etkilenmez. */
 

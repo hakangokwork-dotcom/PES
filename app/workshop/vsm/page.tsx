@@ -1,23 +1,10 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
-/* VSM Analiz — atölye panelinde VSIM modülü. Akış atölye başına saklanır. */
-
-import { Suspense } from 'react'
-import VsimEmbed from '@/components/pes/VsimEmbed'
-
-export default function VsmPage() {
-  return (
-    <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}>
-      <VsmContent />
-    </Suspense>
-  )
-}
-
-function VsmContent() {
-  const wid = useAktifAtolyeId()
-  /* Atölye seçilmemişken ortak "taslak" kovası — veri atölyelere karışmasın. */
-  const storageKey = wid ? `provsm_studio_w${wid}_v1` : 'provsm_studio_taslak_v1'
-
-  return <VsimEmbed storageKey={storageKey} kayitKapsami={wid ? 'atolye' : undefined} />
+/* VSM Analiz PES'ten çıkarıldı (2026-09-30) — ayrı ürün ProVSM (provsm.vercel.app).
+   Rota eski yer imleri için duruyor; atölye seçimi (wid) korunarak panele döner.
+   Geri eklemek için: <VsimEmbed storageKey={`provsm_studio_w${wid}_v1`} kayitKapsami="atolye" />
+   (components/pes/VsimEmbed.tsx; çekirdek kopyası, API ve 048 tabloları yerinde). */
+export default async function VsmPage({ searchParams }: { searchParams: Promise<{ wid?: string }> }) {
+  const { wid } = await searchParams
+  redirect(wid ? `/workshop?wid=${encodeURIComponent(wid)}` : '/workshop')
 }

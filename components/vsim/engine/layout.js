@@ -298,20 +298,31 @@ export function layoutMetrics(data, layout) {
     const x1 = Math.max(...fps.map(f => f.x + f.w)), y1 = Math.max(...fps.map(f => f.y + f.h));
     usedArea = r2((x1 - x0) * (y1 - y0));
   }
+  /* Kişi sayımı: her makine/masa başında bir kişi vardır (yedek hariç). Atanmış
+     çalışan kimliğiyle sayılır — aynı kişi iki istasyondaysa (meydancı) bir kez.
+     Atanmamış istasyon kendi kişisidir. Yardımcılar ve serbest çalışanlar eklenir. */
   const operatorIds = new Set();
   const opItems = new Map();
+  const headKeys = new Set();
+  let helperCount = 0;
   for (const it of items) {
+    const k = SYMBOLS[it.type]?.kind;
+    if ((k !== 'machine' && k !== 'table') || it.isSpare) continue;
     const s = it.subOpId && subById.get(it.subOpId);
-    if (s?.operatorId) {
-      operatorIds.add(s.operatorId);
-      if (!opItems.has(s.operatorId)) opItems.set(s.operatorId, []);
-      opItems.get(s.operatorId).push(it.id);
-    }
+    const opId = s?.operatorId || it.operatorId || null;
+    if (opId) {
+      operatorIds.add(opId);
+      if (!opItems.has(opId)) opItems.set(opId, []);
+      opItems.get(opId).push(it.id);
+      headKeys.add(`o:${opId}`);
+    } else headKeys.add(`i:${it.id}`);
+    for (const h of it.helpers || []) { if (h.operatorId) headKeys.add(`o:${h.operatorId}`); else helperCount++; }
   }
   // Paylaşımlı operatör (meydancı): aynı kişi FARKLI operasyonlarda. Aynı operasyonun
   // paralel istasyonları (stationCount>1) meydancı sayılmaz.
   const itemSub = new Map(items.map(i => [i.id, i.subOpId]));
   const freeWorkers = items.filter(i => SYMBOLS[i.type]?.kind === 'person').length;
+  const headcount = headKeys.size + helperCount + freeWorkers;
   const shared = [...opItems].filter(([, ids]) => new Set(ids.map(id => itemSub.get(id))).size > 1).map(([operatorId, itemIds]) => ({ operatorId, itemIds }));
   const bufferCapacity = buffers.reduce((a, b) => a + (Number(b.capacity) || 0), 0);
 
@@ -357,8 +368,8 @@ export function layoutMetrics(data, layout) {
 
   return {
     routes, perGroup, totalDist, crossings, merges, usedArea,
-    floorArea: r2(floor.w * floor.h), persons: operatorIds.size + freeWorkers, freeWorkers,
-    areaPerPerson: operatorIds.size + freeWorkers ? r2(usedArea / (operatorIds.size + freeWorkers)) : null,
+    floorArea: r2(floor.w * floor.h), persons: headcount, freeWorkers,
+    areaPerPerson: headcount ? r2(usedArea / headcount) : null,
     shared, bufferCapacity, warnings, unplaced, slotsTotal: slots.length,
   };
 }
@@ -440,6 +451,27 @@ export function autoPlace(data, layout, opts = {}) {
     rowH = Math.max(rowH, b.h);
   }
   return out;
+}
+
+/* ---------- istasyondaki kişiler ---------- */
+/* Noktanın üstünde durduğu makine/masa (ayak izi, yedek hariç). */
+export function stationAt(items, point, excludeId) {
+  const hits = (items || []).filter(it => {
+    const k = SYMBOLS[it.type]?.kind;
+    if ((k !== 'machine' && k !== 'table') || it.isSpare || it.id === excludeId) return false;
+    const f = itemFootprint(it);
+    return point.x >= f.x && point.x <= f.x + f.w && point.y >= f.y && point.y <= f.y + f.h;
+  });
+  return hits[0] || null;
+}
+/* Serbest çalışanı istasyona yardımcı olarak kat: çalışan öğesi silinir,
+   istasyonun helpers listesine eklenir (adı ve atanmış kişisi korunur). */
+export function mergeWorkerIntoStation(items, workerId, stationId) {
+  const w = (items || []).find(i => i.id === workerId);
+  if (!w) return items;
+  return items.filter(i => i.id !== workerId).map(i => (i.id === stationId
+    ? { ...i, helpers: [...(i.helpers || []), { id: `h_${uid()}`, name: w.name || '', operatorId: w.operatorId || null }] }
+    : i));
 }
 
 /* ---------- yerleşimden süreç düzenleme (atölye sahibi kolaylığı) ---------- */

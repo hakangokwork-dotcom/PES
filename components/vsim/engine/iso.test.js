@@ -37,6 +37,11 @@ describe('çizilebilirler', () => {
     expect(m.parts.some(p => p.type === 'person')).toBe(true);
     const spare = itemDrawables(createItem('duz', 2, 2, { isSpare: true }), floor, 0);
     expect(spare.parts.some(p => p.type === 'person')).toBe(false);
+    // bağsız makine de kişiyle gelir; yardımcılar ek figürdür
+    const free = itemDrawables(createItem('duz', 2, 2), floor, 0);
+    expect(free.parts.filter(p => p.type === 'person')).toHaveLength(1);
+    const two = itemDrawables(createItem('duz', 2, 2, { helpers: [{ id: 'h' }] }), floor, 0);
+    expect(two.parts.filter(p => p.type === 'person')).toHaveLength(2);
   });
   it('operatör gövdenin operatör tarafında durur', () => {
     const m = itemDrawables(createItem('duz', 2, 2, { subOpId: 's' }), floor, 0);   // rot 0 → operatör altta (+y)

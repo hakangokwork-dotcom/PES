@@ -168,8 +168,18 @@ export function LayoutItem({ item, station, selected, dim, onPointerDown }) {
       {/* görünmez tutma alanı — operatör alanı dahil */}
       <rect x={0} y={0} width={w} height={h + (withOp ? s.op : 0)} fill="transparent" />
       <Body type={item.type} w={w} h={h} state={station?.state} />
-      {withOp && (item.subOpId || s.kind === 'table') && (
-        <Operator w={w} h={h} seat={s.seat} color={station?.shared ? '#7A4FB0' : '#2F6FB5'} ghost={item.subOpId && !station?.hasOperator} />
+      {/* her makine/masa başında bir kişi (yedek hariç): atanmışsa mavi, değilse gri;
+          meydancı mor; yardımcılar (ikinci kişi) yanında ayakta, yeşil */}
+      {withOp && !item.isSpare && (
+        <g>
+          <Operator w={w} h={h} seat={s.seat}
+            color={station?.shared ? '#7A4FB0' : (station?.hasOperator || item.operatorId) ? '#2F6FB5' : '#9CA3AF'} />
+          {(item.helpers || []).map((hp, i) => (
+            <g key={hp.id || i} transform={`translate(${0.62 * (i + 1)} 0)`}>
+              <Operator w={w} h={h} seat={false} color="#2A9D8F" />
+            </g>
+          ))}
+        </g>
       )}
       {label && (
         <g transform={`translate(${w / 2} ${h / 2}) rotate(${upright})`}>

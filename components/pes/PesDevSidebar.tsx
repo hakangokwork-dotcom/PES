@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Inbox, Factory, ShieldCheck, CalendarDays, PackagePlus, Radar,
   Boxes, CircleCheck, CirclePause, RefreshCw, Users, Wallet, Upload,
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
-  Shapes, Workflow, Waypoints, Calculator,
+  Shapes, Workflow, Calculator,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
   ArrowRight, Coins, Layers, Ruler, Tags, FunctionSquare, ClipboardPen, LayoutGrid, Zap,
 } from 'lucide-react'
@@ -74,7 +74,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Modeller',         href: '/pes/models',            icon: Shapes },
       { label: 'Süreçler',         href: '/pes/processes',         icon: Workflow },
-      { label: 'VSM / Simülasyon', href: '/pes/uretim-simulasyon', icon: Waypoints },
       { label: 'Eder Maliyet (eski)', href: '/pes/eder-maliyet',    icon: Calculator },
     ],
   },

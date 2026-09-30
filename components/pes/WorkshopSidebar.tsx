@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   LayoutDashboard, Factory, ClipboardList, CalendarDays,
-  Boxes, Shapes, Droplets, Gauge, Waypoints, ClipboardCheck,
+  Boxes, Shapes, Droplets, Gauge, ClipboardCheck,
   CircleCheck, CirclePause, Lightbulb,
   Users, Wallet, Calculator,
   ChartColumn, Upload, Search, ArrowLeft, MapPin, Coins, Award, CalendarCheck,
@@ -46,7 +46,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Modeller',     href: '/workshop/models',     icon: Shapes },
       { label: 'Yıkama / UKP', href: '/workshop/yikama-ukp', icon: Droplets },
       { label: 'Yetenek',      href: '/workshop/yetenek',    icon: Gauge },
-      { label: 'VSM Analiz',   href: '/workshop/vsm',        icon: Waypoints },
     ],
   },
   {

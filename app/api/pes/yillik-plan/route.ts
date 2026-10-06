@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { atolyeyseReddet } from './_yetki'
 
 /** Tahmin başlığı oluştur / güncelle / onayla. */
 
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
+  const red = atolyeyseReddet(tenant)
+  if (red) return red
   const b = await req.json()
   const yil = Number(b.yil)
   const departman = String(b.departman ?? '').trim()
@@ -24,7 +27,9 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   return NextResponse.json({ id: row.id })
 })
 
-export const PATCH = withTenantRoute(async (req, { sql }) => {
+export const PATCH = withTenantRoute(async (req, { sql, tenant }) => {
+  const red = atolyeyseReddet(tenant)
+  if (red) return red
   const b = await req.json()
   const id = Number(b.id)
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'id zorunlu' }, { status: 400 })
@@ -47,7 +52,9 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
   return NextResponse.json({ id: row.id })
 })
 
-export const DELETE = withTenantRoute(async (req, { sql }) => {
+export const DELETE = withTenantRoute(async (req, { sql, tenant }) => {
+  const red = atolyeyseReddet(tenant)
+  if (red) return red
   const id = Number(new URL(req.url).searchParams.get('id'))
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'id zorunlu' }, { status: 400 })
   const bagli = await sql`

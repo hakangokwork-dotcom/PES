@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type postgres from 'postgres'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { atolyeyseReddet } from '../_yetki'
 import { kodlariDogrula, kunyeyiAyikla } from '@/lib/pes/kunye'
 import { esitProfil, profilGecerli } from '@/lib/pes/yillik-plan'
 import { referansSamDk } from '@/lib/pes/yillik-plan-veri'
@@ -26,7 +27,22 @@ async function samCoz(
   return { sam: null, kaynak: null }
 }
 
+/** Boş → null; geçerli pozitif tam sayı → sayı; aksi → 'gecersiz'. */
+function urunTipiOku(v: unknown): number | null | 'gecersiz' {
+  if (v === undefined || v === null || v === '') return null
+  const n = Number(v)
+  return Number.isInteger(n) && n > 0 ? n : 'gecersiz'
+}
+
+/** FK denetimi RLS'i atlar; ürün tipi var mı, açık sorguyla bakılır. */
+async function urunTipiVarMi(sql: postgres.TransactionSql, id: number): Promise<boolean> {
+  const r = await sql`SELECT 1 FROM ref_urun_tipi WHERE id = ${id}`
+  return r.length > 0
+}
+
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
+  const red = atolyeyseReddet(tenant)
+  if (red) return red
   const b = await req.json()
   const tahminId = Number(b.tahminId)
   const ad = String(b.ad ?? '').trim()
@@ -38,11 +54,16 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   if (!profilGecerli(profil)) {
     return NextResponse.json({ error: 'Aylık profil 12 değer ve toplam 100 olmalı' }, { status: 400 })
   }
+  const [tahmin] = await sql`SELECT 1 FROM talep_tahmini WHERE id = ${tahminId}`
+  if (!tahmin) return NextResponse.json({ error: 'Tahmin bulunamadı' }, { status: 404 })
   const kunye = kunyeyiAyikla(b)
   const { hatalar } = await kodlariDogrula(sql, kunye)
   if (hatalar.length) return NextResponse.json({ error: hatalar.join('; ') }, { status: 400 })
 
-  const urunTipiId = b.urunTipiId ? Number(b.urunTipiId) : null
+  const urunTipiId = urunTipiOku(b.urunTipiId)
+  if (urunTipiId === 'gecersiz' || (urunTipiId !== null && !(await urunTipiVarMi(sql, urunTipiId)))) {
+    return NextResponse.json({ error: 'urunTipiId geçersiz' }, { status: 400 })
+  }
   const sam = await samCoz(sql, b.samDk, urunTipiId)
   if ('hata' in sam) return NextResponse.json({ error: sam.hata }, { status: 400 })
 
@@ -62,7 +83,9 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   return NextResponse.json({ id: row.id })
 })
 
-export const PATCH = withTenantRoute(async (req, { sql }) => {
+export const PATCH = withTenantRoute(async (req, { sql, tenant }) => {
+  const red = atolyeyseReddet(tenant)
+  if (red) return red
   const b = await req.json()
   const id = Number(b.id)
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'id zorunlu' }, { status: 400 })
@@ -85,8 +108,11 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
 
   /* Ürün tipi ya da SAM değiştiyse SAM yeniden çözülür; samDk: null elle
      ezmeyi kaldırıp referansa döner. */
-  const urunTipiId = b.urunTipiId === undefined ? mevcut.urun_tipi_id
-    : (b.urunTipiId ? Number(b.urunTipiId) : null)
+  const girilen = b.urunTipiId === undefined ? mevcut.urun_tipi_id : urunTipiOku(b.urunTipiId)
+  if (girilen === 'gecersiz' || (b.urunTipiId !== undefined && girilen !== null && !(await urunTipiVarMi(sql, girilen)))) {
+    return NextResponse.json({ error: 'urunTipiId geçersiz' }, { status: 400 })
+  }
+  const urunTipiId = girilen
   let sam = { sam: mevcut.sam_dk, kaynak: mevcut.sam_kaynak }
   if (b.samDk !== undefined || b.urunTipiId !== undefined) {
     const girdi = b.samDk !== undefined ? b.samDk
@@ -117,7 +143,9 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
   return NextResponse.json({ id })
 })
 
-export const DELETE = withTenantRoute(async (req, { sql }) => {
+export const DELETE = withTenantRoute(async (req, { sql, tenant }) => {
+  const red = atolyeyseReddet(tenant)
+  if (red) return red
   const id = Number(new URL(req.url).searchParams.get('id'))
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'id zorunlu' }, { status: 400 })
   const [b] = await sql`SELECT count(*)::int AS n FROM work_order WHERE tahmin_kalem_id = ${id}` as unknown as Array<{ n: number }>

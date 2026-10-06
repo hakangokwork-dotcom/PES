@@ -96,7 +96,8 @@ export default async function YillikPlanSayfasi({
   }))
 
   const secili = kalemler.find((k) => k.id === veri.kalemId) ?? null
-  const ihtiyac = secili ? aylikAdet(secili.adet, secili.profil) : null
+  /* Bağlı PO'lar tüketilen kadar ihtiyacı küçültür (tahsisAylikYuk ile aynı oran). */
+  const ihtiyac = secili ? aylikAdet(Math.max(0, secili.adet - secili.tuketilen), secili.profil) : null
 
   return (
     <YillikPlan

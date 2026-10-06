@@ -1,6 +1,7 @@
 'use client'
 import { useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { profilNormalle, hucreAdedi } from '@/lib/pes/yillik-plan'
 
 export type TahminOzet = { id: number; departman: string; ad: string; kumas: string | null; durum: string; toplam: number }
 export type KalemDetay = {
@@ -34,6 +35,40 @@ export type IzgaraSatiri = {
 const AYLAR = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara']
 const tr = new Intl.NumberFormat('tr-TR')
 
+function yukMetni(y: number | null): string {
+  if (y === null) return '—'
+  if (y > 0 && y < 1) return '<%1'
+  return `%${Math.round(y)}`
+}
+
+/** Profil girdileri kontrollü; kalem/profil değişince `key` ile sıfırlanır. */
+function ProfilFormu({ profil, bekliyor, kaydet, btnSinif, inp }: {
+  profil: number[]; bekliyor: boolean; btnSinif: string; inp: string
+  kaydet: (profil: number[]) => void
+}) {
+  const [v, setV] = useState<string[]>(() => profil.map((x) => String(Number(x.toFixed(2)))))
+  const sayilar = v.map((x) => Number(x.replace(',', '.')) || 0)
+  const toplam = Math.round(sayilar.reduce((a, b) => a + b, 0) * 100) / 100
+  const tamam = Math.abs(toplam - 100) < 0.05
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); kaydet(sayilar) }} className="flex flex-wrap items-end gap-1">
+      {AYLAR.map((a, i) => (
+        <label key={a} className="text-[10px] text-slate-500 w-14">
+          {a} %
+          <input type="number" step="0.01" min={0} value={v[i]} className={inp}
+            onChange={(e) => setV((o) => o.map((x, j) => (j === i ? e.target.value : x)))} />
+        </label>
+      ))}
+      <span className={`text-xs ml-2 ${tamam ? 'text-emerald-700' : 'text-red-600'}`}>
+        Toplam: {toplam.toLocaleString('tr-TR')}
+      </span>
+      <button type="button" className="text-xs underline"
+        onClick={() => setV(profilNormalle(sayilar).map(String))}>Normalize et</button>
+      <button className={btnSinif} disabled={bekliyor}>Profili kaydet</button>
+    </form>
+  )
+}
+
 function renk(y: number | null): string {
   if (y === null) return 'bg-slate-100 text-slate-400'
   if (y > 100) return 'bg-red-100 text-red-700'
@@ -54,8 +89,12 @@ export default function YillikPlan(p: {
   const [bilgi, setBilgi] = useState<string | null>(null)
 
   const git = (degis: Record<string, string | null>) => {
+    setBilgi(null)
     const q = new URLSearchParams(params.toString())
-    for (const [k, v] of Object.entries(degis)) v === null ? q.delete(k) : q.set(k, v)
+    for (const [k, v] of Object.entries(degis)) {
+      if (v === null) q.delete(k)
+      else q.set(k, v)
+    }
     router.push(`/pes/yillik-plan?${q.toString()}`)
   }
 
@@ -92,8 +131,7 @@ export default function YillikPlan(p: {
     if (j) git({ kalem: String(j.id) })
   }
 
-  async function profilKaydet(f: FormData) {
-    const profil = AYLAR.map((_, i) => Number(f.get(`p${i}`)))
+  async function profilKaydet(profil: number[]) {
     await istek('/api/pes/yillik-plan/kalem', 'PATCH', { id: p.kalemId, aylikProfil: profil })
   }
 
@@ -106,7 +144,8 @@ export default function YillikPlan(p: {
   }
 
   async function hucreKaydet(workshopId: number, ay: number, deger: string) {
-    const adet = Math.max(0, Math.floor(Number(deger) || 0))
+    const adet = hucreAdedi(deger)
+    if (adet === null) { setHata('Adet negatif olmayan tam sayı olmalı (ör. 1000 ya da 1.000)'); return }
     await istek('/api/pes/yillik-plan/tahsis', 'PUT', { kalemId: p.kalemId, workshopId, ay, adet })
   }
 
@@ -204,21 +243,14 @@ export default function YillikPlan(p: {
                 <button className={btn} onClick={oner} disabled={bekliyor || secili.samDk === null}>Öner</button>
                 <span className="text-xs text-slate-500">Öneri yalnız “öneri” hücrelerini yeniden yazar; elle girdikleriniz korunur.</span>
               </div>
-              <form action={profilKaydet} className="flex flex-wrap items-end gap-1">
-                {AYLAR.map((a, i) => (
-                  <label key={a} className="text-[10px] text-slate-500 w-14">
-                    {a} %
-                    <input name={`p${i}`} type="number" step="0.01" min={0}
-                      defaultValue={Number(secili.profil[i].toFixed(2))} className={inp} />
-                  </label>
-                ))}
-                <button className="text-xs underline ml-2">Profili kaydet</button>
-              </form>
+              <ProfilFormu key={`${secili.id}:${secili.profil.join(',')}`}
+                profil={secili.profil} bekliyor={bekliyor} kaydet={profilKaydet}
+                btnSinif="text-xs underline ml-2" inp={inp} />
             </section>
           )}
 
           <div className="overflow-x-auto">
-            <table className="text-xs border-collapse min-w-full">
+            <table className="text-xs border-collapse w-max">
               <thead>
                 <tr>
                   <th className="text-left px-2 py-1 sticky left-0 bg-white">Atölye</th>
@@ -239,24 +271,35 @@ export default function YillikPlan(p: {
                   const gri = secili && s.uyum !== 'uygun'
                   return (
                     <tr key={s.workshopId} className={gri ? 'opacity-50' : ''} title={s.neden ?? undefined}>
-                      <td className="px-2 py-1 sticky left-0 bg-white whitespace-nowrap">
-                        <span className="font-medium">{s.kod}</span> {s.ad}
-                        {KAYNAK_ETIKET[s.kaynak] && (
-                          <span className="ml-1 rounded bg-gray-100 px-1 text-[10px] text-gray-500"
-                                title={KAYNAK_ACIKLAMA[s.kaynak]}>{KAYNAK_ETIKET[s.kaynak]}</span>
+                      <td className="px-2 py-1 sticky left-0 bg-white whitespace-nowrap max-w-[16rem]">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium shrink-0">{s.kod}</span>
+                          <span className="truncate" title={s.ad}>{s.ad}</span>
+                          {KAYNAK_ETIKET[s.kaynak] && (
+                            <span className="shrink-0 rounded bg-gray-100 px-1 text-[10px] text-gray-500"
+                                  title={KAYNAK_ACIKLAMA[s.kaynak]}>{KAYNAK_ETIKET[s.kaynak]}</span>
+                          )}
+                        </div>
+                        {gri && s.neden && (
+                          <div className="text-[10px] text-slate-500 truncate" title={s.neden}>{s.neden}</div>
                         )}
                       </td>
                       {s.yuzde.map((y, m) => (
-                        <td key={m} className={`px-1 py-1 text-center align-top ${renk(y)}`}>
-                          <div>{y === null ? '—' : `%${Math.round(y)}`}</div>
+                        <td key={m} className={`px-1 py-1 w-20 min-w-20 text-center align-top ${renk(y)}`}>
+                          <div>{yukMetni(y)}</div>
                           {secili && (
-                            <input key={`${s.workshopId}-${m}-${s.hucre[m]?.adet ?? 0}`}
+                            <div className="relative">
+                            <input aria-label={`${s.kod} ${AYLAR[m]} adet`} key={`${s.workshopId}-${m}-${s.hucre[m]?.adet ?? 0}`}
                               defaultValue={s.hucre[m]?.adet ?? ''} inputMode="numeric"
                               className={`w-16 mt-0.5 rounded border text-right px-1 ${s.hucre[m]?.kaynak === 'elle' ? 'border-blue-500' : 'border-slate-300'}`}
                               onBlur={(e) => {
                                 const eski = String(s.hucre[m]?.adet ?? '')
                                 if (e.target.value !== eski) hucreKaydet(s.workshopId, m + 1, e.target.value)
                               }} />
+                            {s.hucre[m]?.kaynak === 'elle' && (
+                              <span className="absolute -top-1 -right-0.5 text-[9px] font-bold text-blue-600" title="Elle girildi">e</span>
+                            )}
+                            </div>
                           )}
                         </td>
                       ))}
@@ -267,7 +310,7 @@ export default function YillikPlan(p: {
             </table>
           </div>
           <p className="text-[11px] text-slate-500">
-            Yüzde = (gerçek PO + tüm tahsisler) dk ÷ kapasite dk. Mavi çerçeve: elle girilen. Soluk satır: yetenek uyumu yok ya da kontrol edilemedi (satırın üzerine gelin).
+            Yüzde = (gerçek PO + tüm tahsisler) dk ÷ kapasite dk. Mavi çerçeve ve “e”: elle girilen. Soluk satır: yetenek uyumu yok ya da kontrol edilemedi (satırın üzerine gelin).
           </p>
         </main>
       </div>

@@ -24,9 +24,17 @@ Atölyeler karışık ürün diker; adet karşılaştırılamaz.
 - Kalem yükü (dk) = `adet × SAM`. SAM varsayılanı ürün tipinin referans süresi
   (`ref_parca_sure`, `lib/pes/referans-model.ts`); kalemde `sam_dk` ile ezilebilir.
   Ürün tipi yoksa ve ezme yoksa kalem önerilemez, ekranda "SAM eksik" uyarısı çıkar.
-- Atölye aylık kapasitesi (dk) = Σ bant (`operator_count × 540 × verim × iş günü`).
-  Verim 0,85 (`app/api/pes/work-orders/auto-plan/route.ts` ile aynı kural, ortak sabite çekilir).
-  İş günü: ayın hafta içi günleri; `workshop_kapasite_gun` override'ı olan günlerde o değer kullanılır.
+- Atölye aylık kapasitesi (dk) = normal gün dakikası × iş günü. Gün dakikası, atölye
+  başına ilk dolu olan kaynaktan (`gunlukKapasite`; verim 0,85, vardiya 540 dk):
+  1. `operator`: Σ aktif bant `operator_count` × 540 × verim
+  2. `calisan`: `workshop_profil.calisan_sayisi` × dikim payı × 540 × verim;
+     dikim payı = 1 / (1 + `ref_kesim_personel_orani` + `ref_ukp_personel_orani`)
+  3. `hedef`: Σ aktif bant `daily_target` × kalemin SAM'ı (kaba: hedef bu parça sanılır);
+     SAM yoksa bu basamak atlanır
+  4. `yok`: veri yok, kapasite null; atölye öneriye girmez, ızgarada "veri yok" görünür.
+  Kaynak ızgarada atölye adının yanında rozetle gösterilir.
+  İş günü: ayın hafta içi günleri; `workshop_kapasite_gun` override'ı (adet) normal
+  hedefe oranlanıp o günün dakikasına uygulanır.
 - Boş kapasite = kapasite − gerçek PO yükü (o aya düşen `work_order` dakikası) − diğer tahsisler.
 
 ## 2. Veri modeli (yeni migration)

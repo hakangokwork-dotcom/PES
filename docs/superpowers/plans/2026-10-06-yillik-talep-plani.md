@@ -534,6 +534,9 @@ import type { Kunye } from './kunye'
 type Sql = postgres.TransactionSql
 const bosYil = () => Array<number>(12).fill(0)
 
+/* Güncel hâli (kapasite kaynak zinciri): atolyeKapasiteleri(sql, yil, samDk) →
+   { workshopId, kod, ad, kaynak: KapasiteKaynagi, kapasiteDk: number[] | null };
+   zincir yillik-plan.ts gunlukKapasite'de. Gerçek kod lib/pes/yillik-plan-veri.ts. */
 export type AtolyeKapasite = { workshopId: number; kod: string; ad: string; kapasiteDk: number[] }
 
 export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeKapasite[]> {
@@ -970,7 +973,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   }
 
   const [kap, po, digerTahsis, uyumlar, puanlar] = [
-    await atolyeKapasiteleri(sql, k.yil),
+    await atolyeKapasiteleri(sql, k.yil, k.sam),
     await poAylikYuk(sql, k.yil),
     await tahsisAylikYuk(sql, k.yil, id),
     await atolyeUyumlari(sql, kunye),
@@ -984,7 +987,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
       workshopId: a.workshopId,
       puan: puanlar.get(a.workshopId) ?? 0,
       uyum: uyumlar.get(a.workshopId)?.uyum ?? 'bilinmiyor',
-      bosDk: a.kapasiteDk.map((c, m) => c - (p[m] ?? 0) - (t[m] ?? 0)),
+      bosDk: a.kapasiteDk === null ? Array<number>(12).fill(0) : a.kapasiteDk.map((c, m) => c - (p[m] ?? 0) - (t[m] ?? 0)),
     }
   })
 
@@ -1113,6 +1116,7 @@ import {
   atolyeKapasiteleri, poAylikYuk, tahsisAylikYuk, atolyeUyumlari,
 } from '@/lib/pes/yillik-plan-veri'
 import type { Kunye } from '@/lib/pes/kunye'
+import type { KapasiteKaynagi } from '@/lib/pes/yillik-plan'
 import YillikPlan, { type TahminOzet, type KalemDetay, type IzgaraSatiri } from './YillikPlan'
 
 export const dynamic = 'force-dynamic'
@@ -1149,7 +1153,7 @@ export default async function YillikPlanSayfasi({
     const kalemId = Number(sp.kalem) || (kalemSatirlari[0]?.id as number | undefined) || 0
     const kalem = kalemSatirlari.find((k) => k.id === kalemId) ?? null
 
-    const kap = await atolyeKapasiteleri(sql, yil)
+    const kap = await atolyeKapasiteleri(sql, yil, kalem ? (kalem.samDk as number | null) : null)
     const po = await poAylikYuk(sql, yil)
     const tahsisYuk = await tahsisAylikYuk(sql, yil, null)
     const uyumlar = kalem ? await atolyeUyumlari(sql, kalem as unknown as Kunye) : null
@@ -1173,7 +1177,10 @@ export default async function YillikPlanSayfasi({
     const u = veri.uyumlar?.get(a.workshopId)
     return {
       workshopId: a.workshopId, kod: a.kod, ad: a.ad,
-      yuzde: a.kapasiteDk.map((c, m) => yukYuzdesi((p[m] ?? 0) + (t[m] ?? 0), c)),
+      kaynak: a.kaynak,
+      yuzde: a.kapasiteDk === null
+        ? Array<null>(12).fill(null)
+        : a.kapasiteDk.map((c, m) => yukYuzdesi((p[m] ?? 0) + (t[m] ?? 0), c)),
       uyum: u?.uyum ?? null, neden: u?.neden ?? null,
       hucre: Array.from({ length: 12 }, (_, m) => {
         const x = veri.kalemTahsis.find((r) => r.workshopId === a.workshopId && r.ay === m + 1)
@@ -1230,8 +1237,21 @@ export type KalemDetay = {
   kumas_grubu_kodu: string | null; cinsiyet_yas_kodu: string | null
   tuketilen: number; tahsisli: number
 }
+import type { KapasiteKaynagi } from '@/lib/pes/yillik-plan'
+
+const KAYNAK_ETIKET: Record<KapasiteKaynagi, string | null> = {
+  operator: null, calisan: 'kişi', hedef: 'hedef≈', yok: 'veri yok',
+}
+const KAYNAK_ACIKLAMA: Record<KapasiteKaynagi, string> = {
+  operator: 'Kapasite: hatlardaki operatör sayısından',
+  calisan: 'Kapasite: toplam çalışan sayısından, dikim payıyla tahmin',
+  hedef: 'Kapasite: günlük hat hedefi × bu kalemin SAM'ı (kaba tahmin)',
+  yok: 'Kapasite verisi yok; öneriye girmez',
+}
+
 export type IzgaraSatiri = {
   workshopId: number; kod: string; ad: string
+  kaynak: KapasiteKaynagi
   yuzde: (number | null)[]
   uyum: 'uygun' | 'uyumsuz' | 'bilinmiyor' | null
   neden: string | null
@@ -1448,6 +1468,10 @@ export default function YillikPlan(p: {
                     <tr key={s.workshopId} className={gri ? 'opacity-50' : ''} title={s.neden ?? undefined}>
                       <td className="px-2 py-1 sticky left-0 bg-white whitespace-nowrap">
                         <span className="font-medium">{s.kod}</span> {s.ad}
+                        {KAYNAK_ETIKET[s.kaynak] && (
+                          <span className="ml-1 rounded bg-gray-100 px-1 text-[10px] text-gray-500"
+                                title={KAYNAK_ACIKLAMA[s.kaynak]}>{KAYNAK_ETIKET[s.kaynak]}</span>
+                        )}
                       </td>
                       {s.yuzde.map((y, m) => (
                         <td key={m} className={`px-1 py-1 text-center align-top ${renk(y)}`}>

@@ -72,7 +72,11 @@ export function profilGecerli(p: unknown): p is number[] {
 
 /** Profil yüzdelerini adede çevirir; toplam en büyük kalan yöntemiyle korunur. */
 export function aylikAdet(adet: number, profil: number[]): number[] {
-  const ham = profil.map((p) => (adet * p) / 100)
+  /* Profil DB'de NUMERIC(6,2): 8,33×12 = 99,96. 100'e bölmek adet kaybettirir;
+     kendi toplamına göre normalize edilir. */
+  const toplam = profil.reduce((a, b) => a + b, 0)
+  if (!(toplam > 0)) return profil.map(() => 0)
+  const ham = profil.map((p) => (adet * p) / toplam)
   const taban = ham.map(Math.floor)
   let kalan = adet - taban.reduce((a, b) => a + b, 0)
   const sira = ham.map((h, i) => ({ i, k: h - taban[i] })).sort((a, b) => b.k - a.k || a.i - b.i)
@@ -103,8 +107,8 @@ export type OneriAdayi = {
  * Yalnız `uygun` atölye alınır. `bilinmiyor` (künye ya da yetenek kaydı
  * eksik) ENGEL DEĞİLDİR ama öneri onu seçmez — planlamacı elle girebilir.
  * Sığmayan adet zorla atanmaz, `tahsisEdilemeyen` olarak döner.
- * Elle girilmiş tahsisler korunur: önce ihtiyaçtan ve o atölyenin
- * boşluğundan düşülür, öneri yalnız kalanı dağıtır.
+ * Elle girilmiş tahsisler korunur: ihtiyaçtan düşülür ve o (atölye, ay)
+ * çiftine öneri yazılmaz; öneri kalanı diğer atölyelere dağıtır.
  */
 export function oneriUret(g: {
   aylikAdet: number[]
@@ -125,10 +129,9 @@ export function oneriUret(g: {
     let kalan = Math.max(0, (g.aylikAdet[m] ?? 0) - elleAy.reduce((t, e) => t + e.adet, 0))
     for (const a of sirali) {
       if (kalan <= 0) break
-      const elleDk = elleAy
-        .filter((e) => e.workshopId === a.workshopId)
-        .reduce((t, e) => t + e.adet * g.samDk, 0)
-      const sigar = Math.floor(Math.max(0, (a.bosDk[m] ?? 0) - elleDk) / g.samDk)
+      /* (atölye, ay) çiftinde elle satır varsa öneri yazılamaz (tekil anahtar). */
+      if (elleAy.some((e) => e.workshopId === a.workshopId)) continue
+      const sigar = Math.floor(Math.max(0, a.bosDk[m] ?? 0) / g.samDk)
       const al = Math.min(kalan, sigar)
       if (al > 0) {
         tahsisler.push({ workshopId: a.workshopId, ay, adet: al })

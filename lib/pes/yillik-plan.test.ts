@@ -46,6 +46,15 @@ describe('aylikAdet', () => {
     expect(a.reduce((x, y) => x + y, 0)).toBe(1000)
     expect(Math.max(...a) - Math.min(...a)).toBeLessThanOrEqual(1)
   })
+  test('profil toplamı 100 değilse (NUMERIC 8.33×12) kendi toplamına göre normalize edilir', () => {
+    const p = Array<number>(12).fill(8.33)
+    const a = aylikAdet(1_000_000, p)
+    expect(a.reduce((x, y) => x + y, 0)).toBe(1_000_000)
+    expect(aylikAdet(60_000, p)).toEqual(Array(12).fill(5000))
+  })
+  test('profil toplamı sıfırsa hepsi sıfır', () => {
+    expect(aylikAdet(100, Array(12).fill(0))).toEqual(Array(12).fill(0))
+  })
   test('sıfır aylar sıfır kalır', () => {
     const p = [50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     expect(aylikAdet(101, p)).toEqual([51, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -87,17 +96,15 @@ describe('oneriUret', () => {
     expect(r.tahsisEdilemeyen[0]).toBe(200)
   })
 
-  test('elle tahsis ihtiyaçtan ve o atölyenin boşluğundan düşer', () => {
+  test('elle tahsisi olan (atölye, ay) için öneri satırı üretilmez; kalan sıradakine geçer', () => {
     const r = oneriUret({
       aylikAdet: ay1(150), samDk: 10,
       adaylar: [aday(1, 90, 1000), aday(2, 50, 1000)],
       elle: [{ workshopId: 1, ay: 1, adet: 80 }],
     })
-    // ihtiyaç 70; atölye 1'de 1000-800=200 dk = 20 adet, kalan 50 atölye 2'ye
-    expect(r.tahsisler).toEqual([
-      { workshopId: 1, ay: 1, adet: 20 },
-      { workshopId: 2, ay: 1, adet: 50 },
-    ])
+    // ihtiyaç 70; atölye 1 bu ayda elle dolu, kalan 70 atölye 2'ye (sığar: 100)
+    expect(r.tahsisler).toEqual([{ workshopId: 2, ay: 1, adet: 70 }])
+    expect(r.tahsisEdilemeyen[0]).toBe(0)
   })
 
   test('negatif boşluk (aşırı yük) sıfır sayılır', () => {

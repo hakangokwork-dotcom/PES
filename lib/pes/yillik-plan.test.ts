@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import {
   calismaGunu, kapasiteCoz, yillikKapasite, bazKaynagi,
   dolulukYuzdesi, dolulukRengi, yuzdeMetni, talepAcigi, ayToplamlari,
-  hucreAdedi, adetGecerli, klasmanUyumu, planIpucuMetni, type AySatiri,
+  hucreAdedi, adetGecerli, talepDurumu, klasmanUyumu, planIpucuMetni, type AySatiri,
 } from './yillik-plan'
 
 describe('calismaGunu', () => {
@@ -178,5 +178,14 @@ describe('planIpucuMetni', () => {
   })
   test('boşsa null', () => {
     expect(planIpucuMetni([])).toBeNull()
+  })
+
+  test('talepDurumu: talep yoksa "—", açık/fazla/tamam', () => {
+    expect(talepDurumu(0, 0)).toEqual({ tur: 'yok', adet: 0 })
+    expect(talepDurumu(100, 0)).toEqual({ tur: 'acik', adet: 100 })
+    expect(talepDurumu(100, 60)).toEqual({ tur: 'acik', adet: 40 })
+    expect(talepDurumu(100, 100)).toEqual({ tur: 'tamam', adet: 0 })
+    expect(talepDurumu(100, 130)).toEqual({ tur: 'fazla', adet: 30 })
+    expect(talepDurumu(0, 50)).toEqual({ tur: 'fazla', adet: 50 })
   })
 })

@@ -155,6 +155,20 @@ export function talepAcigi(talep: number, yerlesen: number): { acik: number; faz
   return { acik: Math.max(0, talep - yerlesen), fazla: Math.max(0, yerlesen - talep) }
 }
 
+export type TalepDurumu = { tur: 'yok' | 'acik' | 'fazla' | 'tamam'; adet: number }
+
+/**
+ * Ekranda gösterilecek talep durumu. Talep de yerleşen de yoksa "yok" (—);
+ * "tamam" yalnız talep > 0 ve tam karşılanmışsa.
+ */
+export function talepDurumu(talep: number, yerlesen: number): TalepDurumu {
+  if (talep <= 0 && yerlesen <= 0) return { tur: 'yok', adet: 0 }
+  const { acik, fazla } = talepAcigi(talep, yerlesen)
+  if (acik > 0) return { tur: 'acik', adet: acik }
+  if (fazla > 0) return { tur: 'fazla', adet: fazla }
+  return { tur: 'tamam', adet: 0 }
+}
+
 /**
  * 12 aylık toplam. `workshopId` verilmezse tüm atölyeler; `klasman`
  * null/undefined ise tüm klasmanlar.

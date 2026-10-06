@@ -43,18 +43,6 @@ const GUN_SAYISI = 35
 /** Zaman çiti — bu kadar gün kalmışsa uyarı. Kullanıcı kararı: engellemez. */
 const ZAMAN_CITI_GUN = 7
 
-/** Havuz kartının yıllık plan alanları: bağlıysa kalem adı, değilse ipucu. */
-function tahminKarti(
-  h: Record<string, unknown>,
-  ipucu: { kalem_id: number; atolyeler: string } | undefined,
-): Pick<HavuzKarti, 'tahminKalemId' | 'tahminBagli' | 'tahminIpucu'> {
-  const bagli = (h.tahmin_kalem_id as number | null) ?? null
-  if (bagli !== null) {
-    return { tahminKalemId: bagli, tahminBagli: true, tahminIpucu: (h.tahmin_kalem_ad as string | null) ?? `#${bagli}` }
-  }
-  return { tahminKalemId: ipucu?.kalem_id ?? null, tahminBagli: false, tahminIpucu: ipucu?.atolyeler ?? null }
-}
-
 function bugunStr(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -142,47 +130,13 @@ export default async function PlanTezgahiSayfasi({
              w.teslim_tarihi::text AS teslim, w.durum, w.workshop_id,
              a.name AS atolye_adi,
              w.ana_grup_kodu, w.klasman_kodu, w.kumas_turu_kodu,
-             w.kumas_grubu_kodu, w.cinsiyet_yas_kodu, w.kalite_kodu,
-             w.tahmin_kalem_id,
-             (SELECT k.ad FROM talep_tahmini_kalem k WHERE k.id = w.tahmin_kalem_id) AS tahmin_kalem_ad
+             w.kumas_grubu_kodu, w.cinsiyet_yas_kodu, w.kalite_kodu
         FROM work_order w
         LEFT JOIN workshop a ON a.id = w.workshop_id
        WHERE w.durum IN ('Taslak', 'Planlandi', 'Bekleniyor')
        ORDER BY w.teslim_tarihi NULLS LAST, w.id
        LIMIT 200
     ` as unknown as Array<Record<string, unknown>>
-
-    /* Yıllık talep planı ipucu: onaylı bir tahmin kaleminin dolu künye
-       alanlarının HEPSİ PO'yla aynıysa ve kalemin PO'nun yük ayında
-       (bitiş, yoksa teslim — poAylikYuk ile aynı) tahsisi varsa, o ayın
-       atölyeleri gösterilir. Birden çok kalem uyarsa en küçük kalem id'si
-       seçilir (bağla düğmesi onu bağlar). ENGELLEMEZ, söyler. */
-    const havuzIdleri = havuzSatirlari.map((h) => h.id as number)
-    const tahminIpuclari = havuzIdleri.length === 0 ? [] : await sql`
-      WITH eslesen AS (
-        SELECT w.id AS wo_id, k.id AS kalem_id, k.ad AS kalem_ad,
-               string_agg(DISTINCT a.code, ', ') AS atolyeler
-          FROM work_order w
-          JOIN talep_tahmini h ON h.durum = 'Onayli'
-               AND h.yil = extract(year FROM COALESCE(w.bitis_tarihi, w.teslim_tarihi))::int
-          JOIN talep_tahmini_kalem k ON k.tahmin_id = h.id
-          JOIN talep_tahsis t ON t.kalem_id = k.id
-               AND t.ay = extract(month FROM COALESCE(w.bitis_tarihi, w.teslim_tarihi))::int
-          JOIN workshop a ON a.id = t.workshop_id
-         WHERE w.id = ANY(${havuzIdleri}::int[])
-         AND (k.klasman_kodu      IS NULL OR k.klasman_kodu      = w.klasman_kodu)
-         AND (k.kumas_turu_kodu   IS NULL OR k.kumas_turu_kodu   = w.kumas_turu_kodu)
-         AND (k.kumas_grubu_kodu  IS NULL OR k.kumas_grubu_kodu  = w.kumas_grubu_kodu)
-         AND (k.cinsiyet_yas_kodu IS NULL OR k.cinsiyet_yas_kodu = w.cinsiyet_yas_kodu)
-         AND (k.ana_grup_kodu     IS NULL OR k.ana_grup_kodu     = w.ana_grup_kodu)
-         AND (k.kalite_kodu       IS NULL OR k.kalite_kodu       = w.kalite_kodu)
-         AND (k.klasman_kodu IS NOT NULL OR k.kumas_turu_kodu IS NOT NULL
-              OR k.kumas_grubu_kodu IS NOT NULL OR k.ana_grup_kodu IS NOT NULL
-              OR k.cinsiyet_yas_kodu IS NOT NULL OR k.kalite_kodu IS NOT NULL)
-         GROUP BY w.id, k.id)
-      SELECT DISTINCT ON (wo_id) wo_id, kalem_id, kalem_ad, atolyeler
-        FROM eslesen ORDER BY wo_id, kalem_id
-    ` as unknown as Array<{ wo_id: number; kalem_id: number; kalem_ad: string; atolyeler: string }>
 
     /* ---- Gönderilen teklifler ve atölye cevapları ---- */
     const teklifSatirlari = seciliId ? await sql`
@@ -231,7 +185,7 @@ export default async function PlanTezgahiSayfasi({
     ` as unknown as Array<{ dimension_code: string }>
 
     return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar,
-             havuzSatirlari, tahminIpuclari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
+             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
              yetenekSatirlari, izlenenSatirlari }
   })
 
@@ -329,7 +283,6 @@ export default async function PlanTezgahiSayfasi({
       teslim: (h.teslim as string) ?? null,
       durum: h.durum as string,
       atolyeAdi: (h.atolye_adi as string) ?? null,
-      ...tahminKarti(h, veri.tahminIpuclari.find((t) => t.wo_id === (h.id as number))),
     }))
 
   const teklifler: TeklifSatiri[] = veri.teklifSatirlari.map((t) => ({

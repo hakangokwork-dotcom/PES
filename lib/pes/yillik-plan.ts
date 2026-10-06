@@ -70,6 +70,32 @@ export function profilGecerli(p: unknown): p is number[] {
   return Math.abs(p.reduce((a, b) => a + b, 0) - 100) < 0.05
 }
 
+/**
+ * Profili toplam 100 olacak şekilde ölçekler (2 ondalık). Yuvarlama artığı
+ * en büyük aya yazılır. Toplam sıfır/geçersizse eşit profilden başlanır.
+ */
+export function profilNormalle(p: number[]): number[] {
+  const temiz = p.map((x) => (Number.isFinite(x) && x > 0 ? x : 0))
+  const toplam = temiz.reduce((a, b) => a + b, 0)
+  const kaynak = toplam > 0 ? temiz : esitProfil()
+  const t = kaynak.reduce((a, b) => a + b, 0)
+  const r = kaynak.map((x) => Math.round((x * 10000) / t) / 100)
+  const artik = Math.round((100 - r.reduce((a, b) => a + b, 0)) * 100) / 100
+  const en = r.indexOf(Math.max(...r))
+  r[en] = Math.round((r[en] + artik) * 100) / 100
+  return r
+}
+
+/**
+ * Hücre girdisi → adet. Türkçe binlik nokta ve boşluk atılır; boş = 0
+ * (sil). Negatif/ondalık/harf için null.
+ */
+export function hucreAdedi(girdi: string): number | null {
+  const t = girdi.replace(/[.\s]/g, '')
+  if (t === '') return 0
+  return /^\d+$/.test(t) ? Number(t) : null
+}
+
 /** Profil yüzdelerini adede çevirir; toplam en büyük kalan yöntemiyle korunur. */
 export function aylikAdet(adet: number, profil: number[]): number[] {
   /* Profil DB'de NUMERIC(6,2): 8,33×12 = 99,96. 100'e bölmek adet kaybettirir;

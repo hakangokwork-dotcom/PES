@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import {
   ayGunleri, aylikKapasiteDk, esitProfil, profilGecerli, aylikAdet, yukYuzdesi,
-  oneriUret, gunlukKapasite, dikimPayi, type OneriAdayi,
+  oneriUret, gunlukKapasite, dikimPayi, profilNormalle, hucreAdedi, type OneriAdayi,
 } from './yillik-plan'
 
 describe('ayGunleri', () => {
@@ -151,5 +151,31 @@ describe('gunlukKapasite', () => {
     expect(gunlukKapasite(hepsi).kaynak).toBe('operator')
     expect(gunlukKapasite({ ...hepsi, operator: 0 }).kaynak).toBe('calisan')
     expect(gunlukKapasite({ ...hepsi, operator: 0, calisan: 0 }).kaynak).toBe('hedef')
+  })
+})
+
+describe('profilNormalle', () => {
+  test('toplamı 100e ölçekler, 2 ondalık, artık en büyük aya', () => {
+    const r = profilNormalle(Array(12).fill(8.33))
+    expect(r).toHaveLength(12)
+    expect(Math.round(r.reduce((a, b) => a + b, 0) * 100) / 100).toBe(100)
+    expect(profilGecerli(r)).toBe(true)
+  })
+  test('toplam sıfır ya da geçersizse eşit profil', () => {
+    expect(profilNormalle(Array(12).fill(0))).toEqual(profilNormalle(esitProfil()))
+    expect(profilGecerli(profilNormalle(Array(12).fill(NaN)))).toBe(true)
+  })
+})
+
+describe('hucreAdedi', () => {
+  test('binlik nokta ve boşluk atılır', () => {
+    expect(hucreAdedi('1.000')).toBe(1000)
+    expect(hucreAdedi(' 2 500 ')).toBe(2500)
+  })
+  test('boş 0; ondalık, negatif, harf geçersiz (null)', () => {
+    expect(hucreAdedi('')).toBe(0)
+    expect(hucreAdedi('12,5')).toBeNull()
+    expect(hucreAdedi('-3')).toBeNull()
+    expect(hucreAdedi('abc')).toBeNull()
   })
 })

@@ -3,7 +3,7 @@
  *
  * ORTAK BİRİM DAKİKA. Atölyeler karışık ürün diker; 1.000 gömlek ile
  * 1.000 mont aynı yük değildir. Kalem yükü = adet × SAM dk, atölye
- * kapasitesi = operatör × 540 × verim × çalışma günü.
+ * kapasitesi = günlük dakika (gunlukKapasite zinciri) × çalışma günü.
  *
  * Çalışma günü kuralı bant-doluluk.ts ile aynı: yalnız pazar kapalı.
  * workshop_kapasite_gun ADET cinsinden (günlük hedef toplamının yerine);
@@ -15,6 +15,29 @@ import type { GenelUyum } from './yetenek-uyum'
 /** auto-plan/route.ts ile aynı varsayım. */
 export const VARDIYA_DK = 540
 export const VERIM = 0.85
+
+export type KapasiteKaynagi = 'operator' | 'calisan' | 'hedef' | 'yok'
+
+/** Kesim ve UKP personeli dikimci olmadığından toplam çalışanın dikim payı. */
+export function dikimPayi(kesimOrani: number, ukpOrani: number): number {
+  const d = (x: number) => (Number.isFinite(x) && x > 0 ? x : 0)
+  return 1 / (1 + d(kesimOrani) + d(ukpOrani))
+}
+
+/**
+ * Normal bir çalışma gününün dakikası; veri varlığına göre zincir:
+ * operatör → çalışan (dikim payıyla) → günlük hedef × SAM → yok.
+ */
+export function gunlukKapasite(g: {
+  operator: number; calisan: number; dikimPayi: number; hedefAdet: number; samDk: number | null
+}): { dk: number | null; kaynak: KapasiteKaynagi } {
+  if (g.operator > 0) return { dk: g.operator * VARDIYA_DK * VERIM, kaynak: 'operator' }
+  if (g.calisan > 0) return { dk: g.calisan * g.dikimPayi * VARDIYA_DK * VERIM, kaynak: 'calisan' }
+  if (g.hedefAdet > 0 && g.samDk !== null && g.samDk > 0) {
+    return { dk: g.hedefAdet * g.samDk, kaynak: 'hedef' }
+  }
+  return { dk: null, kaynak: 'yok' }
+}
 
 export type Tahsis = { workshopId: number; ay: number; adet: number }
 

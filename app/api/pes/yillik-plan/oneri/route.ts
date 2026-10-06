@@ -30,7 +30,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   }
 
   const [kap, po, digerTahsis, uyumlar, puanlar] = [
-    await atolyeKapasiteleri(sql, k.yil),
+    await atolyeKapasiteleri(sql, k.yil, k.sam),
     await poAylikYuk(sql, k.yil),
     await tahsisAylikYuk(sql, k.yil, id),
     await atolyeUyumlari(sql, kunye),
@@ -44,7 +44,7 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
       workshopId: a.workshopId,
       puan: puanlar.get(a.workshopId) ?? 0,
       uyum: uyumlar.get(a.workshopId)?.uyum ?? 'bilinmiyor',
-      bosDk: a.kapasiteDk.map((c, m) => c - (p[m] ?? 0) - (t[m] ?? 0)),
+      bosDk: a.kapasiteDk === null ? Array<number>(12).fill(0) : a.kapasiteDk.map((c, m) => c - (p[m] ?? 0) - (t[m] ?? 0)),
     }
   })
 

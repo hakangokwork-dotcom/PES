@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import {
   ayGunleri, aylikKapasiteDk, esitProfil, profilGecerli, aylikAdet, yukYuzdesi,
-  oneriUret, type OneriAdayi,
+  oneriUret, gunlukKapasite, dikimPayi, type OneriAdayi,
 } from './yillik-plan'
 
 describe('ayGunleri', () => {
@@ -108,5 +108,41 @@ describe('oneriUret', () => {
 
   test('SAM sıfır ya da negatifse hata', () => {
     expect(() => oneriUret({ aylikAdet: ay1(1), samDk: 0, adaylar: [], elle: [] })).toThrow('SAM')
+  })
+})
+
+describe('dikimPayi', () => {
+  test('1 / (1 + kesim + ukp)', () => {
+    expect(dikimPayi(0.25, 0.4)).toBeCloseTo(1 / 1.65, 6)
+  })
+  test('geçersiz ya da negatif oran 0 sayılır', () => {
+    expect(dikimPayi(-1, NaN)).toBe(1)
+  })
+})
+
+describe('gunlukKapasite', () => {
+  const baz = { operator: 0, calisan: 0, dikimPayi: 0.6, hedefAdet: 0, samDk: null }
+  test('operatör: operatör × 540 × 0,85', () => {
+    expect(gunlukKapasite({ ...baz, operator: 10 })).toEqual({ dk: 10 * 540 * 0.85, kaynak: 'operator' })
+  })
+  test('çalışan: çalışan × dikim payı × 540 × 0,85', () => {
+    const r = gunlukKapasite({ ...baz, calisan: 100 })
+    expect(r.kaynak).toBe('calisan')
+    expect(r.dk).toBeCloseTo(100 * 0.6 * 540 * 0.85, 6)
+  })
+  test('hedef: günlük hedef × SAM', () => {
+    expect(gunlukKapasite({ ...baz, hedefAdet: 200, samDk: 30 })).toEqual({ dk: 6000, kaynak: 'hedef' })
+  })
+  test('hedef SAM yoksa yok', () => {
+    expect(gunlukKapasite({ ...baz, hedefAdet: 200 })).toEqual({ dk: null, kaynak: 'yok' })
+  })
+  test('veri yoksa yok', () => {
+    expect(gunlukKapasite(baz)).toEqual({ dk: null, kaynak: 'yok' })
+  })
+  test('öncelik: operatör > çalışan > hedef', () => {
+    const hepsi = { operator: 5, calisan: 50, dikimPayi: 0.6, hedefAdet: 100, samDk: 30 }
+    expect(gunlukKapasite(hepsi).kaynak).toBe('operator')
+    expect(gunlukKapasite({ ...hepsi, operator: 0 }).kaynak).toBe('calisan')
+    expect(gunlukKapasite({ ...hepsi, operator: 0, calisan: 0 }).kaynak).toBe('hedef')
   })
 })

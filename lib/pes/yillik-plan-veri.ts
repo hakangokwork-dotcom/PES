@@ -5,7 +5,8 @@
  * withServerTenant içi); aksi halde RLS tenant bağlamı yok, 0 satır.
  */
 import type postgres from 'postgres'
-import { aylikKapasiteDk, VARDIYA_DK, VERIM } from './yillik-plan'
+import { aylikKapasiteDk, gunlukKapasite, dikimPayi, type KapasiteKaynagi } from './yillik-plan'
+import { paramCoz } from './ekonomi-sorgu'
 import { referansDikimSn, type Aday } from './referans-model'
 import {
   boyutUyumlari, uyumOzeti, genelUyum, GENEL_ETIKET,
@@ -17,19 +18,33 @@ import type { Kunye } from './kunye'
 type Sql = postgres.TransactionSql
 const bosYil = () => Array<number>(12).fill(0)
 
-export type AtolyeKapasite = { workshopId: number; kod: string; ad: string; kapasiteDk: number[] }
+export type AtolyeKapasite = {
+  workshopId: number; kod: string; ad: string
+  kaynak: KapasiteKaynagi; kapasiteDk: number[] | null
+}
 
-export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeKapasite[]> {
+export async function atolyeKapasiteleri(
+  sql: Sql, yil: number, samDk: number | null,
+): Promise<AtolyeKapasite[]> {
   const atolyeler = await sql`
     SELECT w.id, w.code, w.name,
            COALESCE(SUM(pl.operator_count) FILTER (WHERE pl.is_active), 0)::int AS operator,
-           COALESCE(SUM(pl.daily_target)   FILTER (WHERE pl.is_active), 0)::int AS hedef
+           COALESCE(SUM(pl.daily_target)   FILTER (WHERE pl.is_active), 0)::int AS hedef,
+           COALESCE(MAX(wp.calisan_sayisi), 0)::int AS calisan
       FROM workshop w
       LEFT JOIN production_line pl ON pl.workshop_id = w.id
+      LEFT JOIN workshop_profil wp ON wp.workshop_id = w.id
      WHERE w.is_active
      GROUP BY w.id
      ORDER BY w.code
-  ` as unknown as Array<{ id: number; code: string; name: string; operator: number; hedef: number }>
+  ` as unknown as Array<{ id: number; code: string; name: string; operator: number; hedef: number; calisan: number }>
+
+  const paramSatirlari = await sql`
+    SELECT DISTINCT ON (param_key) param_key, param_value
+      FROM economy_param
+     ORDER BY param_key, donem DESC`
+  const param = paramCoz(paramSatirlari as unknown as Array<{ param_key: string; param_value: unknown }>)
+  const pay = dikimPayi(param.ref_kesim_personel_orani, param.ref_ukp_personel_orani)
 
   const ozel = await sql`
     SELECT workshop_id, tarih::text AS tarih, gunluk_kapasite
@@ -39,6 +54,10 @@ export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeK
   ` as unknown as Array<{ workshop_id: number; tarih: string; gunluk_kapasite: number }>
 
   return atolyeler.map((a) => {
+    const { dk, kaynak } = gunlukKapasite({
+      operator: a.operator, calisan: a.calisan, dikimPayi: pay, hedefAdet: a.hedef, samDk,
+    })
+    if (dk === null) return { workshopId: a.id, kod: a.code, ad: a.name, kaynak, kapasiteDk: null }
     const oranlar: Record<string, number> = {}
     for (const o of ozel.filter((x) => x.workshop_id === a.id)) {
       /* Override ADET; normal hedefe oranla dakikaya çevrilir. Hedef
@@ -46,8 +65,8 @@ export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeK
       oranlar[o.tarih] = a.hedef > 0 ? o.gunluk_kapasite / a.hedef : (o.gunluk_kapasite === 0 ? 0 : 1)
     }
     return {
-      workshopId: a.id, kod: a.code, ad: a.name,
-      kapasiteDk: aylikKapasiteDk(yil, a.operator * VARDIYA_DK * VERIM, oranlar),
+      workshopId: a.id, kod: a.code, ad: a.name, kaynak,
+      kapasiteDk: aylikKapasiteDk(yil, dk, oranlar),
     }
   })
 }

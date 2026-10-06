@@ -18,8 +18,11 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
     `
   }
 
+  // Modelin döneminde GEÇERLİ değer: küçük/eşit en yakın dönem.
   const [dkm] = await sql`
-    SELECT dk_maliyet_tl FROM dk_maliyet WHERE donem = ${model.donem} AND bolge = ${model.bolge}
+    SELECT dk_maliyet_tl FROM dk_maliyet
+    WHERE bolge = ${model.bolge} AND donem <= ${model.donem}
+    ORDER BY donem DESC LIMIT 1
   `
 
   const teklifler = await sql`

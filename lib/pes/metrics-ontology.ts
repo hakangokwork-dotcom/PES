@@ -179,7 +179,7 @@ export const METRICS: Record<string, MetricDefinition> = {
       { table: '(hesaplama)', label: 'TL/dk' },
       { table: '(hesaplama)', label: 'Verimlilik' },
     ],
-    example: '(12,26 dk × 5,82 TL/dk) / 0,90 = 79,28 TL/adet',
+    example: '(12,26 dk × 6,05 TL/dk) / 0,90 = 82,41 TL/adet',
   },
 
   marj: {
@@ -212,7 +212,7 @@ export const METRICS: Record<string, MetricDefinition> = {
       { table: 'eder_model', column: 'toplam_sure', label: 'Toplam Süre' },
       { table: 'dk_maliyet', column: 'value',       label: 'Bölgesel TL/dk' },
     ],
-    example: '12,26 dk × 5,82 TL/dk = 71,35 TL',
+    example: '12,26 dk × 6,05 TL/dk = 74,17 TL',
   },
 
   bant_verimliligi: {

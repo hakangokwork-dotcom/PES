@@ -54,6 +54,13 @@ interface AnaGrupOzet {
 }
 interface DkMaliyet { bolge: number; dk_maliyet_tl: number; donem: string }
 
+/* İçinde bulunulan ay. API bu aydan küçük/eşit en yakın 3D dönemini döner;
+   sabit '2026-04' yeni dönem eklendiğinde eski değeri gösteriyordu. */
+const BU_AY = (() => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+})()
+
 const BOLGE_NAMES: Record<number, string> = {
   1: '1. Bölge', 2: '2. Bölge', 3: '3. Bölge', 4: '4. Bölge', 5: '5. Bölge', 6: '6. Bölge',
 }
@@ -92,7 +99,7 @@ function EderMaliyetPage() {
   const [showAdd, setShowAdd] = useState(false)
 
   const [newForm, setNewForm] = useState({
-    model_adi: '', plm_id: '', siparis_adedi: 0, bolge: 3, donem: '2026-04',
+    model_adi: '', plm_id: '', siparis_adedi: 0, bolge: 3, donem: BU_AY,
     gunluk_calisma_sn: 32400, hedef_sure_sn: 30, kumas: '', urun: '', ozellik: '',
   })
   const [addForm, setAddForm] = useState({
@@ -126,7 +133,7 @@ function EderMaliyetPage() {
   }, [])
 
   useEffect(() => {
-    loadUrunler(); loadModels(); loadDkMaliyet('2026-04')
+    loadUrunler(); loadModels(); loadDkMaliyet(BU_AY)
   }, [loadUrunler, loadModels, loadDkMaliyet])
 
   useEffect(() => {
@@ -312,7 +319,7 @@ function EderMaliyetPage() {
             </Field>
             <Field label="Dönem">
               <input className="input" value={newForm.donem}
-                onChange={e => setNewForm({ ...newForm, donem: e.target.value })} placeholder="2026-04" />
+                onChange={e => setNewForm({ ...newForm, donem: e.target.value })} placeholder={BU_AY} />
             </Field>
             <Field label="Günlük Çalışma (sn)">
               <input type="number" className="input" value={newForm.gunluk_calisma_sn}

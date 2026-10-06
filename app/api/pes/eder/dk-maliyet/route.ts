@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
 
+/**
+ * GET ?donem=YYYY-MM → o ayda GEÇERLİ değerler: istenen dönemden küçük/eşit
+ * en yakın dönem (ekonomi-sorgu.ts ve referans-sorgu.ts ile aynı kural).
+ * Birebir eşleşme ara aylarda (ör. 2026-07) boş dönüyor ve ekranlar
+ * referansı 0 gösteriyordu. Yanıttaki `donem` alanı hangi dönemin
+ * kullanıldığını söyler.
+ * Parametresiz: bütün dönemler, en yeni önce.
+ */
 export const GET = withTenantRoute(async (req, { sql }) => {
   const donem = req.nextUrl.searchParams.get('donem')
   const data = donem
-    ? await sql`SELECT * FROM dk_maliyet WHERE donem = ${donem} ORDER BY bolge`
+    ? await sql`
+        SELECT * FROM dk_maliyet
+        WHERE donem = (SELECT max(donem) FROM dk_maliyet WHERE donem <= ${donem})
+        ORDER BY bolge`
     : await sql`SELECT * FROM dk_maliyet ORDER BY donem DESC, bolge`
   return NextResponse.json({ maliyetler: data })
 })

@@ -40,11 +40,8 @@ export type HavuzKarti = {
   teslim: string | null
   durum: string
   atolyeAdi: string | null
-  /** Bağlıysa bağlı kalem; değilse ipucundaki (en küçük id'li) uyan kalem. */
-  tahminKalemId: number | null
-  tahminBagli: boolean
-  /** Bağlıysa kalem adı; değilse uyan ön-tahsisli atölye kodları. */
-  tahminIpucu: string | null
+  /** Yıllık plan: PO'nun klasmanı ve ayı için planı olan atölyeler ("B021 (20.000), B005 (8.000)"). */
+  planIpucu: string | null
 }
 
 export type YerlesikKalem = {
@@ -162,10 +159,6 @@ export default function Tezgah({
     }
     basla(() => router.refresh())
     return true
-  }
-
-  function tahminBagla(workOrderId: number, kalemId: number | null) {
-    return cagir('/api/pes/yillik-plan/bagla', 'POST', { workOrderId, kalemId })
   }
 
   async function birak(lineId: number, tarih: string) {
@@ -296,18 +289,9 @@ export default function Tezgah({
                 {h.atolyeAdi && (
                   <div className="text-[10px] text-slate-400 truncate">{h.atolyeAdi}</div>
                 )}
-                {h.tahminIpucu && h.tahminKalemId !== null && (
-                  <div className="flex items-center gap-1 text-[10px] text-indigo-600">
-                    <span className="truncate" title="Yıllık talep planı">
-                      Tahmin: {h.tahminBagli ? `bağlı (${h.tahminIpucu})` : h.tahminIpucu}
-                    </span>
-                    <button type="button" draggable={false}
-                      disabled={bekliyor}
-                      onMouseDown={(e) => e.stopPropagation()}
-                      onClick={(e) => { e.stopPropagation(); tahminBagla(h.workOrderId, h.tahminBagli ? null : h.tahminKalemId) }}
-                      className="shrink-0 underline disabled:opacity-50">
-                      {h.tahminBagli ? 'çöz' : 'bağla'}
-                    </button>
+                {h.planIpucu && (
+                  <div className="text-[10px] text-indigo-600 truncate" title={`Yıllık plan: ${h.planIpucu}`}>
+                    Plan: {h.planIpucu}
                   </div>
                 )}
               </article>

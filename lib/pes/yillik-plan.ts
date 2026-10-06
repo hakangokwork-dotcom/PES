@@ -1,170 +1,232 @@
 /**
- * Yıllık talep planı — saf hesap.
+ * Yıllık plan (v2, basit yapı) — saf hesap ve paylaşılan tipler.
  *
- * ORTAK BİRİM DAKİKA. Atölyeler karışık ürün diker; 1.000 gömlek ile
- * 1.000 mont aynı yük değildir. Kalem yükü = adet × SAM dk, atölye
- * kapasitesi = günlük dakika (gunlukKapasite zinciri) × çalışma günü.
+ * HER ŞEY ADET. Atölyenin aylık kapasitesi tek sayıdır (klasmandan
+ * bağımsız); planlamacı her ay hangi atölyeye hangi klasmandan kaç adet
+ * yaptıracağını kendisi yazar. v1'in dakika/SAM hesabı ve öneri motoru
+ * bilerek kaldırıldı (spec 2026-10-06-yillik-plan-basit-design.md).
  *
- * Çalışma günü kuralı bant-doluluk.ts ile aynı: yalnız pazar kapalı.
- * workshop_kapasite_gun ADET cinsinden (günlük hedef toplamının yerine);
- * burada o günün oranı olarak uygulanır: override ÷ normal hedef.
+ * Kapasite öncelik sırası (spec §1):
+ *   1. ay düzeltmesi (atolye_kapasite_ay) — 0 dahil, "o ay kapalı"
+ *   2. profil bazı (workshop_profil.aylik_kapasite > 0)
+ *   3. atölye beyanı (workshop.monthly_capacity > 0; ekranda "beyan")
+ *   4. aktif bantların günlük hedef toplamı × çalışma günü (≈ tahmin)
+ *   5. yok
+ *
+ * İstemci bileşenleri de bu dosyayı içe aktarır: sunucuya özgü import YOK.
  */
 import { pazarMi } from './bant-doluluk'
-import type { GenelUyum } from './yetenek-uyum'
+import { boyutUyumlari, uyumOzeti, genelUyum, type GenelUyum } from './yetenek-uyum'
 
-/** auto-plan/route.ts ile aynı varsayım. */
-export const VARDIYA_DK = 540
-export const VERIM = 0.85
+export const AYLAR = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara']
 
-export type KapasiteKaynagi = 'operator' | 'calisan' | 'hedef' | 'yok'
+export type KapasiteKaynagi = 'duzeltme' | 'profil' | 'atolye' | 'hedef' | 'yok'
 
-/** Kesim ve UKP personeli dikimci olmadığından toplam çalışanın dikim payı. */
-export function dikimPayi(kesimOrani: number, ukpOrani: number): number {
-  const d = (x: number) => (Number.isFinite(x) && x > 0 ? x : 0)
-  return 1 / (1 + d(kesimOrani) + d(ukpOrani))
+export const KAYNAK_ETIKET: Record<KapasiteKaynagi, string> = {
+  duzeltme: 'düzeltme',
+  profil: 'profil',
+  atolye: 'beyan',
+  hedef: 'hedef≈',
+  yok: 'kapasite yok',
 }
 
-/**
- * Normal bir çalışma gününün dakikası; veri varlığına göre zincir:
- * operatör → çalışan (dikim payıyla) → günlük hedef × SAM → yok.
- */
-export function gunlukKapasite(g: {
-  operator: number; calisan: number; dikimPayi: number; hedefAdet: number; samDk: number | null
-}): { dk: number | null; kaynak: KapasiteKaynagi } {
-  if (g.operator > 0) return { dk: g.operator * VARDIYA_DK * VERIM, kaynak: 'operator' }
-  if (g.calisan > 0) return { dk: g.calisan * g.dikimPayi * VARDIYA_DK * VERIM, kaynak: 'calisan' }
-  if (g.hedefAdet > 0 && g.samDk !== null && g.samDk > 0) {
-    return { dk: g.hedefAdet * g.samDk, kaynak: 'hedef' }
-  }
-  return { dk: null, kaynak: 'yok' }
+export const KAYNAK_ACIKLAMA: Record<KapasiteKaynagi, string> = {
+  duzeltme: 'Bu ay için elle girilen kapasite düzeltmesi',
+  profil: 'Atölye profilindeki aylık kapasite',
+  atolye: 'Atölye kaydındaki beyan edilen aylık kapasite (workshop.monthly_capacity)',
+  hedef: 'Aktif bantların günlük hedef toplamı × ayın çalışma günü (kaba tahmin)',
+  yok: 'Kapasite bilgisi yok; doluluk yüzdesi hesaplanamaz',
 }
 
-export type Tahsis = { workshopId: number; ay: number; adet: number }
+export type Klasman = { code: string; label: string }
+
+/** Plan, fiili sipariş ve talep satırlarının ortak biçimi. Talepte workshopId null. */
+export type AySatiri = { workshopId: number | null; ay: number; klasmanKodu: string | null; adet: number }
+
+export type PlanSatiri = {
+  id: number
+  workshopId: number
+  ay: number
+  klasmanKodu: string
+  adet: number
+  notMetni: string | null
+}
+
+export type AyDuzeltmesi = { adet: number; sebep: string | null }
+
+export type AtolyeKapasitesi = {
+  workshopId: number
+  kod: string
+  ad: string
+  /** workshop_profil.aylik_kapasite (ham; 0/null = baz yok). */
+  profilKapasite: number | null
+  /** workshop.monthly_capacity (ham; beyan, 0/null = yok). */
+  atolyeKapasite: number | null
+  /** Aktif bantların daily_target toplamı. */
+  gunlukHedef: number
+  /** Düzeltmeler hariç bazın kaynağı — satır etiketi. */
+  bazKaynak: KapasiteKaynagi
+  kapasite: (number | null)[]
+  kaynak: KapasiteKaynagi[]
+  duzeltme: (AyDuzeltmesi | null)[]
+  /** Atölyenin bantlarında kayıtlı klasman kodları (line_capability). */
+  klasmanlar: string[]
+}
 
 const iki = (n: number) => String(n).padStart(2, '0')
 
-export function ayGunleri(yil: number, ay: number): string[] {
+/** Ayın çalışma günü: pazartesi–cumartesi; pazar kapalı (bant-doluluk.ts kuralı). */
+export function calismaGunu(yil: number, ay: number): number {
   const son = new Date(Date.UTC(yil, ay, 0)).getUTCDate()
-  return Array.from({ length: son }, (_, i) => `${yil}-${iki(ay)}-${iki(i + 1)}`)
+  let n = 0
+  for (let g = 1; g <= son; g++) {
+    if (!pazarMi(`${yil}-${iki(ay)}-${iki(g)}`)) n++
+  }
+  return n
+}
+
+export function kapasiteCoz(g: {
+  duzeltme: number | null
+  profil: number | null
+  atolye: number | null
+  gunlukHedef: number
+  calismaGunu: number
+}): { adet: number | null; kaynak: KapasiteKaynagi } {
+  if (g.duzeltme !== null && g.duzeltme >= 0) return { adet: g.duzeltme, kaynak: 'duzeltme' }
+  if (g.profil !== null && g.profil > 0) return { adet: g.profil, kaynak: 'profil' }
+  if (g.atolye !== null && g.atolye > 0) return { adet: g.atolye, kaynak: 'atolye' }
+  if (g.gunlukHedef > 0 && g.calismaGunu > 0) {
+    return { adet: g.gunlukHedef * g.calismaGunu, kaynak: 'hedef' }
+  }
+  return { adet: null, kaynak: 'yok' }
+}
+
+export function yillikKapasite(yil: number, g: {
+  duzeltmeler: (number | null)[]
+  profil: number | null
+  atolye: number | null
+  gunlukHedef: number
+}): { adet: (number | null)[]; kaynak: KapasiteKaynagi[] } {
+  const c = Array.from({ length: 12 }, (_, m) => kapasiteCoz({
+    duzeltme: g.duzeltmeler[m] ?? null,
+    profil: g.profil,
+    atolye: g.atolye,
+    gunlukHedef: g.gunlukHedef,
+    calismaGunu: calismaGunu(yil, m + 1),
+  }))
+  return { adet: c.map((x) => x.adet), kaynak: c.map((x) => x.kaynak) }
+}
+
+/** Atölye satırı etiketi: düzeltmeler hariç bazın kaynağı. */
+export function bazKaynagi(
+  profil: number | null, atolye: number | null, gunlukHedef: number,
+): KapasiteKaynagi {
+  return kapasiteCoz({ duzeltme: null, profil, atolye, gunlukHedef, calismaGunu: 1 }).kaynak
 }
 
 /**
- * @param gunlukDk normal bir çalışma gününün dakikası
- * @param oranlar  tarih → o günün normale oranı (override ÷ normal hedef)
+ * Doluluk yüzdesi. Kapasite yoksa null. Kapasite 0 (ay kapalı) iken plan
+ * varsa sonsuz — kırmızı görünmeli; plan yoksa %0.
  */
-export function aylikKapasiteDk(
-  yil: number, gunlukDk: number, oranlar: Record<string, number>,
+export function dolulukYuzdesi(plan: number, kapasite: number | null): number | null {
+  if (kapasite === null) return null
+  if (kapasite <= 0) return plan > 0 ? Number.POSITIVE_INFINITY : 0
+  return (plan / kapasite) * 100
+}
+
+export type DolulukRengi = 'yok' | 'yesil' | 'sari' | 'kirmizi'
+
+export function dolulukRengi(y: number | null): DolulukRengi {
+  if (y === null) return 'yok'
+  if (y > 100) return 'kirmizi'
+  if (y > 85) return 'sari'
+  return 'yesil'
+}
+
+export function yuzdeMetni(y: number | null): string {
+  if (y === null) return '—'
+  if (!Number.isFinite(y)) return '∞'
+  if (y > 0 && y < 1) return '<%1'
+  return `%${Math.round(y)}`
+}
+
+/** Talep − yerleşen. Negatifse "fazla" olarak döner. */
+export function talepAcigi(talep: number, yerlesen: number): { acik: number; fazla: number } {
+  return { acik: Math.max(0, talep - yerlesen), fazla: Math.max(0, yerlesen - talep) }
+}
+
+export type TalepDurumu = { tur: 'yok' | 'acik' | 'fazla' | 'tamam'; adet: number }
+
+/**
+ * Ekranda gösterilecek talep durumu. Talep de yerleşen de yoksa "yok" (—);
+ * "tamam" yalnız talep > 0 ve tam karşılanmışsa.
+ */
+export function talepDurumu(talep: number, yerlesen: number): TalepDurumu {
+  if (talep <= 0 && yerlesen <= 0) return { tur: 'yok', adet: 0 }
+  const { acik, fazla } = talepAcigi(talep, yerlesen)
+  if (acik > 0) return { tur: 'acik', adet: acik }
+  if (fazla > 0) return { tur: 'fazla', adet: fazla }
+  return { tur: 'tamam', adet: 0 }
+}
+
+/**
+ * 12 aylık toplam. `workshopId` verilmezse tüm atölyeler; `klasman`
+ * null/undefined ise tüm klasmanlar.
+ */
+export function ayToplamlari(
+  satirlar: AySatiri[],
+  f: { workshopId?: number; klasman?: string | null } = {},
 ): number[] {
-  return Array.from({ length: 12 }, (_, i) =>
-    ayGunleri(yil, i + 1).reduce(
-      (t, g) => t + (pazarMi(g) ? 0 : gunlukDk * (oranlar[g] ?? 1)), 0))
-}
-
-export function esitProfil(): number[] {
-  return Array.from({ length: 12 }, () => 100 / 12)
-}
-
-export function profilGecerli(p: unknown): p is number[] {
-  if (!Array.isArray(p) || p.length !== 12) return false
-  if (!p.every((x) => typeof x === 'number' && Number.isFinite(x) && x >= 0)) return false
-  return Math.abs(p.reduce((a, b) => a + b, 0) - 100) < 0.05
+  const t = Array<number>(12).fill(0)
+  for (const s of satirlar) {
+    if (f.workshopId !== undefined && s.workshopId !== f.workshopId) continue
+    if (f.klasman != null && s.klasmanKodu !== f.klasman) continue
+    if (s.ay >= 1 && s.ay <= 12) t[s.ay - 1] += s.adet
+  }
+  return t
 }
 
 /**
- * Profili toplam 100 olacak şekilde ölçekler (2 ondalık). Yuvarlama artığı
- * en büyük aya yazılır. Toplam sıfır/geçersizse eşit profilden başlanır.
- */
-export function profilNormalle(p: number[]): number[] {
-  const temiz = p.map((x) => (Number.isFinite(x) && x > 0 ? x : 0))
-  const toplam = temiz.reduce((a, b) => a + b, 0)
-  const kaynak = toplam > 0 ? temiz : esitProfil()
-  const t = kaynak.reduce((a, b) => a + b, 0)
-  const r = kaynak.map((x) => Math.round((x * 10000) / t) / 100)
-  const artik = Math.round((100 - r.reduce((a, b) => a + b, 0)) * 100) / 100
-  const en = r.indexOf(Math.max(...r))
-  r[en] = Math.round((r[en] + artik) * 100) / 100
-  return r
-}
-
-/**
- * Hücre girdisi → adet. Türkçe binlik nokta ve boşluk atılır; boş = 0
- * (sil). Negatif/ondalık/harf için null.
+ * Ekran girdisi → adet. Boşluk atılır; nokta yalnız binlik ayracı olarak
+ * (1.500, 20.000.000) kabul edilir, boş = 0. "1.5", negatif, harf için null.
  */
 export function hucreAdedi(girdi: string): number | null {
-  const t = girdi.replace(/[.\s]/g, '')
+  const t = girdi.replace(/\s/g, '')
   if (t === '') return 0
-  return /^\d+$/.test(t) ? Number(t) : null
+  if (/^\d+$/.test(t) || /^\d{1,3}(\.\d{3})+$/.test(t)) return Number(t.replace(/\./g, ''))
+  return null
 }
 
-/** Profil yüzdelerini adede çevirir; toplam en büyük kalan yöntemiyle korunur. */
-export function aylikAdet(adet: number, profil: number[]): number[] {
-  /* Profil DB'de NUMERIC(6,2): 8,33×12 = 99,96. 100'e bölmek adet kaybettirir;
-     kendi toplamına göre normalize edilir. */
-  const toplam = profil.reduce((a, b) => a + b, 0)
-  if (!(toplam > 0)) return profil.map(() => 0)
-  const ham = profil.map((p) => (adet * p) / toplam)
-  const taban = ham.map(Math.floor)
-  let kalan = adet - taban.reduce((a, b) => a + b, 0)
-  const sira = ham.map((h, i) => ({ i, k: h - taban[i] })).sort((a, b) => b.k - a.k || a.i - b.i)
-  for (const { i } of sira) {
-    if (kalan <= 0) break
-    taban[i] += 1
-    kalan -= 1
-  }
-  return taban
-}
-
-export function yukYuzdesi(yukDk: number, kapasiteDk: number): number | null {
-  return kapasiteDk > 0 ? (yukDk / kapasiteDk) * 100 : null
-}
-
-export type OneriAdayi = {
-  workshopId: number
-  puan: number
-  uyum: GenelUyum
-  /** 12 ay; BU KALEMİN tahsisleri HARİÇ boş dakika. */
-  bosDk: number[]
+/** API gövdesindeki adet: yalnız negatif olmayan, INTEGER'a sığan tam sayı (number). */
+export function adetGecerli(v: unknown): number | null {
+  return typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 && v <= 2_147_483_647 ? v : null
 }
 
 /**
- * Açgözlü öneri: her ay için uygun atölyeler puan sırasıyla boş
- * dakikaları kadar doldurulur.
- *
- * Yalnız `uygun` atölye alınır. `bilinmiyor` (künye ya da yetenek kaydı
- * eksik) ENGEL DEĞİLDİR ama öneri onu seçmez — planlamacı elle girebilir.
- * Sığmayan adet zorla atanmaz, `tahsisEdilemeyen` olarak döner.
- * Elle girilmiş tahsisler korunur: ihtiyaçtan düşülür ve o (atölye, ay)
- * çiftine öneri yazılmaz; öneri kalanı diğer atölyelere dağıtır.
+ * Klasman-yalnız yetenek uyumu — yetenek-uyum.ts kuralları, künye yalnız
+ * klasman_kodu. Atölyenin klasman kaydı yoksa "bilinmiyor" (uyumsuz değil).
  */
-export function oneriUret(g: {
-  aylikAdet: number[]
-  samDk: number
-  adaylar: OneriAdayi[]
-  elle: Tahsis[]
-}): { tahsisler: Tahsis[]; tahsisEdilemeyen: number[] } {
-  if (!(g.samDk > 0)) throw new Error('SAM sıfırdan büyük olmalı')
-  const sirali = g.adaylar
-    .filter((a) => a.uyum === 'uygun')
-    .sort((a, b) => b.puan - a.puan || a.workshopId - b.workshopId)
+export function klasmanUyumu(
+  kod: string, atolyeKlasmanlari: string[], klasmanIzleniyor: boolean,
+): GenelUyum {
+  const izlenen = new Set<string>(klasmanIzleniyor ? ['klasman'] : [])
+  const yetenek = atolyeKlasmanlari.map((d) => ({ boyut: 'klasman', deger: d }))
+  return genelUyum(uyumOzeti(boyutUyumlari({ klasman_kodu: kod }, yetenek, izlenen)))
+}
 
-  const tahsisler: Tahsis[] = []
-  const tahsisEdilemeyen: number[] = []
-  for (let m = 0; m < 12; m++) {
-    const ay = m + 1
-    const elleAy = g.elle.filter((e) => e.ay === ay)
-    let kalan = Math.max(0, (g.aylikAdet[m] ?? 0) - elleAy.reduce((t, e) => t + e.adet, 0))
-    for (const a of sirali) {
-      if (kalan <= 0) break
-      /* (atölye, ay) çiftinde elle satır varsa öneri yazılamaz (tekil anahtar). */
-      if (elleAy.some((e) => e.workshopId === a.workshopId)) continue
-      const sigar = Math.floor(Math.max(0, a.bosDk[m] ?? 0) / g.samDk)
-      const al = Math.min(kalan, sigar)
-      if (al > 0) {
-        tahsisler.push({ workshopId: a.workshopId, ay, adet: al })
-        kalan -= al
-      }
-    }
-    tahsisEdilemeyen.push(kalan)
-  }
-  return { tahsisler, tahsisEdilemeyen }
+/** Klasman seçiliyken atölye grup sırası: uygun → kontrol edilemedi → uygun değil. */
+export const UYUM_SIRASI: Record<GenelUyum, number> = { uygun: 0, bilinmiyor: 1, uyumsuz: 2 }
+
+export const UYUM_GRUP_ETIKET: Record<GenelUyum, string> = {
+  uygun: 'Uygun',
+  bilinmiyor: 'Kontrol edilemedi (klasman kaydı yok)',
+  uyumsuz: 'Uygun değil',
+}
+
+const tr = new Intl.NumberFormat('tr-TR')
+
+/** Planlama Masası ipucu: "B021 (20.000), B005 (8.000)". */
+export function planIpucuMetni(satirlar: Array<{ kod: string; adet: number }>): string | null {
+  if (satirlar.length === 0) return null
+  return satirlar.map((s) => `${s.kod} (${tr.format(s.adet)})`).join(', ')
 }

@@ -1,181 +1,191 @@
 import { describe, expect, test } from 'vitest'
 import {
-  ayGunleri, aylikKapasiteDk, esitProfil, profilGecerli, aylikAdet, yukYuzdesi,
-  oneriUret, gunlukKapasite, dikimPayi, profilNormalle, hucreAdedi, type OneriAdayi,
+  calismaGunu, kapasiteCoz, yillikKapasite, bazKaynagi,
+  dolulukYuzdesi, dolulukRengi, yuzdeMetni, talepAcigi, ayToplamlari,
+  hucreAdedi, adetGecerli, talepDurumu, klasmanUyumu, planIpucuMetni, type AySatiri,
 } from './yillik-plan'
 
-describe('ayGunleri', () => {
-  test('şubat 2027 28 gün, ISO biçimli', () => {
-    const g = ayGunleri(2027, 2)
-    expect(g).toHaveLength(28)
-    expect(g[0]).toBe('2027-02-01')
-    expect(g[27]).toBe('2027-02-28')
+describe('calismaGunu', () => {
+  test('pazar kapalı: ocak 2027 = 26, şubat 2027 = 24, mart 2027 = 27', () => {
+    expect(calismaGunu(2027, 1)).toBe(26)
+    expect(calismaGunu(2027, 2)).toBe(24)
+    expect(calismaGunu(2027, 3)).toBe(27)
+  })
+  test('2026 yılı toplamı 313', () => {
+    const t = Array.from({ length: 12 }, (_, m) => calismaGunu(2026, m + 1)).reduce((a, b) => a + b, 0)
+    expect(t).toBe(313)
   })
 })
 
-describe('aylikKapasiteDk', () => {
-  test('pazarlar sıfır: ocak 2027 = 26 çalışma günü (5 pazar)', () => {
-    const k = aylikKapasiteDk(2027, 100, {})
-    expect(k).toHaveLength(12)
-    expect(k[0]).toBe(2600)
+describe('kapasiteCoz', () => {
+  const taban = { duzeltme: null, profil: null, atolye: null, gunlukHedef: 0, calismaGunu: 26 }
+  test('düzeltme her şeyi ezer, 0 dahil (ay kapalı)', () => {
+    expect(kapasiteCoz({ ...taban, duzeltme: 0, profil: 40000, atolye: 30000, gunlukHedef: 1000 }))
+      .toEqual({ adet: 0, kaynak: 'duzeltme' })
   })
-  test('override oranı o günü ölçekler', () => {
-    // 2027-01-04 pazartesi; yarım gün
-    const k = aylikKapasiteDk(2027, 100, { '2027-01-04': 0.5 })
-    expect(k[0]).toBe(2550)
+  test('düzeltme yoksa profil', () => {
+    expect(kapasiteCoz({ ...taban, profil: 40000, gunlukHedef: 1000 }))
+      .toEqual({ adet: 40000, kaynak: 'profil' })
   })
-})
-
-describe('profil', () => {
-  test('eşit profil 12 eleman, toplam 100', () => {
-    const p = esitProfil()
-    expect(p).toHaveLength(12)
-    expect(p.reduce((a, b) => a + b, 0)).toBeCloseTo(100, 6)
-    expect(profilGecerli(p)).toBe(true)
+  test('profil atölye beyanını ezer', () => {
+    expect(kapasiteCoz({ ...taban, profil: 40000, atolye: 30000, gunlukHedef: 1000 }))
+      .toEqual({ adet: 40000, kaynak: 'profil' })
   })
-  test('toplam 100 değilse ya da negatifse geçersiz', () => {
-    expect(profilGecerli(Array(12).fill(8))).toBe(false)
-    expect(profilGecerli([...Array(11).fill(10), -10])).toBe(false)
-    expect(profilGecerli(Array(11).fill(100 / 11))).toBe(false)
+  test('profil yok/0 ise atölye beyanı (workshop.monthly_capacity) hedefi ezer', () => {
+    expect(kapasiteCoz({ ...taban, profil: null, atolye: 30000, gunlukHedef: 1000 }))
+      .toEqual({ adet: 30000, kaynak: 'atolye' })
+    expect(kapasiteCoz({ ...taban, profil: 0, atolye: 30000, gunlukHedef: 1000 }))
+      .toEqual({ adet: 30000, kaynak: 'atolye' })
   })
-})
-
-describe('aylikAdet', () => {
-  test('toplam korunur (en büyük kalan)', () => {
-    const a = aylikAdet(1000, esitProfil())
-    expect(a.reduce((x, y) => x + y, 0)).toBe(1000)
-    expect(Math.max(...a) - Math.min(...a)).toBeLessThanOrEqual(1)
+  test('atölye beyanı 0 ise yok sayılır, hedefe düşer', () => {
+    expect(kapasiteCoz({ ...taban, atolye: 0, gunlukHedef: 1000 }))
+      .toEqual({ adet: 26000, kaynak: 'hedef' })
   })
-  test('profil toplamı 100 değilse (NUMERIC 8.33×12) kendi toplamına göre normalize edilir', () => {
-    const p = Array<number>(12).fill(8.33)
-    const a = aylikAdet(1_000_000, p)
-    expect(a.reduce((x, y) => x + y, 0)).toBe(1_000_000)
-    expect(aylikAdet(60_000, p)).toEqual(Array(12).fill(5000))
+  test('profil ve atölye beyanı yoksa günlük hedef × çalışma günü', () => {
+    expect(kapasiteCoz({ ...taban, profil: 0, gunlukHedef: 1000 }))
+      .toEqual({ adet: 26000, kaynak: 'hedef' })
   })
-  test('profil toplamı sıfırsa hepsi sıfır', () => {
-    expect(aylikAdet(100, Array(12).fill(0))).toEqual(Array(12).fill(0))
-  })
-  test('sıfır aylar sıfır kalır', () => {
-    const p = [50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    expect(aylikAdet(101, p)).toEqual([51, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+  test('hiçbiri yoksa null', () => {
+    expect(kapasiteCoz(taban)).toEqual({ adet: null, kaynak: 'yok' })
   })
 })
 
-describe('yukYuzdesi', () => {
-  test('kapasite sıfırsa null', () => {
-    expect(yukYuzdesi(10, 0)).toBeNull()
-    expect(yukYuzdesi(50, 200)).toBe(25)
+describe('yillikKapasite', () => {
+  test('ay bazında çözer; düzeltme yalnız kendi ayını etkiler', () => {
+    const d = Array<number | null>(12).fill(null)
+    d[1] = 5000
+    const k = yillikKapasite(2027, { duzeltmeler: d, profil: null, atolye: null, gunlukHedef: 1000 })
+    expect(k.adet).toHaveLength(12)
+    expect(k.adet[0]).toBe(26000)
+    expect(k.kaynak[0]).toBe('hedef')
+    expect(k.adet[1]).toBe(5000)
+    expect(k.kaynak[1]).toBe('duzeltme')
+    expect(k.adet[2]).toBe(27000)
   })
 })
 
-const sifir = () => Array(12).fill(0)
-const ay1 = (n: number) => { const a = sifir(); a[0] = n; return a }
-const aday = (id: number, puan: number, bosOcak: number, uyum: OneriAdayi['uyum'] = 'uygun'): OneriAdayi =>
-  ({ workshopId: id, puan, uyum, bosDk: ay1(bosOcak) })
-
-describe('oneriUret', () => {
-  test('yüksek puanlı atölye önce dolar, kalan sıradakine geçer', () => {
-    const r = oneriUret({
-      aylikAdet: ay1(150), samDk: 10,
-      adaylar: [aday(1, 50, 1000), aday(2, 90, 1000)], elle: [],
-    })
-    expect(r.tahsisler).toEqual([
-      { workshopId: 2, ay: 1, adet: 100 },
-      { workshopId: 1, ay: 1, adet: 50 },
-    ])
-    expect(r.tahsisEdilemeyen[0]).toBe(0)
-  })
-
-  test('uygun olmayan atölye kullanılmaz; sığmayan tahsis edilemeyen olur', () => {
-    const r = oneriUret({
-      aylikAdet: ay1(300), samDk: 10,
-      adaylar: [aday(1, 99, 99999, 'uyumsuz'), aday(2, 99, 99999, 'bilinmiyor'), aday(3, 10, 1000)],
-      elle: [],
-    })
-    expect(r.tahsisler).toEqual([{ workshopId: 3, ay: 1, adet: 100 }])
-    expect(r.tahsisEdilemeyen[0]).toBe(200)
-  })
-
-  test('elle tahsisi olan (atölye, ay) için öneri satırı üretilmez; kalan sıradakine geçer', () => {
-    const r = oneriUret({
-      aylikAdet: ay1(150), samDk: 10,
-      adaylar: [aday(1, 90, 1000), aday(2, 50, 1000)],
-      elle: [{ workshopId: 1, ay: 1, adet: 80 }],
-    })
-    // ihtiyaç 70; atölye 1 bu ayda elle dolu, kalan 70 atölye 2'ye (sığar: 100)
-    expect(r.tahsisler).toEqual([{ workshopId: 2, ay: 1, adet: 70 }])
-    expect(r.tahsisEdilemeyen[0]).toBe(0)
-  })
-
-  test('negatif boşluk (aşırı yük) sıfır sayılır', () => {
-    const r = oneriUret({ aylikAdet: ay1(10), samDk: 1, adaylar: [aday(1, 1, -500)], elle: [] })
-    expect(r.tahsisler).toEqual([])
-    expect(r.tahsisEdilemeyen[0]).toBe(10)
-  })
-
-  test('SAM sıfır ya da negatifse hata', () => {
-    expect(() => oneriUret({ aylikAdet: ay1(1), samDk: 0, adaylar: [], elle: [] })).toThrow('SAM')
+describe('bazKaynagi', () => {
+  test('profil > atolye > hedef > yok', () => {
+    expect(bazKaynagi(40000, 30000, 1000)).toBe('profil')
+    expect(bazKaynagi(null, 30000, 1000)).toBe('atolye')
+    expect(bazKaynagi(null, null, 500)).toBe('hedef')
+    expect(bazKaynagi(0, 0, 0)).toBe('yok')
   })
 })
 
-describe('dikimPayi', () => {
-  test('1 / (1 + kesim + ukp)', () => {
-    expect(dikimPayi(0.25, 0.4)).toBeCloseTo(1 / 1.65, 6)
+describe('doluluk', () => {
+  test('yüzde', () => {
+    expect(dolulukYuzdesi(20000, 40000)).toBe(50)
+    expect(dolulukYuzdesi(5, null)).toBeNull()
+    expect(dolulukYuzdesi(1, 0)).toBe(Number.POSITIVE_INFINITY)
+    expect(dolulukYuzdesi(0, 0)).toBe(0)
   })
-  test('geçersiz ya da negatif oran 0 sayılır', () => {
-    expect(dikimPayi(-1, NaN)).toBe(1)
+  test('renk eşikleri: ≤85 yeşil, ≤100 sarı, >100 kırmızı', () => {
+    expect(dolulukRengi(null)).toBe('yok')
+    expect(dolulukRengi(85)).toBe('yesil')
+    expect(dolulukRengi(85.5)).toBe('sari')
+    expect(dolulukRengi(100)).toBe('sari')
+    expect(dolulukRengi(100.1)).toBe('kirmizi')
+    expect(dolulukRengi(Number.POSITIVE_INFINITY)).toBe('kirmizi')
   })
-})
-
-describe('gunlukKapasite', () => {
-  const baz = { operator: 0, calisan: 0, dikimPayi: 0.6, hedefAdet: 0, samDk: null }
-  test('operatör: operatör × 540 × 0,85', () => {
-    expect(gunlukKapasite({ ...baz, operator: 10 })).toEqual({ dk: 10 * 540 * 0.85, kaynak: 'operator' })
-  })
-  test('çalışan: çalışan × dikim payı × 540 × 0,85', () => {
-    const r = gunlukKapasite({ ...baz, calisan: 100 })
-    expect(r.kaynak).toBe('calisan')
-    expect(r.dk).toBeCloseTo(100 * 0.6 * 540 * 0.85, 6)
-  })
-  test('hedef: günlük hedef × SAM', () => {
-    expect(gunlukKapasite({ ...baz, hedefAdet: 200, samDk: 30 })).toEqual({ dk: 6000, kaynak: 'hedef' })
-  })
-  test('hedef SAM yoksa yok', () => {
-    expect(gunlukKapasite({ ...baz, hedefAdet: 200 })).toEqual({ dk: null, kaynak: 'yok' })
-  })
-  test('veri yoksa yok', () => {
-    expect(gunlukKapasite(baz)).toEqual({ dk: null, kaynak: 'yok' })
-  })
-  test('öncelik: operatör > çalışan > hedef', () => {
-    const hepsi = { operator: 5, calisan: 50, dikimPayi: 0.6, hedefAdet: 100, samDk: 30 }
-    expect(gunlukKapasite(hepsi).kaynak).toBe('operator')
-    expect(gunlukKapasite({ ...hepsi, operator: 0 }).kaynak).toBe('calisan')
-    expect(gunlukKapasite({ ...hepsi, operator: 0, calisan: 0 }).kaynak).toBe('hedef')
+  test('metin', () => {
+    expect(yuzdeMetni(null)).toBe('—')
+    expect(yuzdeMetni(Number.POSITIVE_INFINITY)).toBe('∞')
+    expect(yuzdeMetni(0.4)).toBe('<%1')
+    expect(yuzdeMetni(0)).toBe('%0')
+    expect(yuzdeMetni(84.6)).toBe('%85')
   })
 })
 
-describe('profilNormalle', () => {
-  test('toplamı 100e ölçekler, 2 ondalık, artık en büyük aya', () => {
-    const r = profilNormalle(Array(12).fill(8.33))
-    expect(r).toHaveLength(12)
-    expect(Math.round(r.reduce((a, b) => a + b, 0) * 100) / 100).toBe(100)
-    expect(profilGecerli(r)).toBe(true)
-  })
-  test('toplam sıfır ya da geçersizse eşit profil', () => {
-    expect(profilNormalle(Array(12).fill(0))).toEqual(profilNormalle(esitProfil()))
-    expect(profilGecerli(profilNormalle(Array(12).fill(NaN)))).toBe(true)
+describe('talepAcigi', () => {
+  test('açık ve fazla', () => {
+    expect(talepAcigi(100, 60)).toEqual({ acik: 40, fazla: 0 })
+    expect(talepAcigi(100, 130)).toEqual({ acik: 0, fazla: 30 })
+    expect(talepAcigi(0, 0)).toEqual({ acik: 0, fazla: 0 })
   })
 })
 
-describe('hucreAdedi', () => {
-  test('binlik nokta ve boşluk atılır', () => {
-    expect(hucreAdedi('1.000')).toBe(1000)
-    expect(hucreAdedi(' 2 500 ')).toBe(2500)
+describe('ayToplamlari', () => {
+  const s: AySatiri[] = [
+    { workshopId: 1, ay: 1, klasmanKodu: 'PANTOLON', adet: 100 },
+    { workshopId: 1, ay: 1, klasmanKodu: 'GOMLEK', adet: 50 },
+    { workshopId: 2, ay: 3, klasmanKodu: 'PANTOLON', adet: 70 },
+    { workshopId: 1, ay: 12, klasmanKodu: null, adet: 5 },
+  ]
+  test('süzgeçsiz: ay toplamları', () => {
+    const t = ayToplamlari(s)
+    expect(t).toHaveLength(12)
+    expect(t[0]).toBe(150)
+    expect(t[2]).toBe(70)
+    expect(t[11]).toBe(5)
   })
-  test('boş 0; ondalık, negatif, harf geçersiz (null)', () => {
+  test('atölye süzgeci', () => {
+    expect(ayToplamlari(s, { workshopId: 1 })).toEqual([150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5])
+  })
+  test('klasman süzgeci; null klasman = hepsi', () => {
+    expect(ayToplamlari(s, { klasman: 'PANTOLON' })).toEqual([100, 0, 70, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    expect(ayToplamlari(s, { klasman: null })).toEqual(ayToplamlari(s))
+  })
+  test('ikisi birlikte', () => {
+    const t = ayToplamlari(s, { workshopId: 1, klasman: 'PANTOLON' })
+    expect(t[0]).toBe(100)
+    expect(t[2]).toBe(0)
+  })
+})
+
+describe('adet girdisi', () => {
+  test('hucreAdedi: Türkçe binlik nokta ve boşluk atılır, boş = 0', () => {
+    expect(hucreAdedi('20.000')).toBe(20000)
+    expect(hucreAdedi(' 1 500 ')).toBe(1500)
     expect(hucreAdedi('')).toBe(0)
-    expect(hucreAdedi('12,5')).toBeNull()
-    expect(hucreAdedi('-3')).toBeNull()
+    expect(hucreAdedi('-5')).toBeNull()
+    expect(hucreAdedi('1,5')).toBeNull()
+    expect(hucreAdedi('1.5')).toBeNull()
+    expect(hucreAdedi('12.50')).toBeNull()
+    expect(hucreAdedi('1.2345')).toBeNull()
+    expect(hucreAdedi('.500')).toBeNull()
+    expect(hucreAdedi('1.500.000')).toBe(1500000)
     expect(hucreAdedi('abc')).toBeNull()
+  })
+  test('adetGecerli: yalnız negatif olmayan tam sayı (number)', () => {
+    expect(adetGecerli(0)).toBe(0)
+    expect(adetGecerli(20000)).toBe(20000)
+    expect(adetGecerli(-1)).toBeNull()
+    expect(adetGecerli(1.5)).toBeNull()
+    expect(adetGecerli('100')).toBeNull()
+    expect(adetGecerli(null)).toBeNull()
+    expect(adetGecerli(3_000_000_000)).toBeNull()
+  })
+})
+
+describe('klasmanUyumu', () => {
+  test('kayıtta var → uygun, başka değer var → uyumsuz', () => {
+    expect(klasmanUyumu('PANTOLON', ['PANTOLON', 'GOMLEK'], true)).toBe('uygun')
+    expect(klasmanUyumu('ELBISE', ['PANTOLON'], true)).toBe('uyumsuz')
+  })
+  test('atölyenin klasman kaydı yok → kontrol edilemedi (uyumsuz DEĞİL)', () => {
+    expect(klasmanUyumu('ELBISE', [], true)).toBe('bilinmiyor')
+  })
+  test('klasman boyutu hiç izlenmiyorsa → kontrol edilemedi', () => {
+    expect(klasmanUyumu('PANTOLON', ['PANTOLON'], false)).toBe('bilinmiyor')
+  })
+})
+
+describe('planIpucuMetni', () => {
+  test('Türkçe binlik ile kod (adet) listesi', () => {
+    expect(planIpucuMetni([{ kod: 'B021', adet: 20000 }, { kod: 'B005', adet: 8000 }]))
+      .toBe('B021 (20.000), B005 (8.000)')
+  })
+  test('boşsa null', () => {
+    expect(planIpucuMetni([])).toBeNull()
+  })
+
+  test('talepDurumu: talep yoksa "—", açık/fazla/tamam', () => {
+    expect(talepDurumu(0, 0)).toEqual({ tur: 'yok', adet: 0 })
+    expect(talepDurumu(100, 0)).toEqual({ tur: 'acik', adet: 100 })
+    expect(talepDurumu(100, 60)).toEqual({ tur: 'acik', adet: 40 })
+    expect(talepDurumu(100, 100)).toEqual({ tur: 'tamam', adet: 0 })
+    expect(talepDurumu(100, 130)).toEqual({ tur: 'fazla', adet: 30 })
+    expect(talepDurumu(0, 50)).toEqual({ tur: 'fazla', adet: 50 })
   })
 })

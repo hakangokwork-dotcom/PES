@@ -1,197 +1,144 @@
 /**
- * Yıllık talep planı — veritabanı okuması. Hesap yillik-plan.ts'te.
+ * Yıllık plan (v2) — veritabanı okuması. Hesap yillik-plan.ts'te.
  *
  * Tüm fonksiyonlar TRANSACTION handle'ı ister (withTenantRoute /
  * withServerTenant içi); aksi halde RLS tenant bağlamı yok, 0 satır.
  */
 import type postgres from 'postgres'
-import { aylikKapasiteDk, gunlukKapasite, dikimPayi, type KapasiteKaynagi } from './yillik-plan'
-import { paramCoz } from './ekonomi-sorgu'
-import { referansDikimSn, type Aday } from './referans-model'
 import {
-  boyutUyumlari, uyumOzeti, genelUyum, GENEL_ETIKET,
-  type AtolyeYetenegi, type GenelUyum,
-} from './yetenek-uyum'
-import { adayAtolyeler } from './aday-atolye'
-import type { Kunye } from './kunye'
+  bazKaynagi, yillikKapasite,
+  type AtolyeKapasitesi, type AyDuzeltmesi, type AySatiri, type Klasman, type PlanSatiri,
+} from './yillik-plan'
 
 type Sql = postgres.TransactionSql
-const bosYil = () => Array<number>(12).fill(0)
 
-export type AtolyeKapasite = {
-  workshopId: number; kod: string; ad: string
-  kaynak: KapasiteKaynagi; kapasiteDk: number[] | null
+/** Klasman kataloğu (capability_value, boyut 'klasman'), katalog sırasıyla. */
+export async function klasmanKatalogu(sql: Sql): Promise<Klasman[]> {
+  return await sql`
+    SELECT v.code, v.label
+      FROM capability_value v
+      JOIN capability_dimension d ON d.id = v.dimension_id
+     WHERE d.code = 'klasman'
+     ORDER BY v.sort_order, v.label
+  ` as unknown as Klasman[]
 }
 
-export async function atolyeKapasiteleri(
-  sql: Sql, yil: number, samDk: number | null,
-): Promise<AtolyeKapasite[]> {
-  const atolyeler = await sql`
-    SELECT w.id, w.code, w.name,
-           COALESCE(SUM(pl.operator_count) FILTER (WHERE pl.is_active), 0)::int AS operator,
-           COALESCE(SUM(pl.daily_target)   FILTER (WHERE pl.is_active), 0)::int AS hedef,
-           COALESCE(MAX(wp.calisan_sayisi), 0)::int AS calisan
-      FROM workshop w
-      LEFT JOIN production_line pl ON pl.workshop_id = w.id
-      LEFT JOIN workshop_profil wp ON wp.workshop_id = w.id
-     WHERE w.is_active
-     GROUP BY w.id
-     ORDER BY w.code
-  ` as unknown as Array<{ id: number; code: string; name: string; operator: number; hedef: number; calisan: number }>
-
-  const paramSatirlari = await sql`
-    SELECT DISTINCT ON (param_key) param_key, param_value
-      FROM economy_param
-     ORDER BY param_key, donem DESC`
-  const param = paramCoz(paramSatirlari as unknown as Array<{ param_key: string; param_value: unknown }>)
-  const pay = dikimPayi(param.ref_kesim_personel_orani, param.ref_ukp_personel_orani)
-
-  const ozel = await sql`
-    SELECT workshop_id, tarih::text AS tarih, gunluk_kapasite
-      FROM workshop_kapasite_gun
-     WHERE tarih >= make_date(${yil}::int, 1, 1)
-       AND tarih <  make_date(${yil}::int + 1, 1, 1)
-  ` as unknown as Array<{ workshop_id: number; tarih: string; gunluk_kapasite: number }>
-
-  return atolyeler.map((a) => {
-    const { dk, kaynak } = gunlukKapasite({
-      operator: a.operator, calisan: a.calisan, dikimPayi: pay, hedefAdet: a.hedef, samDk,
-    })
-    if (dk === null) return { workshopId: a.id, kod: a.code, ad: a.name, kaynak, kapasiteDk: null }
-    const oranlar: Record<string, number> = {}
-    for (const o of ozel.filter((x) => x.workshop_id === a.id)) {
-      /* Override ADET; normal hedefe oranla dakikaya çevrilir. Hedef
-         girilmemişse oran kurulamaz: sıfır override kapatır, diğeri yok sayılır. */
-      oranlar[o.tarih] = a.hedef > 0 ? o.gunluk_kapasite / a.hedef : (o.gunluk_kapasite === 0 ? 0 : 1)
-    }
-    return {
-      workshopId: a.id, kod: a.code, ad: a.name, kaynak,
-      kapasiteDk: aylikKapasiteDk(yil, dk, oranlar),
-    }
-  })
-}
-
-/** Atanmış gerçek PO'ların aylık dakikası. Ay = bitiş, yoksa teslim. */
-export async function poAylikYuk(sql: Sql, yil: number): Promise<{
-  yuk: Map<number, number[]>; samsizPo: number
-}> {
-  const satirlar = await sql`
-    SELECT workshop_id,
-           extract(month FROM COALESCE(bitis_tarihi, teslim_tarihi))::int AS ay,
-           COALESCE(SUM(siparis_miktari * sam_toplam_sn / 60.0), 0)::float AS dk,
-           COUNT(*) FILTER (WHERE COALESCE(sam_toplam_sn, 0) = 0)::int AS samsiz
-      FROM work_order
-     WHERE workshop_id IS NOT NULL
-       AND durum <> 'Iptal'
-       AND extract(year FROM COALESCE(bitis_tarihi, teslim_tarihi)) = ${yil}
-     GROUP BY 1, 2
-  ` as unknown as Array<{ workshop_id: number; ay: number; dk: number; samsiz: number }>
-  const yuk = new Map<number, number[]>()
-  let samsizPo = 0
-  for (const s of satirlar) {
-    const a = yuk.get(s.workshop_id) ?? bosYil()
-    a[s.ay - 1] += s.dk
-    yuk.set(s.workshop_id, a)
-    samsizPo += s.samsiz
-  }
-  return { yuk, samsizPo }
+export async function klasmanVarMi(sql: Sql, kod: string): Promise<boolean> {
+  const r = await sql`
+    SELECT 1
+      FROM capability_value v
+      JOIN capability_dimension d ON d.id = v.dimension_id
+     WHERE d.code = 'klasman' AND v.code = ${kod}
+     LIMIT 1`
+  return r.length > 0
 }
 
 /**
- * Tahsislerin aylık dakikası. Kaleme bağlanmış PO'lar zaten poAylikYuk'ta
- * sayıldığı için kalemin tahsisi TÜKETİLEN oranında küçültülür — yoksa
- * aynı iş iki kez yük olurdu.
+ * Klasman boyutu yetenek kataloğunda tutuluyor mu. Hiç kayıt yoksa uyum
+ * sorulamaz — her atölye "kontrol edilemedi" görünür, "uygun değil" değil.
  */
-export async function tahsisAylikYuk(
-  sql: Sql, yil: number, haricKalemId: number | null,
-): Promise<Map<number, number[]>> {
-  const satirlar = await sql`
-    WITH tuketim AS (
-      SELECT tahmin_kalem_id AS kalem_id, SUM(siparis_miktari)::float AS adet
-        FROM work_order
-       WHERE tahmin_kalem_id IS NOT NULL AND durum <> 'Iptal'
-       GROUP BY 1)
-    SELECT t.workshop_id, t.ay,
-           SUM(t.adet * k.sam_dk
-               * GREATEST(0, 1 - COALESCE(u.adet, 0) / k.adet))::float AS dk
-      FROM talep_tahsis t
-      JOIN talep_tahmini_kalem k ON k.id = t.kalem_id
-      JOIN talep_tahmini h ON h.id = k.tahmin_id
-      LEFT JOIN tuketim u ON u.kalem_id = k.id
-     WHERE h.yil = ${yil}
-       AND k.sam_dk IS NOT NULL
-       AND (${haricKalemId}::int IS NULL OR t.kalem_id <> ${haricKalemId}::int)
-     GROUP BY 1, 2
-  ` as unknown as Array<{ workshop_id: number; ay: number; dk: number }>
-  const yuk = new Map<number, number[]>()
-  for (const s of satirlar) {
-    const a = yuk.get(s.workshop_id) ?? bosYil()
-    a[s.ay - 1] += s.dk
-    yuk.set(s.workshop_id, a)
-  }
-  return yuk
+export async function klasmanIzleniyor(sql: Sql): Promise<boolean> {
+  const r = await sql`SELECT 1 FROM line_capability WHERE dimension_code = 'klasman' LIMIT 1`
+  return r.length > 0
 }
 
-/** Ürün tipinin referans dikim süresi (dk); referans yoksa null. */
-export async function referansSamDk(sql: Sql, urunTipiId: number): Promise<number | null> {
-  const satirlar = await sql`
-    SELECT bolge, ek_parca_ad, gorulme, sn_medyan::float AS sn_medyan
-      FROM ref_parca_sure WHERE urun_tipi_id = ${urunTipiId}
-  ` as unknown as Array<{ bolge: string; ek_parca_ad: string; gorulme: number; sn_medyan: number }>
-  if (satirlar.length === 0) return null
-  const adaylar: Aday[] = satirlar.map((s) => ({
-    bolge: s.bolge, ekParca: s.ek_parca_ad, gorulme: s.gorulme, snMedyan: s.sn_medyan,
-  }))
-  const sn = referansDikimSn(adaylar)
-  return sn > 0 ? sn / 60 : null
-}
+/** Aktif atölyeler: 12 aylık kapasite (kaynağıyla), düzeltmeler, klasman yetenekleri. */
+export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeKapasitesi[]> {
+  const atolyeler = await sql`
+    SELECT w.id, w.code, w.name,
+           wp.aylik_kapasite AS profil,
+           w.monthly_capacity AS atolye,
+           COALESCE((SELECT SUM(pl.daily_target) FROM production_line pl
+                      WHERE pl.workshop_id = w.id AND pl.is_active), 0)::int AS hedef
+      FROM workshop w
+      LEFT JOIN workshop_profil wp ON wp.workshop_id = w.id
+     WHERE w.is_active
+     ORDER BY w.code
+  ` as unknown as Array<{ id: number; code: string; name: string; profil: number | null; atolye: number | null; hedef: number }>
 
-export type AtolyeUyumu = { uyum: GenelUyum; neden: string | null }
+  const duzeltmeSatirlari = await sql`
+    SELECT workshop_id, ay, adet, sebep
+      FROM atolye_kapasite_ay
+     WHERE yil = ${yil}
+  ` as unknown as Array<{ workshop_id: number; ay: number; adet: number; sebep: string | null }>
 
-export async function atolyeUyumlari(
-  sql: Sql, kunye: Kunye,
-): Promise<Map<number, AtolyeUyumu>> {
-  const yetenek = await sql`
-    SELECT DISTINCT pl.workshop_id, lc.dimension_code AS boyut, lc.value_code AS deger
+  const yetenekSatirlari = await sql`
+    SELECT DISTINCT pl.workshop_id, lc.value_code AS kod
       FROM line_capability lc
       JOIN production_line pl ON pl.id = lc.line_id
-  ` as unknown as Array<{ workshop_id: number; boyut: string; deger: string }>
-  const izlenen = new Set((await sql`
-    SELECT DISTINCT dimension_code FROM line_capability
-  ` as unknown as Array<{ dimension_code: string }>).map((r) => r.dimension_code))
+     WHERE lc.dimension_code = 'klasman' AND pl.is_active
+  ` as unknown as Array<{ workshop_id: number; kod: string }>
 
-  const atolyeYet = new Map<number, AtolyeYetenegi[]>()
-  for (const y of yetenek) {
-    const l = atolyeYet.get(y.workshop_id) ?? []
-    l.push({ boyut: y.boyut, deger: y.deger })
-    atolyeYet.set(y.workshop_id, l)
+  const duzeltmeler = new Map<number, (AyDuzeltmesi | null)[]>()
+  for (const d of duzeltmeSatirlari) {
+    const l = duzeltmeler.get(d.workshop_id) ?? Array<AyDuzeltmesi | null>(12).fill(null)
+    l[d.ay - 1] = { adet: d.adet, sebep: d.sebep }
+    duzeltmeler.set(d.workshop_id, l)
   }
-  const atolyeler = await sql`SELECT id FROM workshop WHERE is_active` as unknown as Array<{ id: number }>
-  const sonuc = new Map<number, AtolyeUyumu>()
-  for (const { id } of atolyeler) {
-    const ozet = uyumOzeti(boyutUyumlari(kunye, atolyeYet.get(id) ?? [], izlenen))
-    const uyum = genelUyum(ozet)
-    sonuc.set(id, {
-      uyum,
-      neden: uyum === 'uyumsuz' ? `Uymayan: ${ozet.eksikBoyutlar.join(', ')}`
-        : uyum === 'bilinmiyor' ? GENEL_ETIKET.bilinmiyor : null,
+  const yetenek = new Map<number, string[]>()
+  for (const y of yetenekSatirlari) {
+    const l = yetenek.get(y.workshop_id) ?? []
+    l.push(y.kod)
+    yetenek.set(y.workshop_id, l)
+  }
+
+  return atolyeler.map((a) => {
+    const duzeltme = duzeltmeler.get(a.id) ?? Array<AyDuzeltmesi | null>(12).fill(null)
+    const k = yillikKapasite(yil, {
+      duzeltmeler: duzeltme.map((d) => d?.adet ?? null),
+      profil: a.profil,
+      atolye: a.atolye,
+      gunlukHedef: a.hedef,
     })
-  }
-  return sonuc
+    return {
+      workshopId: a.id,
+      kod: a.code,
+      ad: a.name,
+      profilKapasite: a.profil,
+      atolyeKapasite: a.atolye,
+      gunlukHedef: a.hedef,
+      bazKaynak: bazKaynagi(a.profil, a.atolye, a.hedef),
+      kapasite: k.adet,
+      kaynak: k.kaynak,
+      duzeltme,
+      klasmanlar: yetenek.get(a.id) ?? [],
+    }
+  })
 }
 
-/** adayAtolyeler puanı; yıl sonuna teslim varsayılır. */
-export async function atolyePuanlari(
-  sql: Sql, yil: number, kunye: Kunye, adet: number,
-): Promise<Map<number, number>> {
-  const bugunIso = new Date().toISOString().slice(0, 10)
-  const yilBasi = `${yil}-01-01`
-  const adaylar = await adayAtolyeler(sql, {
-    adet,
-    teslimTarihi: `${yil}-12-31`,
-    bugun: bugunIso > yilBasi ? bugunIso : yilBasi,
-    klasmanKodu: kunye.klasman_kodu ?? null,
-    kumasTuruKodu: kunye.kumas_turu_kodu ?? null,
-  })
-  return new Map(adaylar.map((a) => [a.workshopId, a.puan]))
+export async function planSatirlari(sql: Sql, yil: number): Promise<PlanSatiri[]> {
+  return await sql`
+    SELECT p.id, p.workshop_id AS "workshopId", p.ay, p.klasman_kodu AS "klasmanKodu",
+           p.adet, p.not_metni AS "notMetni"
+      FROM plan_atolye_ay p
+      JOIN workshop w ON w.id = p.workshop_id AND w.is_active
+     WHERE p.yil = ${yil}
+     ORDER BY p.workshop_id, p.ay, p.klasman_kodu
+  ` as unknown as PlanSatiri[]
+}
+
+export async function talepSatirlari(sql: Sql, yil: number): Promise<AySatiri[]> {
+  return await sql`
+    SELECT NULL::int AS "workshopId", ay, klasman_kodu AS "klasmanKodu", adet
+      FROM plan_talep_ay
+     WHERE yil = ${yil}
+  ` as unknown as AySatiri[]
+}
+
+/**
+ * Atanmış gerçek siparişler (bilgi amaçlı). Ay = bitiş, yoksa teslim
+ * (v1 poAylikYuk ve Planlama Masası ipucuyla aynı kural).
+ */
+export async function fiiliSiparisler(sql: Sql, yil: number): Promise<AySatiri[]> {
+  return await sql`
+    SELECT o.workshop_id AS "workshopId",
+           extract(month FROM COALESCE(o.bitis_tarihi, o.teslim_tarihi))::int AS ay,
+           o.klasman_kodu AS "klasmanKodu",
+           COALESCE(SUM(o.siparis_miktari), 0)::int AS adet
+      FROM work_order o
+      JOIN workshop w ON w.id = o.workshop_id AND w.is_active
+     WHERE o.durum NOT IN ('İptal', 'Iptal')
+       AND extract(year FROM COALESCE(o.bitis_tarihi, o.teslim_tarihi)) = ${yil}
+     GROUP BY 1, 2, 3
+  ` as unknown as AySatiri[]
 }

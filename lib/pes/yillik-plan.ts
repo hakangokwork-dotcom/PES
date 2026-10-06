@@ -72,3 +72,47 @@ export type OneriAdayi = {
   /** 12 ay; BU KALEMİN tahsisleri HARİÇ boş dakika. */
   bosDk: number[]
 }
+
+/**
+ * Açgözlü öneri: her ay için uygun atölyeler puan sırasıyla boş
+ * dakikaları kadar doldurulur.
+ *
+ * Yalnız `uygun` atölye alınır. `bilinmiyor` (künye ya da yetenek kaydı
+ * eksik) ENGEL DEĞİLDİR ama öneri onu seçmez — planlamacı elle girebilir.
+ * Sığmayan adet zorla atanmaz, `tahsisEdilemeyen` olarak döner.
+ * Elle girilmiş tahsisler korunur: önce ihtiyaçtan ve o atölyenin
+ * boşluğundan düşülür, öneri yalnız kalanı dağıtır.
+ */
+export function oneriUret(g: {
+  aylikAdet: number[]
+  samDk: number
+  adaylar: OneriAdayi[]
+  elle: Tahsis[]
+}): { tahsisler: Tahsis[]; tahsisEdilemeyen: number[] } {
+  if (!(g.samDk > 0)) throw new Error('SAM sıfırdan büyük olmalı')
+  const sirali = g.adaylar
+    .filter((a) => a.uyum === 'uygun')
+    .sort((a, b) => b.puan - a.puan || a.workshopId - b.workshopId)
+
+  const tahsisler: Tahsis[] = []
+  const tahsisEdilemeyen: number[] = []
+  for (let m = 0; m < 12; m++) {
+    const ay = m + 1
+    const elleAy = g.elle.filter((e) => e.ay === ay)
+    let kalan = Math.max(0, (g.aylikAdet[m] ?? 0) - elleAy.reduce((t, e) => t + e.adet, 0))
+    for (const a of sirali) {
+      if (kalan <= 0) break
+      const elleDk = elleAy
+        .filter((e) => e.workshopId === a.workshopId)
+        .reduce((t, e) => t + e.adet * g.samDk, 0)
+      const sigar = Math.floor(Math.max(0, (a.bosDk[m] ?? 0) - elleDk) / g.samDk)
+      const al = Math.min(kalan, sigar)
+      if (al > 0) {
+        tahsisler.push({ workshopId: a.workshopId, ay, adet: al })
+        kalan -= al
+      }
+    }
+    tahsisEdilemeyen.push(kalan)
+  }
+  return { tahsisler, tahsisEdilemeyen }
+}

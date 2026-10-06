@@ -173,13 +173,14 @@ export function ayToplamlari(
 }
 
 /**
- * Ekran girdisi → adet. Türkçe binlik nokta ve boşluk atılır; boş = 0
- * (sil). Negatif/ondalık/harf için null.
+ * Ekran girdisi → adet. Boşluk atılır; nokta yalnız binlik ayracı olarak
+ * (1.500, 20.000.000) kabul edilir, boş = 0. "1.5", negatif, harf için null.
  */
 export function hucreAdedi(girdi: string): number | null {
-  const t = girdi.replace(/[.\s]/g, '')
+  const t = girdi.replace(/\s/g, '')
   if (t === '') return 0
-  return /^\d+$/.test(t) ? Number(t) : null
+  if (/^\d+$/.test(t) || /^\d{1,3}(\.\d{3})+$/.test(t)) return Number(t.replace(/\./g, ''))
+  return null
 }
 
 /** API gövdesindeki adet: yalnız negatif olmayan, INTEGER'a sığan tam sayı (number). */

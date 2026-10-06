@@ -20,18 +20,20 @@ atölyeye hangi klasmandan kaç adet yaptıracağını kendisi yazıyor. Dakika/
 Öncelik sırası:
 1. `atolye_kapasite_ay` düzeltmesi (o atölye, yıl, ay)
 2. Baz: `workshop_profil.aylik_kapasite` (> 0)
-3. Türetilmiş: aktif bantların `daily_target` toplamı × o ayın çalışma günü (pazartesi–cumartesi,
+3. Beyan: `workshop.monthly_capacity` (> 0)
+4. Türetilmiş: aktif bantların `daily_target` toplamı × o ayın çalışma günü (pazartesi–cumartesi,
    pazar kapalı — `bant-doluluk.ts` `pazarMi` kuralı)
-4. Yok → `null`; ekranda "kapasite yok", hücre yüzdesiz
+5. Yok → `null`; ekranda "kapasite yok", hücre yüzdesiz
 
-Ekranda her atölyenin kapasite kaynağı küçük etiketle görünür (düzeltme / profil / hedef≈ / yok).
+Ekranda her atölyenin kapasite kaynağı küçük etiketle görünür (düzeltme / profil / beyan / hedef≈ / yok).
 Baz kapasite ekrandan düzenlenince `workshop_profil.aylik_kapasite` yazılır (profil satırı yoksa
 oluşturulur). Not: profil içe aktarımı bu değeri sonradan ezebilir.
 
 ## 2. Veri modeli (migration 050)
 
 - 049 nesneleri kaldırılır: `work_order.tahmin_kalem_id`, `talep_tahsis`,
-  `talep_tahmini_kalem`, `talep_tahmini`.
+  `talep_tahmini_kalem`, `talep_tahmini`. NOT: bu kaldırma 050'de değil, v1.9.0 canlıya
+  çıktıktan SONRA ayrı bir migration 051'de yapılır (canlıdaki eski kod 049 tablolarını okuyor).
 - `atolye_kapasite_ay` — `tenant_id`, `workshop_id`, `yil`, `ay` (1–12), `adet` (>= 0), `sebep`;
   UNIQUE (`workshop_id`,`yil`,`ay`).
 - `plan_atolye_ay` — `tenant_id`, `workshop_id`, `yil`, `ay`, `klasman_kodu`, `adet` (> 0),
@@ -44,7 +46,7 @@ oluşturulur). Not: profil içe aktarımı bu değeri sonradan ezebilir.
 
 ## 3. Gerçek siparişler
 
-Hücrede plan yanında fiili sipariş adedi: `work_order` (atanmış, `durum <> 'Iptal'`),
+Hücrede plan yanında fiili sipariş adedi: `work_order` (atanmış, `durum NOT IN ('İptal', 'Iptal')` — yasal değer 'İptal' (noktalı İ), eski yazım da elenir; yalnız aktif atölyeler),
 ay = `COALESCE(bitis_tarihi, teslim_tarihi)`, klasman filtresi varsa `klasman_kodu` eşleşmesi.
 Doluluk yüzdesi PLAN üzerinden hesaplanır; fiili sipariş bilgi amaçlıdır.
 

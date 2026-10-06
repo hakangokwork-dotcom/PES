@@ -66,7 +66,7 @@ export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeK
     SELECT DISTINCT pl.workshop_id, lc.value_code AS kod
       FROM line_capability lc
       JOIN production_line pl ON pl.id = lc.line_id
-     WHERE lc.dimension_code = 'klasman'
+     WHERE lc.dimension_code = 'klasman' AND pl.is_active
   ` as unknown as Array<{ workshop_id: number; kod: string }>
 
   const duzeltmeler = new Map<number, (AyDuzeltmesi | null)[]>()
@@ -108,11 +108,12 @@ export async function atolyeKapasiteleri(sql: Sql, yil: number): Promise<AtolyeK
 
 export async function planSatirlari(sql: Sql, yil: number): Promise<PlanSatiri[]> {
   return await sql`
-    SELECT id, workshop_id AS "workshopId", ay, klasman_kodu AS "klasmanKodu",
-           adet, not_metni AS "notMetni"
-      FROM plan_atolye_ay
-     WHERE yil = ${yil}
-     ORDER BY workshop_id, ay, klasman_kodu
+    SELECT p.id, p.workshop_id AS "workshopId", p.ay, p.klasman_kodu AS "klasmanKodu",
+           p.adet, p.not_metni AS "notMetni"
+      FROM plan_atolye_ay p
+      JOIN workshop w ON w.id = p.workshop_id AND w.is_active
+     WHERE p.yil = ${yil}
+     ORDER BY p.workshop_id, p.ay, p.klasman_kodu
   ` as unknown as PlanSatiri[]
 }
 
@@ -130,14 +131,14 @@ export async function talepSatirlari(sql: Sql, yil: number): Promise<AySatiri[]>
  */
 export async function fiiliSiparisler(sql: Sql, yil: number): Promise<AySatiri[]> {
   return await sql`
-    SELECT workshop_id AS "workshopId",
-           extract(month FROM COALESCE(bitis_tarihi, teslim_tarihi))::int AS ay,
-           klasman_kodu AS "klasmanKodu",
-           COALESCE(SUM(siparis_miktari), 0)::int AS adet
-      FROM work_order
-     WHERE workshop_id IS NOT NULL
-       AND durum <> 'Iptal'
-       AND extract(year FROM COALESCE(bitis_tarihi, teslim_tarihi)) = ${yil}
+    SELECT o.workshop_id AS "workshopId",
+           extract(month FROM COALESCE(o.bitis_tarihi, o.teslim_tarihi))::int AS ay,
+           o.klasman_kodu AS "klasmanKodu",
+           COALESCE(SUM(o.siparis_miktari), 0)::int AS adet
+      FROM work_order o
+      JOIN workshop w ON w.id = o.workshop_id AND w.is_active
+     WHERE o.durum NOT IN ('İptal', 'Iptal')
+       AND extract(year FROM COALESCE(o.bitis_tarihi, o.teslim_tarihi)) = ${yil}
      GROUP BY 1, 2, 3
   ` as unknown as AySatiri[]
 }

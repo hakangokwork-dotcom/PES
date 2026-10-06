@@ -150,7 +150,7 @@ export default async function PlanTezgahiSayfasi({
           ON p.klasman_kodu = w.klasman_kodu
          AND p.yil = extract(year  FROM COALESCE(w.bitis_tarihi, w.teslim_tarihi))::int
          AND p.ay  = extract(month FROM COALESCE(w.bitis_tarihi, w.teslim_tarihi))::int
-        JOIN workshop a ON a.id = p.workshop_id
+        JOIN workshop a ON a.id = p.workshop_id AND a.is_active
        WHERE w.id = ANY(${havuzIdleri}::int[])
        ORDER BY w.id, p.adet DESC, a.code
     ` as unknown as Array<{ wo_id: number; kod: string; adet: number }>

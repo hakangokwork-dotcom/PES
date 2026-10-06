@@ -140,6 +140,11 @@ describe('adet girdisi', () => {
     expect(hucreAdedi('')).toBe(0)
     expect(hucreAdedi('-5')).toBeNull()
     expect(hucreAdedi('1,5')).toBeNull()
+    expect(hucreAdedi('1.5')).toBeNull()
+    expect(hucreAdedi('12.50')).toBeNull()
+    expect(hucreAdedi('1.2345')).toBeNull()
+    expect(hucreAdedi('.500')).toBeNull()
+    expect(hucreAdedi('1.500.000')).toBe(1500000)
     expect(hucreAdedi('abc')).toBeNull()
   })
   test('adetGecerli: yalnız negatif olmayan tam sayı (number)', () => {

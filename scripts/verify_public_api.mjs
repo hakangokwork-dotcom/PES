@@ -76,6 +76,8 @@ const UCLAR = [
   'ref_parca_sure',
   // 048 — VSIM atölye kayıtları
   'vsim_tesis', 'vsim_urun_grubu',
+  // 049 — yıllık talep planı (iç ekip aracı)
+  'talep_tahmini', 'talep_tahmini_kalem', 'talep_tahsis',
 ]
 
 let sizan = 0

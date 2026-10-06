@@ -74,6 +74,7 @@ const UCLAR = [
   // listede zaten var, yalnız ana veri tablosu eksikti.
   'ref_operasyon_zamani',
   'ref_parca_sure',
+  'dk_maliyet', 'dk_maliyet_gecmis',
   // 048 — VSIM atölye kayıtları
   'vsim_tesis', 'vsim_urun_grubu',
   // 049 — yıllık talep planı (iç ekip aracı)

@@ -67,7 +67,8 @@ export default async function ParametreSayfasi({
         Parametreler dönem versiyonludur. Bir ay hesaplanırken <strong>o aydan küçük veya
         eşit en yakın dönemin</strong> değerleri kullanılır — yani asgari ücret değiştiğinde
         yeni bir dönem eklersiniz, geçmiş aylar bozulmaz.
-        {' '}Bölge 3D dakika maliyeti burada değil: <code>dk_maliyet</code> tablosundan okunur.
+        {' '}Bölge 3D dakika maliyeti burada değil:{' '}
+        <Link href="/pes/ekonomi/dk-maliyet" className="underline">Dakika Maliyetleri (3D)</Link> ekranından yönetilir.
       </p>
 
       <Form tanimlar={TANIMLAR} donem={donem} mevcut={data.mevcut} />

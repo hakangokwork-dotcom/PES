@@ -20,8 +20,14 @@ export const GET = withTenantRoute(async (req, { sql }) => {
   return NextResponse.json({ maliyetler: data })
 })
 
+/** Tek bölge yazar. Yönetim ekranı /api/pes/dk-maliyet'i kullanır; bu uç
+    geriye dönük uyum için duruyor. Yalnız merkez; geçmişe kim yazdı düşer. */
 export const POST = withTenantRoute(async (req, { sql, tenant }) => {
+  if (tenant.workshopId !== null) {
+    return NextResponse.json({ error: 'Yalnız merkez paneli' }, { status: 403 })
+  }
   const body = await req.json()
+  await sql`SELECT set_config('pes.kullanici', ${tenant.userEmail ?? ''}, true)`
   const [row] = await sql`
     INSERT INTO dk_maliyet (tenant_id, donem, bolge, dk_maliyet_tl)
     VALUES (${tenant.tenantId}, ${body.donem}, ${body.bolge}, ${body.dk_maliyet_tl})

@@ -8,7 +8,7 @@ import {
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
   Shapes, Workflow, Calculator, CalendarRange,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
-  ArrowRight, Coins, Layers, Ruler, Tags, FunctionSquare, ClipboardPen, LayoutGrid, Zap,
+  ArrowRight, Coins, Layers, Ruler, Tags, Timer, FunctionSquare, ClipboardPen, LayoutGrid, Zap,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -58,6 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Atölye Ekonomi',  href: '/pes/ekonomi',       icon: Coins },
       { label: 'Klasman Kıyası', href: '/pes/ekonomi/klasman', icon: Layers },
       { label: 'Formül Kütüphanesi', href: '/pes/ekonomi/formuller', icon: FunctionSquare },
+      { label: 'Dakika Maliyetleri (3D)', href: '/pes/ekonomi/dk-maliyet', icon: Timer },
       { label: 'Veri Toplama', href: '/pes/ekonomi/talep', icon: ClipboardPen },
       { label: 'Sipariş Simülatörü', href: '/pes/siparis-simulasyon', icon: Zap },
       { label: 'Model Fiyatlama (MTM)', href: '/pes/model',      icon: Ruler },

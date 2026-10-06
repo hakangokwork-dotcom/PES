@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Inbox, Factory, ShieldCheck, CalendarDays, PackagePlus, Radar,
   Boxes, CircleCheck, CirclePause, RefreshCw, Users, Wallet, Upload,
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
-  Shapes, Workflow, Calculator,
+  Shapes, Workflow, Calculator, CalendarRange,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
   ArrowRight, Coins, Layers, Ruler, Tags, FunctionSquare, ClipboardPen, LayoutGrid, Zap,
 } from 'lucide-react'
@@ -33,6 +33,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Siparişler',        href: '/pes/siparisler',     icon: Inbox },
       { label: 'Sipariş Yerleştir', href: '/pes/siparis-yerlestir', icon: PackagePlus },
       { label: 'Planlama Masası', href: '/pes/plan-tezgahi', icon: LayoutGrid },
+      { label: 'Yıllık Talep Planı', href: '/pes/yillik-plan', icon: CalendarRange },
     ],
   },
   {

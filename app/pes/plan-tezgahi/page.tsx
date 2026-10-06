@@ -36,6 +36,8 @@ import type { Kunye } from '@/lib/pes/kunye'
 import type { AtolyeYetenegi } from '@/lib/pes/yetenek-uyum'
 import type { TeklifDurumu, GerekceKodu, TeklifKalem } from '@/lib/pes/plan-onay'
 
+const veriHavuzIdleri = (s: Array<Record<string, unknown>>) => s.map((h) => h.id as number)
+
 export const dynamic = 'force-dynamic'
 
 /** Izgarada kaç gün gösterilsin. */
@@ -138,6 +140,29 @@ export default async function PlanTezgahiSayfasi({
        LIMIT 200
     ` as unknown as Array<Record<string, unknown>>
 
+    /* Yıllık talep planı ipucu: onaylı bir tahmin kaleminin dolu künye
+       alanlarının HEPSİ PO'yla aynıysa ve kalemin PO'nun teslim ayında
+       tahsisi varsa, o ayın atölyeleri gösterilir. ENGELLEMEZ, söyler. */
+    const tahminIpuclari = await sql`
+      SELECT w.id AS wo_id, string_agg(DISTINCT a.code, ', ') AS atolyeler
+        FROM work_order w
+        JOIN talep_tahmini h ON h.durum = 'Onayli'
+             AND h.yil = extract(year FROM w.teslim_tarihi)::int
+        JOIN talep_tahmini_kalem k ON k.tahmin_id = h.id
+        JOIN talep_tahsis t ON t.kalem_id = k.id
+             AND t.ay = extract(month FROM w.teslim_tarihi)::int
+        JOIN workshop a ON a.id = t.workshop_id
+       WHERE w.id = ANY(${veriHavuzIdleri(havuzSatirlari)})
+         AND (k.klasman_kodu      IS NULL OR k.klasman_kodu      = w.klasman_kodu)
+         AND (k.kumas_turu_kodu   IS NULL OR k.kumas_turu_kodu   = w.kumas_turu_kodu)
+         AND (k.kumas_grubu_kodu  IS NULL OR k.kumas_grubu_kodu  = w.kumas_grubu_kodu)
+         AND (k.cinsiyet_yas_kodu IS NULL OR k.cinsiyet_yas_kodu = w.cinsiyet_yas_kodu)
+         AND (k.ana_grup_kodu     IS NULL OR k.ana_grup_kodu     = w.ana_grup_kodu)
+         AND (k.klasman_kodu IS NOT NULL OR k.kumas_turu_kodu IS NOT NULL
+              OR k.kumas_grubu_kodu IS NOT NULL OR k.ana_grup_kodu IS NOT NULL)
+       GROUP BY w.id
+    ` as unknown as Array<{ wo_id: number; atolyeler: string }>
+
     /* ---- Gönderilen teklifler ve atölye cevapları ---- */
     const teklifSatirlari = seciliId ? await sql`
       SELECT t.id, t.workshop_id, t.tur_no, t.durum, t.gonderildi_at,
@@ -185,7 +210,7 @@ export default async function PlanTezgahiSayfasi({
     ` as unknown as Array<{ dimension_code: string }>
 
     return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar,
-             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
+             havuzSatirlari, tahminIpuclari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
              yetenekSatirlari, izlenenSatirlari }
   })
 
@@ -283,6 +308,7 @@ export default async function PlanTezgahiSayfasi({
       teslim: (h.teslim as string) ?? null,
       durum: h.durum as string,
       atolyeAdi: (h.atolye_adi as string) ?? null,
+      tahminIpucu: veri.tahminIpuclari.find((t) => t.wo_id === (h.id as number))?.atolyeler ?? null,
     }))
 
   const teklifler: TeklifSatiri[] = veri.teklifSatirlari.map((t) => ({

@@ -40,6 +40,8 @@ export type HavuzKarti = {
   teslim: string | null
   durum: string
   atolyeAdi: string | null
+  /** Yıllık talep planında bu PO'ya uyan ön-tahsisli atölye kodları. */
+  tahminIpucu: string | null
 }
 
 export type YerlesikKalem = {
@@ -286,6 +288,11 @@ export default function Tezgah({
                 </div>
                 {h.atolyeAdi && (
                   <div className="text-[10px] text-slate-400 truncate">{h.atolyeAdi}</div>
+                )}
+                {h.tahminIpucu && (
+                  <div className="text-[10px] text-indigo-600 truncate" title="Yıllık talep planı ön-tahsisi">
+                    Tahmin: {h.tahminIpucu}
+                  </div>
                 )}
               </article>
             ))}

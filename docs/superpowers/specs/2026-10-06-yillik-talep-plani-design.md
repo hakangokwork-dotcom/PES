@@ -33,7 +33,7 @@ Atölyeler karışık ürün diker; adet karşılaştırılamaz.
      SAM yoksa bu basamak atlanır
   4. `yok`: veri yok, kapasite null; atölye öneriye girmez, ızgarada "veri yok" görünür.
   Kaynak ızgarada atölye adının yanında rozetle gösterilir.
-  İş günü: ayın hafta içi günleri; `workshop_kapasite_gun` override'ı (adet) normal
+  İş günü: pazartesi–cumartesi (yalnız pazar kapalı, bant-doluluk ile aynı); `workshop_kapasite_gun` override'ı (adet) normal
   hedefe oranlanıp o günün dakikasına uygulanır.
 - Boş kapasite = kapasite − gerçek PO yükü (o aya düşen `work_order` dakikası) − diğer tahsisler.
 
@@ -109,3 +109,13 @@ Migration sonrası RLS'i `APP_DATABASE_URL` ile iki kiracıyla doğrula.
 ## Kapsam dışı (v1)
 
 Departman girişleri/rolü, maliyet optimizasyonu, Excel'den tahmin içe aktarma.
+
+## Kabul edilen yaklaşıklıklar (v1)
+
+- Bir PO'nun tüm yükü tek aya düşer: ay = `COALESCE(bitis_tarihi, teslim_tarihi)`; günlere yayılmaz.
+- Tüketim indirimi (bağlı PO adedi) kalemin tüm hücrelerine eşit oranda yayılır; hangi aya karşılık geldiği izlenmez.
+- Havuzdaki PO (`workshop_id` NULL) bir kaleme bağlanırsa planı (ihtiyacı) azaltır ama atölyeye atanana kadar yük eklemez.
+- Çalışma günü: pazartesi–cumartesi; pazar kapalı (resmi tatil takvimi yok, yalnız `workshop_kapasite_gun` override'ı).
+- Künye girdileri v1'de serbest metin kodudur; sunucuda doğrulanır (açılır liste yok).
+- Tahmin/kalem için düzenleme ve silme arayüzü v1'de yok; API (PATCH/DELETE) hazır.
+

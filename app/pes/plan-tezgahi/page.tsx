@@ -35,6 +35,7 @@ import type { BildirimTipi } from '@/lib/pes/plan-bildirim'
 import type { Kunye } from '@/lib/pes/kunye'
 import type { AtolyeYetenegi } from '@/lib/pes/yetenek-uyum'
 import type { TeklifDurumu, GerekceKodu, TeklifKalem } from '@/lib/pes/plan-onay'
+import { planIpucuMetni } from '@/lib/pes/yillik-plan'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,6 +139,22 @@ export default async function PlanTezgahiSayfasi({
        LIMIT 200
     ` as unknown as Array<Record<string, unknown>>
 
+    /* Yıllık plan ipucu (v2): PO'nun klasmanı ve ayı (bitiş, yoksa teslim —
+       yillik-plan-veri fiiliSiparisler ile aynı kural) için planı olan
+       atölyeler, büyük plandan küçüğe. ENGELLEMEZ, söyler; bağlama yok. */
+    const havuzIdleri = havuzSatirlari.map((h) => h.id as number)
+    const planIpuclari = havuzIdleri.length === 0 ? [] : await sql`
+      SELECT w.id AS wo_id, a.code AS kod, p.adet
+        FROM work_order w
+        JOIN plan_atolye_ay p
+          ON p.klasman_kodu = w.klasman_kodu
+         AND p.yil = extract(year  FROM COALESCE(w.bitis_tarihi, w.teslim_tarihi))::int
+         AND p.ay  = extract(month FROM COALESCE(w.bitis_tarihi, w.teslim_tarihi))::int
+        JOIN workshop a ON a.id = p.workshop_id
+       WHERE w.id = ANY(${havuzIdleri}::int[])
+       ORDER BY w.id, p.adet DESC, a.code
+    ` as unknown as Array<{ wo_id: number; kod: string; adet: number }>
+
     /* ---- Gönderilen teklifler ve atölye cevapları ---- */
     const teklifSatirlari = seciliId ? await sql`
       SELECT t.id, t.workshop_id, t.tur_no, t.durum, t.gonderildi_at,
@@ -185,7 +202,7 @@ export default async function PlanTezgahiSayfasi({
     ` as unknown as Array<{ dimension_code: string }>
 
     return { taslaklar, seciliId, kalemSatirlari, atolyeIdler, bantSatirlari, baglamlar,
-             havuzSatirlari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
+             havuzSatirlari, planIpuclari, yerlesikWo, teklifSatirlari, teklifKalemleri, bildirimSatirlari,
              yetenekSatirlari, izlenenSatirlari }
   })
 
@@ -283,6 +300,7 @@ export default async function PlanTezgahiSayfasi({
       teslim: (h.teslim as string) ?? null,
       durum: h.durum as string,
       atolyeAdi: (h.atolye_adi as string) ?? null,
+      planIpucu: planIpucuMetni(veri.planIpuclari.filter((p) => p.wo_id === (h.id as number))),
     }))
 
   const teklifler: TeklifSatiri[] = veri.teklifSatirlari.map((t) => ({

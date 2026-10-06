@@ -40,6 +40,8 @@ export type HavuzKarti = {
   teslim: string | null
   durum: string
   atolyeAdi: string | null
+  /** Yıllık plan: PO'nun klasmanı ve ayı için planı olan atölyeler ("B021 (20.000), B005 (8.000)"). */
+  planIpucu: string | null
 }
 
 export type YerlesikKalem = {
@@ -286,6 +288,11 @@ export default function Tezgah({
                 </div>
                 {h.atolyeAdi && (
                   <div className="text-[10px] text-slate-400 truncate">{h.atolyeAdi}</div>
+                )}
+                {h.planIpucu && (
+                  <div className="text-[10px] text-indigo-600 truncate" title={`Yıllık plan: ${h.planIpucu}`}>
+                    Plan: {h.planIpucu}
+                  </div>
                 )}
               </article>
             ))}

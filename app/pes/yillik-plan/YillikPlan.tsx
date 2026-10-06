@@ -68,9 +68,9 @@ export default function YillikPlan({ veri }: { veri: YillikPlanVerisi }) {
       {veri.sekme === 'talep' ? (
         <TalepTablosu veri={veri} istek={istek} setHata={setHata} />
       ) : (
-        <div className={secili ? 'grid gap-4 xl:grid-cols-[minmax(0,1fr)_460px]' : ''}>
+        <div className={secili ? 'grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]' : ''}>
           <div className="min-w-0">
-            <DolulukTablosu veri={veri}
+            <DolulukTablosu veri={veri} kompakt={secili !== null}
               sec={(id) => git({ atolye: id === veri.atolyeId ? null : String(id) })} />
           </div>
           {secili && (

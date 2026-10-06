@@ -2,11 +2,11 @@
 import { Fragment, useMemo } from 'react'
 import {
   AYLAR, KAYNAK_ACIKLAMA, KAYNAK_ETIKET, UYUM_GRUP_ETIKET, UYUM_SIRASI,
-  ayToplamlari, dolulukRengi, dolulukYuzdesi, klasmanUyumu, talepAcigi, yuzdeMetni,
+  ayToplamlari, dolulukRengi, dolulukYuzdesi, klasmanUyumu, yuzdeMetni,
   type AtolyeKapasitesi, type DolulukRengi,
 } from '@/lib/pes/yillik-plan'
 import type { GenelUyum } from '@/lib/pes/yetenek-uyum'
-import { tr, type YillikPlanVerisi } from './ortak'
+import { talepDurumuGoster, tr, type YillikPlanVerisi } from './ortak'
 
 const RENK: Record<DolulukRengi, string> = {
   yok: 'bg-slate-50 text-slate-400',
@@ -21,14 +21,19 @@ type Satir = {
   gorunen: number[]
   /** Yüzde HER ZAMAN atölyenin toplam planından (kapasite paylaşılır). */
   yuzde: (number | null)[]
+  /** Atölyenin tüm klasmanlardaki aylık toplam planı. */
+  toplam: number[]
   sip: number[]
   uyum: GenelUyum | null
 }
 
-export default function DolulukTablosu({ veri, sec }: {
+export default function DolulukTablosu({ veri, sec, kompakt = false }: {
   veri: YillikPlanVerisi
   sec: (workshopId: number) => void
+  /** Yan panel açıkken: dar ay hücreleri, plan / kap satırı gizli. */
+  kompakt?: boolean
 }) {
+  const aySinif = kompakt ? 'w-16 min-w-16' : 'w-24 min-w-24'
   const k = veri.klasman
   const satirlar = useMemo(() => {
     const s: Satir[] = veri.atolyeler.map((a) => {
@@ -36,6 +41,7 @@ export default function DolulukTablosu({ veri, sec }: {
       return {
         a,
         gorunen: k ? ayToplamlari(veri.planlar, { workshopId: a.workshopId, klasman: k }) : toplam,
+        toplam,
         yuzde: toplam.map((p, m) => dolulukYuzdesi(p, a.kapasite[m])),
         sip: ayToplamlari(veri.fiili, { workshopId: a.workshopId, klasman: k }),
         uyum: k ? klasmanUyumu(k, a.klasmanlar, veri.klasmanIzleniyor) : null,
@@ -59,7 +65,7 @@ export default function DolulukTablosu({ veri, sec }: {
           <thead>
             <tr>
               <th className="text-left px-2 py-1 sticky left-0 z-10 bg-white">Atölye</th>
-              {AYLAR.map((ad) => <th key={ad} className="px-1 py-1 w-24">{ad}</th>)}
+              {AYLAR.map((ad) => <th key={ad} className={`px-1 py-1 ${aySinif}`}>{ad}</th>)}
             </tr>
             {talep && yerlesen && (
               <tr className="border-b text-slate-600">
@@ -67,14 +73,12 @@ export default function DolulukTablosu({ veri, sec }: {
                   Talep / yerleşen / açık
                 </th>
                 {talep.map((t, m) => {
-                  const { acik, fazla } = talepAcigi(t, yerlesen[m])
+                  const d = talepDurumuGoster(t, yerlesen[m])
                   return (
                     <td key={m} className="px-1 py-1 text-center align-top">
                       <div>{tr.format(t)}</div>
                       <div>{tr.format(yerlesen[m])}</div>
-                      <div className={acik > 0 ? 'text-red-600' : fazla > 0 ? 'text-amber-700' : 'text-emerald-700'}>
-                        {acik > 0 ? `açık ${tr.format(acik)}` : fazla > 0 ? `fazla ${tr.format(fazla)}` : 'tamam'}
-                      </div>
+                      <div className={d.sinif}>{d.metin}</div>
                     </td>
                   )
                 })}
@@ -96,8 +100,8 @@ export default function DolulukTablosu({ veri, sec }: {
                   )}
                   <tr onClick={() => sec(s.a.workshopId)}
                       className={`cursor-pointer hover:bg-slate-50 ${s.uyum === 'uyumsuz' ? 'opacity-50' : ''}`}>
-                    <td className={`px-2 py-1 sticky left-0 z-10 whitespace-nowrap max-w-[16rem] ${secili ? 'bg-slate-200' : 'bg-white'}`}>
-                      <div className="flex items-center gap-1">
+                    <td className={`px-2 py-1 sticky left-0 z-10 whitespace-nowrap ${secili ? 'bg-slate-200' : 'bg-white'}`}>
+                      <div className={`flex min-w-0 items-center gap-1 ${kompakt ? 'max-w-[12rem]' : 'max-w-[16rem]'}`}>
                         <span className="font-medium shrink-0">{s.a.kod}</span>
                         <span className="truncate" title={s.a.ad}>{s.a.ad}</span>
                         <span className="shrink-0 rounded bg-slate-100 px-1 text-[10px] text-slate-500"
@@ -110,17 +114,20 @@ export default function DolulukTablosu({ veri, sec }: {
                       const kap = s.a.kapasite[m]
                       const duz = s.a.kaynak[m] === 'duzeltme'
                       const sebep = s.a.duzeltme[m]?.sebep
+                      const kapali = kap === 0 && s.toplam[m] === 0
                       return (
                         <td key={m}
-                            className={`px-1 py-1 w-24 min-w-24 text-center align-top ${RENK[dolulukRengi(y)]}`}
+                            className={`px-1 py-1 ${aySinif} text-center align-top ${RENK[kapali ? 'yok' : dolulukRengi(y)]}`}
                             title={duz ? `Kapasite düzeltmesi${sebep ? `: ${sebep}` : ''}` : undefined}>
                           <div className="font-medium">
-                            {yuzdeMetni(y)}
+                            {kapali ? 'kapalı' : yuzdeMetni(y)}
                             {duz && <sup className="ml-0.5 text-[9px]">d</sup>}
                           </div>
-                          <div className="text-[10px]">
-                            {tr.format(s.gorunen[m])} / {kap === null ? '—' : tr.format(kap)}
-                          </div>
+                          {!kompakt && !kapali && (
+                            <div className="text-[10px]">
+                              {tr.format(s.gorunen[m])} / {kap === null ? '—' : tr.format(kap)}
+                            </div>
+                          )}
                           {s.sip[m] > 0 && (
                             <div className="text-[10px] text-slate-500">sip: {tr.format(s.sip[m])}</div>
                           )}

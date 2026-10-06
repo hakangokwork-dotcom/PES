@@ -1,5 +1,5 @@
-import type { FormEvent } from 'react'
-import type { AtolyeKapasitesi, AySatiri, Klasman, PlanSatiri } from '@/lib/pes/yillik-plan'
+import { useRef, useState, type FormEvent } from 'react'
+import { talepDurumu, type AtolyeKapasitesi, type AySatiri, type Klasman, type PlanSatiri } from '@/lib/pes/yillik-plan'
 
 export type Sekme = 'doluluk' | 'talep'
 
@@ -35,5 +35,32 @@ export function gonder(fn: (f: FormData, form: HTMLFormElement) => void) {
   return (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     fn(new FormData(e.currentTarget), e.currentTarget)
+  }
+}
+
+/**
+ * Çift gönderimi önler: `sar(fn)` çalışırken yeniden çağrılamaz, `mesgul`
+ * düğmeleri kilitler. (ref: aynı tık turundaki ikinci çağrıyı da yakalar.)
+ */
+export function useKilit() {
+  const [mesgul, setMesgul] = useState(false)
+  const kilit = useRef(false)
+  const sar = async (fn: () => Promise<unknown>) => {
+    if (kilit.current) return
+    kilit.current = true
+    setMesgul(true)
+    try { await fn() } finally { kilit.current = false; setMesgul(false) }
+  }
+  return { mesgul, sar }
+}
+
+/** Talep durumu hücre metni + rengi: talep yoksa "—", fazlaysa "fazla N". */
+export function talepDurumuGoster(talep: number, yerlesen: number): { metin: string; sinif: string } {
+  const d = talepDurumu(talep, yerlesen)
+  switch (d.tur) {
+    case 'acik': return { metin: `açık ${tr.format(d.adet)}`, sinif: 'text-red-600' }
+    case 'fazla': return { metin: `fazla ${tr.format(d.adet)}`, sinif: 'text-amber-700' }
+    case 'tamam': return { metin: 'tamam', sinif: 'text-emerald-700' }
+    default: return { metin: '—', sinif: 'text-slate-400' }
   }
 }

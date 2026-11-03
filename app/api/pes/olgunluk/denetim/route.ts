@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
 import { dbHata } from '../_guard'
+import { atolyeYazabilirMi } from '@/lib/pes/olgunluk-denetim'
 
 /**
  * Olgunluk denetimi başlığı.
@@ -74,13 +75,18 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   }
 })
 
-export const PATCH = withTenantRoute(async (req, { sql }) => {
+export const PATCH = withTenantRoute(async (req, { sql, tenant }) => {
   const body = (await req.json()) as Record<string, unknown>
   const id = Number(body.id)
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'Geçersiz denetim' }, { status: 400 })
 
-  const [mevcut] = await sql`SELECT id, durum FROM olgunluk_denetim WHERE id = ${id}`
+  const [mevcut] = await sql`SELECT id, durum, tur FROM olgunluk_denetim WHERE id = ${id}`
   if (!mevcut) return NextResponse.json({ error: 'Denetim bulunamadı' }, { status: 404 })
+  if (!atolyeYazabilirMi(tenant.workshopId, mevcut.tur)) {
+    return NextResponse.json({
+      error: 'Resmi denetimi yalnız merkez değiştirebilir.',
+    }, { status: 403 })
+  }
 
   const alanlar: Record<string, string | null> = {}
   if ('denetci' in body) alanlar.denetci = String(body.denetci ?? '').trim() || null
@@ -120,12 +126,17 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
   }
 })
 
-export const DELETE = withTenantRoute(async (req, { sql }) => {
+export const DELETE = withTenantRoute(async (req, { sql, tenant }) => {
   const id = parseInt(new URL(req.url).searchParams.get('id') ?? '')
   if (!Number.isInteger(id)) return NextResponse.json({ error: 'Geçersiz denetim' }, { status: 400 })
 
-  const [mevcut] = await sql`SELECT durum FROM olgunluk_denetim WHERE id = ${id}`
+  const [mevcut] = await sql`SELECT durum, tur FROM olgunluk_denetim WHERE id = ${id}`
   if (!mevcut) return NextResponse.json({ error: 'Denetim bulunamadı' }, { status: 404 })
+  if (!atolyeYazabilirMi(tenant.workshopId, mevcut.tur)) {
+    return NextResponse.json({
+      error: 'Resmi denetimi yalnız merkez değiştirebilir.',
+    }, { status: 403 })
+  }
   if (mevcut.durum === 'tamamlandi') {
     return NextResponse.json({
       error: 'Tamamlanmış denetim silinemez. Önce taslağa geri alın.',

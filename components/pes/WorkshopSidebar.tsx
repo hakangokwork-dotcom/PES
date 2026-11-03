@@ -9,7 +9,7 @@ import {
   CircleCheck, CirclePause, Lightbulb,
   Users, Wallet, Calculator,
   ChartColumn, Upload, Search, ArrowLeft, MapPin, Coins, Award, CalendarCheck,
-  Repeat,
+  Repeat, Radar,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -55,6 +55,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Kalite', href: '/workshop/quality',  icon: CircleCheck },
       { label: 'Duruş',  href: '/workshop/downtime', icon: CirclePause },
       { label: 'Kaizen', href: '/workshop/kaizen',   icon: Lightbulb },
+      { label: 'Olgunluk', href: '/workshop/olgunluk', icon: Radar },
     ],
   },
   {

@@ -61,11 +61,22 @@ function Olcum({ etiket, deger, vurgu }: { etiket: string; deger: string; vurgu?
   )
 }
 
-export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }) {
+/* İki panelden açılır: merkez /pes/olgunluk/denetim/[id], atölye
+   /workshop/olgunluk/[id]. Atölye resmi denetimi yalnız OKUR (saltOkunur):
+   süreç kırılımını görsün ama değiştiremesin — API de reddeder. */
+export default function OlgunlukDenetimEkrani({
+  detay, geriHref = '/pes/olgunluk', geriEtiket = 'Filo görünümü', saltOkunur = false,
+}: {
+  detay: DenetimDetay
+  geriHref?: string
+  geriEtiket?: string
+  saltOkunur?: boolean
+}) {
   const router = useRouter()
   const toast = useToast()
 
-  const kilitli = detay.baslik.durum === 'tamamlandi'
+  const tamamlandi = detay.baslik.durum === 'tamamlandi'
+  const kilitli = tamamlandi || saltOkunur
 
   const [cevaplar, setCevaplar] = useState<Record<number, Sonuc | null>>(() => {
     const m: Record<number, Sonuc | null> = {}
@@ -174,8 +185,8 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
                 <span className="num text-faint">{detay.baslik.atolye_kodu}</span>{' '}
                 {detay.baslik.atolye_adi}
               </h2>
-              <Badge tone={kilitli ? 'good' : 'neutral'}>
-                {kilitli ? 'Tamamlandı' : 'Taslak'}
+              <Badge tone={tamamlandi ? 'good' : 'neutral'}>
+                {tamamlandi ? 'Tamamlandı' : 'Taslak'}
               </Badge>
             </div>
             <p className="num mt-0.5 text-xs text-faint">
@@ -188,11 +199,11 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
             {kaydediliyor && (
               <span className="text-xs text-faint">kaydediliyor…</span>
             )}
-            <Link href="/pes/olgunluk"
+            <Link href={geriHref}
                   className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-body hover:bg-canvas">
-              Filo görünümü
+              {geriEtiket}
             </Link>
-            {kilitli ? (
+            {saltOkunur ? null : tamamlandi ? (
               <Button size="sm" variant="secondary" loading={bekliyor}
                       icon={<Unlock className="size-3.5" />}
                       onClick={() => durumDegistir('taslak')}>
@@ -226,7 +237,12 @@ export default function OlgunlukDenetimEkrani({ detay }: { detay: DenetimDetay }
         </div>
       </div>
 
-      {kilitli && (
+      {saltOkunur ? (
+        <p className="rounded-lg border border-line-soft bg-canvas px-4 py-2.5 text-[13px] text-muted">
+          Bu kayıt merkezin <strong>resmi denetimi</strong>; yalnız görüntüleyebilirsiniz.
+          Soldaki süreç listesinde her sürecin seviyesi, sağda hangi maddenin sağlanmadığı görünür.
+        </p>
+      ) : tamamlandi && (
         <p className="rounded-lg border border-line-soft bg-canvas px-4 py-2.5 text-[13px] text-muted">
           Denetim tamamlandı; işaretlemeler kilitli ve rapora giriyor.
           Düzeltmek için <strong>Taslağa al</strong> deyin.

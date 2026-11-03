@@ -69,6 +69,23 @@ export default function OlgunlukFiloTablosu({
         </div>
       </div>
 
+      {denetimli === 0 && (
+        /* Boş ısı haritası "bozuk" gibi görünüyordu: 131 satır tire.
+           Neden boş olduğunu ve ilk adımı söyle. */
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line-soft bg-warn-soft px-4 py-3">
+          <p className="text-[13px] text-body">
+            <strong>Henüz hiçbir atölyede tamamlanmış olgunluk denetimi yok.</strong>{' '}
+            Isı haritası denetim tamamlandıkça dolar. Pilot atölyelerden başlayın;
+            atölyeler kendi panellerinden öz değerlendirme de yapabilir.
+          </p>
+          {yayindaSurumVar && !acik && (
+            <Button size="sm" icon={<Plus className="size-3.5" />} onClick={() => setAcik(true)}>
+              İlk denetimi başlat
+            </Button>
+          )}
+        </div>
+      )}
+
       {acik && yayindaSurumVar && (
         <Card>
           <CardBody className="grid gap-3 sm:grid-cols-[1fr_160px_1fr_auto] sm:items-end">

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withTenantRoute } from '@/app/api/_lib/with-tenant'
 import { dbHata } from '../../_guard'
+import { atolyeYazabilirMi } from '@/lib/pes/olgunluk-denetim'
 
 /**
  * Denetimde madde işaretleme — sistemin tek ham verisi.
@@ -27,8 +28,13 @@ export const PUT = withTenantRoute(async (req, { sql, tenant }) => {
   }
 
   const [denetim] = await sql`
-    SELECT id, sablon_id, durum FROM olgunluk_denetim WHERE id = ${denetimId}`
+    SELECT id, sablon_id, durum, tur FROM olgunluk_denetim WHERE id = ${denetimId}`
   if (!denetim) return NextResponse.json({ error: 'Denetim bulunamadı' }, { status: 404 })
+  if (!atolyeYazabilirMi(tenant.workshopId, denetim.tur)) {
+    return NextResponse.json({
+      error: 'Resmi denetimi yalnız merkez değiştirebilir.',
+    }, { status: 403 })
+  }
   if (denetim.durum === 'tamamlandi') {
     return NextResponse.json({
       error: 'Denetim tamamlanmış; cevaplar kilitli. Değiştirmek için taslağa geri alın.',

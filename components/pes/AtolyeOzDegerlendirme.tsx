@@ -4,9 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Plus } from 'lucide-react'
-import { Button, Field, Input, Badge, Card, CardBody, useToast } from '@/components/ui'
+import { Button, Field, Input, Badge, Card, CardBody, EmptyState, useToast } from '@/components/ui'
 import { TUR_ETIKET, type AtolyeOlgunluk } from '@/lib/pes/olgunluk-denetim'
 import OlgunlukRadar from '@/components/pes/OlgunlukRadar'
+import SurecSeviyeListesi from '@/components/pes/SurecSeviyeListesi'
 
 /* ATÖLYENİN KENDİ EKRANI.
 
@@ -31,10 +32,9 @@ export default function AtolyeOzDegerlendirme({
   const [bekliyor, setBekliyor] = useState(false)
 
   const ozler = veri.denetimler.filter((d) => d.tur === 'OZ_DEGERLENDIRME')
-  const denetimler = veri.denetimler.filter((d) => d.tur === 'DENETIM')
   const acikTaslak = ozler.find((d) => d.durum === 'taslak')
-  const sonOz = ozler.find((d) => d.durum === 'tamamlandi')
-  const sonDenetim = denetimler.find((d) => d.durum === 'tamamlandi')
+  const sonOz = veri.sonOz
+  const sonDenetim = veri.sonDenetim
 
   async function baslat() {
     setBekliyor(true)
@@ -46,7 +46,7 @@ export default function AtolyeOzDegerlendirme({
       })
       const j = await r.json().catch(() => ({}))
       if (!r.ok) { toast.error(j.error ?? 'Başlatılamadı'); return }
-      router.push(`/pes/olgunluk/denetim/${j.id}`)
+      router.push(`/workshop/olgunluk/${j.id}`)
     } finally {
       setBekliyor(false)
     }
@@ -70,7 +70,7 @@ export default function AtolyeOzDegerlendirme({
 
         <div className="ml-auto flex items-center gap-2">
           {acikTaslak ? (
-            <Link href={`/pes/olgunluk/denetim/${acikTaslak.denetim_id}`}
+            <Link href={`/workshop/olgunluk/${acikTaslak.denetim_id}`}
                   className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-body hover:bg-canvas">
               Yarım kalana devam et
             </Link>
@@ -107,19 +107,47 @@ export default function AtolyeOzDegerlendirme({
         </Card>
       )}
 
-      {sonOz && (
+      {!sonOz && !sonDenetim && !acikTaslak && (
+        <EmptyState
+          title="Henüz tamamlanmış bir değerlendirme yok"
+          description={veri.yayindaSurum
+            ? 'Yeni öz değerlendirme ile her süreç için maddeleri işaretleyin; seviyeniz süreç süreç hesaplanır.'
+            : 'Merkez henüz bir soru seti yayınlamadı. Yayınlandığında buradan başlayabilirsiniz.'}
+          action={veri.yayindaSurum
+            ? <Button size="sm" icon={<Plus className="size-3.5" />} onClick={() => setAcik(true)}>
+                Öz değerlendirmeye başla
+              </Button>
+            : undefined}
+        />
+      )}
+
+      {(sonOz || sonDenetim) && (
         <Card>
           <div className="border-b border-line-soft px-4 py-2.5">
-            <span className="text-[13px] font-semibold text-ink">Kategori profiliniz</span>
-            <span className="num ml-2 text-[11px] text-faint">{tarihTR(sonOz.tarih)}</span>
+            <span className="text-[13px] font-semibold text-ink">
+              {sonOz ? 'Kategori profiliniz' : 'Denetim kategori profili'}
+            </span>
+            <span className="num ml-2 text-[11px] text-faint">
+              {tarihTR((sonOz ?? sonDenetim)!.tarih)}
+            </span>
           </div>
           <CardBody>
-            {/* Radar en son RESMİ denetimden geliyorsa yanıltıcı olurdu;
-                atölyenin kendi ekranında kendi beyanı gösterilir. */}
-            <OlgunlukRadar kategoriler={veri.sonKategoriler} />
+            {/* Öz değerlendirme varsa kendi beyanı çizilir; yoksa denetim.
+                Eskiden her durumda resmi denetim çiziliyordu. */}
+            <OlgunlukRadar kategoriler={sonOz ? veri.sonOzKategoriler : veri.sonKategoriler} />
           </CardBody>
         </Card>
       )}
+
+      {sonOz ? (
+        <SurecSeviyeListesi
+          surecler={veri.sonOzSurecler}
+          etiket="Sizin"
+          ikinci={sonDenetim ? { etiket: 'Denetim', surecler: veri.sonSurecler } : undefined}
+        />
+      ) : sonDenetim ? (
+        <SurecSeviyeListesi surecler={veri.sonSurecler} etiket="Denetim" />
+      ) : null}
 
       <div>
         <h2 className="mb-2 text-[13px] font-semibold text-ink">Geçmiş</h2>
@@ -153,12 +181,12 @@ export default function AtolyeOzDegerlendirme({
                     </td>
                     <td className="num px-3 py-1.5 text-right text-ink">{d.yuzde ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-1.5">
-                      {/* Resmi denetim atölye tarafından değiştirilemez; RLS
-                          yazmayı zaten reddeder, burada da açmıyoruz. */}
-                      {d.tur === 'OZ_DEGERLENDIRME' ? (
-                        <Link href={`/pes/olgunluk/denetim/${d.denetim_id}`}
+                      {/* Resmi denetim salt okunur açılır (API de yazmayı reddeder);
+                          yarım kalmış resmi denetim atölyeye gösterilmez. */}
+                      {d.tur === 'OZ_DEGERLENDIRME' || d.durum === 'tamamlandi' ? (
+                        <Link href={`/workshop/olgunluk/${d.denetim_id}`}
                               className="text-accent-ink underline underline-offset-2">
-                          {d.durum === 'taslak' ? 'Devam et' : 'Görüntüle'}
+                          {d.tur === 'OZ_DEGERLENDIRME' && d.durum === 'taslak' ? 'Devam et' : 'Görüntüle'}
                         </Link>
                       ) : (
                         <span className="text-faint">—</span>

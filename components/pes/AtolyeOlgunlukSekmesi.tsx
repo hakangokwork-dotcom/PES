@@ -8,6 +8,7 @@ import { Button, Field, Input, Badge, Card, CardBody, useToast } from '@/compone
 import { tierTone } from '@/lib/ui/tone'
 import { olgunlukSinifi, type AtolyeOlgunluk } from '@/lib/pes/olgunluk-denetim'
 import OlgunlukRadar from '@/components/pes/OlgunlukRadar'
+import SurecSeviyeListesi from '@/components/pes/SurecSeviyeListesi'
 
 /* ATÖLYE DETAYINDA OLGUNLUK.
 
@@ -132,6 +133,16 @@ export default function AtolyeOlgunlukSekmesi({
             <OlgunlukRadar kategoriler={veri.sonKategoriler} />
           </CardBody>
         </Card>
+      )}
+
+      {/* Süreç kırılımı — kategori ortalaması zayıf süreci saklıyordu.
+          Atölyenin öz beyanı varsa yanında: fark tek başına bir sinyal. */}
+      {son && (
+        <SurecSeviyeListesi
+          surecler={veri.sonSurecler}
+          etiket="Denetim"
+          ikinci={veri.sonOz ? { etiket: 'Öz beyan', surecler: veri.sonOzSurecler } : undefined}
+        />
       )}
 
       {/* Denetim geçmişi */}

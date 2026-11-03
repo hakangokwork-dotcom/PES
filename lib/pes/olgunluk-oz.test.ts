@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, test } from 'vitest'
 import postgres from 'postgres'
 import { readFileSync } from 'node:fs'
-import { atolyeOlgunluk, filoDurumu } from './olgunluk-denetim'
+import { atolyeOlgunluk, atolyeYazabilirMi, filoDurumu } from './olgunluk-denetim'
 
 /* ÖZ DEĞERLENDİRME AYRIMI (034) + ATÖLYE KISITI (033).
 
@@ -133,6 +133,11 @@ test('tamamlanmış öz değerlendirme filo skorunu ve sınıfı DEĞİŞTİRMEZ
     expect(kendi.denetimler.some((x) => x.denetim_id === d.id)).toBe(true)
     // Sınıfı belirleyen "son denetim" hâlâ öz değerlendirme OLMAMALI.
     expect(kendi.sonDenetim?.denetim_id).not.toBe(d.id)
+    // Atölyenin kendi radarı ve süreç listesi KENDİ beyanından gelir.
+    expect(kendi.sonOz?.denetim_id).toBe(d.id)
+    expect(kendi.sonOzKategoriler.length).toBeGreaterThan(0)
+    expect(kendi.sonOzSurecler.some((x) => x.seviye !== null)).toBe(true)
+    expect(kendi.sonOzSurecler.every((x) => x.kod && x.ad && x.kategori_kod)).toBe(true)
   })
 })
 
@@ -151,4 +156,11 @@ test('atölye kullanıcısı başka atölyeye öz değerlendirme açamaz', async
     } catch { /* RLS reddetmeli */ }
     expect(acildi).toBe(false)
   })
+})
+
+test('atölye resmi denetime yazamaz; merkez ikisine de yazar', () => {
+  expect(atolyeYazabilirMi(12, 'DENETIM')).toBe(false)
+  expect(atolyeYazabilirMi(12, 'OZ_DEGERLENDIRME')).toBe(true)
+  expect(atolyeYazabilirMi(null, 'DENETIM')).toBe(true)
+  expect(atolyeYazabilirMi(null, 'OZ_DEGERLENDIRME')).toBe(true)
 })

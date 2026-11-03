@@ -51,6 +51,11 @@ export default async function PesDashboard() {
         count(DISTINCT workshop_id) FILTER (WHERE durum = 'YAKLASIYOR')::int    AS yaklasan
       FROM v_atolye_denetim_durum WHERE is_active`
 
+    /* Olgunluk: hiç resmi denetimden geçmemiş aktif atölye. */
+    const [olgunlukYok] = await sql`
+      SELECT count(*)::int AS c FROM v_atolye_olgunluk
+       WHERE is_active AND son_denetim IS NULL`
+
     const [eksikBeyan] = await sql`
       SELECT count(*)::int AS c
       FROM workshop w
@@ -94,12 +99,12 @@ export default async function PesDashboard() {
       GROUP BY w.code, w.name, mp.year, mp.month, ss.tier
       ORDER BY eff DESC LIMIT 8`
 
-    return { malzemeGeciken, denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff: eff?.avg_eff ?? null, effTrend, wsEff, tierDist, recentProd }
+    return { malzemeGeciken, denetim, olgunlukYok, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff: eff?.avg_eff ?? null, effTrend, wsEff, tierDist, recentProd }
   })
 
   if (!data) redirect('/login')
 
-  const { malzemeGeciken, denetim, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff, effTrend, wsEff, tierDist, recentProd } = data
+  const { malzemeGeciken, denetim, olgunlukYok, eksikBeyan, gecikenIs, dusukVerim, wc, lc, ec, pc, woc, avgEff, effTrend, wsEff, tierDist, recentProd } = data
 
   const trendDelta = effTrend.length >= 2 ? Number(effTrend.at(-1)!.eff) - Number(effTrend.at(-2)!.eff) : 0
 
@@ -144,6 +149,12 @@ export default async function PesDashboard() {
       metin: 'iş emrinin teslimine 7 gün veya daha az kaldı',
       href: '/workshop/is-emri',
       agir: true,
+    },
+    {
+      sayi: olgunlukYok?.c ?? 0,
+      metin: 'atölye hiç olgunluk denetiminden geçmedi',
+      href: '/pes/olgunluk',
+      agir: false,
     },
     {
       sayi: eksikBeyan?.c ?? 0,

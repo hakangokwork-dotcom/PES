@@ -257,11 +257,28 @@ export interface AtolyeDenetimSatiri {
   degerlendirilmeyen: number
 }
 
+/** Süreç başına seviye, adıyla birlikte — "her süreçte nasılım" listesi. */
+export interface SurecSatiri {
+  surec_id: number
+  kod: string
+  ad: string
+  kategori_kod: string
+  kategori_adi: string
+  seviye: number | null
+}
+
 export interface AtolyeOlgunluk {
   denetimler: AtolyeDenetimSatiri[]
-  /** En son TAMAMLANMIŞ denetimin kategori kırılımı — radar için. */
+  /** En son TAMAMLANMIŞ resmi denetimin kategori kırılımı — radar için. */
   sonKategoriler: KategoriSeviye[]
+  /** Aynı denetimin süreç kırılımı. */
+  sonSurecler: SurecSatiri[]
   sonDenetim: AtolyeDenetimSatiri | null
+  /** En son tamamlanmış ÖZ DEĞERLENDİRME ve kırılımları. Resmi denetimden
+      ayrı: atölyenin kendi ekranı kendi beyanını çizer. */
+  sonOz: AtolyeDenetimSatiri | null
+  sonOzKategoriler: KategoriSeviye[]
+  sonOzSurecler: SurecSatiri[]
   /** Yayında sürüm yoksa yeni denetim açılamaz (031 trigger). */
   yayindaSurum: { id: number; kod: string } | null
 }
@@ -293,13 +310,15 @@ export async function atolyeOlgunluk(
   const sonDenetim = denetimler.find(
     (d) => d.durum === 'tamamlandi' && d.tur === 'DENETIM') ?? null
 
-  const sonKategoriler = sonDenetim
-    ? (await sql`
-        SELECT kategori_id, kategori_kod, kategori_adi, sira, surec_adedi,
-               ortalama_seviye::text AS ortalama_seviye, en_zayif_seviye
-          FROM v_olgunluk_kategori WHERE denetim_id = ${sonDenetim.denetim_id}
-         ORDER BY sira`) as unknown as KategoriSeviye[]
-    : []
+  const sonOz = denetimler.find(
+    (d) => d.durum === 'tamamlandi' && d.tur === 'OZ_DEGERLENDIRME') ?? null
+
+  const [sonKategoriler, sonSurecler, sonOzKategoriler, sonOzSurecler] = await Promise.all([
+    sonDenetim ? kategoriSeviyeleri(sql, sonDenetim.denetim_id) : [],
+    sonDenetim ? surecSeviyeleri(sql, sonDenetim.denetim_id) : [],
+    sonOz ? kategoriSeviyeleri(sql, sonOz.denetim_id) : [],
+    sonOz ? surecSeviyeleri(sql, sonOz.denetim_id) : [],
+  ])
 
   const [yayin] = await sql`
     SELECT id, kod FROM olgunluk_sablon WHERE durum = 'yayinda'`
@@ -307,9 +326,43 @@ export async function atolyeOlgunluk(
   return {
     denetimler,
     sonKategoriler,
+    sonSurecler,
     sonDenetim,
+    sonOz,
+    sonOzKategoriler,
+    sonOzSurecler,
     yayindaSurum: (yayin as unknown as { id: number; kod: string }) ?? null,
   }
+}
+
+async function kategoriSeviyeleri(
+  sql: postgres.TransactionSql, denetimId: number
+): Promise<KategoriSeviye[]> {
+  return (await sql`
+    SELECT kategori_id, kategori_kod, kategori_adi, sira, surec_adedi,
+           ortalama_seviye::text AS ortalama_seviye, en_zayif_seviye
+      FROM v_olgunluk_kategori WHERE denetim_id = ${denetimId}
+     ORDER BY sira`) as unknown as KategoriSeviye[]
+}
+
+/** Seviye view'dan; burada yalnız ad ve kategori eklenir. */
+export async function surecSeviyeleri(
+  sql: postgres.TransactionSql, denetimId: number
+): Promise<SurecSatiri[]> {
+  return (await sql`
+    SELECT v.surec_id, s.kod, s.ad, k.kod AS kategori_kod, k.ad AS kategori_adi, v.seviye
+      FROM v_olgunluk_surec_seviye v
+      JOIN olgunluk_surec s    ON s.id = v.surec_id
+      JOIN olgunluk_kategori k ON k.id = s.kategori_id
+     WHERE v.denetim_id = ${denetimId}
+     ORDER BY k.sira, s.sira, s.id`) as unknown as SurecSatiri[]
+}
+
+/** Atölye bu kaydı değiştirebilir mi? Resmi denetim yalnız merkezin.
+    RLS atölyeye kendi atölyesinin TÜM olgunluk kayıtlarını açıyor (033);
+    tür ayrımını yalnız INSERT'te trigger koruyor. Yazma uçları bunu sorar. */
+export function atolyeYazabilirMi(workshopId: number | null, tur: DenetimTur): boolean {
+  return workshopId === null || tur === 'OZ_DEGERLENDIRME'
 }
 
 /** Yüzdeden A/B/C/D — v_atolye_olgunluk'takiyle aynı eşikler. */

@@ -31,7 +31,7 @@ const KAPSAM = 'promode'
 
 /* Yeni derlemede VAR, eskisinde YOK olan yollar. 404 dönüyorsa alias
    hâlâ eski dağıtımı gösteriyor demektir. */
-const KANIT_YOLLAR = ['/pes/ekonomi', '/pes/plan-tezgahi', '/pes/siparis-simulasyon']
+const KANIT_YOLLAR = ['/pes/ekonomi', '/pes/plan-tezgahi', '/workshop/changeover']
 
 /* shell KAPALI: Windows'ta cmd.exe tek tırnağı anlamıyor ve `--jq` ifadesi
    parçalanıyordu. JSON'u Node ayrıştırıyor, kabuk hiç devreye girmiyor. */
@@ -61,16 +61,25 @@ async function durum(url) {
 }
 
 try {
-  /* ---- 1. Son production dağıtımı ---- */
-  const dagitimlar = ghJson(`repos/${DEPO}/deployments?per_page=10`)
-    .filter((d) => d.environment === 'Production')
-    .map((d) => ({ id: d.id, sha: String(d.sha).slice(0, 7), tarih: d.created_at }))
-  if (dagitimlar.length === 0) {
-    console.error('✗ Production dağıtımı bulunamadı')
+  /* ---- 1. HEAD'in production dağıtımı ----
+     "En son dağıtım" yetmez: push'tan hemen sonra Vercel yeni dağıtımı
+     henüz kaydetmemiş olur ve betik bir öncekini taşırdı (2026-11-03). */
+  const head = calistir('git', ['rev-parse', 'HEAD']).slice(0, 7)
+  let son = null
+  for (let i = 0; i < (BEKLE ? 20 : 1) && !son; i++) {
+    son = ghJson(`repos/${DEPO}/deployments?per_page=10`)
+      .filter((d) => d.environment === 'Production')
+      .map((d) => ({ id: d.id, sha: String(d.sha).slice(0, 7), tarih: d.created_at }))
+      .find((d) => d.sha === head) ?? null
+    if (!son && BEKLE) {
+      console.log(`  ${head} için dağıtım henüz yok — 15 sn sonra tekrar bakılacak`)
+      await new Promise((r) => setTimeout(r, 15_000))
+    }
+  }
+  if (!son) {
+    console.error(`✗ ${head} için production dağıtımı bulunamadı (push edildi mi?)`)
     process.exit(1)
   }
-
-  const son = dagitimlar[0]
   console.log(`Son production dağıtımı: ${son.sha} (${son.tarih})`)
 
   /* ---- 2. Durumu ve URL'si ---- */

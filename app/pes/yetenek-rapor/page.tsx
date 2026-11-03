@@ -50,7 +50,7 @@ export default async function YetenekRaporPage() {
   if (data.tableMissing) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-ink">Yetenek Kirilim Raporu</h1>
+        <h1 className="text-2xl font-bold text-ink">Yetenek Kırılım Raporu</h1>
         <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
           Yetenek tablolari henuz olusturulmamis. Supabase SQL Editor&apos;da 014_bant_attribute.sql dosyasini calistirin.
         </div>
@@ -118,26 +118,26 @@ export default async function YetenekRaporPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Yetenek Kirilim Raporu</h1>
-        <p className="text-sm text-faint">Tum atolyelerin bant yetenek profilleri — kapasite dagilimi</p>
+        <h1 className="text-2xl font-bold text-ink">Yetenek Kırılım Raporu</h1>
+        <p className="text-sm text-faint">Tüm Atölyelerin bant yetenek profilleri — kapasite dağılımı</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
-          <p className="text-xs text-faint">Profil Tanimli Bant</p>
+          <p className="text-xs text-faint">Profil Tanımlı Bant</p>
           <p className="text-2xl font-bold text-ink">{totalBant}</p>
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
-          <p className="text-xs text-faint">Toplam Operator</p>
+          <p className="text-xs text-faint">Toplam Operatör</p>
           <p className="text-2xl font-bold text-ink">{fmt(totalOp)}</p>
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
-          <p className="text-xs text-faint">Gunluk Kapasite</p>
+          <p className="text-xs text-faint">Günlük Kapasite</p>
           <p className="text-2xl font-bold text-ink">{fmt(totalHedef)}</p>
           <p className="text-[11px] text-faint">adet/gun (aylik: {fmt(totalHedef * 22)})</p>
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
-          <p className="text-xs text-faint">Atolye Sayisi</p>
+          <p className="text-xs text-faint">Atölye Sayısı</p>
           <p className="text-2xl font-bold text-ink">{Object.keys(atolyeKlasmanMap).length}</p>
         </div>
       </div>
@@ -176,16 +176,16 @@ export default async function YetenekRaporPage() {
       {allKlasmans.length > 0 && Object.keys(atolyeKlasmanMap).length > 0 && (
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-            <h3 className="text-sm font-semibold text-body">Atolye x Klasman Matrisi</h3>
+            <h3 className="text-sm font-semibold text-body">Atölye x Klasman Matrisi</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-faint border-b border-line-soft">
-                  <th className="text-left px-3 py-2 sticky left-0 bg-white">Atolye</th>
+                  <th className="text-left px-3 py-2 sticky left-0 bg-white">Atölye</th>
                   <th className="text-center px-1 py-2">Bant</th>
                   <th className="text-center px-1 py-2">Op</th>
-                  <th className="text-center px-1 py-2">Kap/gun</th>
+                  <th className="text-center px-1 py-2">Kap/gün</th>
                   {allKlasmans.map(k => (
                     <th key={k} className="text-center px-2 py-2 min-w-[60px]">{dimMap['klasman']?.vals[k] || k}</th>
                   ))}
@@ -217,7 +217,7 @@ export default async function YetenekRaporPage() {
 
       {lineData.length === 0 && (
         <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">
-          Henuz bant yetenek profili tanimlanmamis. Atolye Profil sayfasindan bantlara yetenek atamasi yapin.
+          Henüz bant yetenek profili tanımlanmamış. Atölye Profil sayfasından bantlara yetenek ataması yapın.
         </div>
       )}
     </div>

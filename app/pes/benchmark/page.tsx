@@ -67,7 +67,7 @@ export default async function BenchmarkPage({
   if (data.tableMissing) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-ink">Benchmark Yonetimi</h1>
+        <h1 className="text-2xl font-bold text-ink">Benchmark Yönetimi</h1>
         <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
           Benchmark tablosu henuz olusturulmamis. Supabase SQL Editor&apos;da <strong>010_benchmark.sql</strong> dosyasini calistirin.
         </div>
@@ -126,23 +126,23 @@ export default async function BenchmarkPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Benchmark Yonetimi</h1>
+        <h1 className="text-2xl font-bold text-ink">Benchmark Yönetimi</h1>
         <p className="text-sm text-faint mt-1">Merkezi hedefler ve atolye karsilastirmasi - {pMonth}/{pYear}</p>
       </div>
 
       <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-          <h2 className="text-sm font-semibold text-body">Hedef Degerleri</h2>
+          <h2 className="text-sm font-semibold text-body">Hedef Değerleri</h2>
         </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-xs text-faint border-b border-line-soft">
               <th className="text-left px-4 py-2">Metrik</th>
               <th className="text-center px-2 py-2 bg-green-50">Hedef</th>
-              <th className="text-center px-2 py-2 bg-amber-50">Uyari</th>
+              <th className="text-center px-2 py-2 bg-amber-50">Uyarı</th>
               <th className="text-center px-2 py-2 bg-red-50">Kritik</th>
               <th className="text-center px-2 py-2">Birim</th>
-              <th className="text-center px-2 py-2">Yon</th>
+              <th className="text-center px-2 py-2">Yön</th>
             </tr>
           </thead>
           <tbody>
@@ -170,13 +170,13 @@ export default async function BenchmarkPage({
 
       <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-          <h2 className="text-sm font-semibold text-body">Atolye Benchmark Karsilastirmasi</h2>
+          <h2 className="text-sm font-semibold text-body">Atölye Benchmark Karşılaştırması</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-faint border-b border-line-soft">
-                <th className="text-left px-3 py-2 sticky left-0 bg-white">Atolye</th>
+                <th className="text-left px-3 py-2 sticky left-0 bg-white">Atölye</th>
                 {benchmarks.map(bm => {
                   const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
                   return (
@@ -221,7 +221,7 @@ export default async function BenchmarkPage({
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
           <div className="w-3 h-3 bg-accent rounded-full mx-auto mb-1"></div>
-          <p className="text-amber-800 font-medium">Uyari</p>
+          <p className="text-amber-800 font-medium">Uyarı</p>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
           <div className="w-3 h-3 bg-red-500 rounded-full mx-auto mb-1"></div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -194,7 +195,7 @@ function IsEmriPage() {
   }
 
   if (!wid) {
-    return <div className="p-6 text-faint">Lütfen sol menüden bir atölye seçin.</div>
+    return <AtolyeSecilmedi />
   }
 
   return (
@@ -401,7 +402,7 @@ function IsEmriPage() {
           </div>
         )}
         {filtered.map(o => (
-          <Link key={o.id} href={`/workshop/is-emri/${o.id}?wid=${wid}`}
+          <Link key={o.id} href={`/workshop/is-emri/${o.id}`}
             className={`block bg-white border border-line-soft rounded-xl p-4 hover:shadow-sm transition ${ACILIYET_RENK[o.aciliyet] || ''}`}>
             <div className="flex items-start gap-4 flex-wrap">
               {/* Sol: Tanımlama */}

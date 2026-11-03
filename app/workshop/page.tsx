@@ -113,7 +113,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
     )
   }
 
-  if (data.mode === 'notfound') return <p>Atolye bulunamadi</p>
+  if (data.mode === 'notfound') return <p>Atölye bulunamadı</p>
 
   const { w, workshopId, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend } = data
 
@@ -161,7 +161,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           {Number(qualKpi?.rejected ?? 0) > 0 && <p className="text-xs text-red-400 mt-1">Red: {Number(qualKpi?.rejected)} Tamir: {Number(qualKpi?.rework)}</p>}
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-5">
-          <p className="text-xs text-faint">Durus</p>
+          <p className="text-xs text-faint">Duruş</p>
           <p className="text-3xl font-bold text-red-600">{downtimeKpi?.total_min ?? 0} <span className="text-sm text-faint">dk</span></p>
           <p className="text-xs text-faint mt-1">Kapasite etkisi: %{downtimePct}</p>
         </div>
@@ -169,12 +169,12 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
-          <p className="text-xs text-faint">Model Degisim</p>
+          <p className="text-xs text-faint">Model Değişim</p>
           <p className="text-lg font-bold text-ink">{changeKpi?.total_min ?? 0} dk</p>
           <p className="text-xs text-faint">{changeKpi?.count ?? 0} degisim</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
-          <p className="text-xs text-faint">Isgucudevir</p>
+          <p className="text-xs text-faint">İşgücü devri</p>
           <p className="text-lg font-bold text-ink">%{wfKpi?.turnover_pct ?? 0}</p>
           <p className="text-xs text-faint">Giden: {wfKpi?.left_count ?? 0} Gelen: {wfKpi?.joined_count ?? 0}</p>
         </div>
@@ -184,7 +184,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           <p className="text-xs text-faint">Gunluk: {workDays > 0 ? Math.round(totalExpense / workDays).toLocaleString('tr-TR') : '---'} TL</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
-          <p className="text-xs text-faint">Isinma Personel</p>
+          <p className="text-xs text-faint">Isınma Personel</p>
           <p className="text-lg font-bold text-amber-600">{wfKpi?.in_warmup ?? 0} kisi</p>
           <p className="text-xs text-faint">Toplam: {wfKpi?.total_staff ?? Number(w.total_staff)}</p>
         </div>
@@ -192,10 +192,10 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { href: `/workshop/production?wid=${workshopId}`, Icon: Boxes, label: 'Üretim' },
-          { href: `/workshop/costs?wid=${workshopId}`, Icon: Wallet, label: 'Gider' },
-          { href: `/workshop/quality?wid=${workshopId}`, Icon: Gauge, label: 'Kalite' },
-          { href: `/workshop/analysis?wid=${workshopId}`, Icon: BarChart3, label: 'Analiz' },
+          { href: `/workshop/production`, Icon: Boxes, label: 'Üretim' },
+          { href: `/workshop/costs`, Icon: Wallet, label: 'Gider' },
+          { href: `/workshop/quality`, Icon: Gauge, label: 'Kalite' },
+          { href: `/workshop/analysis`, Icon: BarChart3, label: 'Analiz' },
         ].map(a => (
           <Link key={a.href} href={a.href}
             className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 hover:shadow-md hover:border-emerald-300 transition-all flex items-center gap-2.5">
@@ -214,7 +214,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
 
       {bandPerf.length > 0 && (
         <div className="bg-white border border-line-soft rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-ink mb-4">Bant Performanslari</h2>
+          <h2 className="text-lg font-semibold text-ink mb-4">Bant Performansları</h2>
           <div className="space-y-3">
             {bandPerf.map((b) => {
               const bEff = Number(b.eff)

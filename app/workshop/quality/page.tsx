@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -42,22 +43,22 @@ function WorkshopQualityPage() {
     if (res.ok) setMessage('Kalite verisi kaydedildi')
   }
 
-  if (!wid) return <p>Atölye seçin</p>
+  if (!wid) return <AtolyeSecilmedi />
   const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-right'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Kalite Girişi</h1>
       </div>
 
       <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end flex-wrap">
-        <div><label className="block text-xs font-medium text-muted mb-1">Yil</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}><option value={2025}>2025</option><option value={2026}>2026</option></select></div>
+        <div><label className="block text-xs font-medium text-muted mb-1">Yıl</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}><option value={2025}>2025</option><option value={2026}>2026</option></select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Ay</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}</select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Bant</label>
           <select className="px-3 py-2 border border-line rounded-lg text-sm" value={form.line_id} onChange={e => setForm(p => ({...p, line_id: e.target.value}))}>
-            <option value="">Tumu</option>
+            <option value="">Tümü</option>
             {lines.map(l => <option key={l.id} value={l.id}>{l.code} - {l.name}</option>)}
           </select>
         </div>

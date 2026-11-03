@@ -1,17 +1,18 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useRef } from 'react'
 
 const TEMPLATES = [
-  { key: 'setup', label: 'Atolye Kurulum (Tek Dosya)', desc: 'Profil + personel + bantlar + gider — bir kerede kurulum', icon: '★', color: 'emerald' },
-  { key: 'production', label: 'Uretim Verisi', desc: 'Bant bazli aylik uretim hedef/gercek adetleri', icon: '⊞', color: 'emerald' },
+  { key: 'setup', label: 'Atölye Kurulum (Tek Dosya)', desc: 'Profil + personel + bantlar + gider — bir kerede kurulum', icon: '★', color: 'emerald' },
+  { key: 'production', label: 'Üretim Verisi', desc: 'Bant bazlı aylık üretim hedef/gerçek adetleri', icon: '⊞', color: 'emerald' },
   { key: 'expenses', label: 'Gider Verisi', desc: '12 gider kalemi + hedef ciro', icon: '₺', color: 'blue' },
   { key: 'quality', label: 'Kalite Verisi', desc: 'Kontrol, FPQ, red, tamir, hata kategorisi', icon: '◎', color: 'purple' },
-  { key: 'downtime', label: 'Durus Kaydi', desc: 'Bant bazli durus suresi, tip ve neden', icon: '⏸', color: 'red' },
-  { key: 'workforce', label: 'Isgucu Devir', desc: 'Personel hareketi, isinma, kidem', icon: '👥', color: 'amber' },
-  { key: 'changeover', label: 'Model Degisim', desc: 'Bant bazli model degisim sureleri', icon: '↻', color: 'indigo' },
-  { key: 'eder_operations', label: 'Eder Operasyonlar', desc: 'Operasyon grubu, alt operasyon, sure, kisi', icon: '⊕', color: 'teal' },
+  { key: 'downtime', label: 'Duruş Kaydı', desc: 'Bant bazlı duruş süresi, tip ve neden', icon: '⏸', color: 'red' },
+  { key: 'workforce', label: 'İşgücü Devir', desc: 'Personel hareketi, ısınma, kıdem', icon: '👥', color: 'amber' },
+  { key: 'changeover', label: 'Model Değişim', desc: 'Bant bazlı model değişim süreleri', icon: '↻', color: 'indigo' },
+  { key: 'eder_operations', label: 'Eder Operasyonlar', desc: 'Operasyon grubu, alt operasyon, süre, kişi', icon: '⊕', color: 'teal' },
 ]
 
 const COLORS: Record<string, string> = {
@@ -25,7 +26,7 @@ const COLORS: Record<string, string> = {
 }
 
 export default function VeriYukleWrapper() {
-  return <Suspense fallback={<div className="p-6 text-faint">Yukleniyor...</div>}><VeriYuklePage /></Suspense>
+  return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><VeriYuklePage /></Suspense>
 }
 
 function VeriYuklePage() {
@@ -58,19 +59,19 @@ function VeriYuklePage() {
     setUploading(null)
   }
 
-  if (!wid) return <div className="p-6 text-faint">Atolye secin</div>
+  if (!wid) return <AtolyeSecilmedi />
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Veri Yukle / Indir</h1>
-        <p className="text-sm text-faint mt-1">CSV sablonlarini indirin, doldurun ve sisteme yukleyin</p>
+        <h1 className="text-2xl font-bold text-ink">Veri Yükle / İndir</h1>
+        <p className="text-sm text-faint mt-1">CSV şablonlarını indirin, doldurun ve sisteme yükleyin</p>
       </div>
 
       {/* Donem Secimi */}
       <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end">
         <div>
-          <label className="block text-xs font-medium text-muted mb-1">Yil</label>
+          <label className="block text-xs font-medium text-muted mb-1">Yıl</label>
           <select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(Number(e.target.value))}>
             <option value={2025}>2025</option><option value={2026}>2026</option>
           </select>
@@ -86,12 +87,12 @@ function VeriYuklePage() {
 
       {/* Nasil Kullanilir */}
       <div className="bg-canvas border border-line rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-muted mb-2">Nasil Kullanilir?</h3>
+        <h3 className="text-sm font-semibold text-muted mb-2">Nasıl Kullanılır?</h3>
         <ol className="text-sm text-muted space-y-1 list-decimal list-inside">
-          <li><strong>Sablon Indir</strong> butonuna tiklayin — ornek verili CSV dosyasi inecek</li>
+          <li><strong>Şablon İndir</strong> butonuna tıklayın — örnek verili CSV dosyası inecek</li>
           <li>Dosyayi Excel ile acin (ayirici: noktali virgul <code>;</code>)</li>
-          <li>Ornek satirlari silin, kendi verilerinizi girin</li>
-          <li>CSV olarak kaydedin ve <strong>Yukle</strong> butonuyla sisteme gonderin</li>
+          <li>Örnek satırları silin, kendi verilerinizi girin</li>
+          <li>CSV olarak kaydedin ve <strong>Yükle</strong> butonuyla sisteme gönderin</li>
         </ol>
         <p className="text-xs text-muted mt-2">Not: Bant kodlari (BANT-01 vb.) sistemde tanimli olmalidir. Profil sayfasindan bantlarinizi kontrol edin.</p>
       </div>
@@ -115,7 +116,7 @@ function VeriYuklePage() {
                   download
                   className="px-3 py-1.5 bg-white border border-line rounded-lg text-xs font-medium text-body hover:bg-canvas whitespace-nowrap"
                 >
-                  Sablon Indir
+                  Şablon İndir
                 </a>
               </div>
 

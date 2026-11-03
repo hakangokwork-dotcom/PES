@@ -1,3 +1,4 @@
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { redirect } from 'next/navigation'
 import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
@@ -34,17 +35,7 @@ export default async function YetenekPage({ searchParams }: Props) {
 
   if (!data) redirect('/login')
 
-  if (data.mode === 'atolyesiz') {
-    return (
-      <div className="max-w-2xl mx-auto pt-12 text-center space-y-3">
-        <h1 className="text-xl font-semibold text-ink">Yetenek Profili</h1>
-        <p className="text-faint">Önce bir atölye seçin.</p>
-        <Link href="/workshop" className="inline-block text-accent text-sm font-medium hover:underline">
-          Atölye listesine git →
-        </Link>
-      </div>
-    )
-  }
+  if (data.mode === 'atolyesiz') return <AtolyeSecilmedi />
   if (data.mode === 'yok') return <p className="text-faint">Atölye bulunamadı.</p>
 
   const { w, bantlar } = data
@@ -71,7 +62,7 @@ export default async function YetenekPage({ searchParams }: Props) {
               return (
                 <Link
                   key={String(b.id)}
-                  href={`/workshop/yetenek?wid=${w.id}&bant=${b.id}`}
+                  href={`/workshop/yetenek?bant=${b.id}`}
                   className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                     aktif
                       ? 'bg-accent text-white border-accent'

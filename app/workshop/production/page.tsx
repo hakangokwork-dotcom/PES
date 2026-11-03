@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -69,12 +70,12 @@ function WorkshopProductionPage() {
     setMessage(`${saved} bant için üretim verisi kaydedildi`)
   }
 
-  if (!wid) return <p>Atölye seçin</p>
+  if (!wid) return <AtolyeSecilmedi />
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Üretim Girişi</h1>
       </div>
 
@@ -134,7 +135,7 @@ function WorkshopProductionPage() {
 
       {lines.length === 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">
-          Önce <Link href={`/workshop/profile?wid=${wid}`} className="underline">profil sayfasından</Link> bant ekleyin.
+          Önce <Link href={`/workshop/profile`} className="underline">profil sayfasından</Link> bant ekleyin.
         </div>
       )}
     </div>

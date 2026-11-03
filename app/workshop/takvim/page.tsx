@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -336,7 +337,7 @@ function TakvimPage() {
   const dayColWidth = view === 'ay' ? 32 : view === 'hafta' ? 60 : 32
 
   if (!wid) {
-    return <div className="p-6 text-faint">Lütfen sol menüden bir atölye seçin.</div>
+    return <AtolyeSecilmedi />
   }
 
   const today = dateOnly(new Date())
@@ -452,7 +453,7 @@ function TakvimPage() {
               <div className="border-b border-line-soft bg-amber-50/30 relative" style={{ gridColumn: `2 / span ${days.length}`, minHeight: 50 }}>
                 <div className="px-2 py-1 flex flex-wrap gap-1">
                   {unassignedRow.map(o => (
-                    <Link key={o.id} href={`/workshop/is-emri/${o.id}?wid=${wid}`}
+                    <Link key={o.id} href={`/workshop/is-emri/${o.id}`}
                       className="text-[11px] px-2 py-0.5 bg-white border border-amber-300 rounded hover:bg-amber-100 truncate max-w-[120px]"
                       title={`${o.is_emri_no}: ${o.model_adi}`}>
                       {o.model_adi}
@@ -479,7 +480,7 @@ function TakvimPage() {
                   label: `${s.stage_name}`,
                   sub: s.wo?.is_emri_no || '',
                   color: s.stage_renk,
-                  href: `/workshop/is-emri/${s.work_order_id}?wid=${wid}`,
+                  href: `/workshop/is-emri/${s.work_order_id}`,
                   tooltip: `${s.wo?.model_adi || ''} · ${s.stage_name} · ${s.durum} · %${s.ilerleme_pct}`,
                   ilerleme: s.ilerleme_pct,
                   isActual: !!s.gercek_baslangic,
@@ -497,7 +498,7 @@ function TakvimPage() {
                   label: o.model_adi,
                   sub: `${o.is_emri_no} · ${o.siparis_miktari}`,
                   color: colorMode === 'durum' ? (DURUM_RENK[o.durum] || '#94a3b8') : (ONCELIK_RENK[o.oncelik] || '#94a3b8'),
-                  href: `/workshop/is-emri/${o.id}?wid=${wid}`,
+                  href: `/workshop/is-emri/${o.id}`,
                   tooltip: `${o.is_emri_no} · ${o.model_adi}\n${o.musteri || ''} · ${o.siparis_miktari} adet\n${o.durum} · ${o.oncelik}\n%${o.ilerleme_pct} ilerleme`,
                   ilerleme: o.ilerleme_pct,
                   isDragging,

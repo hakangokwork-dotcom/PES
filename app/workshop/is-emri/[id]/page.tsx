@@ -145,7 +145,7 @@ function WoDetailPage() {
     try {
       const r = await fetch(`/api/pes/work-orders/${id}`)
       const d = await r.json()
-      if (d.error) { alert(d.error); router.push(`/workshop/is-emri?wid=${wid}`); return }
+      if (d.error) { alert(d.error); router.push(`/workshop/is-emri`); return }
       setOrder(d.order)
       setStages(d.stages || [])
       setMaterials(d.materials || [])
@@ -164,7 +164,7 @@ function WoDetailPage() {
   return (
     <div className="space-y-5">
       {/* Geri */}
-      <Link href={`/workshop/is-emri?wid=${wid}`} className="text-xs text-faint hover:text-ink">← İş Emri Listesi</Link>
+      <Link href={`/workshop/is-emri`} className="text-xs text-faint hover:text-ink">← İş Emri Listesi</Link>
 
       {/* Header */}
       <WoHeader order={order} onRefresh={reload} />

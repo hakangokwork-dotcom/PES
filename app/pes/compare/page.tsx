@@ -120,7 +120,7 @@ export default async function ComparePage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Cross-Atolye Karsilastirma</h1>
+        <h1 className="text-2xl font-bold text-ink">Atölyeler Arası Karşılaştırma</h1>
         <p className="text-sm text-faint mt-1">Tum atolyeler - {pMonth}/{pYear} donemi</p>
       </div>
 
@@ -138,7 +138,7 @@ export default async function ComparePage({
           <p className="text-2xl font-bold text-ink">%{rows.filter(r => r.fpq > 0).length > 0 ? (rows.filter(r => r.fpq > 0).reduce((s, r) => s + r.fpq, 0) / rows.filter(r => r.fpq > 0).length).toFixed(1) : '0'}</p>
         </div>
         <div className="bg-white border border-line-soft rounded-xl p-4">
-          <p className="text-xs text-faint">Toplam Atolye</p>
+          <p className="text-xs text-faint">Toplam Atölye</p>
           <p className="text-2xl font-bold text-ink">{rows.length}</p>
         </div>
       </div>
@@ -151,13 +151,13 @@ export default async function ComparePage({
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-faint border-b border-line-soft">
-                <th className="text-left px-3 py-2">Atolye</th>
+                <th className="text-left px-3 py-2">Atölye</th>
                 <th className="text-center px-2 py-2">Tip</th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">Verimlilik <MetricInfo metricKey="verimlilik" size={10} /></span></th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">TL/dk <MetricInfo metricKey="tl_dk" size={10} /></span></th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">Marj% <MetricInfo metricKey="marj" size={10} /></span></th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">FPQ% <MetricInfo metricKey="fpq" size={10} /></span></th>
-                <th className="text-right px-2 py-2">Durus dk</th>
+                <th className="text-right px-2 py-2">Duruş dk</th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">Skor <MetricInfo metricKey="composite_score" size={10} /></span></th>
                 <th className="text-center px-2 py-2">Tier</th>
                 <th className="text-center px-2 py-2">Trend</th>
@@ -197,7 +197,7 @@ export default async function ComparePage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-            <h3 className="text-sm font-semibold text-body">Verimlilik Siralamasi</h3>
+            <h3 className="text-sm font-semibold text-body">Verimlilik Sıralaması</h3>
           </div>
           <div className="divide-y divide-line-soft">
             {byEff.filter(r => r.efficiency > 0).map((r, i) => (
@@ -248,7 +248,7 @@ export default async function ComparePage({
 
         <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-            <h3 className="text-sm font-semibold text-body">Genel Skor Siralamasi</h3>
+            <h3 className="text-sm font-semibold text-body">Genel Skor Sıralaması</h3>
           </div>
           <div className="divide-y divide-line-soft">
             {byScore.filter(r => r.compositeScore > 0).map((r, i) => (
@@ -264,7 +264,7 @@ export default async function ComparePage({
               </div>
             ))}
             {byScore.filter(r => r.compositeScore > 0).length === 0 && (
-              <p className="px-4 py-6 text-sm text-faint text-center">Skor hesaplanmamis. Skorlama sayfasindan hesaplayin.</p>
+              <p className="px-4 py-6 text-sm text-faint text-center">Skor hesaplanmamış. Skorlama sayfasından hesaplayın.</p>
             )}
           </div>
         </div>

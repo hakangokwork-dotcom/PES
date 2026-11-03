@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -95,13 +96,13 @@ function WorkshopModelsPage() {
   const totalFormSam = samEntries.reduce((s, e) => s + e.sam_minutes, 0)
   const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
 
-  if (!wid) return <p>Atölye seçin</p>
+  if (!wid) return <AtolyeSecilmedi />
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
+          <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
           <h1 className="text-2xl font-bold text-ink mt-2">Model / SAM Kütüphanesi</h1>
         </div>
         <button onClick={() => showForm ? setShowForm(false) : initForm()} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">

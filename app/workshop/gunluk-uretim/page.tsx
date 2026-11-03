@@ -1,8 +1,9 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense } from 'react'
-import { EmptyState, PageHeader } from '@/components/ui'
+import { PageHeader } from '@/components/ui'
 import GunlukUretimTablo from '@/components/pes/GunlukUretimTablo'
 
 export default function Sayfa() {
@@ -31,10 +32,7 @@ function GunlukUretimSayfasi() {
       </p>
 
       {!Number.isInteger(workshopId) ? (
-        <EmptyState
-          title="Önce atölye seçin"
-          description="Sol üstteki “Aktif Atölye” listesinden bir atölye seçtiğinizde o atölyenin bantları listelenir."
-        />
+        <AtolyeSecilmedi />
       ) : (
         <GunlukUretimTablo workshopId={workshopId as number} />
       )}

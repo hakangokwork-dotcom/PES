@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import React, { Suspense, useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 
@@ -202,7 +203,7 @@ function WorkshopProfilePage() {
     loadData()
   }
 
-  if (!wid) return <p>Atölye seçin</p>
+  if (!wid) return <AtolyeSecilmedi />
   if (!w) return <p>Yükleniyor...</p>
 
   const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
@@ -218,7 +219,7 @@ function WorkshopProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">Atölye Profili</h1>
         <p className="text-faint">{w.code} — Tüm atölye bilgilerini buradan yönetin</p>
       </div>
@@ -234,7 +235,7 @@ function WorkshopProfilePage() {
           <div className="md:col-span-2"><label className="block text-xs font-medium text-muted mb-1">Atölye Adı</label><input className={ic} value={w.name} onChange={e => updateW('name', e.target.value)} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">Şehir</label><input className={ic} value={w.city ?? ''} onChange={e => updateW('city', e.target.value)} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">İlçe</label><input className={ic} value={w.district ?? ''} onChange={e => updateW('district', e.target.value)} /></div>
-          <div><label className="block text-xs font-medium text-muted mb-1">Uretim Tipi</label>
+          <div><label className="block text-xs font-medium text-muted mb-1">Üretim Tipi</label>
             <select className={ic} value={w.type} onChange={e => updateW('type', e.target.value)}>
               <option value="CMT">CMT — Kesim+Dikim+UKP</option>
               <option value="CM">CM — Kesim+Dikim</option>
@@ -242,7 +243,7 @@ function WorkshopProfilePage() {
               <option value="M">M — Sadece Dikim</option>
             </select>
           </div>
-          <div><label className="block text-xs font-medium text-muted mb-1">Tesvik Bolgesi</label>
+          <div><label className="block text-xs font-medium text-muted mb-1">Teşvik Bölgesi</label>
             <select className={ic} value={w.bolge ?? 1} onChange={e => updateW('bolge', Number(e.target.value))}>
               {[1,2,3,4,5,6].map(b => <option key={b} value={b}>{b}. Bolge</option>)}
             </select>

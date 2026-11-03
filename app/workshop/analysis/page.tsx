@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
@@ -10,7 +11,7 @@ interface Props { searchParams: Promise<{ wid?: string }> }
 export default async function AnalysisPage({ searchParams }: Props) {
   const { wid: widParam } = await searchParams
   const wid = await aktifAtolyeId(widParam)
-  if (!wid) return <p>Atölye seçin</p>
+  if (!wid) return <AtolyeSecilmedi />
 
   const workshopId = wid
 
@@ -93,7 +94,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-ink mt-2">{w.name} — Analiz</h1>
         <p className="text-faint">{w.code} · Detaylı performans analizi</p>
       </div>
@@ -267,8 +268,8 @@ export default async function AnalysisPage({ searchParams }: Props) {
           <p className="text-amber-800 font-medium">Henüz analiz için yeterli veri yok</p>
           <p className="text-sm text-amber-600 mt-1">Üretim ve gider verisi girdikçe analizler otomatik oluşacak</p>
           <div className="flex gap-3 justify-center mt-4">
-            <Link href={`/workshop/production?wid=${wid}`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Üretim Girişi</Link>
-            <Link href={`/workshop/costs?wid=${wid}`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Gider Girişi</Link>
+            <Link href={`/workshop/production`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Üretim Girişi</Link>
+            <Link href={`/workshop/costs`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Gider Girişi</Link>
           </div>
         </div>
       )}

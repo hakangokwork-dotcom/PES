@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { TabloSarmal } from '@/components/ui'
@@ -42,14 +43,14 @@ function WorkshopDowntimePage() {
   }
 
   const totalMin = records.reduce((s, r) => s + r.duration_min, 0)
-  if (!wid) return <p>Atölye seçin</p>
+  if (!wid) return <AtolyeSecilmedi />
   const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop?wid=${wid}`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
+          <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
           <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Duruş Kayıtları</h1>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium">{showForm ? 'İptal' : '+ Duruş Ekle'}</button>

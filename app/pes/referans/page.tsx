@@ -39,7 +39,7 @@ export default function ReferansPage() {
       const r = await fetch('/api/pes/referans/import', { method: 'POST', body: formData })
       const d = await r.json()
       if (d.ok) { setResult(d.result); loadStats() }
-      else setError(d.error || 'Yukleme hatasi')
+      else setError(d.error || 'Yükleme hatası')
     } catch { setError('Baglanti hatasi') }
     setUploading(false)
     if (input) input.value = ''
@@ -59,8 +59,8 @@ export default function ReferansPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Konfeksiyon Referans Kutuphanesi</h1>
-        <p className="text-sm text-faint mt-1">30K+ MTM operasyon zamani referans verisi</p>
+        <h1 className="text-2xl font-bold text-ink">Konfeksiyon Referans Kütüphanesi</h1>
+        <p className="text-sm text-faint mt-1">30K+ MTM operasyon zamanı referans verisi</p>
       </div>
 
       {/* Istatistikler */}
@@ -84,15 +84,15 @@ export default function ReferansPage() {
       ) : (
         <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
           Referans tablolari bos veya olusturulmamis. Once Supabase SQL Editor&apos;da <strong>012_konfeksiyon_referans.sql</strong> calistirin,
-          sonra asagidan Excel dosyasini yukleyin.
+          sonra aşağıdan Excel dosyasını yükleyin.
         </div>
       )}
 
       {/* Excel Yukleme */}
       <div className="bg-white border border-line-soft rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-ink mb-3">Referans Veri Yukle</h2>
+        <h2 className="text-lg font-semibold text-ink mb-3">Referans Veri Yükle</h2>
         <p className="text-sm text-faint mb-4">
-          <strong>konfeksiyon_veri_modeli.xlsx</strong> dosyasini yukleyin. Sayfalar otomatik eslestirilir
+          <strong>konfeksiyon_veri_modeli.xlsx</strong> dosyasini yükleyin. Sayfalar otomatik eslestirilir
           (urun_tipi, ek_parca_tipi, ek_parca_varyant, operasyon_grup, operasyon, makine_tipi, operasyon_zamani).
         </p>
         <div className="flex gap-3 items-center">
@@ -106,7 +106,7 @@ export default function ReferansPage() {
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         {result && (
           <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-sm font-semibold text-green-800 mb-2">Yukleme tamamlandi:</p>
+            <p className="text-sm font-semibold text-green-800 mb-2">Yükleme tamamlandı:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(result).map(([k, v]) => (
                 <div key={k} className="text-xs text-green-700">
@@ -120,7 +120,7 @@ export default function ReferansPage() {
 
       {/* Arama */}
       <div className="bg-white border border-line-soft rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-ink mb-3">Urun Tipi Ara</h2>
+        <h2 className="text-lg font-semibold text-ink mb-3">Ürün Tipi Ara</h2>
         <div className="flex gap-2 mb-4">
           <input value={searchQ} onChange={e => setSearchQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
             placeholder="orn. GOMLEK, PANTOLON, KEY DENIM..." className="flex-1 border border-line rounded-lg px-3 py-2 text-sm" />
@@ -135,8 +135,8 @@ export default function ReferansPage() {
               <tr className="text-xs text-faint border-b border-line-soft">
                 <th className="text-left px-3 py-2">Klasman</th>
                 <th className="text-center px-2 py-2">Segment</th>
-                <th className="text-center px-2 py-2">Kumas</th>
-                <th className="text-center px-2 py-2">Urun</th>
+                <th className="text-center px-2 py-2">Kumaş</th>
+                <th className="text-center px-2 py-2">Ürün</th>
                 <th className="text-center px-2 py-2">Kol</th>
               </tr>
             </thead>

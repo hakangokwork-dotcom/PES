@@ -1,6 +1,7 @@
 'use client'
 
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
+import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 
 interface KaizenItem { id: number; baslik: string; kategori: string; hedef_metrik: string; mevcut_deger: number; hedef_deger: number; sonuc_deger: number | null; sorumlu: string; baslangic_tarihi: string; bitis_tarihi: string; durum: string; notlar: string }
@@ -11,7 +12,7 @@ const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGUL
 const durumLabel: Record<string, string> = { PLAN: 'Plan', UYGULA: 'Uygula', KONTROL: 'Kontrol', STANDART: 'Standart', IPTAL: 'Iptal' }
 
 export default function Wrapper() {
-  return <Suspense fallback={<div className="p-6 text-faint">Yukleniyor...</div>}><KaizenPage /></Suspense>
+  return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><KaizenPage /></Suspense>
 }
 
 function KaizenPage() {
@@ -44,7 +45,7 @@ function KaizenPage() {
   }
 
   const ic = 'w-full border border-line rounded-lg px-3 py-2 text-sm'
-  if (!wid) return <div className="p-6 text-faint">Atolye secin</div>
+  if (!wid) return <AtolyeSecilmedi />
 
   // PDCA ozet
   const planCount = actions.filter(a => a.durum === 'PLAN').length
@@ -57,7 +58,7 @@ function KaizenPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-ink">Kaizen / PDCA</h1>
-          <p className="text-sm text-faint">Surekli iyilestirme aksiyonlari ve takibi</p>
+          <p className="text-sm text-faint">Sürekli iyileştirme aksiyonları ve takibi</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">{showForm ? 'Iptal' : '+ Yeni Aksiyon'}</button>
       </div>
@@ -85,16 +86,16 @@ function KaizenPage() {
       {/* Yeni Aksiyon Formu */}
       {showForm && (
         <form onSubmit={handleCreate} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
-          <h2 className="font-semibold text-ink">Yeni Iyilestirme Aksiyonu</h2>
+          <h2 className="font-semibold text-ink">Yeni İyileştirme Aksiyonu</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <div className="md:col-span-2"><label className="block text-xs text-muted mb-1">Baslik *</label><input required className={ic} value={form.baslik} onChange={e => setForm(p => ({...p, baslik: e.target.value}))} placeholder="Darbogaz operasyonu icin ek makine" /></div>
+            <div className="md:col-span-2"><label className="block text-xs text-muted mb-1">Başlık *</label><input required className={ic} value={form.baslik} onChange={e => setForm(p => ({...p, baslik: e.target.value}))} placeholder="Darbogaz operasyonu icin ek makine" /></div>
             <div><label className="block text-xs text-muted mb-1">Kategori</label><select className={ic} value={form.kategori} onChange={e => setForm(p => ({...p, kategori: e.target.value}))}>{KATEGORILER.map(k => <option key={k} value={k}>{k}</option>)}</select></div>
             <div><label className="block text-xs text-muted mb-1">Hedef Metrik</label><input className={ic} value={form.hedef_metrik} onChange={e => setForm(p => ({...p, hedef_metrik: e.target.value}))} placeholder="orn. Cikti Verimliligi %" /></div>
-            <div><label className="block text-xs text-muted mb-1">Mevcut Deger</label><input type="number" inputMode="decimal" step="0.1" className={ic} value={form.mevcut_deger} onChange={e => setForm(p => ({...p, mevcut_deger: e.target.value}))} /></div>
-            <div><label className="block text-xs text-muted mb-1">Hedef Deger</label><input type="number" inputMode="decimal" step="0.1" className={ic} value={form.hedef_deger} onChange={e => setForm(p => ({...p, hedef_deger: e.target.value}))} /></div>
+            <div><label className="block text-xs text-muted mb-1">Mevcut Değer</label><input type="number" inputMode="decimal" step="0.1" className={ic} value={form.mevcut_deger} onChange={e => setForm(p => ({...p, mevcut_deger: e.target.value}))} /></div>
+            <div><label className="block text-xs text-muted mb-1">Hedef Değer</label><input type="number" inputMode="decimal" step="0.1" className={ic} value={form.hedef_deger} onChange={e => setForm(p => ({...p, hedef_deger: e.target.value}))} /></div>
             <div><label className="block text-xs text-muted mb-1">Sorumlu</label><input className={ic} value={form.sorumlu} onChange={e => setForm(p => ({...p, sorumlu: e.target.value}))} /></div>
-            <div><label className="block text-xs text-muted mb-1">Baslangic</label><input type="date" className={ic} value={form.baslangic_tarihi} onChange={e => setForm(p => ({...p, baslangic_tarihi: e.target.value}))} /></div>
-            <div><label className="block text-xs text-muted mb-1">Bitis</label><input type="date" className={ic} value={form.bitis_tarihi} onChange={e => setForm(p => ({...p, bitis_tarihi: e.target.value}))} /></div>
+            <div><label className="block text-xs text-muted mb-1">Başlangıç</label><input type="date" className={ic} value={form.baslangic_tarihi} onChange={e => setForm(p => ({...p, baslangic_tarihi: e.target.value}))} /></div>
+            <div><label className="block text-xs text-muted mb-1">Bitiş</label><input type="date" className={ic} value={form.bitis_tarihi} onChange={e => setForm(p => ({...p, bitis_tarihi: e.target.value}))} /></div>
           </div>
           <button type="submit" disabled={saving} className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Olustur'}</button>
         </form>
@@ -102,7 +103,7 @@ function KaizenPage() {
 
       {/* Aksiyon Listesi */}
       {actions.length === 0 ? (
-        <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">Henuz kaizen aksiyonu yok</div>
+        <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">Henüz kaizen aksiyonu yok</div>
       ) : (
         <div className="space-y-3">
           {actions.map(a => (

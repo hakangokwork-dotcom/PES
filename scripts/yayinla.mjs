@@ -22,7 +22,11 @@ const BEKLE = process.argv.includes('--bekle')
 const KURU = process.argv.includes('--kuru')
 
 const DEPO = 'hakangokwork-dotcom/PES'
-const ALIAS = 'pes-platform-tan.vercel.app'
+/* İlk adres asıl canlı adres; doğrulama onun üzerinden yapılır çünkü
+   *.vercel.app bazı ağlardan erişilemiyor (2026-11-02). Özel alan adı da
+   belirli bir dağıtıma bağlı bir alias; otomatik taşınmıyor. */
+const ALIASLAR = ['pes.provsm.com', 'pes-platform-tan.vercel.app']
+const ALIAS = ALIASLAR[0]
 const KAPSAM = 'promode'
 
 /* Yeni derlemede VAR, eskisinde YOK olan yollar. 404 dönüyorsa alias
@@ -112,15 +116,17 @@ try {
 
   if (KURU) {
     console.log(`\nKURU ÇALIŞMA — şu komut çalıştırılacaktı:`)
-    console.log(`  npx vercel alias set ${url} ${ALIAS} --scope ${KAPSAM}`)
+    for (const a of ALIASLAR) console.log(`  npx vercel alias set ${url} ${a} --scope ${KAPSAM}`)
     process.exit(0)
   }
 
   /* ---- 4. Taşı ---- */
   console.log(`\nAlias taşınıyor…`)
-  const cikti = calistirKabukla(`npx vercel alias set ${url} ${ALIAS} --scope ${KAPSAM}`)
-  const basari = cikti.split('\n').find((l) => l.includes('Success')) ?? cikti.split('\n')[0]
-  console.log(`  ${basari.trim()}`)
+  for (const a of ALIASLAR) {
+    const cikti = calistirKabukla(`npx vercel alias set ${url} ${a} --scope ${KAPSAM}`)
+    const basari = cikti.split('\n').find((l) => l.includes('Success')) ?? cikti.split('\n')[0]
+    console.log(`  ${basari.trim()}`)
+  }
 
   /* ---- 5. DOĞRULA ---- */
   console.log(`\nAlias sonrası doğrulama:`)

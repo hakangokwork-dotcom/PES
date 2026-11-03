@@ -37,24 +37,24 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  accepted: 'bg-green-100 text-green-700',
-  winsorized: 'bg-amber-100 text-amber-700',
+  accepted: 'bg-accent-soft text-accent-ink',
+  winsorized: 'bg-warn-soft text-warn',
   pending_fix: 'bg-orange-100 text-orange-700',
-  rejected: 'bg-red-100 text-red-700',
+  rejected: 'bg-danger-soft text-danger',
 }
 
 const SEVERITY_STYLES: Record<string, string> = {
-  error: 'text-red-700 bg-red-50 border-red-200',
-  warn: 'text-amber-700 bg-amber-50 border-amber-200',
+  error: 'text-danger bg-danger-soft border-danger-line',
+  warn: 'text-warn bg-warn-soft border-line-soft',
   info: 'text-muted bg-canvas border-line-soft',
 }
 
 const n = (v: string | number | null | undefined) => (v === null || v === undefined ? 0 : Number(v))
 
 function scoreColor(v: number) {
-  if (v >= 70) return 'text-green-700'
-  if (v >= 50) return 'text-amber-700'
-  return 'text-red-700'
+  if (v >= 70) return 'text-accent-ink'
+  if (v >= 50) return 'text-warn'
+  return 'text-danger'
 }
 
 export default function QualityReport({
@@ -101,14 +101,14 @@ export default function QualityReport({
         >
           {busy ? 'Skorlanıyor…' : 'Tüm beyanları yeniden skorla'}
         </button>
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {error && <span className="text-sm text-danger">{error}</span>}
       </div>
 
       {total > 0 && (
         <>
           {/* Özet */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white border border-line-soft rounded-xl p-4">
+            <div className="bg-surface border border-line-soft rounded-xl p-4">
               <p className="text-xs text-faint">
                 <TermTip termKey="guven_skoru">Kullanılabilir Veri</TermTip>
               </p>
@@ -118,7 +118,7 @@ export default function QualityReport({
               <p className="text-xs text-faint mt-0.5">{accepted} / {total} beyan</p>
             </div>
             {byStatus.map((s) => (
-              <div key={s.status} className="bg-white border border-line-soft rounded-xl p-4">
+              <div key={s.status} className="bg-surface border border-line-soft rounded-xl p-4">
                 <p className="text-xs text-faint">{STATUS_LABELS[s.status] ?? s.status}</p>
                 <p className="text-2xl font-bold text-ink">{s.n}</p>
                 <p className="text-xs text-faint mt-0.5">ort. {n(s.avg_sc).toFixed(1)}</p>
@@ -127,7 +127,7 @@ export default function QualityReport({
           </div>
 
           {/* Tablo */}
-          <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+          <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -185,7 +185,7 @@ export default function QualityReport({
                           </td>
                           <td className="px-4 py-3 text-center text-faint">
                             {flags.length > 0 ? (
-                              <span className={errors > 0 ? 'text-red-600 font-medium' : ''}>
+                              <span className={errors > 0 ? 'text-danger font-medium' : ''}>
                                 {flags.length}{errors > 0 && ` (${errors}!)`}
                               </span>
                             ) : '—'}

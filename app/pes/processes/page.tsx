@@ -140,13 +140,13 @@ export default function ProcessesPage() {
   ]
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-accent bg-emerald-50'
+  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-accent-soft'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Süreç Kataloğu</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Süreç Kataloğu</h1>
           <p className="text-faint mt-1">Ana süreç tanımları (HAZ, ONB, ARB, MON, UKP...)</p>
         </div>
         <Button variant={showForm ? 'secondary' : 'primary'} onClick={() => setShowForm(!showForm)}>
@@ -156,7 +156,7 @@ export default function ProcessesPage() {
 
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+        <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-muted mb-1">Kod</label>

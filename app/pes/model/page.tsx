@@ -29,8 +29,8 @@ export default async function ModelListesi() {
     <main className="p-6 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Model Fiyatlama</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Model Fiyatlama</h1>
+          <p className="text-sm text-faint">
             {data.length} bülten ·{' '}
             <Link href="/pes/model/kutuphane" className="underline">operasyon kütüphanesi →</Link>{' '}·{' '}
             <Link href="/pes/model/referans" className="underline">referans model fiyatları →</Link>
@@ -39,14 +39,14 @@ export default async function ModelListesi() {
       </header>
 
       {data.length === 0 ? (
-        <p className="text-slate-500 border rounded p-6">
+        <p className="text-faint border rounded p-6">
           Henüz bülten yok. Yüklemek için:{' '}
           <code>node scripts/import_model_bulten.mjs --dosya &quot;...xlsx&quot; --uygula</code>
         </p>
       ) : (
         <div className="overflow-x-auto border rounded">
           <table className="text-sm w-full">
-            <thead className="bg-slate-50">
+            <thead className="bg-canvas">
               <tr>
                 <th className="text-left px-3 py-2">Model</th>
                 <th className="text-left px-3 py-2">PLM</th>
@@ -62,25 +62,25 @@ export default async function ModelListesi() {
                 const top = Number(b.kesim_sn) + Number(b.dikim_sn) + Number(b.ukp_sn)
                 const pay = (v: unknown) => top ? `${(Number(v) / top * 100).toFixed(0)}%` : '—'
                 return (
-                  <tr key={String(b.id)} className="border-t hover:bg-slate-50">
+                  <tr key={String(b.id)} className="border-t hover:bg-canvas">
                     <td className="px-3 py-2">
                       <Link href={`/pes/model/${b.id}`} className="underline font-medium">
                         {String(b.model_adi)}
                       </Link>
                     </td>
-                    <td className="px-3 py-2 text-slate-500">{String(b.plm_id ?? '—')}</td>
-                    <td className="px-3 py-2 text-slate-500">{String(b.klasman_kodu ?? '—')}</td>
+                    <td className="px-3 py-2 text-faint">{String(b.plm_id ?? '—')}</td>
+                    <td className="px-3 py-2 text-faint">{String(b.klasman_kodu ?? '—')}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{String(b.operasyon_sayisi)}</td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {(Number(b.toplam_sn) / 60).toFixed(2)}
                     </td>
-                    <td className="px-3 py-2 text-xs text-slate-600 whitespace-nowrap">
+                    <td className="px-3 py-2 text-xs text-muted whitespace-nowrap">
                       K {pay(b.kesim_sn)} · D {pay(b.dikim_sn)} · U {pay(b.ukp_sn)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {Number(b.fiyatlanan_atolye) > 0
                         ? <Link href={`/pes/model/${b.id}/fiyat`} className="underline">{String(b.fiyatlanan_atolye)}</Link>
-                        : <Link href={`/pes/model/${b.id}/fiyat`} className="underline text-slate-400">fiyatla</Link>}
+                        : <Link href={`/pes/model/${b.id}/fiyat`} className="underline text-faint">fiyatla</Link>}
                     </td>
                   </tr>
                 )

@@ -20,10 +20,10 @@ import TalepEylem from './TalepEylem'
 export const dynamic = 'force-dynamic'
 
 const DURUM_RENK: Record<Doluluk, string> = {
-  tam: 'bg-emerald-100 text-emerald-800',
-  'gider-yok': 'bg-amber-100 text-amber-800',
-  eksik: 'bg-amber-100 text-amber-800',
-  'veri-yok': 'bg-slate-100 text-slate-600',
+  tam: 'bg-accent-soft text-accent-ink',
+  'gider-yok': 'bg-warn-soft text-warn',
+  eksik: 'bg-warn-soft text-warn',
+  'veri-yok': 'bg-canvas text-muted',
 }
 
 type Satir = {
@@ -107,8 +107,8 @@ export default async function TalepSayfasi({
     <main className="p-6 space-y-5">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Veri Toplama</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Veri Toplama</h1>
+          <p className="text-sm text-faint">
             {donem} · {satirlar.length} aktif atölye ·{' '}
             <Link href={`/pes/ekonomi?donem=${donem}`} className="underline">rasyo radarı →</Link>
           </p>
@@ -118,7 +118,7 @@ export default async function TalepSayfasi({
             const s = `${x.yil}-${String(x.ay).padStart(2, '0')}`
             return (
               <Link key={s} href={`/pes/ekonomi/talep?donem=${s}&sadece=${sadece}`}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
                 {s}
               </Link>
             )
@@ -128,33 +128,33 @@ export default async function TalepSayfasi({
 
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
         {[
-          ['Tam', sayim.tam, 'text-emerald-700'],
-          ['Eksik alan', sayim.eksik, 'text-amber-700'],
-          ['Gider bekleniyor', sayim.giderYok, 'text-amber-700'],
-          ['Veri yok', sayim.veriYok, 'text-slate-600'],
-          ['Açık talep', sayim.talepAcik, 'text-slate-900'],
+          ['Tam', sayim.tam, 'text-accent-ink'],
+          ['Eksik alan', sayim.eksik, 'text-warn'],
+          ['Gider bekleniyor', sayim.giderYok, 'text-warn'],
+          ['Veri yok', sayim.veriYok, 'text-muted'],
+          ['Açık talep', sayim.talepAcik, 'text-ink'],
         ].map(([etiket, n, renk]) => (
-          <div key={etiket as string} className="rounded border border-slate-200 p-3">
+          <div key={etiket as string} className="rounded border border-line-soft p-3">
             <div className={`text-2xl font-semibold tabular-nums ${renk}`}>{n as number}</div>
-            <div className="text-xs text-slate-500">{etiket as string}</div>
+            <div className="text-xs text-faint">{etiket as string}</div>
           </div>
         ))}
       </section>
 
       <nav className="flex gap-1 text-sm">
         <Link href={bag({ sadece: 'eksikler' })}
-              className={`px-3 py-1.5 rounded ${sadece === 'eksikler' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 border border-slate-200'}`}>
+              className={`px-3 py-1.5 rounded ${sadece === 'eksikler' ? 'bg-slate-900 text-white' : 'hover:bg-canvas border border-line-soft'}`}>
           Eksikler ({ile.length - sayim.tam})
         </Link>
         <Link href={bag({ sadece: 'hepsi' })}
-              className={`px-3 py-1.5 rounded ${sadece === 'hepsi' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 border border-slate-200'}`}>
+              className={`px-3 py-1.5 rounded ${sadece === 'hepsi' ? 'bg-slate-900 text-white' : 'hover:bg-canvas border border-line-soft'}`}>
           Hepsi ({ile.length})
         </Link>
       </nav>
 
-      <div className="overflow-x-auto rounded border border-slate-200">
+      <div className="overflow-x-auto rounded border border-line-soft">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left">
+          <thead className="bg-canvas text-left">
             <tr>
               <th className="px-3 py-2 font-medium">Atölye</th>
               <th className="px-3 py-2 font-medium">Durum</th>
@@ -167,10 +167,10 @@ export default async function TalepSayfasi({
               const eksik = eksikAlanlar(s.ekonomi)
               const oran = tamamlanmaOrani(s.ekonomi)
               return (
-                <tr key={s.workshop_id} className="border-t border-slate-200">
+                <tr key={s.workshop_id} className="border-t border-line-soft">
                   <td className="px-3 py-2">
                     <div className="font-medium">{s.name}</div>
-                    {s.code && <div className="text-xs text-slate-400">{s.code}</div>}
+                    {s.code && <div className="text-xs text-faint">{s.code}</div>}
                   </td>
                   <td className="px-3 py-2">
                     <span className={`inline-block px-2 py-0.5 rounded text-xs ${DURUM_RENK[s.durum]}`}>
@@ -182,7 +182,7 @@ export default async function TalepSayfasi({
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-xs text-slate-600 max-w-md">
+                  <td className="px-3 py-2 text-xs text-muted max-w-md">
                     {s.durum === 'tam' ? '—'
                       : s.durum === 'gider-yok' ? 'Gider satırı yok'
                       : eksik.length === 9 ? 'Hiç veri girilmemiş'
@@ -200,7 +200,7 @@ export default async function TalepSayfasi({
           </tbody>
         </table>
         {gorunen.length === 0 && (
-          <p className="p-4 text-sm text-slate-500">
+          <p className="p-4 text-sm text-faint">
             {donem} döneminde eksik atölye yok.
           </p>
         )}

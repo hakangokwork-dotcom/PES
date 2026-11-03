@@ -75,8 +75,8 @@ export default async function FiyatSayfasi({
     <main className="p-6 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">{String(bulten.model_adi)} — fiyat</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">{String(bulten.model_adi)} — fiyat</h1>
+          <p className="text-sm text-faint">
             {donem} · KESİM {Number(bolum?.kesim)} sn · DİKİM {Number(bolum?.dikim)} sn · UKP {Number(bolum?.ukp)} sn ·{' '}
             <Link href={`/pes/model/${bultenId}`} className="underline">bültene dön</Link>
           </p>
@@ -86,7 +86,7 @@ export default async function FiyatSayfasi({
             const s = `${d.yil}-${String(d.ay).padStart(2, '0')}`
             return (
               <Link key={s} href={`/pes/model/${bultenId}/fiyat?donem=${s}`}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
                 {s}
               </Link>
             )
@@ -98,13 +98,13 @@ export default async function FiyatSayfasi({
                     varsayilanAdet={bulten.siparis_adedi ? Math.round(Number(bulten.siparis_adedi) / 22) : null} />
 
       {fiyatlar.length === 0 ? (
-        <p className="text-slate-500 border rounded p-6">
+        <p className="text-faint border rounded p-6">
           Bu dönem için henüz fiyat hesaplanmamış. Yukarıdan CMT ve günlük adet girip hesapla.
         </p>
       ) : (
         <div className="overflow-x-auto border rounded">
           <table className="text-sm w-full">
-            <thead className="bg-slate-50">
+            <thead className="bg-canvas">
               <tr>
                 <th className="text-left px-3 py-2">Atölye</th>
                 <th className="text-right px-3 py-2">Dikim dk/adet</th>
@@ -120,16 +120,16 @@ export default async function FiyatSayfasi({
             <tbody>
               {fiyatlar.map((r: Record<string, unknown>) => {
                 const marj = r.marj === null ? null : Number(r.marj)
-                const renk = marj === null ? '' : marj >= hedefMarj ? 'text-emerald-700'
-                  : marj >= 0 ? 'text-amber-700' : 'text-rose-700'
+                const renk = marj === null ? '' : marj >= hedefMarj ? 'text-accent-ink'
+                  : marj >= 0 ? 'text-warn' : 'text-rose-700'
                 const asim = r.kapasite_payi !== null && Number(r.kapasite_payi) > 1
                 return (
-                  <tr key={String(r.id)} className="border-t hover:bg-slate-50">
+                  <tr key={String(r.id)} className="border-t hover:bg-canvas">
                     <td className="px-3 py-2">
                       <Link href={`/pes/ekonomi/${r.workshop_id}?donem=${donem}`} className="underline">
                         {String(r.atolye)}
                       </Link>
-                      <span className="text-xs text-slate-400"> · {String(r.bolge ?? '—')}. bölge</span>
+                      <span className="text-xs text-faint"> · {String(r.bolge ?? '—')}. bölge</span>
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">{f(r.dikim_dk)}</td>
                     <td className="px-3 py-2 text-right tabular-nums font-medium">{f(r.toplam_maliyet)}</td>
@@ -141,7 +141,7 @@ export default async function FiyatSayfasi({
                       {f(r.kapasite_payi, pct)}
                       {asim && <span className="block text-xs">aşım</span>}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-slate-500">
+                    <td className="px-3 py-2 text-right tabular-nums text-faint">
                       {f(r.referans_3d)}
                       {r.cmt_3d_sapma !== null && (
                         <span className="block text-xs">{f(r.cmt_3d_sapma, pct)}</span>
@@ -171,7 +171,7 @@ export default async function FiyatSayfasi({
         />
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         Maliyet, bültenin <strong>teorik</strong> süresiyle ve her atölyenin <strong>kendi</strong>
         {' '}dakika maliyetiyle hesaplanır — bölgesel 3D değeriyle değil; 3D yalnız referans sütununda.
         Kapasite payı %100&apos;ü geçiyorsa iş bu günlük adetle o banda sığmıyor demektir;

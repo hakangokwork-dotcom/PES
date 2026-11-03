@@ -44,12 +44,12 @@ export default async function YetenekPage({ searchParams }: Props) {
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-ink">{w.name as string}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">{w.name as string}</h1>
         <p className="text-faint">{w.code as string} · Bant yetenek profili</p>
       </div>
 
       {bantlar.length === 0 ? (
-        <p className="text-faint bg-white border border-line-soft rounded-xl p-6">
+        <p className="text-faint bg-surface border border-line-soft rounded-xl p-6">
           Bu atölyede tanımlı bant yok. Yetenek girmek için önce bant eklenmeli.
         </p>
       ) : (
@@ -66,7 +66,7 @@ export default async function YetenekPage({ searchParams }: Props) {
                   className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                     aktif
                       ? 'bg-accent text-white border-accent'
-                      : 'bg-white text-body border-line-soft hover:border-accent'
+                      : 'bg-surface text-body border-line-soft hover:border-accent'
                   }`}
                 >
                   {b.name as string}

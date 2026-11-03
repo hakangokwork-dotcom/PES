@@ -102,8 +102,8 @@ export default async function KarneSayfasi({
     <div className="mx-auto max-w-4xl space-y-5">
       <div>
         <Link href="/workshop" className="text-sm text-faint hover:text-ink">← Panel</Link>
-        <h1 className="text-xl font-semibold mt-1">Karnem</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-1">Karnem</h1>
+        <p className="text-sm text-faint">
           {kendi.atolye.name} · {donem} ·{' '}
           <Link href={`/workshop/ekonomi?donem=${donem}`} className="underline">
             verimi güncelle →
@@ -117,7 +117,7 @@ export default async function KarneSayfasi({
             const s = `${x.yil}-${String(x.ay).padStart(2, '0')}`
             return (
               <Link key={s} href={`/workshop/ekonomi/karne?donem=${s}`}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 border border-slate-200'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas border border-line-soft'}`}>
                 {s}
               </Link>
             )
@@ -126,7 +126,7 @@ export default async function KarneSayfasi({
       )}
 
       {!kendi.rasyolar && (
-        <p className="rounded border border-amber-200 bg-amber-50 p-4 text-sm">
+        <p className="rounded border border-line-soft bg-warn-soft p-4 text-sm">
           {donem} dönemi için veriniz yok.{' '}
           <Link href={`/workshop/ekonomi?donem=${donem}`} className="underline font-medium">
             Veri girin
@@ -136,7 +136,7 @@ export default async function KarneSayfasi({
       )}
 
       {kendi.rasyolar && !yeterliOrneklem && (
-        <p className="rounded border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+        <p className="rounded border border-line-soft bg-canvas p-4 text-sm text-muted">
           Kıyas için yeterli atölye yok ({ASGARI_ORNEKLEM} atölyeden az veri var).
           Kendi rakamlarınız aşağıda; kıyas, veri yeterli sayıya ulaşınca açılır.
         </p>
@@ -147,20 +147,20 @@ export default async function KarneSayfasi({
           {satirlar.map(({ alan, meta, kendiDeger, ist, k }) => {
             const formul = alanFormulu(alan as string)
             return (
-              <article key={alan as string} className="rounded border border-slate-200 p-4">
+              <article key={alan as string} className="rounded border border-line-soft p-4">
                 <div className="flex items-baseline justify-between gap-3 flex-wrap">
                   <div>
                     <h2 className="font-medium">{meta!.etiket}</h2>
-                    <p className="text-xs text-slate-400">{meta!.onemAciklama}</p>
+                    <p className="text-xs text-faint">{meta!.onemAciklama}</p>
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-semibold tabular-nums">
                       {kendiDeger === null
-                        ? <span className="text-slate-400 text-base font-normal">hesaplanamadı</span>
+                        ? <span className="text-faint text-base font-normal">hesaplanamadı</span>
                         : fmtRasyo(meta!, kendiDeger)}
                     </div>
                     {ist?.kendiSira && (
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-faint">
                         {ist.n} atölye içinde {ist.kendiSira}.
                       </div>
                     )}
@@ -169,14 +169,14 @@ export default async function KarneSayfasi({
 
                 {ist && (
                   <div className="mt-3 text-sm">
-                    <div className="flex justify-between text-xs text-slate-500">
+                    <div className="flex justify-between text-xs text-faint">
                       <span>en düşük {fmtRasyo(meta!, ist.enDusuk)}</span>
                       <span>medyan {fmtRasyo(meta!, ist.medyan)}</span>
                       <span>en yüksek {fmtRasyo(meta!, ist.enYuksek)}</span>
                     </div>
                     {/* Çeyreklik aralığı + kendi konumu. Başka atölyenin
                         tek tek değeri GÖSTERİLMEZ, yalnız dağılım. */}
-                    <div className="relative mt-1 h-2 rounded bg-slate-100">
+                    <div className="relative mt-1 h-2 rounded bg-canvas">
                       {(() => {
                         const genislik = ist.enYuksek - ist.enDusuk
                         const oran = (v: number) =>
@@ -196,7 +196,7 @@ export default async function KarneSayfasi({
                       })()}
                     </div>
                     {k && (
-                      <div className="mt-1 text-xs font-medium text-slate-700">
+                      <div className="mt-1 text-xs font-medium text-body">
                         {KONUM_ETIKET[k]}
                       </div>
                     )}
@@ -204,7 +204,7 @@ export default async function KarneSayfasi({
                 )}
 
                 {formul && (
-                  <p className="mt-2 text-xs text-slate-400 font-mono">{formul.sozel}</p>
+                  <p className="mt-2 text-xs text-faint font-mono">{formul.sozel}</p>
                 )}
               </article>
             )
@@ -212,7 +212,7 @@ export default async function KarneSayfasi({
         </div>
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         Kıyas rakamları isimsizdir: yalnız dağılım ve sıranız gösterilir,
         başka atölyelerin değerleri gösterilmez.
       </p>

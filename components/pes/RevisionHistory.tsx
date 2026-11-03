@@ -71,7 +71,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
 
   if (groups.length === 0) {
     return (
-      <div className="bg-white border border-line-soft rounded-xl p-5">
+      <div className="bg-surface border border-line-soft rounded-xl p-5">
         <p className="text-sm text-faint">
           Henüz içe aktarılmış beyan yok. Beyan yüklendikçe sürümleri burada birikir.
         </p>
@@ -101,7 +101,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
           const hasRevisions = g.revisions.length > 1
 
           return (
-            <div key={g.key} className="bg-white border border-line-soft rounded-xl overflow-hidden">
+            <div key={g.key} className="bg-surface border border-line-soft rounded-xl overflow-hidden">
               <button
                 onClick={() => setOpen(isOpen ? null : g.key)}
                 className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-canvas transition-colors text-left"
@@ -110,7 +110,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                 <span className="text-faint">{g.donem}</span>
 
                 {hasRevisions ? (
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700">
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-warn-soft text-warn">
                     {g.revisions.length} sürüm
                   </span>
                 ) : (
@@ -136,7 +136,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-medium text-ink">Sürüm {r.revision_no}</span>
                           {r.is_current ? (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-accent-soft text-accent-ink font-medium">
                               geçerli
                             </span>
                           ) : (
@@ -173,7 +173,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                                   <span className="text-faint">→</span>
                                   <span className="font-medium text-ink">{fmt(c.to)}</span>
                                   {c.pct !== null && (
-                                    <span className={c.pct > 0 ? 'text-red-600' : 'text-green-700'}>
+                                    <span className={c.pct > 0 ? 'text-danger' : 'text-accent-ink'}>
                                       {c.pct > 0 ? '+' : ''}{c.pct.toFixed(1)}%
                                     </span>
                                   )}
@@ -197,9 +197,9 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
 
 function Stat({ label, value, tone = 'neutral' }: { label: React.ReactNode; value: number; tone?: 'warn' | 'neutral' }) {
   return (
-    <div className="bg-white border border-line-soft rounded-xl p-4">
+    <div className="bg-surface border border-line-soft rounded-xl p-4">
       <p className="text-xs text-faint">{label}</p>
-      <p className={`text-2xl font-bold ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</p>
+      <p className={`text-2xl font-bold ${tone === 'warn' ? 'text-warn' : 'text-ink'}`}>{value}</p>
     </div>
   )
 }

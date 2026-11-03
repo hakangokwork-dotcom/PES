@@ -65,8 +65,8 @@ export default function TermTip({
         aria-controls={open ? panelId : undefined}
         className={
           showIcon
-            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[11px] text-faint hover:border-emerald-500 hover:text-emerald-600 transition-colors align-middle'
-            : 'inline text-left underline decoration-dotted decoration-line underline-offset-2 hover:decoration-emerald-600 hover:text-emerald-700 transition-colors cursor-help'
+            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[11px] text-faint hover:border-accent hover:text-accent-ink transition-colors align-middle'
+            : 'inline text-left underline decoration-dotted decoration-line underline-offset-2 hover:decoration-emerald-600 hover:text-accent-ink transition-colors cursor-help'
         }
       >
         {showIcon ? '?' : label}
@@ -88,7 +88,7 @@ export default function TermTip({
       {open && (
         <span
           id={panelId}
-          className="absolute z-50 left-0 top-full mt-1.5 w-96 max-w-[90vw] bg-white border border-line-soft rounded-xl shadow-2xl p-4 text-left block"
+          className="absolute z-50 left-0 top-full mt-1.5 w-96 max-w-[90vw] bg-surface border border-line-soft rounded-xl shadow-2xl p-4 text-left block"
         >
           <span className="flex items-start justify-between gap-2 mb-2">
             <span>
@@ -122,7 +122,7 @@ export default function TermTip({
             <span className="block text-xs space-y-0.5">
               {metric.sources.map((s, i) => (
                 <span key={i} className="block">
-                  <span className="font-mono text-emerald-700">
+                  <span className="font-mono text-accent-ink">
                     {s.table}{s.column ? `.${s.column}` : ''}
                   </span>
                   <span className="text-faint"> — {s.label}</span>
@@ -183,9 +183,9 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 }
 
 const THRESHOLD_STYLES: Record<string, string> = {
-  green: 'bg-green-100 text-green-700 border-green-200',
-  amber: 'bg-amber-100 text-amber-700 border-amber-200',
-  red: 'bg-red-100 text-red-700 border-red-200',
+  green: 'bg-accent-soft text-accent-ink border-line-soft',
+  amber: 'bg-warn-soft text-warn border-line-soft',
+  red: 'bg-danger-soft text-danger border-danger-line',
   blue: 'bg-canvas text-muted border-line',
   orange: 'bg-orange-100 text-orange-700 border-orange-200',
 }

@@ -14,10 +14,10 @@ import { withServerTenant } from '@/lib/supabase/tenant-server'
 export const dynamic = 'force-dynamic'
 
 const GUVEN_RENK: Record<string, string> = {
-  YUKSEK: 'bg-emerald-100 text-emerald-800',
-  ORTA: 'bg-amber-100 text-amber-800',
+  YUKSEK: 'bg-accent-soft text-accent-ink',
+  ORTA: 'bg-warn-soft text-warn',
   DUSUK: 'bg-rose-100 text-rose-800',
-  TEK_OLCUM: 'bg-slate-100 text-slate-600',
+  TEK_OLCUM: 'bg-canvas text-muted',
 }
 
 export default async function Kutuphane({
@@ -76,8 +76,8 @@ export default async function Kutuphane({
   return (
     <main className="p-6 space-y-4">
       <header>
-        <h1 className="text-xl font-semibold">Operasyon Zamanı Kütüphanesi</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Operasyon Zamanı Kütüphanesi</h1>
+        <p className="text-sm text-faint">
           {toplam?.n.toLocaleString('tr-TR')} MTM ölçümü ·{' '}
           <Link href={bag({ guven: 'DUSUK' })} className="underline text-rose-700">
             {toplam?.dusuk.toLocaleString('tr-TR')} düşük güvenli
@@ -87,7 +87,7 @@ export default async function Kutuphane({
       </header>
 
       {guven && (
-        <p className="text-sm bg-amber-50 border border-amber-200 rounded px-3 py-2">
+        <p className="text-sm bg-warn-soft border border-line-soft rounded px-3 py-2">
           Yalnız <strong>{guven}</strong> güven seviyesindeki ölçümler gösteriliyor.{' '}
           <Link href={bag({ tip: tipId, grup: grupId })} className="underline">filtreyi kaldır</Link>
         </p>
@@ -102,14 +102,14 @@ export default async function Kutuphane({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <section className="border rounded overflow-hidden">
-          <h2 className="px-3 py-2 bg-slate-50 text-sm font-medium">Ürün tipi ({tipler.length})</h2>
+          <h2 className="px-3 py-2 bg-canvas text-sm font-medium">Ürün tipi ({tipler.length})</h2>
           <ul className="max-h-[28rem] overflow-y-auto text-sm">
             {tipler.map((t: Record<string, unknown>) => (
               <li key={String(t.id)}>
                 <Link href={bag({ tip: String(t.id), guven })}
-                      className={`block px-3 py-1.5 hover:bg-slate-50 ${Number(t.id) === tipId ? 'bg-slate-100 font-medium' : ''}`}>
+                      className={`block px-3 py-1.5 hover:bg-canvas ${Number(t.id) === tipId ? 'bg-canvas font-medium' : ''}`}>
                   {String(t.klasman_ad)}
-                  <span className="text-xs text-slate-400"> · {String(t.olcum)}</span>
+                  <span className="text-xs text-faint"> · {String(t.olcum)}</span>
                 </Link>
               </li>
             ))}
@@ -117,16 +117,16 @@ export default async function Kutuphane({
         </section>
 
         <section className="border rounded overflow-hidden">
-          <h2 className="px-3 py-2 bg-slate-50 text-sm font-medium">Operasyon grubu</h2>
+          <h2 className="px-3 py-2 bg-canvas text-sm font-medium">Operasyon grubu</h2>
           {gruplar.length === 0
-            ? <p className="p-3 text-sm text-slate-400">Soldan bir ürün tipi seç.</p>
+            ? <p className="p-3 text-sm text-faint">Soldan bir ürün tipi seç.</p>
             : <ul className="max-h-[28rem] overflow-y-auto text-sm">
                 {gruplar.map((g: Record<string, unknown>) => (
                   <li key={String(g.id)}>
                     <Link href={bag({ tip: tipId, grup: String(g.id), guven })}
-                          className={`block px-3 py-1.5 hover:bg-slate-50 ${Number(g.id) === grupId ? 'bg-slate-100 font-medium' : ''}`}>
+                          className={`block px-3 py-1.5 hover:bg-canvas ${Number(g.id) === grupId ? 'bg-canvas font-medium' : ''}`}>
                       {String(g.ad)}
-                      <span className="text-xs text-slate-400"> · {String(g.olcum)}</span>
+                      <span className="text-xs text-faint"> · {String(g.olcum)}</span>
                     </Link>
                   </li>
                 ))}
@@ -134,12 +134,12 @@ export default async function Kutuphane({
         </section>
 
         <section className="border rounded overflow-hidden">
-          <h2 className="px-3 py-2 bg-slate-50 text-sm font-medium">Operasyonlar</h2>
+          <h2 className="px-3 py-2 bg-canvas text-sm font-medium">Operasyonlar</h2>
           {satirlar.length === 0
-            ? <p className="p-3 text-sm text-slate-400">Bir operasyon grubu seç.</p>
+            ? <p className="p-3 text-sm text-faint">Bir operasyon grubu seç.</p>
             : <div className="max-h-[28rem] overflow-y-auto">
                 <table className="text-sm w-full">
-                  <thead className="bg-slate-50 sticky top-0">
+                  <thead className="bg-canvas sticky top-0">
                     <tr>
                       <th className="text-left px-3 py-1.5">Operasyon</th>
                       <th className="text-right px-3 py-1.5">MTM (sn)</th>
@@ -152,12 +152,12 @@ export default async function Kutuphane({
                       <tr key={String(s.id)} className="border-t">
                         <td className="px-3 py-1.5">
                           {String(s.operasyon)}
-                          {s.ek_parca ? <span className="block text-xs text-slate-400">{String(s.ek_parca)}</span> : null}
+                          {s.ek_parca ? <span className="block text-xs text-faint">{String(s.ek_parca)}</span> : null}
                         </td>
                         <td className="px-3 py-1.5 text-right tabular-nums">
                           {Number(s.mtm).toFixed(2)}
                           {Number(s.orneklem) > 1 && (
-                            <span className="block text-xs text-slate-400">
+                            <span className="block text-xs text-faint">
                               {Number(s.mtm_min).toFixed(1)}–{Number(s.mtm_max).toFixed(1)}
                             </span>
                           )}
@@ -176,7 +176,7 @@ export default async function Kutuphane({
         </section>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         MTM değerleri <strong>medyan</strong>; birden fazla ölçüm varsa altında min–maks
         aralığı yazar. <code>TEK_OLCUM</code> tek ölçümden gelir, doğrulanmamıştır.
         <code>DUSUK</code> ölçümlerde varyasyon katsayısı %20&apos;nin üstünde — bunlar

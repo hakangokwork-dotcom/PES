@@ -183,7 +183,7 @@ export default async function YetenekAramaPage({
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Yetenek Arama</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Yetenek Arama</h1>
         <p className="text-faint mt-1">
           {seciliBoyutlar.length === 0
             ? `${tumBantlar.length} aktif bant · filtre seçin`
@@ -196,7 +196,7 @@ export default async function YetenekAramaPage({
 
         <div className="space-y-4">
           {ozet.length > 0 && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5 text-sm text-emerald-900">
+            <div className="bg-accent-soft border border-line-soft rounded-lg px-4 py-2.5 text-sm text-accent-ink">
               <span className="font-medium">Aranan: </span>
               {ozet.join('  ·  ')}
             </div>
@@ -212,7 +212,7 @@ export default async function YetenekAramaPage({
           ) : (
             <div className="space-y-3">
               {atolyeListesi.map((a) => (
-                <div key={a.code} className="bg-white border border-line-soft rounded-xl overflow-hidden">
+                <div key={a.code} className="bg-surface border border-line-soft rounded-xl overflow-hidden">
                   <div className="flex items-center justify-between px-5 py-3 border-b border-line-soft bg-canvas">
                     <div className="min-w-0">
                       <span className="text-accent font-semibold">{a.code}</span>

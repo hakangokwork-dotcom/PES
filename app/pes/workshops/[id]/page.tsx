@@ -87,12 +87,12 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
           ← Atölyeler
         </Link>
         <div className="flex items-center gap-3 mt-2">
-          <h1 className="text-2xl font-bold text-ink">{w.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">{w.name}</h1>
           <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-canvas text-muted">
             Tip {w.type} — {TYPE_LABELS[w.type]}
           </span>
           {w.is_active ? (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">Aktif</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-accent-soft text-accent-ink">Aktif</span>
           ) : (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-canvas text-faint">Pasif</span>
           )}
@@ -101,19 +101,19 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Dikim Operatörü</p>
           <p className="text-xl font-bold text-ink">{w.sewing_staff}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Toplam Çalışan</p>
           <p className="text-xl font-bold text-ink">{w.total_staff}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Günlük Hedef</p>
           <p className="text-xl font-bold text-ink">{w.daily_target.toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Bant Sayısı</p>
           <p className="text-xl font-bold text-ink">{w.line_count}</p>
         </div>

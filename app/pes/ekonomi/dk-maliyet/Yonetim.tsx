@@ -69,7 +69,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
     <div className="space-y-6">
       <div className="overflow-x-auto border rounded">
         <table className="text-sm w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-canvas">
             <tr>
               <th className="text-left px-3 py-2">Dönem</th>
               <th className="text-left px-3 py-2">Geçerli olduğu aylar</th>
@@ -83,19 +83,19 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
               const a = gecerlilikAraligi(tumDonemler, d.donem)
               const gecerli = d.donem === gecerliDonem
               return (
-                <tr key={d.donem} className={`border-t ${gecerli ? 'bg-emerald-50' : ''}`}>
+                <tr key={d.donem} className={`border-t ${gecerli ? 'bg-accent-soft' : ''}`}>
                   <td className="px-3 py-2 font-medium tabular-nums">
                     {d.donem}
-                    {gecerli && <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-emerald-600 text-white">bugün geçerli</span>}
+                    {gecerli && <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-accent text-white">bugün geçerli</span>}
                   </td>
-                  <td className="px-3 py-2 text-slate-500 text-xs">{a.bitis ? `${a.baslangic} – ${a.bitis}` : `${a.baslangic} ve sonrası`}</td>
+                  <td className="px-3 py-2 text-faint text-xs">{a.bitis ? `${a.baslangic} – ${a.bitis}` : `${a.baslangic} ve sonrası`}</td>
                   {BOLGELER.map((b) => {
                     const o = degisimOrani(d.degerler[b], onceki?.degerler[b] ?? null)
                     return (
                       <td key={b} className="px-3 py-2 text-right tabular-nums">
                         {tl(d.degerler[b])}
                         {o !== null && o !== 0 && (
-                          <span className={`block text-xs ${o > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>{yuzde(o)}</span>
+                          <span className={`block text-xs ${o > 0 ? 'text-rose-600' : 'text-accent-ink'}`}>{yuzde(o)}</span>
                         )}
                       </td>
                     )
@@ -114,11 +114,11 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
       <form id="dk-form" onSubmit={kaydet} className="border rounded p-4 space-y-3 max-w-4xl">
         <h2 className="font-medium">{varMi ? `${donem} dönemini düzelt` : 'Yeni dönem ekle'}</h2>
         <label className="block">
-          <span className="text-sm text-slate-600">Dönem (geçerlilik başlangıcı)</span>
+          <span className="text-sm text-muted">Dönem (geçerlilik başlangıcı)</span>
           <input type="month" value={donem} onChange={(e) => { setDonem(e.target.value); setDurum({ tur: 'hazir' }) }}
             required className="block border rounded px-2 py-1 tabular-nums" />
           {aralik && (
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-faint">
               {varMi ? 'Bu dönem zaten var; kaydetmek değerlerini düzeltir. ' : ''}
               Etkilenecek aylar: <b>{aralik.bitis ? `${aralik.baslangic} – ${aralik.bitis}` : `${aralik.baslangic} ve sonrası`}</b>.
               {' '}Önceki aylar kendi dönemlerinin değerleriyle kalır.
@@ -128,7 +128,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
           {BOLGELER.map((b) => (
             <label key={b} className="block">
-              <span className="text-sm text-slate-600">{b}. Bölge (TL/dk)</span>
+              <span className="text-sm text-muted">{b}. Bölge (TL/dk)</span>
               <input inputMode="decimal" value={degerler[b]} required
                 onChange={(e) => setDegerler({ ...degerler, [b]: e.target.value })}
                 className="block w-full border rounded px-2 py-1 text-right tabular-nums" />
@@ -136,7 +136,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
           ))}
         </div>
         <label className="block">
-          <span className="text-sm text-slate-600">Açıklama (geçmişe yazılır)</span>
+          <span className="text-sm text-muted">Açıklama (geçmişe yazılır)</span>
           <input value={aciklama} onChange={(e) => setAciklama(e.target.value)} maxLength={500}
             placeholder="ör. 2026 Eylül 3D tablosu"
             className="block w-full border rounded px-2 py-1" />
@@ -145,7 +145,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
           className="px-4 py-2 rounded bg-slate-900 text-white disabled:opacity-50">
           {durum.tur === 'gonderiliyor' ? 'Kaydediliyor…' : `${donem} için kaydet`}
         </button>
-        {durum.tur === 'ok' && <p className="text-sm text-emerald-700">{durum.metin}</p>}
+        {durum.tur === 'ok' && <p className="text-sm text-accent-ink">{durum.metin}</p>}
         {durum.tur === 'hata' && <p className="text-sm text-rose-700">{durum.metin}</p>}
       </form>
     </div>

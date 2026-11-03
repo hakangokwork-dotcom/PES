@@ -22,8 +22,8 @@ const KULLANAN = [
 ]
 
 const ISLEM: Record<string, { ad: string; renk: string }> = {
-  ekle: { ad: 'eklendi', renk: 'bg-emerald-100 text-emerald-800' },
-  guncelle: { ad: 'güncellendi', renk: 'bg-amber-100 text-amber-800' },
+  ekle: { ad: 'eklendi', renk: 'bg-accent-soft text-accent-ink' },
+  guncelle: { ad: 'güncellendi', renk: 'bg-warn-soft text-warn' },
   sil: { ad: 'silindi', renk: 'bg-rose-100 text-rose-800' },
 }
 
@@ -42,20 +42,20 @@ export default async function DkMaliyetSayfasi() {
   return (
     <main className="p-6 space-y-6">
       <header className="space-y-2 max-w-4xl">
-        <h1 className="text-xl font-semibold">Bölgesel Dakika Maliyetleri (3D)</h1>
-        <p className="text-sm text-slate-600">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Bölgesel Dakika Maliyetleri (3D)</h1>
+        <p className="text-sm text-muted">
           Değerler <b>dönem versiyonludur</b>: her ay, kendisinden önceki en yakın dönemin değerleriyle hesaplanır.
           Yeni dönem eklemek geçmiş ayları değiştirmez; var olan bir dönemi düzeltmek yalnız o dönemin geçerli
           olduğu ayları değiştirir. Kaydettiğiniz anda aşağıdaki bütün hesaplar yeni değeri kullanır — ayrıca bir
           yeniden hesaplama adımı yok.
         </p>
         <details className="text-sm border rounded px-3 py-2">
-          <summary className="cursor-pointer text-slate-700">Bu değerleri kullanan hesaplar ({KULLANAN.length})</summary>
+          <summary className="cursor-pointer text-body">Bu değerleri kullanan hesaplar ({KULLANAN.length})</summary>
           <ul className="mt-2 space-y-1">
             {KULLANAN.map((k) => (
               <li key={k.ad}>
                 {k.yol ? <Link href={k.yol} className="underline">{k.ad}</Link> : <span>{k.ad}</span>}
-                <span className="text-slate-500"> — {k.ne}</span>
+                <span className="text-faint"> — {k.ne}</span>
               </li>
             ))}
           </ul>
@@ -66,10 +66,10 @@ export default async function DkMaliyetSayfasi() {
 
       <section className="space-y-2">
         <h2 className="font-medium">Değişiklik geçmişi</h2>
-        <p className="text-sm text-slate-500">Her ekleme, düzeltme ve silme; ekran dışından yapılanlar dahil.</p>
+        <p className="text-sm text-faint">Her ekleme, düzeltme ve silme; ekran dışından yapılanlar dahil.</p>
         <div className="overflow-x-auto border rounded">
           <table className="text-sm w-full">
-            <thead className="bg-slate-50 text-xs text-slate-600">
+            <thead className="bg-canvas text-xs text-muted">
               <tr>
                 <th className="text-left px-3 py-2">Tarih</th>
                 <th className="text-left px-3 py-2">Dönem</th>
@@ -82,7 +82,7 @@ export default async function DkMaliyetSayfasi() {
             <tbody>
               {gecmisiGrupla(data.gecmis).map((g) => (
                 <tr key={g.anahtar} className="border-t align-top">
-                  <td className="px-3 py-1.5 tabular-nums whitespace-nowrap text-slate-500">
+                  <td className="px-3 py-1.5 tabular-nums whitespace-nowrap text-faint">
                     {new Date(g.degisti_at).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
                   </td>
                   <td className="px-3 py-1.5 tabular-nums">{g.donem}</td>
@@ -93,16 +93,16 @@ export default async function DkMaliyetSayfasi() {
                     const v = g.bolgeler[b]
                     return (
                       <td key={b} className="px-3 py-1.5 text-right tabular-nums whitespace-nowrap">
-                        {!v ? <span className="text-slate-300">·</span>
+                        {!v ? <span className="text-faint">·</span>
                           : g.islem === 'guncelle'
-                            ? <><span className="text-slate-400 line-through">{tl(v.eski)}</span> {tl(v.yeni)}</>
-                            : g.islem === 'sil' ? <span className="text-slate-400 line-through">{tl(v.eski)}</span>
+                            ? <><span className="text-faint line-through">{tl(v.eski)}</span> {tl(v.yeni)}</>
+                            : g.islem === 'sil' ? <span className="text-faint line-through">{tl(v.eski)}</span>
                             : tl(v.yeni)}
                       </td>
                     )
                   })}
-                  <td className="px-3 py-1.5 text-slate-600">{g.degistiren}</td>
-                  <td className="px-3 py-1.5 text-slate-600">{g.aciklama ?? ''}</td>
+                  <td className="px-3 py-1.5 text-muted">{g.degistiren}</td>
+                  <td className="px-3 py-1.5 text-muted">{g.aciklama ?? ''}</td>
                 </tr>
               ))}
             </tbody>

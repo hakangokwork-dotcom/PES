@@ -5,7 +5,7 @@ import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useRef } from 'react'
 
 const TEMPLATES = [
-  { key: 'setup', label: 'Atölye Kurulum (Tek Dosya)', desc: 'Profil + personel + bantlar + gider — bir kerede kurulum', icon: '★', color: 'emerald' },
+  { key: 'setup', label: 'Atölye Kurulum (Tek Dosya)', desc: 'Profil + personel + bantlar + gider — bir kerede kurulum', icon: '★', color: 'emerald' },
   { key: 'production', label: 'Üretim Verisi', desc: 'Bant bazlı aylık üretim hedef/gerçek adetleri', icon: '⊞', color: 'emerald' },
   { key: 'expenses', label: 'Gider Verisi', desc: '12 gider kalemi + hedef ciro', icon: '₺', color: 'blue' },
   { key: 'quality', label: 'Kalite Verisi', desc: 'Kontrol, FPQ, red, tamir, hata kategorisi', icon: '◎', color: 'purple' },
@@ -16,11 +16,11 @@ const TEMPLATES = [
 ]
 
 const COLORS: Record<string, string> = {
-  emerald: 'border-emerald-200 bg-emerald-50',
+  emerald: 'border-line-soft bg-accent-soft',
   blue: 'border-line bg-canvas',
   purple: 'border-line bg-canvas',
-  red: 'border-red-200 bg-red-50',
-  amber: 'border-amber-200 bg-amber-50',
+  red: 'border-danger-line bg-danger-soft',
+  amber: 'border-line-soft bg-warn-soft',
   indigo: 'border-line bg-canvas',
   teal: 'border-line bg-canvas',
 }
@@ -64,12 +64,12 @@ function VeriYuklePage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Veri Yükle / İndir</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Veri Yükle / İndir</h1>
         <p className="text-sm text-faint mt-1">CSV şablonlarını indirin, doldurun ve sisteme yükleyin</p>
       </div>
 
       {/* Donem Secimi */}
-      <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end">
+      <div className="bg-surface border border-line-soft rounded-xl p-4 flex gap-4 items-end">
         <div>
           <label className="block text-xs font-medium text-muted mb-1">Yıl</label>
           <select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(Number(e.target.value))}>
@@ -114,7 +114,7 @@ function VeriYuklePage() {
                 <a
                   href={`/api/pes/templates/${t.key}`}
                   download
-                  className="px-3 py-1.5 bg-white border border-line rounded-lg text-xs font-medium text-body hover:bg-canvas whitespace-nowrap"
+                  className="px-3 py-1.5 bg-surface border border-line rounded-lg text-xs font-medium text-body hover:bg-canvas whitespace-nowrap"
                 >
                   Şablon İndir
                 </a>
@@ -125,19 +125,19 @@ function VeriYuklePage() {
                   type="file"
                   accept=".csv,.txt"
                   ref={el => { fileRefs.current[t.key] = el }}
-                  className="flex-1 text-sm text-muted file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-line file:text-xs file:font-medium file:bg-white file:text-body hover:file:bg-canvas"
+                  className="flex-1 text-sm text-muted file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-line file:text-xs file:font-medium file:bg-surface file:text-body hover:file:bg-canvas"
                 />
                 <button
                   onClick={() => handleUpload(t.key)}
                   disabled={uploading === t.key}
-                  className="px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium hover:bg-emerald-700 disabled:opacity-50 whitespace-nowrap"
+                  className="px-4 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover disabled:opacity-50 whitespace-nowrap"
                 >
                   {uploading === t.key ? 'Yukleniyor...' : 'Yukle'}
                 </button>
               </div>
 
               {res && (
-                <div className={`text-xs px-3 py-2 rounded-lg ${res.ok || res.imported ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <div className={`text-xs px-3 py-2 rounded-lg ${res.ok || res.imported ? 'bg-accent-soft text-accent-ink' : 'bg-danger-soft text-danger'}`}>
                   {res.imported ? `${res.imported} kayit yuklendi` : res.error || res.message}
                 </div>
               )}

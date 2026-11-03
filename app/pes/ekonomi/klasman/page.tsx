@@ -118,8 +118,8 @@ export default async function KlasmanSayfasi({
     <main className="p-6 space-y-5">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Klasman Karşılaştırması</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Klasman Karşılaştırması</h1>
+          <p className="text-sm text-faint">
             {donem} · {ozetler.length} klasman ·{' '}
             <Link href={`/pes/ekonomi?donem=${donem}`} className="underline">rasyo radarı →</Link>
           </p>
@@ -130,7 +130,7 @@ export default async function KlasmanSayfasi({
             return (
               <Link key={s}
                     href={`/pes/ekonomi/klasman?donem=${s}${secili ? `&klasman=${encodeURIComponent(secili)}` : ''}`}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
                 {s}
               </Link>
             )
@@ -138,7 +138,7 @@ export default async function KlasmanSayfasi({
         </nav>
       </header>
 
-      <p className="text-sm bg-amber-50 border border-amber-200 rounded px-3 py-2">
+      <p className="text-sm bg-warn-soft border border-line-soft rounded px-3 py-2">
         <strong>Bu rakamlar klasmana ait değil, atölyeye ait.</strong> Bir atölyenin
         marjı tüm üretiminin marjıdır; birden fazla klasman diken atölye her
         listede aynı rakamla görünür. Yani burada okunan şey “PANTOLON ne kadar
@@ -147,7 +147,7 @@ export default async function KlasmanSayfasi({
       </p>
 
       {ozetler.length === 0 ? (
-        <p className="text-slate-500 border rounded p-6">
+        <p className="text-faint border rounded p-6">
           Bu dönemde klasman bilgisi olan atölye yok. Klasmanlar bant
           seviyesinde <code>line_capability</code> tablosundan okunuyor.
         </p>
@@ -155,7 +155,7 @@ export default async function KlasmanSayfasi({
         <>
           <section className="overflow-x-auto border rounded">
             <table className="text-sm w-full">
-              <thead className="bg-slate-50">
+              <thead className="bg-canvas">
                 <tr>
                   <th className="text-left px-3 py-2">Klasman</th>
                   <th className="text-right px-3 py-2"
@@ -172,33 +172,33 @@ export default async function KlasmanSayfasi({
               <tbody>
                 {ozetler.map(o => (
                   <tr key={o.klasman}
-                      className={`border-t hover:bg-slate-50 ${o.klasman === secili ? 'bg-slate-100' : ''}`}>
+                      className={`border-t hover:bg-canvas ${o.klasman === secili ? 'bg-canvas' : ''}`}>
                     <td className="px-3 py-2">
                       <Link href={bag(o.klasman)} className="underline font-medium">{o.klasman}</Link>
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
-                      <span className={o.marjliAtolyeSayisi === 0 ? 'text-slate-300' : 'font-medium'}>
+                      <span className={o.marjliAtolyeSayisi === 0 ? 'text-faint' : 'font-medium'}>
                         {o.marjliAtolyeSayisi}
                       </span>
-                      <span className="text-slate-400"> / {o.atolyeSayisi}</span>
+                      <span className="text-faint"> / {o.atolyeSayisi}</span>
                     </td>
                     <td className={`px-3 py-2 text-right tabular-nums ${
-                      o.medyanMarj === null ? 'text-slate-300'
-                        : o.medyanMarj < 0 ? 'text-rose-700' : 'text-emerald-700'}`}>
+                      o.medyanMarj === null ? 'text-faint'
+                        : o.medyanMarj < 0 ? 'text-rose-700' : 'text-accent-ink'}`}>
                       {fmtRasyo(meta('marj'), o.medyanMarj)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {o.marjliAtolyeSayisi === 0
-                        ? <span className="text-slate-300">—</span>
+                        ? <span className="text-faint">—</span>
                         : <span className={o.zarardaSayisi > 0 ? 'text-rose-700' : ''}>
                             {o.zarardaSayisi}/{o.marjliAtolyeSayisi}
                           </span>}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-slate-500">
+                    <td className="px-3 py-2 text-right tabular-nums text-faint">
                       {fmtRasyo(meta('marj'), o.yayilim)}
                     </td>
-                    <td className="px-3 py-2 text-slate-600">{o.enIyi?.ad ?? '—'}</td>
-                    <td className="px-3 py-2 text-slate-600">{o.enKotu?.ad ?? '—'}</td>
+                    <td className="px-3 py-2 text-muted">{o.enIyi?.ad ?? '—'}</td>
+                    <td className="px-3 py-2 text-muted">{o.enKotu?.ad ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -210,14 +210,14 @@ export default async function KlasmanSayfasi({
               <h2 className="font-medium">
                 {seciliOzet.klasman} diken {seciliOzet.atolyeSayisi} atölye
                 {seciliOzet.marjliAtolyeSayisi < 2 && (
-                  <span className="ml-2 text-sm font-normal text-amber-700">
+                  <span className="ml-2 text-sm font-normal text-warn">
                     — kıyaslanacak yeterli veri yok
                   </span>
                 )}
               </h2>
               <div className="overflow-x-auto border rounded">
                 <table className="text-sm w-full">
-                  <thead className="bg-slate-50">
+                  <thead className="bg-canvas">
                     <tr>
                       <th className="text-left px-3 py-2">Atölye</th>
                       {SUTUNLAR.map(alan => (
@@ -231,7 +231,7 @@ export default async function KlasmanSayfasi({
                   </thead>
                   <tbody>
                     {seciliAtolyeler.map(a => (
-                      <tr key={a.workshopId} className="border-t hover:bg-slate-50">
+                      <tr key={a.workshopId} className="border-t hover:bg-canvas">
                         <td className="px-3 py-2">
                           <Link href={`/pes/ekonomi/${a.workshopId}?donem=${donem}`}
                                 className="underline">{a.ad}</Link>
@@ -239,8 +239,8 @@ export default async function KlasmanSayfasi({
                         {SUTUNLAR.map(alan => {
                           const v = a.rasyolar[alan]
                           const m = meta(alan)
-                          const renk = v === null ? 'text-slate-300'
-                            : alan === 'marj' ? (v < 0 ? 'text-rose-700' : 'text-emerald-700')
+                          const renk = v === null ? 'text-faint'
+                            : alan === 'marj' ? (v < 0 ? 'text-rose-700' : 'text-accent-ink')
                             : ''
                           return (
                             <td key={alan} className={`px-3 py-2 text-right tabular-nums ${renk}`}>
@@ -248,17 +248,17 @@ export default async function KlasmanSayfasi({
                             </td>
                           )
                         })}
-                        <td className="px-3 py-2 text-xs text-slate-500">
+                        <td className="px-3 py-2 text-xs text-faint">
                           {a.klasmanlar.filter(k => k !== seciliOzet.klasman).join(', ') || '—'}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-slate-50 border-t-2">
+                  <tfoot className="bg-canvas border-t-2">
                     <tr>
                       <td className="px-3 py-2 font-medium">
                         Medyan{' '}
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-faint">
                           n={seciliOzet.marjliAtolyeSayisi}
                         </span>
                       </td>
@@ -279,7 +279,7 @@ export default async function KlasmanSayfasi({
         </>
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         “—” hesaplanamadı demektir, sıfır değil. Bir atölye diktiği her
         klasmanın listesinde görünür; sağdaki sütun o atölyenin başka hangi
         klasmanları diktiğini söyler — karşılaştırmayı okurken bu önemli,

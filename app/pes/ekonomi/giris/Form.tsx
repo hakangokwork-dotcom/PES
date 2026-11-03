@@ -46,7 +46,7 @@ export default function Form({ atolyeler, donem, mevcut, workshopId }: {
   return (
     <form onSubmit={gonder} className="space-y-3 max-w-2xl">
       <label className="block">
-        <span className="text-sm text-slate-600">Atölye</span>
+        <span className="text-sm text-muted">Atölye</span>
         <select name="workshop_id" defaultValue={workshopId ?? ''} required
                 onChange={e => router.push(`/pes/ekonomi/giris?atolye=${e.target.value}&donem=${donem.yil}-${String(donem.ay).padStart(2, '0')}`)}
                 className="block w-full border rounded px-2 py-1">
@@ -57,16 +57,16 @@ export default function Form({ atolyeler, donem, mevcut, workshopId }: {
 
       {ALANLAR.map(([ad, etiket, ipucu]) => (
         <label key={ad} className="block">
-          <span className="text-sm text-slate-600">{etiket}</span>
+          <span className="text-sm text-muted">{etiket}</span>
           <input name={ad} type="number" step="any"
                  defaultValue={mevcut?.[ad] != null ? String(mevcut[ad]) : ''}
                  className="block w-full border rounded px-2 py-1 tabular-nums" />
-          {ipucu && <span className="text-xs text-slate-400">{ipucu}</span>}
+          {ipucu && <span className="text-xs text-faint">{ipucu}</span>}
         </label>
       ))}
 
       <label className="block">
-        <span className="text-sm text-slate-600">Not</span>
+        <span className="text-sm text-muted">Not</span>
         <input name="note" defaultValue={mevcut?.note != null ? String(mevcut.note) : ''}
                className="block w-full border rounded px-2 py-1" />
       </label>
@@ -76,7 +76,7 @@ export default function Form({ atolyeler, donem, mevcut, workshopId }: {
         {durum === 'gonderiliyor' ? 'Kaydediliyor…' : 'Kaydet'}
       </button>
 
-      {durum === 'kaydedildi' && <p className="text-sm text-emerald-700">Kaydedildi. Satır artık "elle" kaynaklı.</p>}
+      {durum === 'kaydedildi' && <p className="text-sm text-accent-ink">Kaydedildi. Satır artık "elle" kaynaklı.</p>}
       {durum !== 'hazir' && durum !== 'gonderiliyor' && durum !== 'kaydedildi' &&
         <p className="text-sm text-rose-700">{durum}</p>}
     </form>

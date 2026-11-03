@@ -35,7 +35,7 @@ export default async function AtolyeProfilPage({
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Atölye Profili ve Denetimler</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Atölye Profili ve Denetimler</h1>
           <p className="text-faint mt-1">
             {dbError
               ? 'Bağlantı hatası'
@@ -51,8 +51,8 @@ export default async function AtolyeProfilPage({
       </div>
 
       {dbError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <p className="text-sm text-red-700">{dbError}</p>
+        <div className="bg-danger-soft border border-danger-line rounded-xl p-4">
+          <p className="text-sm text-danger">{dbError}</p>
         </div>
       )}
 

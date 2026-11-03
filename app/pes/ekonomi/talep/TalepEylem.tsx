@@ -51,13 +51,13 @@ export default function TalepEylem({
           <button
             onClick={() => calistir('DELETE')}
             disabled={bekliyor}
-            className="text-xs underline text-slate-500 hover:text-slate-800 disabled:opacity-50"
+            className="text-xs underline text-faint hover:text-ink disabled:opacity-50"
           >
             iptal
           </button>
         </div>
-        {not && <div className="text-xs text-slate-500 max-w-xs">{not}</div>}
-        {hata && <div className="text-xs text-red-600">{hata}</div>}
+        {not && <div className="text-xs text-faint max-w-xs">{not}</div>}
+        {hata && <div className="text-xs text-danger">{hata}</div>}
       </div>
     )
   }
@@ -69,7 +69,7 @@ export default function TalepEylem({
           value={metin}
           onChange={(e) => setMetin(e.target.value)}
           placeholder="Not (atölye görür)"
-          className="border border-slate-300 rounded px-2 py-1 text-xs w-48"
+          className="border border-line rounded px-2 py-1 text-xs w-48"
           autoFocus
         />
         <div className="flex gap-2">
@@ -82,12 +82,12 @@ export default function TalepEylem({
           </button>
           <button
             onClick={() => { setNotYaz(false); setHata(null) }}
-            className="text-xs underline text-slate-500"
+            className="text-xs underline text-faint"
           >
             vazgeç
           </button>
         </div>
-        {hata && <div className="text-xs text-red-600">{hata}</div>}
+        {hata && <div className="text-xs text-danger">{hata}</div>}
       </div>
     )
   }
@@ -95,7 +95,7 @@ export default function TalepEylem({
   return (
     <button
       onClick={() => setNotYaz(true)}
-      className="text-xs px-2 py-1 rounded border border-slate-300 hover:bg-slate-50"
+      className="text-xs px-2 py-1 rounded border border-line hover:bg-canvas"
     >
       Talep aç
     </button>

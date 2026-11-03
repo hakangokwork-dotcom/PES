@@ -33,7 +33,7 @@ export default function BolumEz({ bultenId, operasyonId, bolum, kaynak }: {
         {BOLUMLER.map(b => <option key={b} value={b}>{b}</option>)}
       </select>
       {kaynak === 'elle' && (
-        <span className="text-xs text-amber-700" title="Kural değil, elle seçildi">elle</span>
+        <span className="text-xs text-warn" title="Kural değil, elle seçildi">elle</span>
       )}
     </span>
   )

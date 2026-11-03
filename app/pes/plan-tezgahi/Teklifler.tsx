@@ -57,7 +57,7 @@ export default function Teklifler({
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-3 flex-wrap">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-faint">
           Teklifler
         </h2>
         <button
@@ -71,12 +71,12 @@ export default function Teklifler({
           title={kalemVar ? 'Taslağı ilgili atölyelere gönder' : 'Önce iş yerleştirin'}>
           Atölyelere gönder
         </button>
-        {mesaj && <span className="text-sm text-emerald-700">{mesaj}</span>}
-        {hata && <span className="text-sm text-red-600">{hata}</span>}
+        {mesaj && <span className="text-sm text-accent-ink">{mesaj}</span>}
+        {hata && <span className="text-sm text-danger">{hata}</span>}
       </div>
 
       {teklifler.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-faint">
           Henüz teklif gönderilmedi. Taslak sizde kaldığı sürece atölye hiçbir şey görmez.
         </p>
       ) : (
@@ -87,23 +87,23 @@ export default function Teklifler({
             const uygulanabilir = t.durum === 'kabul' || t.durum === 'revizyon'
 
             return (
-              <article key={t.id} className="rounded border border-slate-200 p-3">
+              <article key={t.id} className="rounded border border-line-soft p-3">
                 <div className="flex justify-between gap-3 flex-wrap items-baseline">
                   <div>
                     <span className="font-medium">{t.atolyeAdi}</span>
-                    <span className="text-xs text-slate-400"> · {t.turNo}. tur · {t.kalemler.length} iş</span>
+                    <span className="text-xs text-faint"> · {t.turNo}. tur · {t.kalemler.length} iş</span>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded ${
-                    t.durum === 'kabul' ? 'bg-emerald-100 text-emerald-800'
-                    : t.durum === 'ret' ? 'bg-red-100 text-red-800'
-                    : t.durum === 'revizyon' ? 'bg-amber-100 text-amber-800'
-                    : 'bg-slate-100 text-slate-600'}`}>
+                    t.durum === 'kabul' ? 'bg-accent-soft text-accent-ink'
+                    : t.durum === 'ret' ? 'bg-danger-soft text-danger'
+                    : t.durum === 'revizyon' ? 'bg-warn-soft text-warn'
+                    : 'bg-canvas text-muted'}`}>
                     {DURUM_ETIKET[t.durum]}
                   </span>
                 </div>
 
                 {t.gerekceKodu && (
-                  <div className="mt-1 text-sm text-slate-600">
+                  <div className="mt-1 text-sm text-muted">
                     <strong>{GEREKCE_ETIKET[t.gerekceKodu]}</strong>
                     {t.cevapNotu && <> — {t.cevapNotu}</>}
                   </div>
@@ -112,19 +112,19 @@ export default function Teklifler({
                 {t.durum === 'revizyon' && (
                   <div className="mt-2 text-sm">
                     {ozet.degisenKalem === 0 ? (
-                      <span className="text-slate-500">
+                      <span className="text-faint">
                         Tarih/adet değişikliği önerilmedi; yalnız gerekçe bildirildi.
                       </span>
                     ) : (
                       <>
-                        <div className="text-slate-700">
+                        <div className="text-body">
                           {ozet.degisenKalem}/{ozet.toplamKalem} işte değişiklik ·
                           en büyük kayma <strong>{ozet.enBuyukKayma} gün</strong>
                           {ozet.toplamAdetFarki !== 0 && (
                             <> · adet farkı <strong>{tr.format(ozet.toplamAdetFarki)}</strong></>
                           )}
                         </div>
-                        <ul className="mt-1 space-y-0.5 text-xs text-slate-600">
+                        <ul className="mt-1 space-y-0.5 text-xs text-muted">
                           {farklar.filter((f) => f.degisti).map((f) => {
                             const k = t.kalemler.find((x) => x.id === f.kalemId)!
                             return (
@@ -136,7 +136,7 @@ export default function Teklifler({
                                 {f.adetFarki !== null && f.adetFarki !== 0 && (
                                   <>, adet {tr.format(k.adet)} → {tr.format(k.karsiAdet!)}</>
                                 )}
-                                {k.karsiNot && <span className="text-slate-400"> — {k.karsiNot}</span>}
+                                {k.karsiNot && <span className="text-faint"> — {k.karsiNot}</span>}
                               </li>
                             )
                           })}
@@ -155,10 +155,10 @@ export default function Teklifler({
                           const u = (g as { uygulanan?: unknown[] }).uygulanan ?? []
                           return `${u.length} iş emri atölyenin planına yazıldı`
                         })}
-                      className="px-3 py-1.5 rounded bg-emerald-600 text-white text-sm disabled:opacity-50">
+                      className="px-3 py-1.5 rounded bg-accent text-white text-sm disabled:opacity-50">
                       {t.durum === 'revizyon' ? 'Revizyonu uygula' : 'Planı uygula'}
                     </button>
-                    <span className="ml-2 text-xs text-slate-500">
+                    <span className="ml-2 text-xs text-faint">
                       {t.durum === 'revizyon'
                         ? 'Atölyenin önerdiği tarihler yazılır'
                         : 'İş emri atölyenin takvimine düşer'}

@@ -347,7 +347,7 @@ function TakvimPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-ink">Bant Takvimi</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Bant Takvimi</h1>
           <p className="text-sm text-faint mt-1">
             Ay/hafta görünümü — bant doluluk + WO planı. Bar üzerine tıkla → iş emri detayına git.
           </p>
@@ -355,7 +355,7 @@ function TakvimPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white border border-line-soft rounded-xl p-3 flex items-center gap-2 flex-wrap">
+      <div className="bg-surface border border-line-soft rounded-xl p-3 flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1">
           <button onClick={() => shiftRange(-1)} className="px-2 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">‹</button>
           <button onClick={() => setRefDate(new Date())} className="px-3 py-1.5 text-sm border border-line-soft rounded hover:bg-canvas">Bugün</button>
@@ -417,7 +417,7 @@ function TakvimPage() {
       </div>
 
       {/* Gantt grid */}
-      <div className="bg-white border border-line-soft rounded-xl overflow-x-auto">
+      <div className="bg-surface border border-line-soft rounded-xl overflow-x-auto">
         <div
           className="grid text-xs"
           style={{
@@ -435,7 +435,7 @@ function TakvimPage() {
             return (
               <div key={i}
                 className={`border-r border-b border-line-soft text-center py-1 ${
-                  isToday ? 'bg-canvas ring-1 ring-accent' : w ? 'bg-canvas text-faint' : 'bg-white'
+                  isToday ? 'bg-canvas ring-1 ring-accent' : w ? 'bg-canvas text-faint' : 'bg-surface'
                 }`}>
                 <div className="font-mono font-semibold text-[11px]">{d.getDate()}</div>
                 <div className="text-[11px] text-faint">{TR_GUNLER[d.getDay()]}</div>
@@ -446,15 +446,15 @@ function TakvimPage() {
           {/* Atanmamış (line_id = null) */}
           {unassignedRow.length > 0 && (
             <>
-              <div className="sticky left-0 z-10 bg-amber-50 border-r border-b border-line-soft px-3 py-2 flex flex-col">
-                <span className="font-semibold text-amber-800 text-xs">⚠ Atanmamış</span>
-                <span className="text-[11px] text-amber-600">{unassignedRow.length} WO</span>
+              <div className="sticky left-0 z-10 bg-warn-soft border-r border-b border-line-soft px-3 py-2 flex flex-col">
+                <span className="font-semibold text-warn text-xs">⚠ Atanmamış</span>
+                <span className="text-[11px] text-warn">{unassignedRow.length} WO</span>
               </div>
-              <div className="border-b border-line-soft bg-amber-50/30 relative" style={{ gridColumn: `2 / span ${days.length}`, minHeight: 50 }}>
+              <div className="border-b border-line-soft bg-warn-soft/30 relative" style={{ gridColumn: `2 / span ${days.length}`, minHeight: 50 }}>
                 <div className="px-2 py-1 flex flex-wrap gap-1">
                   {unassignedRow.map(o => (
                     <Link key={o.id} href={`/workshop/is-emri/${o.id}`}
-                      className="text-[11px] px-2 py-0.5 bg-white border border-amber-300 rounded hover:bg-amber-100 truncate max-w-[120px]"
+                      className="text-[11px] px-2 py-0.5 bg-surface border border-line rounded hover:bg-warn-soft truncate max-w-[120px]"
                       title={`${o.is_emri_no}: ${o.model_adi}`}>
                       {o.model_adi}
                     </Link>
@@ -508,7 +508,7 @@ function TakvimPage() {
 
             return (
               <div key={line.id} className="contents">
-                <div className="sticky left-0 z-10 bg-white border-r border-b border-line-soft px-3 py-2 flex flex-col justify-center">
+                <div className="sticky left-0 z-10 bg-surface border-r border-b border-line-soft px-3 py-2 flex flex-col justify-center">
                   <div className="text-xs font-semibold text-ink">{line.code}</div>
                   <div className="text-[11px] text-faint truncate">{line.name}</div>
                 </div>
@@ -571,7 +571,7 @@ function TakvimPage() {
                           {isDraggable && span >= 2 && (
                             <div
                               data-handle="resize-end"
-                              className="absolute top-0 right-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/30"
+                              className="absolute top-0 right-0 bottom-0 w-2 cursor-ew-resize hover:bg-surface/30"
                               title="Bitiş tarihini değiştir"
                             />
                           )}
@@ -600,7 +600,7 @@ function TakvimPage() {
       </div>
 
       {/* Bant doluluk özeti */}
-      <div className="bg-white border border-line-soft rounded-xl p-4">
+      <div className="bg-surface border border-line-soft rounded-xl p-4">
         <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
           📊 Bant Doluluk Özeti ({TR_AYLAR[refDate.getMonth()]} {refDate.getFullYear()})
         </h3>
@@ -623,7 +623,7 @@ function TakvimPage() {
               }
             }
             const dolulukPct = totalDays > 0 ? Math.round((dolugun.size / totalDays) * 100) : 0
-            const barColor = dolulukPct >= 90 ? 'bg-red-500' : dolulukPct >= 70 ? 'bg-emerald-500' : dolulukPct >= 40 ? 'bg-amber-500' : 'bg-line'
+            const barColor = dolulukPct >= 90 ? 'bg-danger' : dolulukPct >= 70 ? 'bg-accent' : dolulukPct >= 40 ? 'bg-warn' : 'bg-line'
             return (
               <div key={line.id} className="flex items-center gap-3 text-xs">
                 <span className="w-32 truncate font-medium">{line.code} · {line.name}</span>

@@ -65,7 +65,7 @@ export default function ScoringPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Tedarikçi Skorlama</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Tedarikçi Skorlama</h1>
           <p className="text-faint mt-1">Atölye performans değerlendirmesi</p>
         </div>
         <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export default function ScoringPage() {
 
       {/* Skor Tablosu */}
       {scores.length > 0 ? (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-canvas border-b border-line-soft">

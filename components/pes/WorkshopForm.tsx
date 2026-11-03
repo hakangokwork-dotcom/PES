@@ -78,13 +78,13 @@ export default function WorkshopForm({ workshop }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">
+        <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">
           {error}
         </div>
       )}
 
       {/* Temel Bilgiler */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Temel Bilgiler</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -116,7 +116,7 @@ export default function WorkshopForm({ workshop }: Props) {
       </div>
 
       {/* Çalışan Bilgileri */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Çalışan Profili</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
@@ -147,7 +147,7 @@ export default function WorkshopForm({ workshop }: Props) {
       </div>
 
       {/* Üretim Bilgileri */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Üretim Bilgileri</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>

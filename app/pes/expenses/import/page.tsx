@@ -10,7 +10,7 @@ export default function ExpenseImportPage() {
         <Link href="/pes/veri-kalitesi" className="text-sm text-faint hover:text-ink">
           ← Veri Kalitesi
         </Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">Gider Beyanı İçe Aktar</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">Gider Beyanı İçe Aktar</h1>
         <p className="text-faint mt-1">
           Atölye gider beyanlarını toplu yükleyin. Yüklenen her satır güven skoruyla
           değerlendirilir; ham veri denetim izi olarak saklanır.

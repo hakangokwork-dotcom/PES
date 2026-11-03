@@ -65,11 +65,11 @@ export default function WorkforcePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">İşgücü Devir Oranı</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">İşgücü Devir Oranı</h1>
         <p className="text-faint mt-1">Aylık personel giriş-çıkış takibi</p>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-body mb-1">Atölye</label>
@@ -95,7 +95,7 @@ export default function WorkforcePage() {
 
       {workshopId && (
         <>
-          <div className="bg-white border border-line-soft rounded-xl p-6">
+          <div className="bg-surface border border-line-soft rounded-xl p-6">
             <h2 className="text-lg font-semibold text-ink mb-4">Personel Verileri</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
@@ -121,15 +121,15 @@ export default function WorkforcePage() {
             </div>
 
             <div className="mt-6 pt-4 border-t border-line-soft grid grid-cols-3 gap-4">
-              <div className={`rounded-lg p-3 text-center ${netChange >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+              <div className={`rounded-lg p-3 text-center ${netChange >= 0 ? 'bg-accent-soft' : 'bg-danger-soft'}`}>
                 <p className="text-xs text-faint">Net Değişim</p>
-                <p className={`text-xl font-bold ${netChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-xl font-bold ${netChange >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
                   {netChange > 0 ? '+' : ''}{netChange}
                 </p>
               </div>
-              <div className={`rounded-lg p-3 text-center ${Number(turnoverRate) <= 20 ? 'bg-green-50' : Number(turnoverRate) <= 40 ? 'bg-amber-50' : 'bg-red-50'}`}>
+              <div className={`rounded-lg p-3 text-center ${Number(turnoverRate) <= 20 ? 'bg-accent-soft' : Number(turnoverRate) <= 40 ? 'bg-warn-soft' : 'bg-danger-soft'}`}>
                 <p className="text-xs text-faint">Devir Oranı</p>
-                <p className={`text-xl font-bold ${Number(turnoverRate) <= 20 ? 'text-green-600' : Number(turnoverRate) <= 40 ? 'text-amber-600' : 'text-red-600'}`}>
+                <p className={`text-xl font-bold ${Number(turnoverRate) <= 20 ? 'text-accent-ink' : Number(turnoverRate) <= 40 ? 'text-warn' : 'text-danger'}`}>
                   %{turnoverRate}
                 </p>
               </div>
@@ -144,8 +144,8 @@ export default function WorkforcePage() {
             <p><strong>Referans:</strong> ≤%20 İyi · %20–40 Normal · %40–60 Yüksek · &gt;%60 Kritik</p>
           </div>
 
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-          {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+          {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
+          {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
           <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Kaydet'}

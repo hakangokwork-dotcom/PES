@@ -49,10 +49,10 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  accepted: 'bg-green-100 text-green-700',
-  winsorized: 'bg-amber-100 text-amber-700',
+  accepted: 'bg-accent-soft text-accent-ink',
+  winsorized: 'bg-warn-soft text-warn',
   pending_fix: 'bg-orange-100 text-orange-700',
-  rejected: 'bg-red-100 text-red-700',
+  rejected: 'bg-danger-soft text-danger',
 }
 
 export default function ExpenseImport() {
@@ -88,7 +88,7 @@ export default function ExpenseImport() {
   return (
     <div className="space-y-6">
       {/* 1. Şablon */}
-      <section className="bg-white border border-line-soft rounded-xl p-5">
+      <section className="bg-surface border border-line-soft rounded-xl p-5">
         <h2 className="text-sm font-semibold text-ink">1 · Şablonu indirin</h2>
         <p className="text-sm text-faint mt-1">
           27 gider kalemini içeren boş şablon. Aktif atölyeler kod ve adlarıyla önceden
@@ -103,7 +103,7 @@ export default function ExpenseImport() {
       </section>
 
       {/* 2. Yükle */}
-      <section className="bg-white border border-line-soft rounded-xl p-5">
+      <section className="bg-surface border border-line-soft rounded-xl p-5">
         <h2 className="text-sm font-semibold text-ink">2 · Doldurulmuş dosyayı yükleyin</h2>
         <p className="text-sm text-faint mt-1">
           Önce önizleme yapılır — hiçbir şey kaydedilmez. Sonucu görüp onayladıktan sonra
@@ -119,7 +119,7 @@ export default function ExpenseImport() {
               setCommitted(false)
               setError('')
             }}
-            className="text-sm file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-line file:bg-white file:text-sm file:font-medium hover:file:bg-canvas"
+            className="text-sm file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-line file:bg-surface file:text-sm file:font-medium hover:file:bg-canvas"
           />
           <button
             onClick={() => send('preview')}
@@ -129,13 +129,13 @@ export default function ExpenseImport() {
             {busy ? 'İşleniyor…' : 'Önizle'}
           </button>
         </div>
-        {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
+        {error && <p className="text-sm text-danger mt-3">{error}</p>}
       </section>
 
       {result && (
         <>
           {/* Başlık eşleme */}
-          <section className="bg-white border border-line-soft rounded-xl p-5">
+          <section className="bg-surface border border-line-soft rounded-xl p-5">
             <h2 className="text-sm font-semibold text-ink">Başlık eşlemesi</h2>
             <p className="text-sm text-faint mt-1">
               <strong>{result.summary.sheet}</strong> sayfası ·{' '}
@@ -144,7 +144,7 @@ export default function ExpenseImport() {
 
             <div className="flex flex-wrap gap-1.5 mt-3">
               {Object.entries(result.mapping.expense).map(([col, header]) => (
-                <span key={col} className="text-xs px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">
+                <span key={col} className="text-xs px-2 py-1 rounded-full bg-accent-soft text-accent-ink border border-line-soft">
                   {header} → {col}
                 </span>
               ))}
@@ -175,7 +175,7 @@ export default function ExpenseImport() {
           </div>
 
           {/* Satır raporu */}
-          <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+          <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -190,7 +190,7 @@ export default function ExpenseImport() {
                 </thead>
                 <tbody className="divide-y divide-line-soft">
                   {result.reports.map((r) => (
-                    <tr key={r.rowIndex} className={r.matched ? '' : 'bg-red-50/50'}>
+                    <tr key={r.rowIndex} className={r.matched ? '' : 'bg-danger-soft/50'}>
                       <td className="px-4 py-2.5 text-faint">{r.rowIndex}</td>
                       <td className="px-4 py-2.5 text-ink">{r.workshop_code ?? '—'}</td>
                       <td className="px-4 py-2.5 text-muted">{r.donem ?? '—'}</td>
@@ -202,14 +202,14 @@ export default function ExpenseImport() {
                       </td>
                       <td className="px-4 py-2.5">
                         {r.problem ? (
-                          <span className="text-xs text-red-600">{r.problem}</span>
+                          <span className="text-xs text-danger">{r.problem}</span>
                         ) : r.score ? (
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLES[r.score.status]}`}>
                               {STATUS_LABELS[r.score.status]}
                             </span>
                             {r.score.flags.filter((f) => f.severity === 'error').slice(0, 1).map((f, i) => (
-                              <span key={i} className="text-xs text-red-600">{f.message}</span>
+                              <span key={i} className="text-xs text-danger">{f.message}</span>
                             ))}
                           </div>
                         ) : '—'}
@@ -223,7 +223,7 @@ export default function ExpenseImport() {
 
           {/* 3. Onay */}
           {result.mode === 'preview' && result.summary.matched > 0 && (
-            <section className="bg-white border border-line-soft rounded-xl p-5">
+            <section className="bg-surface border border-line-soft rounded-xl p-5">
               <h2 className="text-sm font-semibold text-ink">3 · İçeri aktar</h2>
               <p className="text-sm text-faint mt-1">
                 {result.summary.matched} satır kaydedilecek. Ham satırlar da saklanır
@@ -240,11 +240,11 @@ export default function ExpenseImport() {
           )}
 
           {committed && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-              <p className="text-sm text-green-800 font-medium">
+            <div className="bg-accent-soft border border-line-soft rounded-xl p-4">
+              <p className="text-sm text-accent-ink font-medium">
                 {result.summary.matched} beyan içeri aktarıldı ve skorlandı.
               </p>
-              <a href="/pes/veri-kalitesi" className="text-sm text-green-700 underline mt-1 inline-block">
+              <a href="/pes/veri-kalitesi" className="text-sm text-accent-ink underline mt-1 inline-block">
                 Veri kalitesi raporuna git →
               </a>
             </div>
@@ -256,9 +256,9 @@ export default function ExpenseImport() {
 }
 
 function Stat({ label, value, tone = 'neutral' }: { label: string; value: number; tone?: 'good' | 'bad' | 'neutral' }) {
-  const color = tone === 'good' ? 'text-green-700' : tone === 'bad' ? 'text-red-700' : 'text-ink'
+  const color = tone === 'good' ? 'text-accent-ink' : tone === 'bad' ? 'text-danger' : 'text-ink'
   return (
-    <div className="bg-white border border-line-soft rounded-xl p-4">
+    <div className="bg-surface border border-line-soft rounded-xl p-4">
       <p className="text-xs text-faint">{label}</p>
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>

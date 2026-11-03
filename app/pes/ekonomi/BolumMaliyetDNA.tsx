@@ -76,7 +76,7 @@ export default function BolumMaliyetDNA({ profiller }: { profiller: DnaProfili[]
                     <span className="text-xs whitespace-nowrap">
                       <span className="text-neutral-500">en ayırt edici: </span>
                       <span style={{ color: G_RENK[ilk.grup] }}>{G_ETIKET[ilk.grup]}</span>
-                      <span className={ilk.sapma > 0 ? 'text-rose-700' : 'text-emerald-700'}>
+                      <span className={ilk.sapma > 0 ? 'text-rose-700' : 'text-accent-ink'}>
                         {' '}{puan1.format(ilk.sapma * 100)} puan
                       </span>
                     </span>
@@ -127,7 +127,7 @@ export default function BolumMaliyetDNA({ profiller }: { profiller: DnaProfili[]
                         <td className={`px-3 py-1.5 text-right tabular-nums ${
                           g.sapma === null ? 'text-neutral-300'
                             : Math.abs(g.sapma) < 0.02 ? 'text-neutral-400'
-                            : g.sapma > 0 ? 'text-rose-700' : 'text-emerald-700'}`}>
+                            : g.sapma > 0 ? 'text-rose-700' : 'text-accent-ink'}`}>
                           {g.sapma === null ? '—' : `${puan1.format(g.sapma * 100)} puan`}
                         </td>
                         <td className="px-3 py-1.5 text-xs text-neutral-500">{G_ICERIK[g.grup]}</td>

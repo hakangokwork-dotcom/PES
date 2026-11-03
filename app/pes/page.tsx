@@ -168,7 +168,7 @@ export default async function PesDashboard() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <div className="flex items-end justify-between">
-          <h1 className="text-2xl font-bold text-ink">Merkez Paneli</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Merkez Paneli</h1>
           <span className="hidden text-xs text-faint sm:block">
             {effTrend.length ? `Son dönem: ${effTrend.at(-1)!.month}/${effTrend.at(-1)!.year}` : ''}
           </span>
@@ -211,13 +211,13 @@ export default async function PesDashboard() {
       {/* Grafikler */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Verimlilik trendi */}
-        <div className="lg:col-span-2 bg-white border border-line-soft rounded-xl p-5">
+        <div className="lg:col-span-2 bg-surface border border-line-soft rounded-xl p-5">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-sm font-semibold text-ink">Ortalama Verimlilik Trendi</h2>
             {avgEff !== null && (
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-ink">%{avgEff}</span>
-                <span className={`flex items-center gap-0.5 text-xs font-medium ${trendDelta > 0 ? 'text-emerald-600' : trendDelta < 0 ? 'text-red-600' : 'text-faint'}`}>
+                <span className={`flex items-center gap-0.5 text-xs font-medium ${trendDelta > 0 ? 'text-accent-ink' : trendDelta < 0 ? 'text-danger' : 'text-faint'}`}>
                   {trendDelta > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : trendDelta < 0 ? <TrendingDown className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
                   {trendDelta > 0 ? '+' : ''}{trendDelta.toFixed(1)}
                 </span>
@@ -230,7 +230,7 @@ export default async function PesDashboard() {
         </div>
 
         {/* Tedarikçi kademe dağılımı */}
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <h2 className="text-sm font-semibold text-ink mb-3">Tedarikçi Kademeleri</h2>
           {tierDist.length > 0
             ? <TierDonut data={tierDist as unknown as { tier: string; c: number }[]} />
@@ -240,14 +240,14 @@ export default async function PesDashboard() {
 
       {/* Atölye verimlilik sıralaması + son üretim */}
       <div className="grid lg:grid-cols-2 gap-4">
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <h2 className="text-sm font-semibold text-ink mb-3">Atölye Verimlilik Sıralaması</h2>
           {wsEff.length > 0
             ? <WorkshopEffBar data={wsEff as unknown as { code: string; eff: number }[]} />
             : <EmptyMini text="Üretim verisi bekleniyor" />}
         </div>
 
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <h2 className="text-sm font-semibold text-ink mb-3">Son Dönem Üretim</h2>
           <div className="space-y-1">
             {recentProd.map((r: Record<string, unknown>, i: number) => {

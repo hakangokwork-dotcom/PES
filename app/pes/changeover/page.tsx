@@ -79,7 +79,7 @@ export default function ChangeoverPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Model Değiştirme (Changeover)</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Model Değiştirme (Changeover)</h1>
           <p className="text-faint mt-1">Üretim geçiş süreleri ve kayıpları</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
@@ -87,10 +87,10 @@ export default function ChangeoverPage() {
         </button>
       </div>
 
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+        <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-muted mb-1">Atölye</label>
@@ -126,9 +126,9 @@ export default function ChangeoverPage() {
               <label className="block text-xs font-medium text-muted mb-1">Isınma (dk)</label>
               <input type="number" className={inputClass} value={form.warmup_min} onChange={e => setForm(p => ({...p, warmup_min: parseInt(e.target.value)||0}))} min={0} />
             </div>
-            <div className="bg-amber-50 rounded-lg p-3 flex flex-col justify-center">
-              <p className="text-xs text-amber-600">Toplam Süre</p>
-              <p className="text-xl font-bold text-amber-900">{totalMin} dk</p>
+            <div className="bg-warn-soft rounded-lg p-3 flex flex-col justify-center">
+              <p className="text-xs text-warn">Toplam Süre</p>
+              <p className="text-xl font-bold text-warn">{totalMin} dk</p>
             </div>
           </div>
           <button type="submit" disabled={loading} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">
@@ -138,7 +138,7 @@ export default function ChangeoverPage() {
       )}
 
       {records.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <DataTable
             columns={kolonlar}
             rows={records}

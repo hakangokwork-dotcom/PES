@@ -50,8 +50,8 @@ export default async function YetenekRaporPage() {
   if (data.tableMissing) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-ink">Yetenek Kırılım Raporu</h1>
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Yetenek Kırılım Raporu</h1>
+        <div className="bg-warn-soft border border-line rounded-xl p-4 text-sm text-warn">
           Yetenek tablolari henuz olusturulmamis. Supabase SQL Editor&apos;da 014_bant_attribute.sql dosyasini calistirin.
         </div>
       </div>
@@ -118,26 +118,26 @@ export default async function YetenekRaporPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Yetenek Kırılım Raporu</h1>
-        <p className="text-sm text-faint">Tüm Atölyelerin bant yetenek profilleri — kapasite dağılımı</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Yetenek Kırılım Raporu</h1>
+        <p className="text-sm text-faint">Tüm Atölyelerin bant yetenek profilleri — kapasite dağılımı</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+        <div className="bg-surface border border-line-soft rounded-xl p-4 text-center">
           <p className="text-xs text-faint">Profil Tanımlı Bant</p>
           <p className="text-2xl font-bold text-ink">{totalBant}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+        <div className="bg-surface border border-line-soft rounded-xl p-4 text-center">
           <p className="text-xs text-faint">Toplam Operatör</p>
           <p className="text-2xl font-bold text-ink">{fmt(totalOp)}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
+        <div className="bg-surface border border-line-soft rounded-xl p-4 text-center">
           <p className="text-xs text-faint">Günlük Kapasite</p>
           <p className="text-2xl font-bold text-ink">{fmt(totalHedef)}</p>
           <p className="text-[11px] text-faint">adet/gun (aylik: {fmt(totalHedef * 22)})</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4 text-center">
-          <p className="text-xs text-faint">Atölye Sayısı</p>
+        <div className="bg-surface border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-xs text-faint">Atölye Sayısı</p>
           <p className="text-2xl font-bold text-ink">{Object.keys(atolyeKlasmanMap).length}</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default async function YetenekRaporPage() {
           if (items.length === 0) return null
           const maxBant = Math.max(...items.map(i => i.bant_sayisi), 1)
           return (
-            <div key={dimCode} className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+            <div key={dimCode} className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-canvas border-b border-line-soft">
                 <h3 className="text-sm font-semibold text-body">{dim.label}</h3>
               </div>
@@ -158,7 +158,7 @@ export default async function YetenekRaporPage() {
                     <span className="text-sm text-ink w-28 truncate">{item.label}</span>
                     <div className="flex-1">
                       <div className="w-full bg-canvas rounded-full h-2.5">
-                        <div className="h-2.5 rounded-full bg-emerald-500" style={{ width: `${(item.bant_sayisi / maxBant) * 100}%` }}></div>
+                        <div className="h-2.5 rounded-full bg-accent" style={{ width: `${(item.bant_sayisi / maxBant) * 100}%` }}></div>
                       </div>
                     </div>
                     <div className="text-right w-32 flex gap-2">
@@ -174,15 +174,15 @@ export default async function YetenekRaporPage() {
       </div>
 
       {allKlasmans.length > 0 && Object.keys(atolyeKlasmanMap).length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-            <h3 className="text-sm font-semibold text-body">Atölye x Klasman Matrisi</h3>
+            <h3 className="text-sm font-semibold text-body">Atölye x Klasman Matrisi</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-faint border-b border-line-soft">
-                  <th className="text-left px-3 py-2 sticky left-0 bg-white">Atölye</th>
+                  <th className="text-left px-3 py-2 sticky left-0 bg-surface">Atölye</th>
                   <th className="text-center px-1 py-2">Bant</th>
                   <th className="text-center px-1 py-2">Op</th>
                   <th className="text-center px-1 py-2">Kap/gün</th>
@@ -194,14 +194,14 @@ export default async function YetenekRaporPage() {
               <tbody>
                 {Object.values(atolyeKlasmanMap).map(a => (
                   <tr key={a.code} className="border-b border-line-soft hover:bg-canvas">
-                    <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-white">{a.code} <span className="text-faint font-normal">— {a.name}</span></td>
+                    <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-surface">{a.code} <span className="text-faint font-normal">— {a.name}</span></td>
                     <td className="text-center px-1 py-2">{a.bantSayisi}</td>
                     <td className="text-center px-1 py-2">{a.toplamOp}</td>
                     <td className="text-center px-1 py-2 font-mono">{fmt(a.toplamHedef)}</td>
                     {allKlasmans.map(k => (
                       <td key={k} className="text-center px-2 py-2">
                         {a.klasmanlar.has(k) ? (
-                          <span className="inline-block w-5 h-5 rounded bg-emerald-500 text-white text-[11px] leading-5">✓</span>
+                          <span className="inline-block w-5 h-5 rounded bg-accent text-white text-[11px] leading-5">✓</span>
                         ) : (
                           <span className="text-faint">—</span>
                         )}
@@ -216,8 +216,8 @@ export default async function YetenekRaporPage() {
       )}
 
       {lineData.length === 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">
-          Henüz bant yetenek profili tanımlanmamış. Atölye Profil sayfasından bantlara yetenek ataması yapın.
+        <div className="bg-surface border border-line-soft rounded-xl p-8 text-center text-faint">
+          Henüz bant yetenek profili tanımlanmamış. Atölye Profil sayfasından bantlara yetenek ataması yapın.
         </div>
       )}
     </div>

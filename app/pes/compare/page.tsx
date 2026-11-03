@@ -109,41 +109,41 @@ export default async function ComparePage({
 
   const fmt = (n: number) => n.toLocaleString('tr-TR')
   const tierColor = (t: string) => {
-    if (t === 'Stratejik') return 'bg-emerald-100 text-emerald-800'
+    if (t === 'Stratejik') return 'bg-accent-soft text-accent-ink'
     if (t === 'Gelisen') return 'bg-canvas text-muted'
-    if (t === 'Izlemede') return 'bg-amber-100 text-amber-800'
+    if (t === 'Izlemede') return 'bg-warn-soft text-warn'
     if (t === 'Risk') return 'bg-orange-100 text-orange-800'
-    if (t === 'Kritik') return 'bg-red-100 text-red-800'
+    if (t === 'Kritik') return 'bg-danger-soft text-danger'
     return 'bg-canvas text-muted'
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Atölyeler Arası Karşılaştırma</h1>
-        <p className="text-sm text-faint mt-1">Tum atolyeler - {pMonth}/{pYear} donemi</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Atölyeler Arası Karşılaştırma</h1>
+        <p className="text-sm text-faint mt-1">Tüm atölyeler · {pMonth}/{pYear} dönemi</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint inline-flex items-center gap-1">Ort. Verimlilik <MetricInfo metricKey="verimlilik" size={11} /></p>
           <p className="text-2xl font-bold text-ink">%{rows.length > 0 ? (rows.reduce((s, r) => s + r.efficiency, 0) / rows.filter(r => r.efficiency > 0).length || 0).toFixed(1) : '0'}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint inline-flex items-center gap-1">Ort. TL/dk <MetricInfo metricKey="tl_dk" size={11} /></p>
           <p className="text-2xl font-bold text-ink">{rows.filter(r => r.costPerMin > 0).length > 0 ? (rows.filter(r => r.costPerMin > 0).reduce((s, r) => s + r.costPerMin, 0) / rows.filter(r => r.costPerMin > 0).length).toFixed(2) : '---'}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint inline-flex items-center gap-1">Ort. FPQ <MetricInfo metricKey="fpq" size={11} /></p>
           <p className="text-2xl font-bold text-ink">%{rows.filter(r => r.fpq > 0).length > 0 ? (rows.filter(r => r.fpq > 0).reduce((s, r) => s + r.fpq, 0) / rows.filter(r => r.fpq > 0).length).toFixed(1) : '0'}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
-          <p className="text-xs text-faint">Toplam Atölye</p>
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
+          <p className="text-xs text-faint">Toplam Atölye</p>
           <p className="text-2xl font-bold text-ink">{rows.length}</p>
         </div>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft">
           <h2 className="text-sm font-semibold text-body">Performans Tablosu</h2>
         </div>
@@ -151,7 +151,7 @@ export default async function ComparePage({
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-faint border-b border-line-soft">
-                <th className="text-left px-3 py-2">Atölye</th>
+                <th className="text-left px-3 py-2">Atölye</th>
                 <th className="text-center px-2 py-2">Tip</th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">Verimlilik <MetricInfo metricKey="verimlilik" size={10} /></span></th>
                 <th className="text-right px-2 py-2"><span className="inline-flex items-center justify-end gap-0.5">TL/dk <MetricInfo metricKey="tl_dk" size={10} /></span></th>
@@ -167,7 +167,7 @@ export default async function ComparePage({
               {rows.map(r => (
                 <tr key={r.id as number} className="border-b border-line-soft hover:bg-canvas">
                   <td className="px-3 py-2">
-                    <Link href={`/workshop?wid=${r.id}`} className="text-emerald-700 hover:underline font-medium">{r.code as string}</Link>
+                    <Link href={`/workshop?wid=${r.id}`} className="text-accent-ink hover:underline font-medium">{r.code as string}</Link>
                     <span className="text-faint ml-1 text-xs">{r.name as string}</span>
                   </td>
                   <td className="text-center px-2 py-2 text-xs text-faint">{r.type as string}</td>
@@ -175,13 +175,13 @@ export default async function ComparePage({
                     {r.efficiency > 0 ? `%${r.efficiency}` : '---'}
                   </td>
                   <td className="text-right px-2 py-2 font-mono">{r.costPerMin > 0 ? r.costPerMin.toFixed(2) : '---'}</td>
-                  <td className={`text-right px-2 py-2 font-mono ${r.marginPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <td className={`text-right px-2 py-2 font-mono ${r.marginPct >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
                     {r.marginPct !== 0 ? `%${r.marginPct}` : '---'}
                   </td>
                   <td className={`text-right px-2 py-2 font-mono ${r.fpq > 0 ? TONE_TEXT[fpqTone(r.fpq)] : 'text-faint'}`}>
                     {r.fpq > 0 ? `%${r.fpq}` : '---'}
                   </td>
-                  <td className="text-right px-2 py-2 font-mono text-red-600">{r.downtimeMin > 0 ? fmt(r.downtimeMin) : '---'}</td>
+                  <td className="text-right px-2 py-2 font-mono text-danger">{r.downtimeMin > 0 ? fmt(r.downtimeMin) : '---'}</td>
                   <td className="text-right px-2 py-2 font-mono font-semibold">{r.compositeScore > 0 ? r.compositeScore.toFixed(1) : '---'}</td>
                   <td className="text-center px-2 py-2">
                     <span className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${tierColor(r.tier)}`}>{r.tier}</span>
@@ -195,7 +195,7 @@ export default async function ComparePage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
             <h3 className="text-sm font-semibold text-body">Verimlilik Sıralaması</h3>
           </div>
@@ -212,7 +212,7 @@ export default async function ComparePage({
           </div>
         </div>
 
-        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
             <h3 className="text-sm font-semibold text-body">Maliyet Siralamasi (TL/dk - dusuk iyi)</h3>
           </div>
@@ -220,7 +220,7 @@ export default async function ComparePage({
             {byCost.filter(r => r.costPerMin > 0).map((r, i) => (
               <div key={r.id as number} className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-emerald-500' : i === 1 ? 'bg-emerald-400' : i === 2 ? 'bg-emerald-300' : 'bg-line'}`}>{i + 1}</span>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white ${i === 0 ? 'bg-accent' : i === 1 ? 'bg-emerald-400' : i === 2 ? 'bg-emerald-300' : 'bg-line'}`}>{i + 1}</span>
                   <span className="text-sm text-ink">{r.code as string} — {r.name as string}</span>
                 </div>
                 <span className="text-sm font-bold text-ink">{r.costPerMin.toFixed(2)} TL/dk</span>
@@ -229,7 +229,7 @@ export default async function ComparePage({
           </div>
         </div>
 
-        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
             <h3 className="text-sm font-semibold text-body">Kalite Siralamasi (FPQ)</h3>
           </div>
@@ -246,7 +246,7 @@ export default async function ComparePage({
           </div>
         </div>
 
-        <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-canvas border-b border-line-soft">
             <h3 className="text-sm font-semibold text-body">Genel Skor Sıralaması</h3>
           </div>

@@ -6,9 +6,9 @@ import type { MetricDefinition } from '@/lib/pes/metrics-ontology'
 type Category = { code: string; label: string; count: number }
 
 const THRESHOLD_STYLES: Record<string, string> = {
-  green: 'bg-green-100 text-green-700 border-green-200',
-  amber: 'bg-amber-100 text-amber-700 border-amber-200',
-  red: 'bg-red-100 text-red-700 border-red-200',
+  green: 'bg-accent-soft text-accent-ink border-line-soft',
+  amber: 'bg-warn-soft text-warn border-line-soft',
+  red: 'bg-danger-soft text-danger border-danger-line',
   blue: 'bg-canvas text-muted border-line',
   orange: 'bg-orange-100 text-orange-700 border-orange-200',
 }
@@ -66,7 +66,7 @@ export default function GlossaryBrowser({
       </p>
 
       {filtered.length === 0 ? (
-        <div className="bg-white border border-line-soft rounded-xl p-6 text-center">
+        <div className="bg-surface border border-line-soft rounded-xl p-6 text-center">
           <p className="text-sm text-faint">Eşleşen terim yok.</p>
         </div>
       ) : (
@@ -74,7 +74,7 @@ export default function GlossaryBrowser({
           {filtered.map((m) => {
             const isOpen = expanded === m.key
             return (
-              <div key={m.key} className="bg-white border border-line-soft rounded-xl overflow-hidden">
+              <div key={m.key} className="bg-surface border border-line-soft rounded-xl overflow-hidden">
                 <button
                   onClick={() => setExpanded(isOpen ? null : m.key)}
                   className="w-full flex items-baseline gap-3 px-5 py-3.5 hover:bg-canvas transition-colors text-left"
@@ -101,7 +101,7 @@ export default function GlossaryBrowser({
                     )}
 
                     <Field title="Formül">
-                      <code className="text-xs bg-white border border-line-soft px-2.5 py-1.5 rounded block font-mono text-ink">
+                      <code className="text-xs bg-surface border border-line-soft px-2.5 py-1.5 rounded block font-mono text-ink">
                         {m.formula}
                       </code>
                     </Field>
@@ -110,7 +110,7 @@ export default function GlossaryBrowser({
                       <ul className="text-xs space-y-0.5">
                         {m.sources.map((s, i) => (
                           <li key={i}>
-                            <code className="font-mono text-emerald-700">
+                            <code className="font-mono text-accent-ink">
                               {s.table}{s.column ? `.${s.column}` : ''}
                             </code>
                             <span className="text-faint"> — {s.label}</span>
@@ -180,7 +180,7 @@ function FilterChip({
       className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
         active
           ? 'bg-accent text-white border-accent'
-          : 'bg-white text-muted border-line hover:border-line'
+          : 'bg-surface text-muted border-line hover:border-line'
       }`}
     >
       {children}

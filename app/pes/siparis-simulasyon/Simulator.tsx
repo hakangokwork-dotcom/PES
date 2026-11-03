@@ -42,7 +42,7 @@ function Varsayim({ kaynak }: { kaynak?: string }) {
   const olcum = kaynak === 'olcum'
   return (
     <span className={`ml-1 align-middle text-[10px] px-1 py-0.5 rounded ${
-      olcum ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+      olcum ? 'bg-accent-soft text-accent-ink' : 'bg-warn-soft text-warn'}`}>
       {olcum ? 'ölçüm' : kaynak === 'beyan' ? 'beyan' : 'varsayım'}
     </span>
   )
@@ -135,11 +135,11 @@ export default function Simulator({
     etiket: string; deger: string; birim?: string; ipucu?: string
   }) => (
     <div>
-      <div className="text-[11px] uppercase tracking-wide text-slate-400">{etiket}</div>
+      <div className="text-[11px] uppercase tracking-wide text-faint">{etiket}</div>
       <div className="text-lg font-semibold tabular-nums">
-        {deger}{birim && <span className="text-sm font-normal text-slate-500"> {birim}</span>}
+        {deger}{birim && <span className="text-sm font-normal text-faint"> {birim}</span>}
       </div>
-      {ipucu && <div className="text-[11px] text-slate-400">{ipucu}</div>}
+      {ipucu && <div className="text-[11px] text-faint">{ipucu}</div>}
     </div>
   )
 
@@ -147,68 +147,68 @@ export default function Simulator({
     etiket: string; deger: number; setDeger: (n: number) => void; adim?: number; ek?: React.ReactNode
   }) => (
     <label className="block text-sm">
-      <span className="block text-slate-600 text-xs">{etiket}{ek}</span>
+      <span className="block text-muted text-xs">{etiket}{ek}</span>
       <input type="number" min={0} step={adim} value={deger}
              onChange={(e) => setDeger(Number(e.target.value))}
-             className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 tabular-nums" />
+             className="mt-0.5 w-full rounded border border-line px-2 py-1 tabular-nums" />
     </label>
   )
 
   return (
     <div className="space-y-6">
       {/* ——— Seçim ——— */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded border border-slate-200 p-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded border border-line-soft p-4">
         <label className="block text-sm">
-          <span className="block text-xs text-slate-600">Atölye</span>
+          <span className="block text-xs text-muted">Atölye</span>
           <select value={atolyeId} onChange={(e) => setAtolyeId(Number(e.target.value))}
-                  className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1">
+                  className="mt-0.5 w-full rounded border border-line px-2 py-1">
             {atolyeler.map((a) => <option key={a.id} value={a.id}>{a.ad}</option>)}
           </select>
         </label>
         <label className="block text-sm">
-          <span className="block text-xs text-slate-600">Model bülteni</span>
+          <span className="block text-xs text-muted">Model bülteni</span>
           <select value={bultenId} onChange={(e) => setBultenId(Number(e.target.value))}
-                  className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1">
+                  className="mt-0.5 w-full rounded border border-line px-2 py-1">
             {bultenler.map((b) => <option key={b.id} value={b.id}>{b.ad}</option>)}
           </select>
         </label>
         <Alan etiket="Toplam adet" deger={toplamAdet} setDeger={setToplamAdet} adim={1000} />
         <div className="text-sm">
-          <div className="text-xs text-slate-600">Kararlı birim süre</div>
+          <div className="text-xs text-muted">Kararlı birim süre</div>
           <div className="mt-1 font-semibold tabular-nums">{tl2.format(kararliBirimDk)} dk</div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-faint">
             {tl.format(bulten.dikimSn)} sn ÷ 60 ÷ {pct.format(effSewing)}
-            <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-emerald-100 text-emerald-800">ölçüm</span>
+            <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-accent-soft text-accent-ink">ölçüm</span>
           </div>
         </div>
       </section>
 
       {/* ——— Varsayımlar ——— */}
-      <section className="rounded border border-amber-200 bg-amber-50 p-4 text-sm">
+      <section className="rounded border border-line-soft bg-warn-soft p-4 text-sm">
         <div className="font-medium mb-2">
           Varsayımlar — PES&apos;te gerçek model değişim ölçümü yok
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
-            <span className="text-xs text-slate-600">Model değişim süresi</span>
+            <span className="text-xs text-muted">Model değişim süresi</span>
             <div className="font-semibold tabular-nums">
               {tl2.format(param.degisimDk)} dk<Varsayim kaynak={paramKaynak} />
             </div>
           </div>
           <div>
-            <span className="text-xs text-slate-600">Öğrenme oranı</span>
+            <span className="text-xs text-muted">Öğrenme oranı</span>
             <div className="font-semibold tabular-nums">
               {pct.format(param.ogrenmeOrani)}<Varsayim kaynak={paramKaynak} />
             </div>
           </div>
           <div>
-            <span className="text-xs text-slate-600">İlk birim çarpanı</span>
+            <span className="text-xs text-muted">İlk birim çarpanı</span>
             <div className="font-semibold tabular-nums">
               {tl2.format(param.ilkBirimCarpani)}×<Varsayim kaynak={paramKaynak} />
             </div>
           </div>
         </div>
-        <p className="mt-2 text-xs text-slate-600">
+        <p className="mt-2 text-xs text-muted">
           Dakika maliyeti ve MTM süresi gerçek ölçümdür; bu üç sayı değildir.
           Atölye bazında düzenlenebilir (<code>workshop_uretim_param</code>).
         </p>
@@ -216,18 +216,18 @@ export default function Simulator({
 
       {/* ——— Soru 1: parti büyüklüğü ——— */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-faint">
           Parti büyüklüğünün etkisi
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {[{ s: sA, p: partiA, set: setPartiA, ad: 'A' }, { s: sB, p: partiB, set: setPartiB, ad: 'B' }]
             .map(({ s, p, set, ad }) => (
-            <div key={ad} className="rounded border border-slate-200 p-4 space-y-3">
+            <div key={ad} className="rounded border border-line-soft p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-500">Senaryo {ad}</span>
+                <span className="text-xs font-semibold text-faint">Senaryo {ad}</span>
                 <input type="number" min={1} value={p} onChange={(e) => set(Math.max(1, Number(e.target.value)))}
-                       className="w-16 rounded border border-slate-300 px-2 py-0.5 text-sm tabular-nums" />
-                <span className="text-xs text-slate-500">
+                       className="w-16 rounded border border-line px-2 py-0.5 text-sm tabular-nums" />
+                <span className="text-xs text-faint">
                   parti × {tl.format(Math.round(toplamAdet / Math.max(1, p)))} adet
                 </span>
               </div>
@@ -240,14 +240,14 @@ export default function Simulator({
                 <Sayi etiket="Toplam maliyet" deger={f(s.maliyet)} birim="₺" />
                 <Sayi etiket="Birim maliyet" deger={f(s.birimMaliyet, tl2)} birim="₺/adet" />
               </div>
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-faint">
                 Kayıp payı: <strong>{pct.format(s.kayipPayi)}</strong>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="rounded border border-slate-900 p-4">
+        <div className="rounded border border-line p-4">
           <div className="text-sm font-medium mb-2">
             B, A&apos;ya göre ne kadar pahalı?
           </div>
@@ -257,7 +257,7 @@ export default function Simulator({
             <Sayi etiket="Fazla maliyet" deger={f(kars.farkMaliyet)} birim="₺" />
             <Sayi etiket="Oran" deger={kars.farkOran === null ? '—' : pct.format(kars.farkOran)} />
           </div>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-faint">
             Saf dikim dakikası iki senaryoda AYNI ({f(sA.dikimDk)} dk). Bütün fark
             değişim ve öğrenme kaybından geliyor — ve kayıp parti sayısıyla doğrusal artıyor.
           </p>
@@ -265,8 +265,8 @@ export default function Simulator({
       </section>
 
       {/* ——— Soru 3: MTM duyarlılığı ——— */}
-      <section className="rounded border border-slate-200 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-2">
+      <section className="rounded border border-line-soft p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-faint mb-2">
           MTM değişimi ↔ çıktı
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -274,30 +274,30 @@ export default function Simulator({
             const c = mtmDuyarliligi(d)
             return (
               <div key={d}>
-                <div className="text-[11px] text-slate-400">
+                <div className="text-[11px] text-faint">
                   süre {d > 0 ? '+' : ''}{pct.format(d)}
                 </div>
                 <div className={`text-lg font-semibold tabular-nums ${
-                  (c ?? 0) > 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                  (c ?? 0) > 0 ? 'text-accent-ink' : 'text-danger'}`}>
                   {c === null ? '—' : `${c > 0 ? '+' : ''}${pct.format(c)}`}
                 </div>
-                <div className="text-[11px] text-slate-400">çıktı</div>
+                <div className="text-[11px] text-faint">çıktı</div>
               </div>
             )
           })}
         </div>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-faint">
           İlişki ters orantılı: süre %10 düşerse çıktı %11,1 artar. Simetrik değildir.
         </p>
       </section>
 
       {/* ——— Soru 4: fast-track teşvik ——— */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-faint">
           Fast-track ve adil teşvik
         </h2>
 
-        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6 rounded border border-slate-200 p-4">
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6 rounded border border-line-soft p-4">
           <Alan etiket="Normal kapasite payı" deger={normalPay} setDeger={setNormalPay} adim={0.05} />
           <Alan etiket="Fast-track payı" deger={ftPay} setDeger={setFtPay} adim={0.05} />
           <Alan etiket="Günlük mesai dk" deger={mesaiDk} setDeger={setMesaiDk} adim={500} />
@@ -309,7 +309,7 @@ export default function Simulator({
         </div>
 
         <div className="grid gap-3 lg:grid-cols-2">
-          <div className="rounded border border-slate-200 p-4 space-y-3">
+          <div className="rounded border border-line-soft p-4 space-y-3">
             <div className="text-sm font-medium">Fast-track atölyeye neye mal oluyor</div>
             <div className="grid grid-cols-2 gap-3">
               <Sayi etiket="Ek bant dakikası" deger={f(tesvik.ekDakika)} birim="dk"
@@ -318,10 +318,10 @@ export default function Simulator({
               <Sayi etiket="Mesai zammı" deger={f(tesvik.mesaiZamMaliyeti)} birim="₺" />
               <Sayi etiket="Öteleme maliyeti" deger={f(tesvik.otelemeMaliyeti)} birim="₺" />
             </div>
-            <div className="pt-2 border-t border-slate-200">
+            <div className="pt-2 border-t border-line-soft">
               <Sayi etiket="Toplam ek maliyet" deger={f(tesvik.toplamEkMaliyet)} birim="₺" />
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-faint">
               Süre {f(ftNormal.gun, tl2)} günden {f(ftHizli.gun, tl2)} güne iniyor.
               Bunu sağlayan <strong>kapasite payı</strong> ({pct.format(normalPay)} →{' '}
               {pct.format(ftPay)}) ve <strong>mesai</strong>; bant bölmek süreyi
@@ -330,7 +330,7 @@ export default function Simulator({
             </p>
           </div>
 
-          <div className="rounded border border-slate-900 p-4 space-y-3">
+          <div className="rounded border border-line p-4 space-y-3">
             <div className="text-sm font-medium">Adil teşvik</div>
             <div className="grid grid-cols-2 gap-3">
               <Sayi etiket="Adil prim" deger={f(tesvik.adilPrimAdet, tl2)} birim="₺/adet"
@@ -344,7 +344,7 @@ export default function Simulator({
                     deger={f(tesvik.adilPrimAdet === null ? null : tesvik.adilPrimAdet * toplamAdet)}
                     birim="₺" />
             </div>
-            <div className="pt-2 border-t border-slate-200 space-y-2">
+            <div className="pt-2 border-t border-line-soft space-y-2">
               <div className="flex gap-3 items-end">
                 <Alan etiket="Geciken gün" deger={gecikenGun} setDeger={setGecikenGun} />
                 <Alan etiket="Günlük kesinti oranı" deger={gecikmeOran} setDeger={setGecikmeOran} adim={0.005} />
@@ -352,7 +352,7 @@ export default function Simulator({
               <Sayi etiket="Gecikme kesintisi" deger={f(kesinti)} birim="₺"
                     ipucu="tavan: sipariş tutarının %10'u" />
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-faint">
               Prim keyfi bir yüzde değil: atölyenin uğradığı ölçülebilir kaybın
               karşılığı + hedef marj payı.
             </p>

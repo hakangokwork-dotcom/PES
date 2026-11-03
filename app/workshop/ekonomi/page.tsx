@@ -85,8 +85,8 @@ export default async function AtolyeEkonomiSayfasi({
     <div className="mx-auto max-w-4xl space-y-5">
       <div>
         <Link href="/workshop" className="text-sm text-faint hover:text-ink">← Panel</Link>
-        <h1 className="text-xl font-semibold mt-1">Aylık Ekonomi Verisi</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-1">Aylık Ekonomi Verisi</h1>
+        <p className="text-sm text-faint">
           {veri.atolye.name} · {donem} ·{' '}
           <Link href={`/workshop/ekonomi/karne?donem=${donem}`} className="underline">
             karnemi gör →
@@ -95,20 +95,20 @@ export default async function AtolyeEkonomiSayfasi({
       </div>
 
       {veri.talep && (
-        <div className="rounded border border-slate-900 bg-slate-50 p-3 text-sm">
+        <div className="rounded border border-line bg-canvas p-3 text-sm">
           <div className="font-medium">Bu dönem için veri talebi var</div>
-          {veri.talep.note && <div className="text-slate-600 mt-0.5">{veri.talep.note}</div>}
+          {veri.talep.note && <div className="text-muted mt-0.5">{veri.talep.note}</div>}
         </div>
       )}
 
-      <div className="rounded border border-slate-200 p-3 text-sm flex items-center gap-3 flex-wrap">
-        <span className="text-slate-500">Durum:</span>
+      <div className="rounded border border-line-soft p-3 text-sm flex items-center gap-3 flex-wrap">
+        <span className="text-faint">Durum:</span>
         <span className="font-medium">{DOLULUK_ETIKET[durum]}</span>
         {eksik.length > 0 && (
-          <span className="text-slate-500">· eksik: {eksik.join(', ')}</span>
+          <span className="text-faint">· eksik: {eksik.join(', ')}</span>
         )}
         {durum === 'gider-yok' && (
-          <span className="text-amber-700">
+          <span className="text-warn">
             · gider satırı yok —{' '}
             <Link href="/workshop/veri-yukle" className="underline">gider yükle</Link>
           </span>
@@ -119,7 +119,7 @@ export default async function AtolyeEkonomiSayfasi({
 
       {veri.gecmis.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-faint">
             Girdiğim dönemler
           </h2>
           <div className="flex flex-wrap gap-1 text-sm">
@@ -128,9 +128,9 @@ export default async function AtolyeEkonomiSayfasi({
               const dd = doluluk(g.k, g.gider_var)
               return (
                 <Link key={s} href={`/workshop/ekonomi?donem=${s}`}
-                      className={`px-2 py-1 rounded border ${s === donem ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 hover:bg-slate-50'}`}>
+                      className={`px-2 py-1 rounded border ${s === donem ? 'border-line bg-slate-900 text-white' : 'border-line-soft hover:bg-canvas'}`}>
                   {s}
-                  <span className={`ml-1 text-xs ${s === donem ? 'text-slate-300' : 'text-slate-400'}`}>
+                  <span className={`ml-1 text-xs ${s === donem ? 'text-faint' : 'text-faint'}`}>
                     {dd === 'tam' ? '✓' : '!'}
                   </span>
                 </Link>

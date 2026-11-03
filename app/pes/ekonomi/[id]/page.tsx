@@ -143,8 +143,8 @@ export default async function EkonomiKarne({
     <main className="p-6 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">{hedef.ad}</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">{hedef.ad}</h1>
+          <p className="text-sm text-faint">
             {donem ? donemEtiket(donem) : '—'}
             {!hedef.veriVar && ' · bu dönemde ekonomi satırı yok'}
             {hedef.veriVar && hedef.source === 'turetilmis' && ' · çok aylı beyandan türetildi'}
@@ -160,7 +160,7 @@ export default async function EkonomiKarne({
               className={`px-2 py-1 rounded ${
                 donem && d.yil === donem.yil && d.ay === donem.ay
                   ? 'bg-slate-900 text-white'
-                  : 'hover:bg-slate-100'
+                  : 'hover:bg-canvas'
               }`}
             >
               {donemYaz(d)}
@@ -169,7 +169,7 @@ export default async function EkonomiKarne({
         </nav>
       </header>
 
-      <p className="text-sm bg-amber-50 border border-amber-200 rounded px-3 py-2">
+      <p className="text-sm bg-warn-soft border border-line-soft rounded px-3 py-2">
         Akran grubu: <strong>{KADEME_ETIKET[grup.kademe]}</strong>, n={grup.n}
         {grup.n < 5 && ' — örneklem küçük, medyanı temkinli okuyun'}
         {'. '}
@@ -182,11 +182,11 @@ export default async function EkonomiKarne({
 
       {hedef.klasmanlar.length > 0 && (
         <p className="text-sm">
-          <span className="text-slate-500">Diktiği klasmanlar:</span>{' '}
+          <span className="text-faint">Diktiği klasmanlar:</span>{' '}
           {hedef.klasmanlar.map(k => (
             <Link key={k}
                   href={`/pes/ekonomi/klasman?donem=${donem ? donemYaz(donem) : ''}&klasman=${encodeURIComponent(k)}`}
-                  className="inline-block mr-1 mb-1 px-2 py-0.5 rounded border text-xs hover:bg-slate-100">
+                  className="inline-block mr-1 mb-1 px-2 py-0.5 rounded border text-xs hover:bg-canvas">
               {k}
             </Link>
           ))}
@@ -195,7 +195,7 @@ export default async function EkonomiKarne({
 
       <div className="overflow-x-auto border rounded">
         <table className="text-sm w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-canvas">
             <tr>
               <th className="text-left px-3 py-2">Gösterge</th>
               <th className="text-right px-3 py-2">{hedef.ad}</th>
@@ -236,29 +236,29 @@ export default async function EkonomiKarne({
                   <td className="px-3 py-2">
                     <span>{k.etiket}</span>
                     {k.birim !== '-' && k.birim !== '%' && (
-                      <span className="ml-1 text-xs text-slate-400">{k.birim}</span>
+                      <span className="ml-1 text-xs text-faint">{k.birim}</span>
                     )}
                   </td>
                   <td
                     className={`px-3 py-2 text-right tabular-nums font-medium ${
-                      v === null ? 'text-slate-300' : ''
+                      v === null ? 'text-faint' : ''
                     }`}
                   >
                     {fmtRasyo(k, v)}
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-slate-500">
+                  <td className="px-3 py-2 text-right tabular-nums text-faint">
                     {fmtRasyo(k, med)}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">
                     {skor === null ? (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-faint">—</span>
                     ) : (
-                      <span className={skor >= 50 ? 'text-emerald-700' : 'text-rose-700'}>
+                      <span className={skor >= 50 ? 'text-accent-ink' : 'text-rose-700'}>
                         {Math.round(skor)}
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-slate-500 max-w-md text-xs">
+                  <td className="px-3 py-2 text-faint max-w-md text-xs">
                     {k.onemAciklama}
                   </td>
                 </tr>
@@ -268,7 +268,7 @@ export default async function EkonomiKarne({
         </table>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         Yüzdelik 0–100: 100 akran grubunun en iyisi. Yönü olmayan göstergelerde
         (kişi sayısı, adil fiyat gibi) yüzdelik gösterilmez — "iyi" diye bir yönü yoktur.
         "—" hesaplanamadı demektir, sıfır değil.

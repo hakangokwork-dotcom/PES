@@ -169,14 +169,14 @@ export default function YetenekEditoru({
       {mesaj && (
         <div className={`text-sm px-4 py-2 rounded-lg border ${
           mesaj.tip === 'ok'
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-            : 'bg-red-50 border-red-200 text-red-700'}`}>
+            ? 'bg-accent-soft border-line-soft text-accent-ink'
+            : 'bg-danger-soft border-danger-line text-danger'}`}>
           {mesaj.metin}
         </div>
       )}
 
       {boyutlar.map((b) => (
-        <section key={b.code} className="bg-white border border-line-soft rounded-xl p-5">
+        <section key={b.code} className="bg-surface border border-line-soft rounded-xl p-5">
           <div className="flex items-baseline justify-between gap-3 mb-3">
             <h3 className="font-semibold text-ink">{b.label}</h3>
             {b.applies_to && (
@@ -195,7 +195,7 @@ export default function YetenekEditoru({
                   <button
                     onClick={() => cevir(b.code, v.code)}
                     className={`px-3 py-1.5 text-sm transition-colors ${
-                      secili ? 'bg-accent text-white' : 'bg-white text-body hover:bg-canvas'}`}
+                      secili ? 'bg-accent text-white' : 'bg-surface text-body hover:bg-canvas'}`}
                   >
                     {v.label}
                   </button>
@@ -204,7 +204,7 @@ export default function YetenekEditoru({
                       value={seviye}
                       onChange={(e) => seviyeAyarla(b.code, v.code, Number(e.target.value))}
                       title="Yetkinlik seviyesi"
-                      className="bg-emerald-50 text-emerald-900 text-xs px-1.5 border-l border-accent focus:outline-none cursor-pointer"
+                      className="bg-accent-soft text-accent-ink text-xs px-1.5 border-l border-accent focus:outline-none cursor-pointer"
                     >
                       {[0, 1, 2, 3].map((s) => (
                         <option key={s} value={s}>{s} · {SEVIYE_ETIKET[s]}</option>

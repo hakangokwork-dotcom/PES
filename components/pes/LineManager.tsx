@@ -111,10 +111,10 @@ export default function LineManager({ workshop, lines }: Props) {
   }
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-accent bg-emerald-50'
+  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-accent-soft'
 
   return (
-    <div className="bg-white border border-line-soft rounded-xl p-6">
+    <div className="bg-surface border border-line-soft rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ink">Bantlar ({lines.length})</h2>
         <button
@@ -126,7 +126,7 @@ export default function LineManager({ workshop, lines }: Props) {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg mb-4">{error}</div>
+        <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg mb-4">{error}</div>
       )}
 
       {lines.length > 0 ? (
@@ -168,7 +168,7 @@ export default function LineManager({ workshop, lines }: Props) {
                     <td className="py-2 text-accent font-medium">{line.code}</td>
                     <td className="py-2 text-ink">{line.name}</td>
                     <td className="py-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${line.line_type === 'Küçük' ? 'bg-amber-100 text-amber-700' : 'bg-canvas text-muted'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${line.line_type === 'Küçük' ? 'bg-warn-soft text-warn' : 'bg-canvas text-muted'}`}>
                         {line.line_type}
                       </span>
                     </td>
@@ -177,7 +177,7 @@ export default function LineManager({ workshop, lines }: Props) {
                     <td className="py-2 text-right text-muted">{line.max_cycle_sec ?? '—'}</td>
                     <td className="py-2 text-center space-x-2">
                       <button onClick={() => startEdit(line)} className="text-xs text-accent hover:underline">Düzenle</button>
-                      <button onClick={() => handleDelete(line)} className="text-xs text-red-500 hover:underline">Sil</button>
+                      <button onClick={() => handleDelete(line)} className="text-xs text-danger hover:underline">Sil</button>
                     </td>
                   </>
                 )}

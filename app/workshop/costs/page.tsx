@@ -127,19 +127,19 @@ function WorkshopCostsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">{w?.name ?? ''} — Maliyet Yönetimi</h1>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">{w?.name ?? ''} — Maliyet Yönetimi</h1>
       </div>
 
       {/* Dönem seçimi */}
-      <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end">
+      <div className="bg-surface border border-line-soft rounded-xl p-4 flex gap-4 items-end">
         <div><label className="block text-xs font-medium text-muted mb-1">Yıl</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}><option value={2025}>2025</option><option value={2026}>2026</option></select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Ay</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}</select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Çalışma Günü</label><input type="number" inputMode="numeric" className="w-16 px-2 py-2 border border-line rounded-lg text-sm text-center" value={workDays} onChange={e => setWorkDays(parseInt(e.target.value)||22)} /></div>
       </div>
 
       {/* Ana Gider Kalemleri */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Gider Kalemleri</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {MAIN_FIELDS.map(f => (
@@ -173,7 +173,7 @@ function WorkshopCostsPage() {
       </div>
 
       {/* Hedef Ciro */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Hedef Ciro</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
@@ -192,15 +192,15 @@ function WorkshopCostsPage() {
       </div>
 
       {/* Hesaplanan Metrikler */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Hesaplanan Metrikler</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-canvas rounded-lg p-4 text-center">
             <p className="text-xs text-faint">Toplam Gider</p>
             <p className="text-xl font-bold text-ink">{(total / 1000000).toFixed(2)}M TL</p>
           </div>
-          <div className="bg-emerald-50 rounded-lg p-4 text-center">
-            <p className="text-xs text-emerald-600">Dakika Başı Maliyet</p>
+          <div className="bg-accent-soft rounded-lg p-4 text-center">
+            <p className="text-xs text-accent-ink">Dakika Başı Maliyet</p>
             <p className="text-xl font-bold text-accent">{costPerMin.toFixed(2)} TL/dk</p>
             <p className="text-[11px] text-emerald-400">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
           </div>
@@ -208,9 +208,9 @@ function WorkshopCostsPage() {
             <p className="text-xs text-muted">Kişi Başı Aylık Gider</p>
             <p className="text-xl font-bold text-ink">{perPersonExpense.toLocaleString('tr-TR')} TL</p>
           </div>
-          <div className={`rounded-lg p-4 text-center ${netMargin >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+          <div className={`rounded-lg p-4 text-center ${netMargin >= 0 ? 'bg-accent-soft' : 'bg-danger-soft'}`}>
             <p className="text-xs text-faint">Net Marj</p>
-            <p className={`text-xl font-bold ${netMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-xl font-bold ${netMargin >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
               {targetRevenue > 0 ? `%${marginPct.toFixed(1)}` : '—'}
             </p>
             {targetRevenue > 0 && <p className="text-[11px] text-faint">{(netMargin / 1000).toFixed(0)}K TL</p>}
@@ -222,10 +222,10 @@ function WorkshopCostsPage() {
           <div className="mt-4 pt-4 border-t border-line-soft">
             <h3 className="text-sm font-semibold text-body mb-3">Gerçek Maliyet vs Sektör Referans (TL/dk)</h3>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
-              <div className="bg-emerald-100 border-2 border-emerald-500 rounded-lg p-3 text-center">
-                <p className="text-[11px] font-semibold text-emerald-700">GERÇEK</p>
-                <p className="text-xl font-bold text-emerald-800">{costPerMin.toFixed(2)}</p>
-                <p className="text-[11px] text-emerald-600">TL/dk</p>
+              <div className="bg-accent-soft border-2 border-accent rounded-lg p-3 text-center">
+                <p className="text-[11px] font-semibold text-accent-ink">GERÇEK</p>
+                <p className="text-xl font-bold text-accent-ink">{costPerMin.toFixed(2)}</p>
+                <p className="text-[11px] text-accent-ink">TL/dk</p>
               </div>
               {[1, 2, 3, 4, 5, 6].map(bolge => {
                 const ref = sektorDkMaliyetler.find(d => d.bolge === bolge)
@@ -234,11 +234,11 @@ function WorkshopCostsPage() {
                 const diffPct = refVal > 0 ? (diff / refVal) * 100 : 0
                 const isLower = diff < 0
                 return (
-                  <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-green-50 border-green-200' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-red-50 border-red-200'}`}>
+                  <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-accent-soft border-line-soft' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-danger-soft border-danger-line'}`}>
                     <p className="text-[11px] text-faint">{bolge}. Bölge</p>
                     <p className="text-lg font-bold text-ink">{refVal > 0 ? refVal.toFixed(2) : '—'}</p>
                     {refVal > 0 && (
-                      <p className={`text-[11px] font-medium ${isLower ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className={`text-[11px] font-medium ${isLower ? 'text-accent-ink' : 'text-danger'}`}>
                         {diff > 0 ? '+' : ''}{diffPct.toFixed(1)}%
                       </p>
                     )}
@@ -257,17 +257,17 @@ function WorkshopCostsPage() {
           <div className="mt-4 pt-4 border-t border-line-soft">
             <h3 className="text-sm font-semibold text-body mb-3">Adet Bazlı Analiz ({dailyTarget.toLocaleString('tr-TR')} adet/gün hedefle)</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-amber-50 rounded-lg p-3 text-center">
-                <p className="text-xs text-amber-600">Adet Başı Gider</p>
-                <p className="text-lg font-bold text-amber-700">{costPerPiece.toLocaleString('tr-TR')} TL</p>
+              <div className="bg-warn-soft rounded-lg p-3 text-center">
+                <p className="text-xs text-warn">Adet Başı Gider</p>
+                <p className="text-lg font-bold text-warn">{costPerPiece.toLocaleString('tr-TR')} TL</p>
               </div>
               <div className="bg-canvas rounded-lg p-3 text-center">
                 <p className="text-xs text-muted">Adet Başı Ciro</p>
                 <p className="text-lg font-bold text-ink">{revenuePerPiece > 0 ? revenuePerPiece.toLocaleString('tr-TR') : '—'} TL</p>
               </div>
-              <div className={`rounded-lg p-3 text-center ${revenuePerPiece > costPerPiece ? 'bg-green-50' : 'bg-red-50'}`}>
+              <div className={`rounded-lg p-3 text-center ${revenuePerPiece > costPerPiece ? 'bg-accent-soft' : 'bg-danger-soft'}`}>
                 <p className="text-xs text-faint">Adet Kârı</p>
-                <p className={`text-lg font-bold ${revenuePerPiece > costPerPiece ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-lg font-bold ${revenuePerPiece > costPerPiece ? 'text-accent-ink' : 'text-danger'}`}>
                   {revenuePerPiece > 0 ? (revenuePerPiece - costPerPiece).toLocaleString('tr-TR') : '—'} TL
                 </p>
               </div>
@@ -297,7 +297,7 @@ function WorkshopCostsPage() {
               )
             })}
           </div>
-          <p className="text-xs text-amber-600 mt-2">Personel + SGK: %{personnelPct.toFixed(1)}</p>
+          <p className="text-xs text-warn mt-2">Personel + SGK: %{personnelPct.toFixed(1)}</p>
         </div>
 
         {/* Atölye Tipine Göre Kapsam */}
@@ -314,8 +314,8 @@ function WorkshopCostsPage() {
         )}
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">
         {loading ? 'Kaydediliyor...' : 'Giderleri Kaydet'}

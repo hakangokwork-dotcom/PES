@@ -89,35 +89,35 @@ interface Line { id: number; code: string; name: string }
 const DURUM_RENK: Record<string, string> = {
   'Taslak': 'bg-canvas text-ink',
   'Planlandi': 'bg-canvas text-muted',
-  'Bekleniyor': 'bg-amber-100 text-amber-800',
-  'Devam': 'bg-emerald-100 text-emerald-800',
+  'Bekleniyor': 'bg-warn-soft text-warn',
+  'Devam': 'bg-accent-soft text-accent-ink',
   'Duraklatildi': 'bg-orange-100 text-orange-800',
-  'Tamamlandi': 'bg-emerald-200 text-emerald-900',
-  'İptal': 'bg-red-100 text-red-700',
+  'Tamamlandi': 'bg-emerald-200 text-accent-ink',
+  'İptal': 'bg-danger-soft text-danger',
   'Sevk Edildi': 'bg-canvas text-muted',
 }
 const STAGE_DURUM_RENK: Record<string, string> = {
   'Beklemede':    'bg-canvas text-muted',
   'Hazır':        'bg-canvas text-muted',
-  'Devam':        'bg-emerald-100 text-emerald-700',
-  'Duraklatildi': 'bg-amber-100 text-amber-700',
-  'Tamamlandi':   'bg-emerald-200 text-emerald-900',
-  'İptal':        'bg-red-100 text-red-700',
+  'Devam':        'bg-accent-soft text-accent-ink',
+  'Duraklatildi': 'bg-warn-soft text-warn',
+  'Tamamlandi':   'bg-emerald-200 text-accent-ink',
+  'İptal':        'bg-danger-soft text-danger',
 }
 const MATERIAL_DURUM_RENK: Record<string, string> = {
   'Bekleniyor':     'bg-canvas text-muted',
   'Sipariş Verildi':'bg-canvas text-muted',
-  'Yolda':          'bg-amber-100 text-amber-700',
-  'Geldi':          'bg-emerald-100 text-emerald-800',
-  'Eksik':          'bg-red-100 text-red-700',
-  'İade':           'bg-red-50 text-red-600',
+  'Yolda':          'bg-warn-soft text-warn',
+  'Geldi':          'bg-accent-soft text-accent-ink',
+  'Eksik':          'bg-danger-soft text-danger',
+  'İade':           'bg-danger-soft text-danger',
 }
 const JOURNAL_TIP_RENK: Record<string, { bg: string; text: string; icon: string }> = {
   'NOT':     { bg: 'bg-canvas', text: 'text-ink', icon: '📝' },
-  'PROBLEM': { bg: 'bg-red-100',   text: 'text-red-800',   icon: '⚠️' },
+  'PROBLEM': { bg: 'bg-danger-soft',   text: 'text-danger',   icon: '⚠️' },
   'KAIZEN':  { bg: 'bg-canvas',  text: 'text-muted',  icon: '💡' },
-  'UYARI':   { bg: 'bg-amber-100', text: 'text-amber-800', icon: '🔔' },
-  'BAŞARI':  { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: '✅' },
+  'UYARI':   { bg: 'bg-warn-soft', text: 'text-warn', icon: '🔔' },
+  'BAŞARI':  { bg: 'bg-accent-soft', text: 'text-accent-ink', icon: '✅' },
   'BLOKAJ':  { bg: 'bg-canvas', text: 'text-muted', icon: '🚧' },
 }
 
@@ -170,7 +170,7 @@ function WoDetailPage() {
       <WoHeader order={order} onRefresh={reload} />
 
       {/* Tabs */}
-      <div className="bg-white border border-line-soft rounded-xl">
+      <div className="bg-surface border border-line-soft rounded-xl">
         <div className="border-b border-line-soft flex items-center gap-1 px-2 overflow-x-auto">
           {[
             ['ozet','Özet','📋'],
@@ -182,7 +182,7 @@ function WoDetailPage() {
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (
             <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'plangercek'|'malzemeler'|'cekme'|'gunluk'|'gecmis')}
-              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-emerald-600 text-emerald-700 font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
+              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-accent text-accent-ink font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
               <span className="mr-1">{icon}</span>{label}
             </button>
           ))}
@@ -220,22 +220,22 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
   }
 
   return (
-    <div className="bg-white border border-line-soft rounded-xl p-5">
+    <div className="bg-surface border border-line-soft rounded-xl p-5">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex-1 min-w-[300px]">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs uppercase tracking-wider text-faint font-semibold">{order.is_emri_no}</span>
             <Badge cls={DURUM_RENK[order.durum] || 'bg-canvas text-ink'}>{order.durum}</Badge>
-            {order.aciliyet === 'kritik' && <Badge cls="bg-red-600 text-white">⚠ Teslim Geçti ({Math.abs(order.teslim_kalan_gun || 0)}g)</Badge>}
-            {order.aciliyet === 'acil' && <Badge cls="bg-amber-500 text-white">⏰ {order.teslim_kalan_gun}g kaldı</Badge>}
+            {order.aciliyet === 'kritik' && <Badge cls="bg-danger text-white">⚠ Teslim Geçti ({Math.abs(order.teslim_kalan_gun || 0)}g)</Badge>}
+            {order.aciliyet === 'acil' && <Badge cls="bg-warn text-white">⏰ {order.teslim_kalan_gun}g kaldı</Badge>}
             <Badge cls={
-              order.oncelik === 'Kritik' ? 'bg-red-600 text-white' :
-              order.oncelik === 'Yüksek' ? 'bg-amber-500 text-white' :
+              order.oncelik === 'Kritik' ? 'bg-danger text-white' :
+              order.oncelik === 'Yüksek' ? 'bg-warn text-white' :
               order.oncelik === 'Düşük' ? 'bg-canvas text-faint' :
               'bg-line-soft text-ink'
             }>{order.oncelik}</Badge>
           </div>
-          <h1 className="text-2xl font-semibold text-ink mt-1">{order.model_adi}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink mt-1">{order.model_adi}</h1>
           <div className="text-sm text-muted mt-0.5 flex items-center gap-3 flex-wrap">
             {order.stil_kodu && <span>Stil: {order.stil_kodu}</span>}
             {order.musteri && <span>Müşteri: {order.musteri}</span>}
@@ -262,10 +262,10 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
         <div>
           <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Onaylar</div>
           <div className="flex flex-col gap-1 mt-1.5 text-xs">
-            <span className={order.tech_pack_onaylandi ? 'text-emerald-700' : 'text-amber-700'}>
+            <span className={order.tech_pack_onaylandi ? 'text-accent-ink' : 'text-warn'}>
               {order.tech_pack_onaylandi ? '✓' : '○'} Tech Pack onaylandı
             </span>
-            <span className={order.sample_onaylandi ? 'text-emerald-700' : 'text-amber-700'}>
+            <span className={order.sample_onaylandi ? 'text-accent-ink' : 'text-warn'}>
               {order.sample_onaylandi ? '✓' : '○'} Numune onaylandı
             </span>
             <span className={order.paylasim_admin ? 'text-muted' : 'text-faint'}>
@@ -473,18 +473,18 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
       <div className="flex items-center gap-2">
         {!showAdd ? (
           <button onClick={() => setShowAdd(true)}
-            className="text-sm px-4 py-2 bg-white border border-dashed border-line rounded-lg hover:border-emerald-400 hover:bg-emerald-50/30 text-muted flex items-center gap-2">
+            className="text-sm px-4 py-2 bg-surface border border-dashed border-line rounded-lg hover:border-line hover:bg-accent-soft/30 text-muted flex items-center gap-2">
             <span className="text-lg leading-none">+</span> Opsiyonel Aşama Ekle
           </button>
         ) : (
-          <div className="flex-1 bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center gap-2 flex-wrap">
+          <div className="flex-1 bg-accent-soft border border-line-soft rounded-lg p-3 flex items-center gap-2 flex-wrap">
             <span className="text-xs text-ink font-medium">Hangi aşama eklensin?</span>
             {eklenebilir.length === 0 ? (
               <span className="text-xs text-faint italic">Tüm katalog aşamaları zaten eklenmiş.</span>
             ) : (
               eklenebilir.map(c => (
                 <button key={c.id} onClick={() => addStage(c.id)}
-                  className="text-xs px-3 py-1.5 bg-white border border-emerald-300 hover:bg-emerald-100 rounded-md flex items-center gap-1.5">
+                  className="text-xs px-3 py-1.5 bg-surface border border-line hover:bg-accent-soft rounded-md flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.renk }} />
                   {c.name}
                 </button>
@@ -601,21 +601,21 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
   const isDone = stage.durum === 'Tamamlandi'
 
   return (
-    <div className="border border-line-soft rounded-lg overflow-hidden bg-white">
+    <div className="border border-line-soft rounded-lg overflow-hidden bg-surface">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-line-soft" style={{ backgroundColor: (stage.stage_renk || '#94a3b8') + '15' }}>
         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stage.stage_renk || '#94a3b8' }} />
         <span className="font-semibold text-base">{stage.stage_name}</span>
         <Badge cls={STAGE_DURUM_RENK[stage.durum] || 'bg-canvas'}>{stage.durum}</Badge>
         {stage.gecikme_gun != null && stage.gecikme_gun > 0 && (
-          <Badge cls="bg-red-100 text-red-700">+{stage.gecikme_gun}g gecikme</Badge>
+          <Badge cls="bg-danger-soft text-danger">+{stage.gecikme_gun}g gecikme</Badge>
         )}
         {stage.gecikme_gun != null && stage.gecikme_gun < 0 && (
-          <Badge cls="bg-emerald-100 text-emerald-700">{Math.abs(stage.gecikme_gun)}g erken</Badge>
+          <Badge cls="bg-accent-soft text-accent-ink">{Math.abs(stage.gecikme_gun)}g erken</Badge>
         )}
 
         {/* Bant seçici inline */}
-        <select className="text-xs px-2 py-1 bg-white border border-line-soft rounded ml-2"
+        <select className="text-xs px-2 py-1 bg-surface border border-line-soft rounded ml-2"
           value={stage.line_id ?? ''}
           onChange={e => setLine(e.target.value ? Number(e.target.value) : null)}>
           <option value="">— Bant seç —</option>
@@ -627,14 +627,14 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* Hızlı aksiyon butonları */}
         {!isStarted && (
           <button onClick={quickStart}
-            className="text-xs px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center gap-1">
+            className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover flex items-center gap-1">
             ▶ Başlat
           </button>
         )}
         {isStarted && !isDone && (
           <>
             {stage.durum !== 'Duraklatildi' && (
-              <button onClick={quickPause} className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded hover:bg-amber-200">⏸</button>
+              <button onClick={quickPause} className="text-xs px-2 py-1 bg-warn-soft text-warn rounded hover:bg-amber-200">⏸</button>
             )}
             <button onClick={quickFinish}
               className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover flex items-center gap-1">
@@ -642,7 +642,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             </button>
           </>
         )}
-        <button onClick={onDelete} className="text-xs text-faint hover:text-red-600 px-1" title="Aşamayı sil">🗑</button>
+        <button onClick={onDelete} className="text-xs text-faint hover:text-danger px-1" title="Aşamayı sil">🗑</button>
       </div>
 
       {/* Body — 2 kolon: Plan / Gerçek */}
@@ -696,10 +696,10 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* GERÇEK kolonu */}
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold">⏱ Gerçek</span>
+            <span className="text-[11px] uppercase tracking-wider text-accent-ink font-semibold">⏱ Gerçek</span>
             {!editGercek && (
               <button onClick={() => setEditGercek(true)}
-                className="text-xs text-emerald-700 hover:text-emerald-900">✏ Değiştir</button>
+                className="text-xs text-accent-ink hover:text-accent-ink">✏ Değiştir</button>
             )}
           </div>
           {!editGercek ? (
@@ -711,21 +711,21 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               </div>
             </div>
           ) : (
-            <div className="space-y-2 bg-emerald-50 -m-1 p-3 rounded">
+            <div className="space-y-2 bg-accent-soft -m-1 p-3 rounded">
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[11px] text-muted block">Gerçek Başlangıç</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekStart} onChange={e => setGercekStart(e.target.value)} />
-                  <button onClick={() => setGercekStart(todayISO())} className="text-[11px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
+                  <button onClick={() => setGercekStart(todayISO())} className="text-[11px] text-accent-ink hover:text-accent-ink mt-0.5">→ Bugün</button>
                 </div>
                 <div>
                   <label className="text-[11px] text-muted block">Gerçek Bitiş</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekEnd} onChange={e => setGercekEnd(e.target.value)} />
-                  <button onClick={() => setGercekEnd(todayISO())} className="text-[11px] text-emerald-700 hover:text-emerald-900 mt-0.5">→ Bugün</button>
+                  <button onClick={() => setGercekEnd(todayISO())} className="text-[11px] text-accent-ink hover:text-accent-ink mt-0.5">→ Bugün</button>
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={saveGercek} className="text-xs px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700">Kaydet</button>
+                <button onClick={saveGercek} className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover">Kaydet</button>
                 <button onClick={() => setEditGercek(false)} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
               </div>
             </div>
@@ -742,7 +742,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             <span className="font-mono text-ink">%{stage.ilerleme_pct}</span>
           </div>
           <div className="h-2.5 bg-canvas rounded-full overflow-hidden">
-            <div className={`h-full transition-all ${stage.ilerleme_pct === 100 ? 'bg-emerald-500' : stage.ilerleme_pct >= 50 ? 'bg-canvas' : 'bg-amber-500'}`}
+            <div className={`h-full transition-all ${stage.ilerleme_pct === 100 ? 'bg-accent' : stage.ilerleme_pct >= 50 ? 'bg-canvas' : 'bg-warn'}`}
               style={{ width: `${stage.ilerleme_pct}%` }} />
           </div>
           <div className="flex gap-1 mt-1.5">
@@ -768,7 +768,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               <span className="font-semibold text-ink">{stage.uretilen_adet}</span>
               <span className="text-faint"> adet</span>
               {stage.hatali_adet > 0 && (
-                <span className="text-red-600 ml-2 text-xs">· {stage.hatali_adet} hatalı</span>
+                <span className="text-danger ml-2 text-xs">· {stage.hatali_adet} hatalı</span>
               )}
             </div>
           ) : (
@@ -776,7 +776,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               <input type="number" inputMode="numeric" className="w-16 text-sm px-1.5 py-0.5 border border-line rounded" value={uretilen} onChange={e => setUretilen(e.target.value)} placeholder="adet" />
               <span className="text-xs text-faint">/</span>
               <input type="number" inputMode="numeric" className="w-14 text-sm px-1.5 py-0.5 border border-line rounded" value={hatali} onChange={e => setHatali(e.target.value)} placeholder="hatalı" />
-              <button onClick={saveAdet} className="text-xs px-2 py-0.5 bg-emerald-600 text-white rounded">✓</button>
+              <button onClick={saveAdet} className="text-xs px-2 py-0.5 bg-accent text-white rounded">✓</button>
               <button onClick={() => setEditAdet(false)} className="text-xs text-faint">×</button>
             </div>
           )}
@@ -798,7 +798,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
             <div className="space-y-1 mt-1">
               <textarea className="w-full text-xs px-2 py-1 border border-line rounded min-h-[40px]" value={notlar} onChange={e => setNotlar(e.target.value)} />
               <div className="flex gap-2">
-                <button onClick={saveNot} className="text-xs px-2 py-0.5 bg-emerald-600 text-white rounded">Kaydet</button>
+                <button onClick={saveNot} className="text-xs px-2 py-0.5 bg-accent text-white rounded">Kaydet</button>
                 <button onClick={() => setEditNot(false)} className="text-xs text-faint">İptal</button>
               </div>
             </div>
@@ -895,7 +895,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
                     patch(m, { gelen_miktar: v, durum: eksik ? 'Eksik' : (v != null && m.gelis_tarihi ? 'Geldi' : m.durum) })
                   }} />
                 {m.gelen_miktar != null && m.miktar != null && m.gelen_miktar < m.miktar && (
-                  <div className="text-[10px] font-mono text-red-600">−{(m.miktar - m.gelen_miktar).toLocaleString('tr-TR')} {m.birim}</div>
+                  <div className="text-[10px] font-mono text-danger">−{(m.miktar - m.gelen_miktar).toLocaleString('tr-TR')} {m.birim}</div>
                 )}
               </td>
               <td className="px-3 py-1.5 text-muted">{m.tedarikci}</td>
@@ -910,7 +910,7 @@ function MalzemelerTab({ materials, onRefresh, woId }: { materials: Material[]; 
                 </select>
               </td>
               <td className="px-3 py-1.5 text-right">
-                <button onClick={() => del(m.id)} className="text-red-500 text-xs">×</button>
+                <button onClick={() => del(m.id)} className="text-danger text-xs">×</button>
               </td>
             </tr>
           ))}
@@ -1004,18 +1004,18 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-lg">{meta.icon}</span>
                   <Badge cls={`${meta.bg} ${meta.text}`}>{j.tip}</Badge>
-                  {j.kategori && <Badge cls="bg-white text-muted border border-line-soft">{j.kategori}</Badge>}
+                  {j.kategori && <Badge cls="bg-surface text-muted border border-line-soft">{j.kategori}</Badge>}
                   {j.stage_name && <Badge cls="bg-canvas text-muted">📊 {j.stage_name}</Badge>}
                   <span className="text-xs text-faint">{j.tarih} · {j.vardiya}</span>
                   {j.paylasim_admin && <Badge cls="bg-canvas text-muted">🔗 Admin paylaşımda</Badge>}
-                  {j.resolved && <Badge cls="bg-emerald-100 text-emerald-700">✓ Çözüldü</Badge>}
+                  {j.resolved && <Badge cls="bg-accent-soft text-accent-ink">✓ Çözüldü</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
                   {!j.resolved && j.tip === 'PROBLEM' && (
-                    <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200">Çözüldü</button>
+                    <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-accent-soft text-accent-ink rounded hover:bg-emerald-200">Çözüldü</button>
                   )}
                   <button onClick={() => togglePaylasim(j)} className="text-xs px-2 py-0.5 bg-canvas hover:bg-line-soft rounded" title="Admin paylaşımını aç/kapat">🔗</button>
-                  <button onClick={() => del(j.id)} className="text-xs text-red-500 px-1">×</button>
+                  <button onClick={() => del(j.id)} className="text-xs text-danger px-1">×</button>
                 </div>
               </div>
               {j.baslik && <div className="font-semibold text-sm mt-2">{j.baslik}</div>}
@@ -1026,8 +1026,8 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                 </div>
               )}
               {j.resolved && j.resolved_notlar && (
-                <div className="mt-2 pl-3 border-l-2 border-emerald-400 text-xs text-muted">
-                  <span className="font-semibold text-emerald-700">Çözüm Notu: </span>{j.resolved_notlar}
+                <div className="mt-2 pl-3 border-l-2 border-line text-xs text-muted">
+                  <span className="font-semibold text-accent-ink">Çözüm Notu: </span>{j.resolved_notlar}
                 </div>
               )}
               {j.yazan && <div className="text-[11px] text-faint mt-2">— {j.yazan}</div>}
@@ -1068,8 +1068,8 @@ type CekmeTesti = {
   sonuc: string; yapan: string | null; notlar: string | null
 }
 const CEKME_SONUC_RENK: Record<string, string> = {
-  UYGUN: 'bg-emerald-100 text-emerald-700', 'RİSKLİ': 'bg-amber-100 text-amber-700',
-  RED: 'bg-red-100 text-red-700', BEKLIYOR: 'bg-canvas text-muted',
+  UYGUN: 'bg-accent-soft text-accent-ink', 'RİSKLİ': 'bg-warn-soft text-warn',
+  RED: 'bg-danger-soft text-danger', BEKLIYOR: 'bg-canvas text-muted',
 }
 function CekmeTestiTab({ woId }: { woId: number }) {
   const [testler, setTestler] = useState<CekmeTesti[]>([])
@@ -1112,13 +1112,13 @@ function CekmeTestiTab({ woId }: { woId: number }) {
       </div>
 
       {son && son.sonuc === 'RİSKLİ' && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <div className="rounded-lg border border-line-soft bg-warn-soft px-3 py-2 text-xs text-warn">
           <b>Son test riskli.</b> Boy %{son.boy_cekme_pct} · en %{son.en_cekme_pct} · may kayması %{son.may_kaymasi_pct}.
           Kalıp büyütme ya da ön yıkama değerlendirilmeli; kesim bu karar verilmeden planlanmamalı.
         </div>
       )}
       {son && son.sonuc === 'RED' && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+        <div className="rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-xs text-danger">
           <b>Son test RED.</b> Kumaş bu haliyle kesime giremez.
         </div>
       )}
@@ -1169,12 +1169,12 @@ function CekmeTestiTab({ woId }: { woId: number }) {
                 <td className="px-3 py-1.5 font-mono">{t.tarih}</td>
                 <td className="px-3 py-1.5 text-right font-mono">{t.yikama_sayisi ?? '—'}</td>
                 <td className="px-3 py-1.5 text-right font-mono">{t.en_cekme_pct ?? '—'}</td>
-                <td className={`px-3 py-1.5 text-right font-mono ${(t.boy_cekme_pct ?? 0) < -5 ? 'text-red-600 font-semibold' : ''}`}>{t.boy_cekme_pct ?? '—'}</td>
-                <td className={`px-3 py-1.5 text-right font-mono ${(t.may_kaymasi_pct ?? 0) > 3 ? 'text-red-600 font-semibold' : ''}`}>{t.may_kaymasi_pct ?? '—'}</td>
+                <td className={`px-3 py-1.5 text-right font-mono ${(t.boy_cekme_pct ?? 0) < -5 ? 'text-danger font-semibold' : ''}`}>{t.boy_cekme_pct ?? '—'}</td>
+                <td className={`px-3 py-1.5 text-right font-mono ${(t.may_kaymasi_pct ?? 0) > 3 ? 'text-danger font-semibold' : ''}`}>{t.may_kaymasi_pct ?? '—'}</td>
                 <td className="px-3 py-1.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${CEKME_SONUC_RENK[t.sonuc] ?? ''}`}>{t.sonuc}</span></td>
                 <td className="px-3 py-1.5 text-muted">{t.yapan}</td>
                 <td className="px-3 py-1.5 text-faint">{t.notlar}</td>
-                <td className="px-3 py-1.5 text-right"><button onClick={() => sil(t.id)} className="text-red-500 text-xs">×</button></td>
+                <td className="px-3 py-1.5 text-right"><button onClick={() => sil(t.id)} className="text-danger text-xs">×</button></td>
               </tr>
             ))}
           </tbody>
@@ -1207,7 +1207,7 @@ function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
   return <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider ${cls}`}>{children}</span>
 }
 function ProgressMini({ label, pct, sub }: { label: string; pct: number; sub: string }) {
-  const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-canvas' : 'bg-line'
+  const color = pct >= 90 ? 'bg-accent' : pct >= 50 ? 'bg-warn' : pct > 0 ? 'bg-canvas' : 'bg-line'
   return (
     <div>
       <div className="flex items-baseline justify-between text-[11px]">

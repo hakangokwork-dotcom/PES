@@ -36,17 +36,17 @@ export default function Form({ tanimlar, donem, mevcut }: {
   return (
     <form onSubmit={gonder} className="space-y-3 max-w-3xl">
       <label className="block">
-        <span className="text-sm text-slate-600">Geçerlilik dönemi</span>
+        <span className="text-sm text-muted">Geçerlilik dönemi</span>
         <input value={yeniDonem} onChange={e => setYeniDonem(e.target.value)}
                pattern="\d{4}-\d{2}" required
                className="block border rounded px-2 py-1 tabular-nums" />
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-faint">
           Bu dönemden itibaren geçerli olur. Önceki aylar eski değerlerle hesaplanmaya devam eder.
         </span>
       </label>
 
       <table className="text-sm w-full border rounded">
-        <thead className="bg-slate-50">
+        <thead className="bg-canvas">
           <tr>
             <th className="text-left px-3 py-2">Parametre</th>
             <th className="text-right px-3 py-2">Değer</th>
@@ -62,7 +62,7 @@ export default function Form({ tanimlar, donem, mevcut }: {
                        defaultValue={mevcut[t.anahtar]}
                        className="border rounded px-2 py-1 w-36 text-right tabular-nums" />
               </td>
-              <td className="px-3 py-2 text-slate-500">{t.aciklama}</td>
+              <td className="px-3 py-2 text-faint">{t.aciklama}</td>
             </tr>
           ))}
         </tbody>
@@ -74,7 +74,7 @@ export default function Form({ tanimlar, donem, mevcut }: {
       </button>
 
       {durum === 'kaydedildi' && etki && (
-        <p className="text-sm text-emerald-700">
+        <p className="text-sm text-accent-ink">
           Kaydedildi. {yeniDonem} ve sonrasındaki {etki.satir} ekonomi satırı
           ({etki.atolye} atölye) artık bu değerlerle hesaplanıyor.
         </p>

@@ -28,7 +28,7 @@ export default async function RevisionsPage() {
         <Link href="/pes/veri-kalitesi" className="text-sm text-faint hover:text-ink">
           ← Veri Kalitesi
         </Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">Beyan Geçmişi</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">Beyan Geçmişi</h1>
         <p className="text-faint mt-1">
           Her gider beyanının tüm sürümleri. Bir atölye geçmiş dönemi düzeltip
           yeniden gönderdiğinde eski beyan silinmez — burada durur. Böylece

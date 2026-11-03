@@ -25,28 +25,28 @@ export default function AtolyePaneli({ atolye, veri, istek, setHata, kapat }: Or
   }
 
   return (
-    <aside className="self-start space-y-3 rounded border border-slate-200 bg-white p-3 text-sm xl:sticky xl:top-4 xl:max-h-[85vh] xl:overflow-y-auto">
+    <aside className="self-start space-y-3 rounded border border-line-soft bg-surface p-3 text-sm xl:sticky xl:top-4 xl:max-h-[85vh] xl:overflow-y-auto">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-semibold">{atolye.kod} — {atolye.ad}</div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-faint">
             Hat hedefi toplamı: {tr.format(atolye.gunlukHedef)}/gün · baz:{' '}
             <span title={KAYNAK_ACIKLAMA[atolye.bazKaynak]}>{KAYNAK_ETIKET[atolye.bazKaynak]}</span>
           </div>
         </div>
         <button type="button" onClick={kapat} aria-label="Paneli kapat"
-                className="text-slate-500 hover:text-slate-900">✕</button>
+                className="text-faint hover:text-ink">✕</button>
       </div>
 
       <form key={`baz-${atolye.profilKapasite ?? ''}`} onSubmit={gonder(bazKaydet)} className="flex items-end gap-2">
-        <label className="flex-1 text-xs text-slate-600">
+        <label className="flex-1 text-xs text-muted">
           Baz aylık kapasite (adet)
           <input name="baz" defaultValue={atolye.profilKapasite ?? ''} inputMode="numeric" className={inp}
                  placeholder={atolye.atolyeKapasite ? `boş: beyan (${tr.format(atolye.atolyeKapasite)})` : atolye.gunlukHedef > 0 ? 'boş: hat hedefinden tahmin' : 'boş: kapasite yok'} />
         </label>
         <button className={btn} disabled={mesgul}>Kaydet</button>
       </form>
-      <p className="text-[11px] text-slate-500">
+      <p className="text-[11px] text-faint">
         Atölye profiline yazılır. Profil içe aktarımı bu değeri sonradan ezebilir.
       </p>
 
@@ -114,12 +114,12 @@ function AyBolumu({ ay, ad, atolye, veri, istek, setHata, planlar, toplam }: Ort
   }
 
   return (
-    <section className="space-y-1.5 rounded border border-slate-200 p-2">
+    <section className="space-y-1.5 rounded border border-line-soft p-2">
       <div className="flex items-baseline justify-between gap-2 text-xs">
         <span className="font-semibold">{ad}</span>
-        <span className="text-slate-600">
+        <span className="text-muted">
           plan {tr.format(toplam)} / {kap === null ? 'kapasite yok' : tr.format(kap)} · {kapali ? 'kapalı' : yuzdeMetni(y)}
-          <span className="ml-1 text-[10px] text-slate-400" title={KAYNAK_ACIKLAMA[kaynak]}>
+          <span className="ml-1 text-[10px] text-faint" title={KAYNAK_ACIKLAMA[kaynak]}>
             ({KAYNAK_ETIKET[kaynak]})
           </span>
         </span>
@@ -128,7 +128,7 @@ function AyBolumu({ ay, ad, atolye, veri, istek, setHata, planlar, toplam }: Ort
       {planlar.map((p) => (
         <form key={`${p.id}-${p.adet}-${p.notMetni ?? ''}`} onSubmit={gonder((f) => satirKaydet(p, f))}
               className="grid grid-cols-[1fr_5.5rem_1fr_auto_auto] items-center gap-1">
-          <span className={`truncate text-xs ${uyumsuz(p.klasmanKodu) ? 'text-amber-700' : ''}`}
+          <span className={`truncate text-xs ${uyumsuz(p.klasmanKodu) ? 'text-warn' : ''}`}
                 title={uyumsuz(p.klasmanKodu) ? UYUMSUZ_UYARI : p.klasmanKodu}>
             {etiket(p.klasmanKodu)}{uyumsuz(p.klasmanKodu) && ' ⚠'}
           </span>
@@ -137,7 +137,7 @@ function AyBolumu({ ay, ad, atolye, veri, istek, setHata, planlar, toplam }: Ort
           <input name="not" aria-label={`${ad} ${etiket(p.klasmanKodu)} not`} defaultValue={p.notMetni ?? ''}
                  placeholder="not" className={inp} />
           <button className={btn} disabled={mesgul}>Kaydet</button>
-          <button type="button" className="text-xs text-red-600 underline disabled:opacity-50" disabled={mesgul}
+          <button type="button" className="text-xs text-danger underline disabled:opacity-50" disabled={mesgul}
                   onClick={() => sar(() => istek(`/api/pes/yillik-plan/plan?id=${p.id}`, 'DELETE'))}>Sil</button>
         </form>
       ))}
@@ -154,7 +154,7 @@ function AyBolumu({ ay, ad, atolye, veri, istek, setHata, planlar, toplam }: Ort
         <input name="not" aria-label={`${ad} yeni not`} placeholder="not" className={inp} />
         <button className={btn} disabled={mesgul}>Ekle</button>
       </form>
-      {uyumsuz(yeni) && <p className="text-[11px] text-amber-700">{UYUMSUZ_UYARI}</p>}
+      {uyumsuz(yeni) && <p className="text-[11px] text-warn">{UYUMSUZ_UYARI}</p>}
 
       <form key={`duz-${duz?.adet ?? ''}-${duz?.sebep ?? ''}`} onSubmit={gonder(duzeltmeKaydet)}
             className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-1"

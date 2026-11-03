@@ -101,9 +101,9 @@ export default function BolumTiles({ veri, siralama, istatistik }: Props) {
           <p
             className={`font-bold leading-tight mt-1.5 ${t.small ? 'text-base' : 'text-2xl tracking-tight'} ${
               t.pos === 'pos'
-                ? 'text-emerald-700 dark:text-emerald-400'
+                ? 'text-accent-ink dark:text-emerald-400'
                 : t.pos === 'neg'
-                  ? 'text-red-600 dark:text-red-400'
+                  ? 'text-danger dark:text-danger'
                   : 'text-neutral-900 dark:text-neutral-50'
             }`}
           >

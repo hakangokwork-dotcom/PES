@@ -108,8 +108,8 @@ export default async function SimulasyonSayfasi({
     <main className="p-6 space-y-5">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Sipariş ve Teşvik Simülatörü</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Sipariş ve Teşvik Simülatörü</h1>
+          <p className="text-sm text-faint">
             {donem} · {veri.atolyeler.length} atölye · {veri.bultenler.length} bülten ·{' '}
             <Link href={`/pes/ekonomi?donem=${donem}`} className="underline">rasyo radarı →</Link>
           </p>
@@ -119,7 +119,7 @@ export default async function SimulasyonSayfasi({
             const s = `${d.yil}-${String(d.ay).padStart(2, '0')}`
             return (
               <Link key={s} href={`/pes/siparis-simulasyon?donem=${s}`}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
                 {s}
               </Link>
             )
@@ -128,7 +128,7 @@ export default async function SimulasyonSayfasi({
       </header>
 
       {veri.atolyeler.length === 0 || veri.bultenler.length === 0 ? (
-        <p className="rounded border border-amber-200 bg-amber-50 p-4 text-sm">
+        <p className="rounded border border-line-soft bg-warn-soft p-4 text-sm">
           Simülasyon için hem dakika maliyeti hesaplanabilen bir atölye hem de
           bir model bülteni gerekiyor.{' '}
           {veri.atolyeler.length === 0 && (

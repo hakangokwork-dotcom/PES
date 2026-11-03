@@ -347,8 +347,8 @@ export default async function PlanTezgahiSayfasi({
     <main className="p-4 space-y-4">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Planlama Masası</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Planlama Masası</h1>
+          <p className="text-sm text-faint">
             Taslak — atölye görmez, kapasite tüketmez ·{' '}
             <Link href="/pes/takvim" className="underline">bant takvimi →</Link>
             {' · '}

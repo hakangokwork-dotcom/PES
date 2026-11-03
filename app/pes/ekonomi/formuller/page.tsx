@@ -52,23 +52,23 @@ function Iz({ formul, havuz }: { formul: FormulGirdisi; havuz: DegerHavuzu }) {
   if (iz.girdiler.length === 0 && iz.sonuclar.length === 0) return null
 
   return (
-    <div className="mt-3 rounded bg-slate-50 border border-slate-200 p-3 text-sm">
-      <div className="text-xs uppercase tracking-wide text-slate-500 mb-2">Hesap izi</div>
+    <div className="mt-3 rounded bg-canvas border border-line-soft p-3 text-sm">
+      <div className="text-xs uppercase tracking-wide text-faint mb-2">Hesap izi</div>
 
       {iz.girdiler.length > 0 && (
         <table className="w-full">
           <tbody>
             {iz.girdiler.map((g) => (
-              <tr key={g.anahtar} className="border-b border-slate-200 last:border-0">
-                <td className="py-1 pr-3 text-slate-600">{g.etiket}</td>
+              <tr key={g.anahtar} className="border-b border-line-soft last:border-0">
+                <td className="py-1 pr-3 text-muted">{g.etiket}</td>
                 <td className="py-1 text-right tabular-nums font-medium">
                   {!g.bulundu ? (
                     /* Katalog hatası — veri eksikliğiyle karışmasın diye ayrı görünüyor. */
-                    <span className="text-amber-700" title={`Havuzda yok: ${g.anahtar}`}>
+                    <span className="text-warn" title={`Havuzda yok: ${g.anahtar}`}>
                       katalog hatası
                     </span>
                   ) : g.deger === null ? (
-                    <span className="text-slate-400" title="Hesaplanamadı — sıfır değil">
+                    <span className="text-faint" title="Hesaplanamadı — sıfır değil">
                       hesaplanamadı
                     </span>
                   ) : (
@@ -82,15 +82,15 @@ function Iz({ formul, havuz }: { formul: FormulGirdisi; havuz: DegerHavuzu }) {
       )}
 
       {iz.sonuclar.length > 0 && (
-        <div className="mt-2 pt-2 border-t border-slate-300 space-y-1">
+        <div className="mt-2 pt-2 border-t border-line space-y-1">
           {iz.sonuclar.map((s) => {
             const meta = RASYO_META_MAP.get(s.alan)
             return (
               <div key={s.alan} className="flex justify-between gap-3">
-                <span className="font-medium text-slate-800">{meta?.etiket ?? s.alan}</span>
+                <span className="font-medium text-ink">{meta?.etiket ?? s.alan}</span>
                 <span className="tabular-nums font-semibold">
                   {s.deger === null
-                    ? <span className="text-slate-400 font-normal">hesaplanamadı</span>
+                    ? <span className="text-faint font-normal">hesaplanamadı</span>
                     : fmtDeger(`rasyo.${s.alan}`, s.deger)}
                 </span>
               </div>
@@ -100,7 +100,7 @@ function Iz({ formul, havuz }: { formul: FormulGirdisi; havuz: DegerHavuzu }) {
       )}
 
       {iz.eksikGirdiVar && iz.sonuclar.some((s) => s.deger === null) && (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-faint">
           Sonuç boş çünkü girdilerden en az biri eksik.
         </p>
       )}
@@ -205,8 +205,8 @@ export default async function FormullerSayfasi({
     <main className="p-6 space-y-5">
       <header className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Formül Kütüphanesi</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Formül Kütüphanesi</h1>
+          <p className="text-sm text-faint">
             {eslesen.length} / {FORMUL_KATALOGU.length} formül · {donem} ·{' '}
             <Link href={`/pes/ekonomi?donem=${donem}`} className="underline">rasyo radarı →</Link>
             {' · '}
@@ -220,7 +220,7 @@ export default async function FormullerSayfasi({
             const s = `${d.yil}-${String(d.ay).padStart(2, '0')}`
             return (
               <Link key={s} href={bag({ donem: s })}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
                 {s}
               </Link>
             )
@@ -234,42 +234,42 @@ export default async function FormullerSayfasi({
         <input
           type="search" name="q" defaultValue={sp.q ?? ''}
           placeholder="Formüllerde ara — örn. teşvik, dakika, marj"
-          className="border border-slate-300 rounded px-3 py-1.5 text-sm w-72"
+          className="border border-line rounded px-3 py-1.5 text-sm w-72"
         />
         <button type="submit" className="px-3 py-1.5 text-sm rounded bg-slate-900 text-white">
           Ara
         </button>
         {arama && (
-          <Link href={bag({ q: undefined })} className="text-sm underline text-slate-600">
+          <Link href={bag({ q: undefined })} className="text-sm underline text-muted">
             temizle
           </Link>
         )}
       </form>
 
-      <section className="rounded border border-slate-200 p-3">
-        <div className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+      <section className="rounded border border-line-soft p-3">
+        <div className="text-xs uppercase tracking-wide text-faint mb-2">
           Hesap izi için atölye seç
         </div>
         <nav className="flex gap-1 flex-wrap text-sm">
           <Link href={bag({ atolye: undefined })}
-                className={`px-2 py-1 rounded ${!secili ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                className={`px-2 py-1 rounded ${!secili ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
             yok
           </Link>
           {seciilebilir.map((a) => (
             <Link key={a.workshopId} href={bag({ atolye: String(a.workshopId) })}
-                  className={`px-2 py-1 rounded ${secili?.workshopId === a.workshopId ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
+                  className={`px-2 py-1 rounded ${secili?.workshopId === a.workshopId ? 'bg-slate-900 text-white' : 'hover:bg-canvas'}`}>
               {a.ad}
             </Link>
           ))}
         </nav>
         {seciilebilir.length === 0 && (
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-faint mt-1">
             {donem} döneminde marjı hesaplanabilen atölye yok.
           </p>
         )}
       </section>
 
-      <p className="text-sm text-slate-600 bg-amber-50 border border-amber-200 rounded p-3">
+      <p className="text-sm text-muted bg-warn-soft border border-line-soft rounded p-3">
         Formüller buradan <strong>değiştirilemez</strong> — kodun kendisidir. Hesabı
         değiştirmek için{' '}
         <Link href={`/pes/ekonomi/parametre?donem=${donem}`} className="underline">
@@ -283,20 +283,20 @@ export default async function FormullerSayfasi({
         if (grup.length === 0) return null
         return (
           <section key={kaynak} className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-faint">
               {KAYNAK_BASLIK[kaynak]} <span className="font-normal">({grup.length})</span>
             </h2>
             <div className="grid gap-3 lg:grid-cols-2">
               {grup.map((f) => (
                 <article key={f.id} id={f.id}
-                         className={`rounded border p-4 ${sp.formul === f.id ? 'border-slate-900 ring-1 ring-slate-900' : 'border-slate-200'}`}>
+                         className={`rounded border p-4 ${sp.formul === f.id ? 'border-line ring-1 ring-slate-900' : 'border-line-soft'}`}>
                   <h3 className="font-semibold">{f.etiket}</h3>
-                  <p className="mt-1 text-sm font-mono text-slate-800 bg-slate-100 rounded px-2 py-1">
+                  <p className="mt-1 text-sm font-mono text-ink bg-canvas rounded px-2 py-1">
                     {f.sozel}
                   </p>
-                  <p className="mt-2 text-sm text-slate-600">{f.okuma}</p>
+                  <p className="mt-2 text-sm text-muted">{f.okuma}</p>
 
-                  <div className="mt-2 flex gap-3 flex-wrap text-xs text-slate-400">
+                  <div className="mt-2 flex gap-3 flex-wrap text-xs text-faint">
                     {f.excel && <code title="Excel karşılığı">{f.excel}</code>}
                     {f.kod && <code title="PES'te nerede hesaplanıyor">{f.kod}</code>}
                   </div>
@@ -310,7 +310,7 @@ export default async function FormullerSayfasi({
       })}
 
       {eslesen.length === 0 && (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-faint">
           &ldquo;{sp.q}&rdquo; ile eşleşen formül yok.
         </p>
       )}

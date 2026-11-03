@@ -50,24 +50,24 @@ function WorkshopDowntimePage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-          <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Duruş Kayıtları</h1>
+          <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">{workshopName} — Duruş Kayıtları</h1>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium">{showForm ? 'İptal' : '+ Duruş Ekle'}</button>
       </div>
 
       {totalMin > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4"><p className="text-xs text-red-600">Toplam Duruş</p><p className="text-xl font-bold text-red-700">{totalMin} dk</p></div>
-          <div className="bg-white border border-line-soft rounded-xl p-4"><p className="text-xs text-faint">Kayıt</p><p className="text-xl font-bold">{records.length}</p></div>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-xs text-amber-600">Ortalama</p><p className="text-xl font-bold text-amber-700">{records.length > 0 ? Math.round(totalMin/records.length) : 0} dk</p></div>
+          <div className="bg-danger-soft border border-danger-line rounded-xl p-4"><p className="text-xs text-danger">Toplam Duruş</p><p className="text-xl font-bold text-danger">{totalMin} dk</p></div>
+          <div className="bg-surface border border-line-soft rounded-xl p-4"><p className="text-xs text-faint">Kayıt</p><p className="text-xl font-bold">{records.length}</p></div>
+          <div className="bg-warn-soft border border-line-soft rounded-xl p-4"><p className="text-xs text-warn">Ortalama</p><p className="text-xl font-bold text-warn">{records.length > 0 ? Math.round(totalMin/records.length) : 0} dk</p></div>
         </div>
       )}
 
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+        <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
           <div><label className="block text-xs font-medium text-muted mb-1">Bant</label><select className={ic} value={form.line_id} onChange={e => setForm(p => ({...p, line_id: e.target.value}))} required><option value="">Seçin</option>{lines.map(l => <option key={l.id} value={l.id}>{l.code}</option>)}</select></div>
           <div><label className="block text-xs font-medium text-muted mb-1">Tarih/Saat</label><input type="datetime-local" className={ic} value={form.occurred_at} onChange={e => setForm(p => ({...p, occurred_at: e.target.value}))} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">Süre (dk)</label><input type="number" inputMode="numeric" className={ic} value={form.duration_min} onChange={e => setForm(p => ({...p, duration_min: parseInt(e.target.value)||0}))} min={1} /></div>
@@ -79,7 +79,7 @@ function WorkshopDowntimePage() {
       )}
 
       {records.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           {/* yukseklik: sarmal dikey de kaysın ki thead'in yapışkanlığı gerçekten işlesin. */}
           <TabloSarmal yukseklik="70vh">
             <table className="w-full min-w-[640px] text-sm">
@@ -89,8 +89,8 @@ function WorkshopDowntimePage() {
                   <tr key={r.id} className="hover:bg-canvas">
                     <td className="px-4 py-3 text-muted">{new Date(r.occurred_at).toLocaleString('tr-TR')}</td>
                     <td className="px-4 py-3">{r.line_code}</td>
-                    <td className="px-4 py-3 text-right text-red-600 font-medium">{r.duration_min} dk</td>
-                    <td className="px-4 py-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.downtime_type === 'Plansız' ? 'bg-red-100 text-red-700' : r.downtime_type === 'Tedarik' ? 'bg-orange-100 text-orange-700' : 'bg-canvas text-muted'}`}>{r.downtime_type}</span></td>
+                    <td className="px-4 py-3 text-right text-danger font-medium">{r.duration_min} dk</td>
+                    <td className="px-4 py-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.downtime_type === 'Plansız' ? 'bg-danger-soft text-danger' : r.downtime_type === 'Tedarik' ? 'bg-orange-100 text-orange-700' : 'bg-canvas text-muted'}`}>{r.downtime_type}</span></td>
                     <td className="px-4 py-3 text-muted truncate max-w-[200px]">{r.reason ?? '—'}</td>
                   </tr>
                 ))}

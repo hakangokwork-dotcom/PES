@@ -45,7 +45,7 @@ export default function AtolyeArsivDugmesi({ id, aktif }: { id: number; aktif: b
       >
         {bekliyor ? '…' : aktif ? 'Pasife al' : 'Aktife al'}
       </button>
-      {hata && <span className="text-[11px] text-red-600">{hata}</span>}
+      {hata && <span className="text-[11px] text-danger">{hata}</span>}
     </div>
   )
 }

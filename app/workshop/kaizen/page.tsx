@@ -8,7 +8,7 @@ interface KaizenItem { id: number; baslik: string; kategori: string; hedef_metri
 
 const KATEGORILER = ['DARBOGAZ', 'WIP', 'KALITE', 'MALIYET', 'CHANGEOVER', 'GENEL']
 const DURUMLAR = ['PLAN', 'UYGULA', 'KONTROL', 'STANDART', 'IPTAL']
-const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-amber-100 text-amber-800', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-green-100 text-green-800', IPTAL: 'bg-canvas text-faint' }
+const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-warn-soft text-warn', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-accent-soft text-accent-ink', IPTAL: 'bg-canvas text-faint' }
 const durumLabel: Record<string, string> = { PLAN: 'Plan', UYGULA: 'Uygula', KONTROL: 'Kontrol', STANDART: 'Standart', IPTAL: 'Iptal' }
 
 export default function Wrapper() {
@@ -57,10 +57,10 @@ function KaizenPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Kaizen / PDCA</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Kaizen / PDCA</h1>
           <p className="text-sm text-faint">Sürekli iyileştirme aksiyonları ve takibi</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">{showForm ? 'Iptal' : '+ Yeni Aksiyon'}</button>
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover">{showForm ? 'Iptal' : '+ Yeni Aksiyon'}</button>
       </div>
 
       {/* PDCA Ozet */}
@@ -69,23 +69,23 @@ function KaizenPage() {
           <p className="text-3xl font-bold text-muted">{planCount}</p>
           <p className="text-xs text-muted">PLAN</p>
         </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-amber-800">{uygulaCount}</p>
-          <p className="text-xs text-amber-600">UYGULA (DO)</p>
+        <div className="bg-warn-soft border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-warn">{uygulaCount}</p>
+          <p className="text-xs text-warn">UYGULA (DO)</p>
         </div>
         <div className="bg-canvas border border-line rounded-xl p-4 text-center">
           <p className="text-3xl font-bold text-muted">{kontrolCount}</p>
           <p className="text-xs text-muted">KONTROL (CHECK)</p>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-green-800">{standartCount}</p>
-          <p className="text-xs text-green-600">STANDART (ACT)</p>
+        <div className="bg-accent-soft border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-accent-ink">{standartCount}</p>
+          <p className="text-xs text-accent-ink">STANDART (ACT)</p>
         </div>
       </div>
 
       {/* Yeni Aksiyon Formu */}
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+        <form onSubmit={handleCreate} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">
           <h2 className="font-semibold text-ink">Yeni İyileştirme Aksiyonu</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div className="md:col-span-2"><label className="block text-xs text-muted mb-1">Başlık *</label><input required className={ic} value={form.baslik} onChange={e => setForm(p => ({...p, baslik: e.target.value}))} placeholder="Darbogaz operasyonu icin ek makine" /></div>
@@ -97,17 +97,17 @@ function KaizenPage() {
             <div><label className="block text-xs text-muted mb-1">Başlangıç</label><input type="date" className={ic} value={form.baslangic_tarihi} onChange={e => setForm(p => ({...p, baslangic_tarihi: e.target.value}))} /></div>
             <div><label className="block text-xs text-muted mb-1">Bitiş</label><input type="date" className={ic} value={form.bitis_tarihi} onChange={e => setForm(p => ({...p, bitis_tarihi: e.target.value}))} /></div>
           </div>
-          <button type="submit" disabled={saving} className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Olustur'}</button>
+          <button type="submit" disabled={saving} className="px-6 py-2 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Olustur'}</button>
         </form>
       )}
 
       {/* Aksiyon Listesi */}
       {actions.length === 0 ? (
-        <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">Henüz kaizen aksiyonu yok</div>
+        <div className="bg-surface border border-line-soft rounded-xl p-8 text-center text-faint">Henüz kaizen aksiyonu yok</div>
       ) : (
         <div className="space-y-3">
           {actions.map(a => (
-            <div key={a.id} className="bg-white border border-line-soft rounded-xl p-4">
+            <div key={a.id} className="bg-surface border border-line-soft rounded-xl p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ function KaizenPage() {
                   {a.hedef_metrik && (
                     <p className="text-sm text-faint mt-1">
                       {a.hedef_metrik}: {Number(a.mevcut_deger)} → {Number(a.hedef_deger)}
-                      {a.sonuc_deger !== null && <span className={`ml-2 font-bold ${Number(a.sonuc_deger) >= Number(a.hedef_deger) ? 'text-green-600' : 'text-red-600'}`}>Sonuc: {Number(a.sonuc_deger)}</span>}
+                      {a.sonuc_deger !== null && <span className={`ml-2 font-bold ${Number(a.sonuc_deger) >= Number(a.hedef_deger) ? 'text-accent-ink' : 'text-danger'}`}>Sonuc: {Number(a.sonuc_deger)}</span>}
                     </p>
                   )}
                   <p className="text-xs text-faint mt-0.5">{a.sorumlu || '---'} | {a.baslangic_tarihi ? `${a.baslangic_tarihi} → ${a.bitis_tarihi || '...'}` : '---'}</p>

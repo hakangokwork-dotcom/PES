@@ -69,7 +69,7 @@ export default function YetenekFiltrePaneli({
                   <label
                     key={d.code}
                     className={`flex items-center gap-2 px-2 py-1 rounded text-[13px] cursor-pointer transition-colors ${
-                      isaretli ? 'bg-emerald-50' : kapali ? 'opacity-40' : 'hover:bg-canvas'
+                      isaretli ? 'bg-accent-soft' : kapali ? 'opacity-40' : 'hover:bg-canvas'
                     }`}
                   >
                     <input
@@ -80,7 +80,7 @@ export default function YetenekFiltrePaneli({
                       className="accent-accent"
                     />
                     <span className="flex-1 text-body truncate">{d.label}</span>
-                    <span className={`text-[11px] tabular-nums ${isaretli ? 'text-emerald-700 font-medium' : 'text-faint'}`}>
+                    <span className={`text-[11px] tabular-nums ${isaretli ? 'text-accent-ink font-medium' : 'text-faint'}`}>
                       {d.adet}
                     </span>
                   </label>

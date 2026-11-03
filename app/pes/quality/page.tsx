@@ -55,12 +55,12 @@ export default function QualityPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Kalite Yönetimi</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Kalite Yönetimi</h1>
         <p className="text-faint mt-1">Aylık kalite verisi girişi</p>
       </div>
 
       {/* Seçim */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-body mb-1">Atölye</label>
@@ -74,7 +74,7 @@ export default function QualityPage() {
 
       {workshopId && (
         <>
-          <div className="bg-white border border-line-soft rounded-xl p-6">
+          <div className="bg-surface border border-line-soft rounded-xl p-6">
             <h2 className="text-lg font-semibold text-ink mb-4">Kalite Verileri</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
@@ -108,22 +108,22 @@ export default function QualityPage() {
 
             {/* Hesaplanan Metrikler */}
             <div className="mt-6 pt-4 border-t border-line-soft grid grid-cols-3 gap-4">
-              <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                <p className="text-xs text-emerald-600">FPQ</p>
-                <p className={`text-xl font-bold ${Number(fpq) >= 95 ? 'text-green-600' : Number(fpq) >= 90 ? 'text-amber-600' : 'text-red-600'}`}>%{fpq}</p>
+              <div className="bg-accent-soft rounded-lg p-3 text-center">
+                <p className="text-xs text-accent-ink">FPQ</p>
+                <p className={`text-xl font-bold ${Number(fpq) >= 95 ? 'text-accent-ink' : Number(fpq) >= 90 ? 'text-warn' : 'text-danger'}`}>%{fpq}</p>
               </div>
-              <div className="bg-red-50 rounded-lg p-3 text-center">
-                <p className="text-xs text-red-600">Red Oranı</p>
-                <p className="text-xl font-bold text-red-700">%{redRate}</p>
+              <div className="bg-danger-soft rounded-lg p-3 text-center">
+                <p className="text-xs text-danger">Red Oranı</p>
+                <p className="text-xl font-bold text-danger">%{redRate}</p>
               </div>
-              <div className="bg-amber-50 rounded-lg p-3 text-center">
-                <p className="text-xs text-amber-600">Yeniden İşlem</p>
-                <p className="text-xl font-bold text-amber-700">%{reworkRate}</p>
+              <div className="bg-warn-soft rounded-lg p-3 text-center">
+                <p className="text-xs text-warn">Yeniden İşlem</p>
+                <p className="text-xl font-bold text-warn">%{reworkRate}</p>
               </div>
             </div>
           </div>
 
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
+          {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
 
           <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Kalite Verisini Kaydet'}

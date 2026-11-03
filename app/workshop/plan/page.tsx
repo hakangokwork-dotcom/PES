@@ -136,14 +136,14 @@ export default async function AtolyePlanSayfasi() {
     <div className="mx-auto max-w-5xl space-y-5">
       <div>
         <Link href="/workshop" className="text-sm text-faint hover:text-ink">← Panel</Link>
-        <h1 className="text-xl font-semibold mt-1">Gelen Plan</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-1">Gelen Plan</h1>
+        <p className="text-sm text-faint">
           {veri.atolye.name} · {bekleyen.length} teklif cevabınızı bekliyor
         </p>
       </div>
 
       {gorunumler.length === 0 && (
-        <p className="rounded border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+        <p className="rounded border border-line-soft bg-canvas p-4 text-sm text-muted">
           Şu an size gönderilmiş bir plan yok. Planlamacı taslak üzerinde
           çalışırken burada bir şey görünmez; yalnız gönderilen teklifler düşer.
         </p>
@@ -155,28 +155,28 @@ export default async function AtolyePlanSayfasi() {
 
       {gecmis.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-faint">
             Geçmiş turlar
           </h2>
           {gecmis.map((t) => (
-            <article key={t.id} className="rounded border border-slate-200 p-3 text-sm">
+            <article key={t.id} className="rounded border border-line-soft p-3 text-sm">
               <div className="flex justify-between gap-3 flex-wrap">
                 <span className="font-medium">
                   {t.taslakAdi} · {t.turNo}. tur
                 </span>
                 <span className={`text-xs px-2 py-0.5 rounded ${
-                  t.durum === 'kabul' ? 'bg-emerald-100 text-emerald-800'
-                  : t.durum === 'ret' ? 'bg-red-100 text-red-800'
-                  : 'bg-amber-100 text-amber-800'}`}>
+                  t.durum === 'kabul' ? 'bg-accent-soft text-accent-ink'
+                  : t.durum === 'ret' ? 'bg-danger-soft text-danger'
+                  : 'bg-warn-soft text-warn'}`}>
                   {DURUM_ETIKET[t.durum]}
                 </span>
               </div>
-              <div className="text-xs text-slate-500 mt-1">
+              <div className="text-xs text-faint mt-1">
                 {t.kalemler.length} iş · gönderildi {t.gonderildi}
                 {t.cevapTarihi && ` · cevaplandı ${t.cevapTarihi}`}
               </div>
               {t.gerekceKodu && (
-                <div className="text-xs text-slate-600 mt-1">
+                <div className="text-xs text-muted mt-1">
                   Gerekçe: {GEREKCE_ETIKET[t.gerekceKodu]}
                   {t.cevapNotu && ` — ${t.cevapNotu}`}
                 </div>

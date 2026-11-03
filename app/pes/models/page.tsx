@@ -205,7 +205,7 @@ export default function ModelsPage() {
   }, {} as Record<string, { name: string; template_code: string; category_name: string; items: ModelRow[] }>)
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const editInputClass = 'px-2 py-1 border border-emerald-300 rounded text-sm focus:outline-none focus:border-accent bg-emerald-50'
+  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-accent-soft'
 
   const totalFormSamSec = samEntries.reduce((sum, e) => sum + e.sam_minutes, 0)
   const totalFormSamMin = totalFormSamSec / 60
@@ -214,7 +214,7 @@ export default function ModelsPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Model / SAM Kütüphanesi</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Model / SAM Kütüphanesi</h1>
           <p className="text-faint mt-1">Model bazlı standart süre (SAM) verileri</p>
         </div>
         <button onClick={() => { setShowForm(!showForm); if (!showForm) initSamEntries() }} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium">
@@ -225,7 +225,7 @@ export default function ModelsPage() {
 
       {/* Yeni Model + Toplu SAM Girişi */}
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-5">
+        <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 space-y-5">
           <h2 className="text-lg font-semibold text-ink">Model Bilgileri</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
@@ -262,7 +262,7 @@ export default function ModelsPage() {
             </thead>
             <tbody className="divide-y divide-line-soft">
               {samEntries.map((entry, idx) => (
-                <tr key={idx} className={entry.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
+                <tr key={idx} className={entry.sam_minutes > 0 ? 'bg-accent-soft' : ''}>
                   <td className="py-2 text-body">{entry.process_name}</td>
                   <td className="py-2 text-right">
                     <input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right focus:outline-none focus:border-accent"
@@ -299,7 +299,7 @@ export default function ModelsPage() {
             const totalSamSec = group.items.reduce((sum, m) => sum + Number(m.sam_minutes), 0)
             const totalSamMin = totalSamSec / 60
             return (
-              <div key={code} className="bg-white border border-line-soft rounded-xl p-5">
+              <div key={code} className="bg-surface border border-line-soft rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="text-accent font-bold text-lg">{code}</span>
@@ -340,7 +340,7 @@ export default function ModelsPage() {
                       groupEditRows.map((row, idx) => {
                         const hasSam = row.sam_minutes > 0
                         return (
-                          <tr key={row.process_id} className={hasSam ? 'bg-emerald-50' : ''}>
+                          <tr key={row.process_id} className={hasSam ? 'bg-accent-soft' : ''}>
                             <td className="py-1.5 text-muted">
                               <span className="text-xs text-faint mr-1">{row.process_code}</span>
                               {row.process_name}
@@ -370,7 +370,7 @@ export default function ModelsPage() {
                             <span className={`text-[11px] px-1.5 py-0.5 rounded ${m.source === 'MTM' ? 'bg-canvas text-muted' : 'bg-canvas text-faint'}`}>{m.source}</span>
                           </td>
                           <td className="py-1.5 text-center">
-                            <button onClick={() => handleDelete(m.id, `${code}/${m.process_name}`)} className="text-xs text-red-500 hover:underline">Sil</button>
+                            <button onClick={() => handleDelete(m.id, `${code}/${m.process_name}`)} className="text-xs text-danger hover:underline">Sil</button>
                           </td>
                         </tr>
                       ))
@@ -414,19 +414,19 @@ function BottleneckBar({ code, bn, onSave }: { code: string; bn?: Bottleneck; on
 
   if (editing) {
     return (
-      <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-3">
+      <div className="mb-3 bg-warn-soft border border-line-soft rounded-lg p-3">
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <label className="block text-[11px] text-amber-600 mb-0.5">Darboğaz Operasyonu</label>
-            <input className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm bg-white" value={operation} onChange={e => setOperation(e.target.value)} placeholder="Açık Pat Takma" />
+            <label className="block text-[11px] text-warn mb-0.5">Darboğaz Operasyonu</label>
+            <input className="w-full px-2 py-1.5 border border-line rounded text-sm bg-surface" value={operation} onChange={e => setOperation(e.target.value)} placeholder="Açık Pat Takma" />
           </div>
           <div className="w-28">
-            <label className="block text-[11px] text-amber-600 mb-0.5">Çevrim Süresi (sn)</label>
-            <input type="number" className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm text-right bg-white" value={sec || ''} onChange={e => setSec(parseFloat(e.target.value) || 0)} step={0.1} />
+            <label className="block text-[11px] text-warn mb-0.5">Çevrim Süresi (sn)</label>
+            <input type="number" className="w-full px-2 py-1.5 border border-line rounded text-sm text-right bg-surface" value={sec || ''} onChange={e => setSec(parseFloat(e.target.value) || 0)} step={0.1} />
           </div>
           <div className="w-28 text-center">
-            <label className="block text-[11px] text-amber-600 mb-0.5">Maks Üretim</label>
-            <p className="text-lg font-bold text-amber-900">{maxDaily > 0 ? maxDaily.toLocaleString('tr-TR') : '—'}</p>
+            <label className="block text-[11px] text-warn mb-0.5">Maks Üretim</label>
+            <p className="text-lg font-bold text-warn">{maxDaily > 0 ? maxDaily.toLocaleString('tr-TR') : '—'}</p>
           </div>
           <div className="flex gap-1 pt-3">
             <button onClick={save} disabled={saving} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">Kaydet</button>
@@ -440,14 +440,14 @@ function BottleneckBar({ code, bn, onSave }: { code: string; bn?: Bottleneck; on
   if (bn && Number(bn.bottleneck_sec) > 0) {
     const daily = Math.floor((9 * 3600) / Number(bn.bottleneck_sec))
     return (
-      <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-amber-100 transition-colors" onClick={() => { setOperation(bn.bottleneck_operation ?? ''); setSec(Number(bn.bottleneck_sec)); setEditing(true) }}>
+      <div className="mb-3 bg-warn-soft border border-line-soft rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-warn-soft transition-colors" onClick={() => { setOperation(bn.bottleneck_operation ?? ''); setSec(Number(bn.bottleneck_sec)); setEditing(true) }}>
         <div>
-          <span className="text-xs text-amber-600">Darboğaz: </span>
-          <span className="text-sm font-medium text-amber-800">{bn.bottleneck_operation ?? 'Belirtilmemiş'} ({Number(bn.bottleneck_sec)} sn)</span>
+          <span className="text-xs text-warn">Darboğaz: </span>
+          <span className="text-sm font-medium text-warn">{bn.bottleneck_operation ?? 'Belirtilmemiş'} ({Number(bn.bottleneck_sec)} sn)</span>
         </div>
         <div className="text-right">
-          <span className="text-xs text-amber-600">Maks Günlük Üretim: </span>
-          <span className="text-lg font-bold text-amber-900">{daily.toLocaleString('tr-TR')} adet</span>
+          <span className="text-xs text-warn">Maks Günlük Üretim: </span>
+          <span className="text-lg font-bold text-warn">{daily.toLocaleString('tr-TR')} adet</span>
         </div>
       </div>
     )

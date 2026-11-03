@@ -11,9 +11,9 @@ import BolumEz from './BolumEz'
 export const dynamic = 'force-dynamic'
 
 const BOLUM_RENK: Record<string, string> = {
-  KESIM: 'bg-amber-100 text-amber-800',
+  KESIM: 'bg-warn-soft text-warn',
   DIKIM: 'bg-blue-100 text-blue-800',
-  UKP: 'bg-emerald-100 text-emerald-800',
+  UKP: 'bg-accent-soft text-accent-ink',
 }
 
 export default async function BultenDetay({ params }: { params: Promise<{ id: string }> }) {
@@ -45,8 +45,8 @@ export default async function BultenDetay({ params }: { params: Promise<{ id: st
   return (
     <main className="p-6 space-y-4">
       <header>
-        <h1 className="text-xl font-semibold">{String(bulten.model_adi)}</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">{String(bulten.model_adi)}</h1>
+        <p className="text-sm text-faint">
           {String(bulten.plm_id ?? 'PLM yok')} · {satirlar.length} operasyon ·{' '}
           {(top / 60).toFixed(2)} dk ·{' '}
           <Link href={`/pes/model/${bultenId}/fiyat`} className="underline">fiyatla →</Link>
@@ -70,14 +70,14 @@ export default async function BultenDetay({ params }: { params: Promise<{ id: st
       </div>
 
       {Number(toplam?.elle) > 0 && (
-        <p className="text-sm text-amber-700">
+        <p className="text-sm text-warn">
           {String(toplam?.elle)} satırın bölümü elle seçilmiş; kural yeniden uygulansa da korunur.
         </p>
       )}
 
       <div className="overflow-x-auto border rounded">
         <table className="text-sm w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-canvas">
             <tr>
               <th className="text-right px-3 py-2">#</th>
               <th className="text-left px-3 py-2">Aşama</th>
@@ -90,16 +90,16 @@ export default async function BultenDetay({ params }: { params: Promise<{ id: st
           </thead>
           <tbody>
             {satirlar.map((s: Record<string, unknown>) => (
-              <tr key={String(s.id)} className="border-t hover:bg-slate-50">
-                <td className="px-3 py-1.5 text-right tabular-nums text-slate-400">{String(s.sira_no)}</td>
+              <tr key={String(s.id)} className="border-t hover:bg-canvas">
+                <td className="px-3 py-1.5 text-right tabular-nums text-faint">{String(s.sira_no)}</td>
                 <td className="px-3 py-1.5">{String(s.seviye1 ?? '—')}</td>
                 <td className="px-3 py-1.5">
                   {String(s.seviye2 ?? '—')}
-                  {s.seviye3 ? <span className="block text-xs text-slate-400">{String(s.seviye3)}</span> : null}
+                  {s.seviye3 ? <span className="block text-xs text-faint">{String(s.seviye3)}</span> : null}
                 </td>
                 <td className="px-3 py-1.5 text-right tabular-nums">{Number(s.cevrim_sn).toFixed(0)}</td>
-                <td className="px-3 py-1.5 text-slate-600">{String(s.tip ?? '—')}</td>
-                <td className="px-3 py-1.5 text-slate-400 text-xs">{String(s.makine_kodu ?? '—')}</td>
+                <td className="px-3 py-1.5 text-muted">{String(s.tip ?? '—')}</td>
+                <td className="px-3 py-1.5 text-faint text-xs">{String(s.makine_kodu ?? '—')}</td>
                 <td className="px-3 py-1.5">
                   <span className={`text-xs px-1.5 py-0.5 rounded mr-2 ${BOLUM_RENK[String(s.bolum)] ?? ''}`}>
                     {String(s.bolum)}
@@ -113,7 +113,7 @@ export default async function BultenDetay({ params }: { params: Promise<{ id: st
         </table>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         Bölüm, <code>(aşama, tip)</code> kurallarıyla atanır. Aşama tek başına yetmez:
         “Son İşlem” karışıktır — paça kıvırma ve punteriz dikim, ütüleme ve paket UKP.
         Yanlış gördüğün satırı burada ezebilirsin; ezilen satır kural yeniden

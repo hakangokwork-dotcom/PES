@@ -59,7 +59,7 @@ export default function ReferansPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Konfeksiyon Referans Kütüphanesi</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Konfeksiyon Referans Kütüphanesi</h1>
         <p className="text-sm text-faint mt-1">30K+ MTM operasyon zamanı referans verisi</p>
       </div>
 
@@ -75,21 +75,21 @@ export default function ReferansPage() {
             { l: 'Zaman Kaydi', v: stats.zaman_kaydi_sayisi },
             { l: 'Makine', v: stats.makine_sayisi },
           ].map(s => (
-            <div key={s.l} className="bg-white border border-line-soft rounded-xl p-3 text-center">
+            <div key={s.l} className="bg-surface border border-line-soft rounded-xl p-3 text-center">
               <p className="text-xs text-faint">{s.l}</p>
               <p className="text-xl font-bold text-ink">{s.v.toLocaleString('tr-TR')}</p>
             </div>
           ))}
         </div>
       ) : (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
+        <div className="bg-warn-soft border border-line rounded-xl p-4 text-sm text-warn">
           Referans tablolari bos veya olusturulmamis. Once Supabase SQL Editor&apos;da <strong>012_konfeksiyon_referans.sql</strong> calistirin,
           sonra aşağıdan Excel dosyasını yükleyin.
         </div>
       )}
 
       {/* Excel Yukleme */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-3">Referans Veri Yükle</h2>
         <p className="text-sm text-faint mb-4">
           <strong>konfeksiyon_veri_modeli.xlsx</strong> dosyasini yükleyin. Sayfalar otomatik eslestirilir
@@ -97,19 +97,19 @@ export default function ReferansPage() {
         </p>
         <div className="flex gap-3 items-center">
           <input type="file" accept=".xlsx,.xls" ref={fileRef}
-            className="flex-1 text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-line file:text-sm file:font-medium file:bg-white file:text-body hover:file:bg-canvas" />
+            className="flex-1 text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-line file:text-sm file:font-medium file:bg-surface file:text-body hover:file:bg-canvas" />
           <button onClick={handleUpload} disabled={uploading}
-            className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
+            className="px-6 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover disabled:opacity-50">
             {uploading ? 'Yukleniyor... (bu islem uzun surebilir)' : 'Yukle'}
           </button>
         </div>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-danger">{error}</p>}
         {result && (
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-sm font-semibold text-green-800 mb-2">Yükleme tamamlandı:</p>
+          <div className="mt-4 bg-accent-soft border border-line-soft rounded-lg p-4">
+            <p className="text-sm font-semibold text-accent-ink mb-2">Yükleme tamamlandı:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(result).map(([k, v]) => (
-                <div key={k} className="text-xs text-green-700">
+                <div key={k} className="text-xs text-accent-ink">
                   <span className="font-medium">{k}:</span> {v.toLocaleString('tr-TR')} kayit
                 </div>
               ))}
@@ -119,7 +119,7 @@ export default function ReferansPage() {
       </div>
 
       {/* Arama */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-3">Ürün Tipi Ara</h2>
         <div className="flex gap-2 mb-4">
           <input value={searchQ} onChange={e => setSearchQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}

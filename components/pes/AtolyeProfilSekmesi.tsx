@@ -123,7 +123,7 @@ function DenetimBlogu({
   }
 
   return (
-    <div className="bg-white border border-line-soft rounded-xl p-4">
+    <div className="bg-surface border border-line-soft rounded-xl p-4">
       <div className="flex items-center justify-between">
         <h4 className="font-medium text-ink">{baslik}</h4>
         <button
@@ -138,9 +138,9 @@ function DenetimBlogu({
         <div className="mt-2">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
             kalan === null ? 'bg-canvas text-faint'
-            : kalan < 0 ? 'bg-red-100 text-red-700'
-            : kalan <= 90 ? 'bg-amber-100 text-amber-700'
-            : 'bg-green-100 text-green-700'
+            : kalan < 0 ? 'bg-danger-soft text-danger'
+            : kalan <= 90 ? 'bg-warn-soft text-warn'
+            : 'bg-accent-soft text-accent-ink'
           }`}>
             {kalan !== null && kalan < 0
               ? `Süresi ${Math.abs(kalan)} gün önce doldu`
@@ -156,7 +156,7 @@ function DenetimBlogu({
           {/* Kaynak veride sınıf harfi puanla çelişebiliyor; sessizce
               birini seçmek yerine farkı göster. */}
           {son.sinif_hesap && son.sinif && son.sinif_hesap !== son.sinif && (
-            <p className="text-xs text-amber-700 mt-1">
+            <p className="text-xs text-warn mt-1">
               Kaynak bu denetime <strong>{son.sinif}</strong> yazmış; puana göre{' '}
               <strong>{son.sinif_hesap}</strong> çıkıyor.
             </p>
@@ -177,7 +177,7 @@ function DenetimBlogu({
                 yalnız "kaynak ne demiş" kaydı için. */}
             {tip === 'WKYS' && (
               <select value={sinif} onChange={(e) => setSinif(e.target.value)}
-                className="px-2 py-1.5 border border-line rounded-lg text-sm bg-white">
+                className="px-2 py-1.5 border border-line rounded-lg text-sm bg-surface">
                 <option value="">Sınıf yok</option>
                 {['A', 'B', 'C', 'D'].map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -193,7 +193,7 @@ function DenetimBlogu({
               : 'Sosyalde puandan otomatik: 90 üstü A / 12 ay · 75-90 B / 9 ay · '
                 + '60-75 C / 6 ay · 60 altı D / 2 ay. Puan girilmezse 2 ay.'}
           </p>
-          {hata && <p className="text-xs text-red-600">{hata}</p>}
+          {hata && <p className="text-xs text-danger">{hata}</p>}
         </div>
       )}
 
@@ -209,7 +209,7 @@ function DenetimBlogu({
                   {tarihTR(d.tarih)}{d.puan && ` · ${d.puan}`}
                   {(d.sinif_hesap ?? d.sinif) && ` · ${d.sinif_hesap ?? d.sinif}`}
                 </span>
-                <button onClick={() => sil(d.id)} className="text-red-500 hover:underline">sil</button>
+                <button onClick={() => sil(d.id)} className="text-danger hover:underline">sil</button>
               </li>
             ))}
           </ul>
@@ -283,11 +283,11 @@ export default function AtolyeProfilSekmesi({
     <div className="space-y-4">
       {/* AKTİFLİK — künyenin bir alanı değil, canlı anahtar. Bu yüzden
           formun içinde değil, en üstte ayrı duruyor. */}
-      <div className="bg-white border border-line-soft rounded-xl p-4 flex items-center justify-between">
+      <div className="bg-surface border border-line-soft rounded-xl p-4 flex items-center justify-between">
         <div>
           <p className="font-medium text-ink">
             Çalışma durumu:{' '}
-            <span className={isActive ? 'text-green-700' : 'text-faint'}>
+            <span className={isActive ? 'text-accent-ink' : 'text-faint'}>
               {isActive ? 'Aktif — şu anda çalışıyor' : 'Pasif — şu anda çalışmıyor'}
             </span>
           </p>
@@ -315,7 +315,7 @@ export default function AtolyeProfilSekmesi({
           workshopId={workshopId} onDegisti={yenile} />
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl p-4">
+      <div className="bg-surface border border-line-soft rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h4 className="font-medium text-ink">Künye</h4>
@@ -345,7 +345,7 @@ export default function AtolyeProfilSekmesi({
           )}
         </div>
 
-        {hata && <p className="text-sm text-red-600 mb-2">{hata}</p>}
+        {hata && <p className="text-sm text-danger mb-2">{hata}</p>}
 
         {!profil && !duzenle && (
           <p className="text-sm text-faint mb-3">
@@ -362,7 +362,7 @@ export default function AtolyeProfilSekmesi({
                   <select
                     value={taslak[a.ad] ?? ''}
                     onChange={(e) => setTaslak({ ...taslak, [a.ad]: e.target.value })}
-                    className="mt-0.5 w-full px-2 py-1.5 border border-line rounded-lg text-sm bg-white"
+                    className="mt-0.5 w-full px-2 py-1.5 border border-line rounded-lg text-sm bg-surface"
                   >
                     <option value="">—</option>
                     {a.secenek.map((s) => <option key={s} value={s}>{s}</option>)}

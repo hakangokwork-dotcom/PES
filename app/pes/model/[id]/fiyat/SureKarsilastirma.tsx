@@ -49,7 +49,7 @@ export default function SureKarsilastirma({ bultenId, donem, satirlar }: {
       {mesaj && <p className="text-sm text-rose-700">{mesaj}</p>}
       <div className="overflow-x-auto border rounded">
         <table className="text-sm w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-canvas">
             <tr>
               <th className="text-left px-3 py-2">Atölye</th>
               <th className="text-right px-3 py-2">Teorik dk/adet</th>
@@ -69,13 +69,13 @@ export default function SureKarsilastirma({ bultenId, donem, satirlar }: {
                   <td className="px-3 py-2 text-right tabular-nums">
                     {f(s.uretimDk)}
                     {s.uretimGun !== null && (
-                      <span className="block text-xs text-slate-400">
+                      <span className="block text-xs text-faint">
                         {s.uretimGun} gün{s.uretimAtlanan ? `, ${s.uretimAtlanan} atlandı` : ''}
                       </span>
                     )}
                   </td>
                   <td className={`px-3 py-2 text-right tabular-nums ${
-                    fark === null ? 'text-slate-300' : fark > 0 ? 'text-rose-700' : 'text-emerald-700'}`}>
+                    fark === null ? 'text-faint' : fark > 0 ? 'text-rose-700' : 'text-accent-ink'}`}>
                     {fark === null ? '—' : `${fark > 0 ? '+' : ''}${dk.format(fark)}`}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">{f(s.beyanDk)}</td>
@@ -93,7 +93,7 @@ export default function SureKarsilastirma({ bultenId, donem, satirlar }: {
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         <strong>Fiyatlama teorik süreyi kullanır.</strong> Üretimden türetilen bant
         ortalamasıdır — duruş, model değişimi ve fire içindedir, teorikten yüksek
         çıkması normaldir. Bir bant aynı gün birden fazla iş emri işlediyse o gün

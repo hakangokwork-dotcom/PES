@@ -52,9 +52,9 @@ export default function LoginPage() {
           <p className="text-sm text-faint mt-1">Atölye Verimlilik Sistemi</p>
         </div>
 
-        <form onSubmit={submit} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+        <form onSubmit={submit} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">
+            <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">
               {error}
             </div>
           )}

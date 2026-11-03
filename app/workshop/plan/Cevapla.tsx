@@ -90,11 +90,11 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
   }
 
   return (
-    <section className="rounded border border-slate-900 p-4 space-y-4">
+    <section className="rounded border border-line p-4 space-y-4">
       <header className="flex justify-between gap-3 flex-wrap items-baseline">
         <div>
           <h2 className="font-semibold">{teklif.taslakAdi}</h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-faint">
             {teklif.turNo}. tur · gönderildi {teklif.gonderildi} · {teklif.kalemler.length} iş
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="text-left text-xs text-slate-500">
+          <thead className="text-left text-xs text-faint">
             <tr>
               <th className="py-1 pr-3">İş emri</th>
               <th className="py-1 pr-3">Bant</th>
@@ -115,18 +115,18 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
           </thead>
           <tbody>
             {teklif.kalemler.map((k) => (
-              <tr key={k.id} className="border-t border-slate-100">
+              <tr key={k.id} className="border-t border-line-soft">
                 <td className="py-1.5 pr-3">
                   <div className="font-medium">{k.isEmriNo}</div>
-                  <div className="text-xs text-slate-400">{k.modelAdi}</div>
+                  <div className="text-xs text-faint">{k.modelAdi}</div>
                 </td>
-                <td className="py-1.5 pr-3 text-slate-600">{k.bantAdi}</td>
+                <td className="py-1.5 pr-3 text-muted">{k.bantAdi}</td>
                 <td className="py-1.5 pr-3 tabular-nums">{tr.format(k.adet)}</td>
-                <td className="py-1.5 pr-3 text-slate-600">{k.baslangic} → {k.bitis}</td>
+                <td className="py-1.5 pr-3 text-muted">{k.baslangic} → {k.bitis}</td>
                 <td className="py-1.5 pr-3">
                   {k.teslim ?? '—'}
                   {k.teslim && k.bitis > k.teslim && (
-                    <span className="ml-1 text-xs px-1 py-0.5 rounded bg-red-100 text-red-800">
+                    <span className="ml-1 text-xs px-1 py-0.5 rounded bg-danger-soft text-danger">
                       aşıyor
                     </span>
                   )}
@@ -140,7 +140,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
                         onChange={(e) => setKarsi((s) => ({
                           ...s, [k.id]: { baslangic: e.target.value, adet: s[k.id]?.adet ?? '' },
                         }))}
-                        className="rounded border border-slate-300 px-1 py-0.5 text-xs"
+                        className="rounded border border-line px-1 py-0.5 text-xs"
                       />
                       <input
                         type="number" min={1} placeholder="adet"
@@ -148,7 +148,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
                         onChange={(e) => setKarsi((s) => ({
                           ...s, [k.id]: { baslangic: s[k.id]?.baslangic ?? '', adet: e.target.value },
                         }))}
-                        className="w-20 rounded border border-slate-300 px-1 py-0.5 text-xs tabular-nums"
+                        className="w-20 rounded border border-line px-1 py-0.5 text-xs tabular-nums"
                       />
                     </div>
                   </td>
@@ -158,7 +158,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
           </tbody>
         </table>
         {durum === 'revizyon' && (
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-faint">
             Boş bıraktığınız satıra itirazınız yok sayılır.
           </p>
         )}
@@ -166,9 +166,9 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
 
       <div className="flex gap-2 flex-wrap">
         {([
-          ['kabul', 'Kabul ediyorum', 'bg-emerald-600'],
-          ['revizyon', 'Revizyon öneriyorum', 'bg-amber-600'],
-          ['ret', 'Karşılayamıyorum', 'bg-red-600'],
+          ['kabul', 'Kabul ediyorum', 'bg-accent'],
+          ['revizyon', 'Revizyon öneriyorum', 'bg-warn'],
+          ['ret', 'Karşılayamıyorum', 'bg-danger'],
         ] as const).map(([d, etiket, renk]) => (
           <button
             key={d}
@@ -183,11 +183,11 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
       {durum && durum !== 'kabul' && (
         <div className="space-y-2">
           <label className="block text-sm">
-            <span className="block text-xs text-slate-600">Gerekçe (zorunlu)</span>
+            <span className="block text-xs text-muted">Gerekçe (zorunlu)</span>
             <select
               value={gerekce}
               onChange={(e) => setGerekce(e.target.value as GerekceKodu | '')}
-              className="mt-0.5 rounded border border-slate-300 px-2 py-1 text-sm">
+              className="mt-0.5 rounded border border-line px-2 py-1 text-sm">
               <option value="">— seçin —</option>
               {GEREKCE_KODLARI.map((k) => (
                 <option key={k} value={k}>{GEREKCE_ETIKET[k]}</option>
@@ -195,21 +195,21 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="block text-xs text-slate-600">
+            <span className="block text-xs text-muted">
               Açıklama{gerekce === 'DIGER' ? ' (zorunlu)' : ''}
             </span>
             <textarea
               value={not} onChange={(e) => setNot(e.target.value)} rows={2}
-              className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+              className="mt-0.5 w-full rounded border border-line px-2 py-1 text-sm"
               placeholder="Planlamacının ne yapacağını bilmesi için kısa bir not" />
           </label>
         </div>
       )}
 
       {onHata.length > 0 && (
-        <p className="text-sm text-amber-700">{onHata[0].mesaj}</p>
+        <p className="text-sm text-warn">{onHata[0].mesaj}</p>
       )}
-      {hata && <p className="text-sm text-red-600">{hata}</p>}
+      {hata && <p className="text-sm text-danger">{hata}</p>}
 
       <button
         onClick={gonder}

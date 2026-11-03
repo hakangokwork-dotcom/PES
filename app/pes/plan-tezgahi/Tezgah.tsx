@@ -200,16 +200,16 @@ export default function Tezgah({
 
   if (taslaklar.length === 0) {
     return (
-      <div className="rounded border border-slate-200 p-6 space-y-3">
+      <div className="rounded border border-line-soft p-6 space-y-3">
         <h2 className="font-medium">Henüz taslak yok</h2>
-        <p className="text-sm text-slate-500 max-w-prose">
+        <p className="text-sm text-faint max-w-prose">
           Masa bir taslak üzerinde çalışır. Taslak atölyeye görünmez ve
           kapasite tüketmez; denemelerinizi serbestçe yapabilirsiniz.
         </p>
         <div className="flex gap-2">
           <input value={yeniAd} onChange={(e) => setYeniAd(e.target.value)}
                  placeholder="Taslak adı — örn. Ekim A planı"
-                 className="rounded border border-slate-300 px-3 py-1.5 text-sm w-72" />
+                 className="rounded border border-line px-3 py-1.5 text-sm w-72" />
           <button
             disabled={bekliyor || !yeniAd.trim()}
             onClick={() => cagir('/api/pes/plan-tezgahi', 'POST', { ad: yeniAd })}
@@ -217,7 +217,7 @@ export default function Tezgah({
             Oluştur
           </button>
         </div>
-        {hata && <p className="text-sm text-red-600">{hata}</p>}
+        {hata && <p className="text-sm text-danger">{hata}</p>}
       </div>
     )
   }
@@ -229,7 +229,7 @@ export default function Tezgah({
         <select
           value={seciliTaslak}
           onChange={(e) => router.push(bag({ taslak: e.target.value }))}
-          className="rounded border border-slate-300 px-2 py-1 text-sm">
+          className="rounded border border-line px-2 py-1 text-sm">
           {taslaklar.map((t) => (
             <option key={t.id} value={t.id}>{t.ad} ({t.kalem})</option>
           ))}
@@ -238,27 +238,27 @@ export default function Tezgah({
         <div className="flex gap-2 items-center">
           <input value={yeniAd} onChange={(e) => setYeniAd(e.target.value)}
                  placeholder="yeni taslak"
-                 className="rounded border border-slate-300 px-2 py-1 text-sm w-44" />
+                 className="rounded border border-line px-2 py-1 text-sm w-44" />
           <button
             disabled={bekliyor || !yeniAd.trim()}
             onClick={() => cagir('/api/pes/plan-tezgahi', 'POST', { ad: yeniAd })}
-            className="px-2 py-1 rounded border border-slate-300 text-sm disabled:opacity-50">
+            className="px-2 py-1 rounded border border-line text-sm disabled:opacity-50">
             + ekle
           </button>
         </div>
 
         {cakismalar.length > 0 && (
-          <span className="text-sm px-2 py-1 rounded bg-red-100 text-red-800">
+          <span className="text-sm px-2 py-1 rounded bg-danger-soft text-danger">
             {cakismalar.length} gün kapasite aşımı
           </span>
         )}
         {citUyarilari.length > 0 && (
-          <span className="text-sm px-2 py-1 rounded bg-amber-100 text-amber-800"
+          <span className="text-sm px-2 py-1 rounded bg-warn-soft text-warn"
                 title={`Başlangıcına ${citGun} günden az kalan işler`}>
             {citUyarilari.length} iş zaman çitinde
           </span>
         )}
-        {hata && <span className="text-sm text-red-600">{hata}</span>}
+        {hata && <span className="text-sm text-danger">{hata}</span>}
       </div>
 
       <div className="flex gap-3 items-start">
@@ -266,11 +266,11 @@ export default function Tezgah({
         <aside className="w-64 shrink-0 space-y-2">
           <div className="flex items-baseline justify-between">
             <h2 className="text-sm font-semibold">Yerleştirilmemiş</h2>
-            <span className="text-xs text-slate-400">{gorunenHavuz.length}</span>
+            <span className="text-xs text-faint">{gorunenHavuz.length}</span>
           </div>
           <input value={arama} onChange={(e) => setArama(e.target.value)}
                  placeholder="ara: iş emri, model, müşteri"
-                 className="w-full rounded border border-slate-300 px-2 py-1 text-xs" />
+                 className="w-full rounded border border-line px-2 py-1 text-xs" />
 
           <div className="space-y-1.5 max-h-[70vh] overflow-y-auto pr-1">
             {gorunenHavuz.map((h) => (
@@ -279,15 +279,15 @@ export default function Tezgah({
                 draggable
                 onDragStart={() => setSuruklenen({ tip: 'havuz', wo: h })}
                 onDragEnd={() => { setSuruklenen(null); setHedef(null) }}
-                className="rounded border border-slate-200 bg-white p-2 cursor-grab active:cursor-grabbing hover:border-slate-400">
+                className="rounded border border-line-soft bg-surface p-2 cursor-grab active:cursor-grabbing hover:border-line">
                 <div className="text-xs font-medium truncate">{h.isEmriNo}</div>
-                <div className="text-[11px] text-slate-500 truncate">{h.modelAdi}</div>
-                <div className="mt-1 flex justify-between text-[11px] text-slate-400">
+                <div className="text-[11px] text-faint truncate">{h.modelAdi}</div>
+                <div className="mt-1 flex justify-between text-[11px] text-faint">
                   <span>{tr.format(h.adet)} adet</span>
                   {h.teslim && <span>{h.teslim.slice(5)}</span>}
                 </div>
                 {h.atolyeAdi && (
-                  <div className="text-[10px] text-slate-400 truncate">{h.atolyeAdi}</div>
+                  <div className="text-[10px] text-faint truncate">{h.atolyeAdi}</div>
                 )}
                 {h.planIpucu && (
                   <div className="text-[10px] text-indigo-600 truncate" title={`Yıllık plan: ${h.planIpucu}`}>
@@ -297,7 +297,7 @@ export default function Tezgah({
               </article>
             ))}
             {gorunenHavuz.length === 0 && (
-              <p className="text-xs text-slate-400 py-4 text-center">
+              <p className="text-xs text-faint py-4 text-center">
                 {arama ? 'eşleşen iş emri yok' : 'yerleştirilecek iş emri yok'}
               </p>
             )}
@@ -305,22 +305,22 @@ export default function Tezgah({
         </aside>
 
         {/* ——— Sağ: ızgara ——— */}
-        <div className="flex-1 min-w-0 overflow-x-auto rounded border border-slate-200">
+        <div className="flex-1 min-w-0 overflow-x-auto rounded border border-line-soft">
           <table className="border-collapse text-xs">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 bg-slate-50 border-b border-r border-slate-200 px-2 py-1 text-left font-medium w-44">
+                <th className="sticky left-0 z-10 bg-canvas border-b border-r border-line-soft px-2 py-1 text-left font-medium w-44">
                   Bant
                 </th>
                 {gunler.map((g) => {
                   const e = gunEtiketi(g)
                   return (
                     <th key={g}
-                        className={`border-b border-slate-200 px-1 py-1 w-10 font-normal ${
-                          e.pazar ? 'bg-slate-100 text-slate-400' : 'bg-slate-50'} ${
+                        className={`border-b border-line-soft px-1 py-1 w-10 font-normal ${
+                          e.pazar ? 'bg-canvas text-faint' : 'bg-canvas'} ${
                           g === bugun ? 'ring-1 ring-inset ring-slate-900' : ''}`}>
                       <div className="font-medium">{e.gun}</div>
-                      <div className="text-[10px] text-slate-400">{e.ad}</div>
+                      <div className="text-[10px] text-faint">{e.ad}</div>
                     </th>
                   )
                 })}
@@ -331,29 +331,29 @@ export default function Tezgah({
                 <Fragment key={wsId}>
                   <tr>
                     <td colSpan={gunler.length + 1}
-                        className={`sticky left-0 border-b border-slate-200 px-2 py-1 font-medium ${
+                        className={`sticky left-0 border-b border-line-soft px-2 py-1 font-medium ${
                           suruklenenWoId !== null && uyum(suruklenenWoId, wsId) === 'uyumsuz'
-                            ? 'bg-amber-100' : 'bg-slate-100'}`}>
-                      {grup.ad} {grup.kod && <span className="text-slate-400">· {grup.kod}</span>}
+                            ? 'bg-warn-soft' : 'bg-canvas'}`}>
+                      {grup.ad} {grup.kod && <span className="text-faint">· {grup.kod}</span>}
                       {/* Sürüklenen iş bu atölyeye uymuyorsa söyler, ENGELLEMEZ. */}
                       {suruklenenWoId !== null && (() => {
                         const u = uyum(suruklenenWoId, wsId)
                         if (u === 'uyumsuz') {
                           return (
-                            <span className="ml-2 text-xs font-normal text-amber-800">
+                            <span className="ml-2 text-xs font-normal text-warn">
                               {uyariyi(suruklenenWoId, wsId)}
                             </span>
                           )
                         }
                         if (u === 'bilinmiyor') {
                           return (
-                            <span className="ml-2 text-xs font-normal text-slate-400">
+                            <span className="ml-2 text-xs font-normal text-faint">
                               uygunluk kontrol edilemedi — künye ya da yetenek kaydı eksik
                             </span>
                           )
                         }
                         return (
-                          <span className="ml-2 text-xs font-normal text-emerald-700">
+                          <span className="ml-2 text-xs font-normal text-accent-ink">
                             yetenek uyumlu
                           </span>
                         )
@@ -364,9 +364,9 @@ export default function Tezgah({
                     const kalemler = yerlesik.filter((y) => y.lineId === b.lineId)
                     return (
                       <tr key={b.lineId}>
-                        <td className="sticky left-0 z-10 bg-white border-b border-r border-slate-200 px-2 py-1">
+                        <td className="sticky left-0 z-10 bg-surface border-b border-r border-line-soft px-2 py-1">
                           <div className="font-medium truncate">{b.bantAdi}</div>
-                          <div className="text-[10px] text-slate-400">{tr.format(b.gunlukHedef)}/gün</div>
+                          <div className="text-[10px] text-faint">{tr.format(b.gunlukHedef)}/gün</div>
                         </td>
                         {gunler.map((g) => {
                           const kap = b.kapasite[g] ?? 0
@@ -394,14 +394,14 @@ export default function Tezgah({
                                       k.gunler.find((x) => x.tarih === g)?.adet ?? 0)} adet`).join('\n')
                                   : kap > 0 ? `kapasite ${tr.format(kap)}` : 'kapasite yok'
                               }
-                              className={`relative border-b border-slate-100 h-9 align-middle text-center cursor-pointer ${
+                              className={`relative border-b border-line-soft h-9 align-middle text-center cursor-pointer ${
                                 uzerinde ? 'bg-slate-900/10 outline outline-1 outline-slate-900' :
                                 cakisik ? 'bg-red-200' :
                                 dolu ? (citli ? 'bg-amber-200' : 'bg-emerald-200') :
-                                kap === 0 ? 'bg-slate-100' : 'bg-white hover:bg-slate-50'
+                                kap === 0 ? 'bg-canvas' : 'bg-surface hover:bg-canvas'
                               }`}>
                               {dolu && (
-                                <span className="text-[10px] text-slate-700">
+                                <span className="text-[10px] text-body">
                                   {tr.format(buGun.reduce((t, k) =>
                                     t + (k.gunler.find((x) => x.tarih === g)?.adet ?? 0), 0))}
                                 </span>
@@ -425,7 +425,7 @@ export default function Tezgah({
                                       ev.stopPropagation()
                                       cagir('/api/pes/plan-tezgahi/kalem', 'DELETE', { id: k.id })
                                     }}
-                                    className="pointer-events-auto rounded px-0.5 text-white/70 hover:bg-white/20 hover:text-white disabled:opacity-50"
+                                    className="pointer-events-auto rounded px-0.5 text-white/70 hover:bg-surface/20 hover:text-white disabled:opacity-50"
                                   >
                                     ×
                                   </button>
@@ -443,7 +443,7 @@ export default function Tezgah({
           </table>
 
           {bantlar.length === 0 && (
-            <p className="p-4 text-sm text-slate-500">
+            <p className="p-4 text-sm text-faint">
               Tahtada gösterilecek aktif bant yok.
             </p>
           )}
@@ -452,8 +452,8 @@ export default function Tezgah({
 
       {/* ——— Yerleşik kalemler listesi (taşı / kaldır) ——— */}
       {yerlesik.length > 0 && (
-        <section className="rounded border border-slate-200">
-          <h2 className="px-3 py-2 text-sm font-semibold border-b border-slate-200">
+        <section className="rounded border border-line-soft">
+          <h2 className="px-3 py-2 text-sm font-semibold border-b border-line-soft">
             Bu taslakta yerleşenler ({yerlesik.length})
           </h2>
           <table className="w-full text-sm">
@@ -461,30 +461,30 @@ export default function Tezgah({
               {yerlesik.map((k) => {
                 const cit = citKalem.get(k.id)
                 return (
-                  <tr key={k.id} className="border-b border-slate-100 last:border-0"
+                  <tr key={k.id} className="border-b border-line-soft last:border-0"
                       draggable
                       onDragStart={() => setSuruklenen({ tip: 'yerlesik', kalem: k })}
                       onDragEnd={() => { setSuruklenen(null); setHedef(null) }}>
                     <td className="px-3 py-1.5 cursor-grab">
                       <span className="font-medium">{k.isEmriNo}</span>
-                      <span className="text-slate-400"> · {k.modelAdi}</span>
+                      <span className="text-faint"> · {k.modelAdi}</span>
                     </td>
                     <td className="px-3 py-1.5 tabular-nums">{tr.format(k.adet)}</td>
-                    <td className="px-3 py-1.5 text-slate-600">{k.baslangic} → {k.bitis}</td>
+                    <td className="px-3 py-1.5 text-muted">{k.baslangic} → {k.bitis}</td>
                     <td className="px-3 py-1.5">
                       {k.sigmadi && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-800"
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-danger-soft text-danger"
                               title="Bandın kapasitesi yok ya da adet 200 iş gününe sığmadı">
                           yerleşmedi
                         </span>
                       )}
                       {cit !== undefined && (
-                        <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                        <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-warn-soft text-warn">
                           {cit < 0 ? `${-cit} gün geçmişte` : `${cit} gün kaldı`}
                         </span>
                       )}
                       {k.teslim && k.bitis > k.teslim && (
-                        <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-800"
+                        <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-danger-soft text-danger"
                               title={`Teslim ${k.teslim}`}>
                           teslimi aşıyor
                         </span>
@@ -495,7 +495,7 @@ export default function Tezgah({
                         const u = uyum(k.workOrderId, bant.workshopId)
                         if (u !== 'uyumsuz') return null
                         return (
-                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800"
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-warn-soft text-warn"
                                 title={uyariyi(k.workOrderId, bant.workshopId) ?? ''}>
                             yetenek uyumsuz
                           </span>
@@ -506,7 +506,7 @@ export default function Tezgah({
                       <button
                         disabled={bekliyor}
                         onClick={() => cagir('/api/pes/plan-tezgahi/kalem', 'DELETE', { id: k.id })}
-                        className="text-xs underline text-slate-500 hover:text-red-700 disabled:opacity-50">
+                        className="text-xs underline text-faint hover:text-danger disabled:opacity-50">
                         kaldır
                       </button>
                     </td>
@@ -518,7 +518,7 @@ export default function Tezgah({
         </section>
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-faint">
         Kartı ızgaraya sürükleyin. Bitiş tarihi bandın kapasitesinden türetilir. Çubuktaki × ile kaldırabilirsiniz.
         Kırmızı hücre kapasite aşımıdır — engellenmez, yalnız gösterilir.
       </p>

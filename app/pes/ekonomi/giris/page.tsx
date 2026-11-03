@@ -35,18 +35,18 @@ export default async function EkonomiGiris({
   return (
     <main className="p-6 space-y-4">
       <header>
-        <h1 className="text-xl font-semibold">Ekonomi satırı girişi</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Ekonomi satırı girişi</h1>
+        <p className="text-sm text-faint">
           {donemEtiket(donem)} ·{' '}
           <Link href="/pes/ekonomi" className="underline">panoya dön</Link>
         </p>
       </header>
 
-      <p className="text-sm bg-slate-50 border rounded px-3 py-2 max-w-2xl">
+      <p className="text-sm bg-canvas border rounded px-3 py-2 max-w-2xl">
         Burada yalnız <strong>giderde olmayan</strong> alanlar var. Gider kalemleri{' '}
         <Link href="/pes/expenses/import" className="underline">Gider Yükle</Link> akışında kalır.
         {data.mevcut?.source === 'turetilmis' && (
-          <span className="block mt-1 text-amber-700">
+          <span className="block mt-1 text-warn">
             Bu satır çok aylı bir beyandan türetilmişti. Kaydedersen "elle" kaynaklı olur
             ve anket bağı kopar.
           </span>

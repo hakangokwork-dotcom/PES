@@ -14,9 +14,9 @@ interface MetricInfoProps {
 }
 
 const COLOR_CLASSES: Record<string, string> = {
-  green:  'bg-green-100  text-green-700  border-green-200',
-  amber:  'bg-amber-100  text-amber-700  border-amber-200',
-  red:    'bg-red-100    text-red-700    border-red-200',
+  green:  'bg-accent-soft  text-accent-ink  border-line-soft',
+  amber:  'bg-warn-soft  text-warn  border-line-soft',
+  red:    'bg-danger-soft    text-danger    border-danger-line',
   blue:   'bg-canvas   text-muted   border-line',
   orange: 'bg-orange-100 text-orange-700 border-orange-200',
 }
@@ -50,7 +50,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="inline-flex items-center justify-center rounded-full text-faint hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+        className="inline-flex items-center justify-center rounded-full text-faint hover:text-accent-ink hover:bg-accent-soft transition-colors"
         style={{ width: size + 4, height: size + 4 }}
         title={`${metric.label} — formül & kaynak`}
         aria-label={`${metric.label} bilgisi`}
@@ -62,7 +62,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
 
       {open && (
         <div
-          className="absolute z-50 left-0 top-full mt-1 w-80 bg-white border border-line-soft rounded-lg shadow-xl p-4 text-left"
+          className="absolute z-50 left-0 top-full mt-1 w-80 bg-surface border border-line-soft rounded-lg shadow-xl p-4 text-left"
           style={{ minWidth: 320 }}
         >
           <div className="flex items-start justify-between gap-2 mb-2">
@@ -102,7 +102,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
                 <li key={i} className="flex items-start gap-2">
                   <span className="text-faint mt-0.5">•</span>
                   <div>
-                    <span className="font-mono text-emerald-700">
+                    <span className="font-mono text-accent-ink">
                       {s.table}{s.column ? `.${s.column}` : ''}
                     </span>
                     {s.label && <span className="text-faint ml-1">— {s.label}</span>}

@@ -95,7 +95,7 @@ export default function DowntimePage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Duruş Analizi</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Duruş Analizi</h1>
           <p className="text-faint mt-1">Bant bazlı duruş kayıtları</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
@@ -105,25 +105,25 @@ export default function DowntimePage() {
 
       {totalDowntime > 0 && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white border border-line-soft rounded-xl p-4">
+          <div className="bg-surface border border-line-soft rounded-xl p-4">
             <p className="text-xs text-faint">Toplam Duruş</p>
-            <p className="text-xl font-bold text-red-600">{totalDowntime} dk</p>
+            <p className="text-xl font-bold text-danger">{totalDowntime} dk</p>
           </div>
-          <div className="bg-white border border-line-soft rounded-xl p-4">
+          <div className="bg-surface border border-line-soft rounded-xl p-4">
             <p className="text-xs text-faint">Kayıt Sayısı</p>
             <p className="text-xl font-bold text-ink">{records.length}</p>
           </div>
-          <div className="bg-white border border-line-soft rounded-xl p-4">
+          <div className="bg-surface border border-line-soft rounded-xl p-4">
             <p className="text-xs text-faint">Ort. Duruş</p>
-            <p className="text-xl font-bold text-amber-600">{records.length > 0 ? Math.round(totalDowntime / records.length) : 0} dk</p>
+            <p className="text-xl font-bold text-warn">{records.length > 0 ? Math.round(totalDowntime / records.length) : 0} dk</p>
           </div>
         </div>
       )}
 
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+        <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-muted mb-1">Atölye</label>
@@ -169,7 +169,7 @@ export default function DowntimePage() {
       )}
 
       {records.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <DataTable
             columns={kolonlar}
             rows={records}

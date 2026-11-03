@@ -67,8 +67,8 @@ export default function BolumAtolyeKarneleri({ siralama, istatistik: _istatistik
               {/* Özet */}
               <p className="text-[11.5px] text-neutral-400 dark:text-neutral-500">
                 Ort. sıra {s.ortalamaSira?.toFixed(2) ?? '—'} · {' '}
-                İlk 3: <span className="text-emerald-600 dark:text-emerald-400 font-medium">{s.ilk3Sayisi}</span> · {' '}
-                Son 3: <span className="text-red-500 dark:text-red-400 font-medium">{s.son3Sayisi}</span>
+                İlk 3: <span className="text-accent-ink dark:text-emerald-400 font-medium">{s.ilk3Sayisi}</span> · {' '}
+                Son 3: <span className="text-danger dark:text-danger font-medium">{s.son3Sayisi}</span>
               </p>
 
               {/* Güçlü */}

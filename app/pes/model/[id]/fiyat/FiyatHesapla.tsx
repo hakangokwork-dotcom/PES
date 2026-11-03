@@ -28,14 +28,14 @@ export default function FiyatHesapla({ bultenId, donem, varsayilanAdet }: {
   }
 
   return (
-    <form onSubmit={hesapla} className="flex flex-wrap items-end gap-3 border rounded p-3 bg-slate-50">
+    <form onSubmit={hesapla} className="flex flex-wrap items-end gap-3 border rounded p-3 bg-canvas">
       <label className="text-sm">
-        <span className="block text-slate-600">CMT fiyat (TL/adet)</span>
+        <span className="block text-muted">CMT fiyat (TL/adet)</span>
         <input value={cmt} onChange={e => setCmt(e.target.value)} type="number" step="any"
                className="border rounded px-2 py-1 w-32 tabular-nums" />
       </label>
       <label className="text-sm">
-        <span className="block text-slate-600">Günlük adet</span>
+        <span className="block text-muted">Günlük adet</span>
         <input value={adet} onChange={e => setAdet(e.target.value)} type="number"
                className="border rounded px-2 py-1 w-32 tabular-nums" />
       </label>
@@ -44,9 +44,9 @@ export default function FiyatHesapla({ bultenId, donem, varsayilanAdet }: {
         {durum === 'hesaplaniyor' ? 'Hesaplanıyor…' : 'Hesapla'}
       </button>
       {durum !== 'hazir' && durum !== 'hesaplaniyor' && (
-        <span className="text-sm text-slate-600">{durum}</span>
+        <span className="text-sm text-muted">{durum}</span>
       )}
-      <span className="text-xs text-slate-400 basis-full">
+      <span className="text-xs text-faint basis-full">
         CMT boş bırakılırsa maliyet ve adil fiyat yine hesaplanır; marj ve kâr boş kalır.
       </span>
     </form>

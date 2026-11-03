@@ -46,22 +46,22 @@ interface WO {
 const DURUM_RENK: Record<string, string> = {
   'Taslak':       'bg-canvas text-ink',
   'Planlandi':    'bg-canvas text-muted',
-  'Bekleniyor':   'bg-amber-100 text-amber-800',
-  'Devam':        'bg-emerald-100 text-emerald-800',
+  'Bekleniyor':   'bg-warn-soft text-warn',
+  'Devam':        'bg-accent-soft text-accent-ink',
   'Duraklatildi': 'bg-orange-100 text-orange-800',
-  'Tamamlandi':   'bg-emerald-200 text-emerald-900',
-  'İptal':        'bg-red-100 text-red-700',
+  'Tamamlandi':   'bg-emerald-200 text-accent-ink',
+  'İptal':        'bg-danger-soft text-danger',
   'Sevk Edildi':  'bg-canvas text-muted',
 }
 const ONCELIK_RENK: Record<string, string> = {
-  'Kritik': 'bg-red-600 text-white',
-  'Yüksek': 'bg-amber-500 text-white',
+  'Kritik': 'bg-danger text-white',
+  'Yüksek': 'bg-warn text-white',
   'Normal': 'bg-line-soft text-ink',
   'Düşük':  'bg-canvas text-faint',
 }
 const ACILIYET_RENK: Record<string, string> = {
-  'kritik': 'border-l-4 border-red-500 bg-red-50/30',
-  'acil':   'border-l-4 border-amber-500 bg-amber-50/30',
+  'kritik': 'border-l-4 border-danger-line bg-danger-soft/30',
+  'acil':   'border-l-4 border-line bg-warn-soft/30',
   'yakin':  'border-l-4 border-line',
   'normal': '',
 }
@@ -203,7 +203,7 @@ function IsEmriPage() {
       {/* Header + Stats */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold text-ink">İş Emirleri</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">İş Emirleri</h1>
           <p className="text-sm text-faint mt-1">Sipariş geldiğinde estimate iş emri oluştur, bant ata, plan yap, gerçekleşeni gir, problemleri günlüğe yaz.</p>
         </div>
         <button onClick={() => setShowForm(!showForm)}
@@ -223,7 +223,7 @@ function IsEmriPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-line-soft rounded-xl p-3 flex items-center gap-2 flex-wrap">
+      <div className="bg-surface border border-line-soft rounded-xl p-3 flex items-center gap-2 flex-wrap">
         <input className="flex-1 min-w-[160px] px-3 py-1.5 text-sm border border-line-soft rounded-lg"
           placeholder="Ara: iş emri no, model, müşteri, stil..."
           value={filter.q} onChange={e => setFilter({ ...filter, q: e.target.value })} />
@@ -251,7 +251,7 @@ function IsEmriPage() {
 
       {/* New Order Form */}
       {showForm && (
-        <div className="bg-white border border-line-soft rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-5 space-y-4">
           <h3 className="font-semibold text-ink">Yeni İş Emri Oluştur (Estimate)</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Field label="İş Emri No *">
@@ -328,7 +328,7 @@ function IsEmriPage() {
               </button>
             </div>
             {suggestions && suggestions.length === 0 && (
-              <div className="text-xs text-amber-800 bg-amber-100 border border-amber-200 rounded p-2">
+              <div className="text-xs text-warn bg-warn-soft border border-line-soft rounded p-2">
                 ⚠ Atölye için bant bulunamadı. Önce <b>Profil</b> sayfasından bant tanımla.
               </div>
             )}
@@ -338,8 +338,8 @@ function IsEmriPage() {
                   const isSelected = form.line_id === String(s.line_id) && form.baslangic_tarihi === s.baslangic_tarihi
                   return (
                     <div key={i}
-                      className={`bg-white border rounded-lg p-3 transition cursor-pointer ${
-                        isSelected ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-line hover:border-line'
+                      className={`bg-surface border rounded-lg p-3 transition cursor-pointer ${
+                        isSelected ? 'border-accent ring-2 ring-emerald-200' : 'border-line hover:border-line'
                       }`}
                       onClick={() => applySuggestion(s)}>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -352,25 +352,25 @@ function IsEmriPage() {
                         <span className="text-faint"> · {s.gun_sayisi} gün · {s.daily_target} adet/gün</span>
                       </div>
                       {s.reasons.length > 0 && (
-                        <div className="mt-1.5 text-[11px] text-emerald-700">
+                        <div className="mt-1.5 text-[11px] text-accent-ink">
                           {s.reasons.map((r, j) => <div key={j}>✓ {r}</div>)}
                         </div>
                       )}
                       {s.warnings.length > 0 && (
-                        <div className="mt-1 text-[11px] text-amber-700">
+                        <div className="mt-1 text-[11px] text-warn">
                           {s.warnings.map((w, j) => <div key={j}>⚠ {w}</div>)}
                         </div>
                       )}
                       <div className="mt-2 flex items-center gap-2">
                         <span className="text-[11px] text-faint uppercase tracking-wider">Bant Yükü</span>
                         <div className="flex-1 h-1.5 bg-canvas rounded-full overflow-hidden">
-                          <div className={`h-full ${s.capacity_pct >= 90 ? 'bg-red-500' : s.capacity_pct >= 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                          <div className={`h-full ${s.capacity_pct >= 90 ? 'bg-danger' : s.capacity_pct >= 70 ? 'bg-warn' : 'bg-accent'}`}
                             style={{ width: `${s.capacity_pct}%` }} />
                         </div>
                         <span className="text-[11px] font-mono text-muted">%{s.capacity_pct}</span>
                       </div>
                       <div className="mt-2 text-center">
-                        <span className={`text-xs font-medium ${isSelected ? 'text-emerald-700' : 'text-muted'}`}>
+                        <span className={`text-xs font-medium ${isSelected ? 'text-accent-ink' : 'text-muted'}`}>
                           {isSelected ? '✓ Seçili' : 'Bunu seç →'}
                         </span>
                       </div>
@@ -397,13 +397,13 @@ function IsEmriPage() {
       {/* List */}
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">
+          <div className="bg-surface border border-line-soft rounded-xl p-8 text-center text-faint">
             Henüz iş emri yok veya filtreyle eşleşen yok.
           </div>
         )}
         {filtered.map(o => (
           <Link key={o.id} href={`/workshop/is-emri/${o.id}`}
-            className={`block bg-white border border-line-soft rounded-xl p-4 hover:shadow-sm transition ${ACILIYET_RENK[o.aciliyet] || ''}`}>
+            className={`block bg-surface border border-line-soft rounded-xl p-4 hover:shadow-sm transition ${ACILIYET_RENK[o.aciliyet] || ''}`}>
             <div className="flex items-start gap-4 flex-wrap">
               {/* Sol: Tanımlama */}
               <div className="flex-1 min-w-[260px]">
@@ -411,8 +411,8 @@ function IsEmriPage() {
                   <span className="font-semibold text-ink text-sm">{o.is_emri_no}</span>
                   <Badge cls={DURUM_RENK[o.durum] || 'bg-canvas text-ink'}>{o.durum}</Badge>
                   <Badge cls={ONCELIK_RENK[o.oncelik] || 'bg-canvas text-faint'}>{o.oncelik}</Badge>
-                  {o.aciliyet === 'kritik' && <Badge cls="bg-red-600 text-white">⚠ Teslim Geçti</Badge>}
-                  {o.aciliyet === 'acil'  && <Badge cls="bg-amber-500 text-white">⏰ Acil</Badge>}
+                  {o.aciliyet === 'kritik' && <Badge cls="bg-danger text-white">⚠ Teslim Geçti</Badge>}
+                  {o.aciliyet === 'acil'  && <Badge cls="bg-warn text-white">⏰ Acil</Badge>}
                   {!o.sample_onaylandi && <Badge cls="bg-orange-100 text-orange-700">Numune onayı bekliyor</Badge>}
                 </div>
                 <div className="text-sm text-body mt-1 truncate">
@@ -438,11 +438,11 @@ function IsEmriPage() {
               <div className="text-right space-y-1 min-w-[100px]">
                 <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Aşamalar</div>
                 <div className="text-sm font-mono">
-                  <span className="text-emerald-700 font-semibold">{o.tamamlanan_asama}</span>
+                  <span className="text-accent-ink font-semibold">{o.tamamlanan_asama}</span>
                   <span className="text-faint"> / {o.toplam_asama}</span>
                 </div>
                 {o.acik_problem > 0 && (
-                  <div className="text-[11px] text-red-700 font-medium">⚠ {o.acik_problem} açık problem</div>
+                  <div className="text-[11px] text-danger font-medium">⚠ {o.acik_problem} açık problem</div>
                 )}
               </div>
             </div>
@@ -472,9 +472,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Stat({ label, value, tone = 'slate' }: { label: string; value: number; tone?: string }) {
   const tones: Record<string, string> = {
     slate: 'bg-canvas text-ink',
-    emerald: 'bg-emerald-50 text-emerald-900',
-    amber: 'bg-amber-50 text-amber-900',
-    red: 'bg-red-50 text-red-900',
+    emerald: 'bg-accent-soft text-accent-ink',
+    amber: 'bg-warn-soft text-warn',
+    red: 'bg-danger-soft text-danger',
     orange: 'bg-orange-50 text-orange-900',
   }
   return (
@@ -490,7 +490,7 @@ function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
 }
 
 function ProgressBox({ label, pct, sub }: { label: string; pct: number; sub: string }) {
-  const color = pct >= 90 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : pct > 0 ? 'bg-canvas' : 'bg-line'
+  const color = pct >= 90 ? 'bg-accent' : pct >= 50 ? 'bg-warn' : pct > 0 ? 'bg-canvas' : 'bg-line'
   return (
     <div className="text-xs">
       <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-faint font-semibold">

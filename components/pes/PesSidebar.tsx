@@ -40,7 +40,7 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <aside className="w-60 min-h-screen bg-white border-r border-line-soft flex flex-col">
+    <aside className="w-60 min-h-screen bg-surface border-r border-line-soft flex flex-col">
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-line-soft">
         <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 active
-                  ? 'bg-emerald-50 text-accent font-medium'
+                  ? 'bg-accent-soft text-accent font-medium'
                   : 'text-muted hover:bg-canvas hover:text-ink'
               }`}
             >
@@ -86,12 +86,12 @@ export default function PesSidebar({ user, role }: { user: User; role: PesRole }
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium text-ink truncate">{displayName}</p>
-            <p className="text-[11px] text-emerald-600 font-medium">{ROLE_LABELS[role]}</p>
+            <p className="text-[11px] text-accent-ink font-medium">{ROLE_LABELS[role]}</p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="w-full text-left px-3 py-2 text-sm text-faint hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className="w-full text-left px-3 py-2 text-sm text-faint hover:text-danger hover:bg-danger-soft rounded-lg transition-colors"
         >
           Çıkış Yap
         </button>

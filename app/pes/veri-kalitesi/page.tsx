@@ -36,7 +36,7 @@ export default async function VeriKalitesiPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Veri Kalitesi</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Veri Kalitesi</h1>
           <p className="text-faint mt-1">
             Gider beyanlarının güven skoru. Yalnız <strong>kabul edildi</strong> durumundaki
             kayıtlar peer benchmark havuzuna girer.
@@ -51,9 +51,9 @@ export default async function VeriKalitesiPage() {
       </div>
 
       {data.scores.length === 0 ? (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-          <p className="text-sm text-amber-800 font-medium">Henüz skorlanmış beyan yok.</p>
-          <p className="text-xs text-amber-700 mt-1">
+        <div className="bg-warn-soft border border-line-soft rounded-xl p-5">
+          <p className="text-sm text-warn font-medium">Henüz skorlanmış beyan yok.</p>
+          <p className="text-xs text-warn mt-1">
             Skorlamayı başlatmak için aşağıdaki düğmeyi kullanın; mevcut tüm gider
             beyanları değerlendirilir.
           </p>

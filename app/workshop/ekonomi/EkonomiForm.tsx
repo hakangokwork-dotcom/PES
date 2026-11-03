@@ -92,12 +92,12 @@ export default function EkonomiForm({
   return (
     <form onSubmit={gonder} className="space-y-5">
       {GRUPLAR.map((g) => (
-        <fieldset key={g.baslik} className="rounded border border-slate-200 p-4">
-          <legend className="px-1 text-sm font-semibold text-slate-700">{g.baslik}</legend>
+        <fieldset key={g.baslik} className="rounded border border-line-soft p-4">
+          <legend className="px-1 text-sm font-semibold text-body">{g.baslik}</legend>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-1">
             {g.alanlar.map((a) => (
               <label key={a.ad} className="block text-sm">
-                <span className="block text-slate-700">{a.etiket}</span>
+                <span className="block text-body">{a.etiket}</span>
                 <input
                   name={a.ad}
                   type="number"
@@ -105,16 +105,16 @@ export default function EkonomiForm({
                   min="0"
                   defaultValue={ilk(a.ad)}
                   placeholder="boş = bilmiyorum"
-                  className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 tabular-nums"
+                  className="mt-1 w-full rounded border border-line px-2 py-1.5 tabular-nums"
                 />
-                {a.ipucu && <span className="block text-xs text-slate-400 mt-0.5">{a.ipucu}</span>}
+                {a.ipucu && <span className="block text-xs text-faint mt-0.5">{a.ipucu}</span>}
               </label>
             ))}
           </div>
         </fieldset>
       ))}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-faint">
         Boş bıraktığınız alan &ldquo;bilmiyorum&rdquo; olarak kaydedilir, sıfır olarak değil.
         Gerçekten sıfırsa 0 yazın.
       </p>
@@ -127,8 +127,8 @@ export default function EkonomiForm({
         >
           {bekliyor ? 'Kaydediliyor…' : 'Kaydet'}
         </button>
-        {tamam && <span className="text-sm text-emerald-700">Kaydedildi.</span>}
-        {hata && <span className="text-sm text-red-600">{hata}</span>}
+        {tamam && <span className="text-sm text-accent-ink">Kaydedildi.</span>}
+        {hata && <span className="text-sm text-danger">{hata}</span>}
       </div>
     </form>
   )

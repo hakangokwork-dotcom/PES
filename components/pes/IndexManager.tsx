@@ -68,7 +68,7 @@ export default function IndexManager({
   return (
     <div className="space-y-8">
       {/* Giriş */}
-      <section className="bg-white border border-line-soft rounded-xl p-5">
+      <section className="bg-surface border border-line-soft rounded-xl p-5">
         <h2 className="text-sm font-semibold text-ink">
           <TermTip termKey="fiyat_endeksi">Endeks</TermTip> değeri gir
         </h2>
@@ -118,7 +118,7 @@ export default function IndexManager({
             Ekle
           </button>
         </div>
-        {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+        {error && <p className="text-sm text-danger mt-2">{error}</p>}
       </section>
 
       {/* Seri değerleri */}
@@ -128,7 +128,7 @@ export default function IndexManager({
           {series.map((s) => {
             const rows = bySeries[s.code] ?? []
             return (
-              <div key={s.code} className="bg-white border border-line-soft rounded-xl p-4">
+              <div key={s.code} className="bg-surface border border-line-soft rounded-xl p-4">
                 <div className="flex items-baseline justify-between">
                   <h3 className="text-sm font-medium text-ink">{s.label}</h3>
                   <span className="text-xs text-faint">{s.unit}</span>
@@ -136,7 +136,7 @@ export default function IndexManager({
                 <p className="text-xs text-faint mt-0.5">{s.description}</p>
 
                 {rows.length === 0 ? (
-                  <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mt-2">
+                  <p className="text-xs text-warn bg-warn-soft border border-line-soft rounded-lg px-2 py-1.5 mt-2">
                     Değer girilmemiş — bu seriye bağlı gruplar reel hesaplanamaz.
                   </p>
                 ) : (
@@ -150,7 +150,7 @@ export default function IndexManager({
                         <button
                           onClick={() => remove(v.id)}
                           disabled={busy}
-                          className="text-xs text-faint hover:text-red-600 disabled:opacity-50"
+                          className="text-xs text-faint hover:text-danger disabled:opacity-50"
                         >
                           sil
                         </button>
@@ -175,7 +175,7 @@ export default function IndexManager({
           kur etkisini gerçek maliyet artışı gibi gösterirdi.{' '}
           <TermTip termKey="baz_donem">Baz dönem</TermTip> her serinin en güncel değeridir.
         </p>
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-canvas border-b border-line-soft">

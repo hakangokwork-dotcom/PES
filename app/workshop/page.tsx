@@ -2,16 +2,23 @@ import { redirect } from 'next/navigation'
 import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
+import { Suspense } from 'react'
 import { Boxes, Wallet, Gauge, BarChart3 } from 'lucide-react'
+import { PageHeader } from '@/components/ui'
+import DonemBar from '@/components/pes/DonemBar'
+import { etkinDonem, donemEtiket, type Donem } from '@/lib/pes/donem'
+import { effTone, fpqTone, TONE_TEXT, type Tone } from '@/lib/ui/tone'
 import { EffTrendChart } from '@/components/pes/DashboardCharts'
 import AtolyeSecici, { type AtolyeSatiri } from '@/components/pes/AtolyeSecici'
 
 export const dynamic = 'force-dynamic'
 
-interface Props { searchParams: Promise<{ wid?: string }> }
+interface Props { searchParams: Promise<{ wid?: string; donem?: string }> }
+
+const CUBUK: Record<Tone, string> = { good: 'bg-accent', warn: 'bg-warn', bad: 'bg-danger', neutral: 'bg-line' }
 
 export default async function WorkshopDashboard({ searchParams }: Props) {
-  const { wid: widParam } = await searchParams
+  const { wid: widParam, donem: donemParam } = await searchParams
   const wid = await aktifAtolyeId(widParam)
 
   const data = await withServerTenant(async (sql, _tenantId, userId) => {
@@ -32,12 +39,16 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
     const [w] = await sql`SELECT * FROM workshop WHERE id = ${workshopId}`
     if (!w) return { mode: 'notfound' as const }
 
-    const [lastPeriod] = await sql`
-      SELECT year, month FROM monthly_production WHERE workshop_id = ${workshopId}
-      ORDER BY year DESC, month DESC LIMIT 1
-    `
-    const pYear = lastPeriod?.year ?? 2026
-    const pMonth = lastPeriod?.month ?? 1
+    /* Dönem bu atölyenin kendi verisinden; seçim URL'de (?donem=2026-03).
+       Eskiden her zaman son dönem gösteriliyordu ve veri yoksa sabit
+       Ocak 2026'ya düşüyordu. */
+    const donemler = await sql`
+      SELECT DISTINCT year::int AS yil, month::int AS ay
+        FROM monthly_production WHERE workshop_id = ${workshopId}
+       ORDER BY yil DESC, ay DESC` as unknown as Donem[]
+    const secili = etkinDonem(donemParam, donemler)
+    const pYear = secili.yil
+    const pMonth = secili.ay
 
     const [prodKpi] = await sql`
       SELECT COALESCE(SUM(target_qty), 0)::int as target, COALESCE(SUM(actual_qty), 0)::int as actual,
@@ -99,7 +110,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
       FROM monthly_production WHERE workshop_id = ${workshopId}
       GROUP BY year, month ORDER BY year, month`
 
-    return { mode: 'detail' as const, w, workshopId, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend }
+    return { mode: 'detail' as const, w, workshopId, donemler, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend }
   })
 
   if (!data) redirect('/login')
@@ -113,9 +124,9 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
     )
   }
 
-  if (data.mode === 'notfound') return <p>Atölye bulunamadı</p>
+  if (data.mode === 'notfound') return <p className="text-faint">Atölye bulunamadı</p>
 
-  const { w, workshopId, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend } = data
+  const { w, workshopId, donemler, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend } = data
 
   const totalExpense = Number(expKpi?.total ?? 0)
   const targetRevenue = Number(expKpi?.target_revenue ?? 0)
@@ -128,41 +139,63 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
   const totalCapMin = sewingStaff * workDays * netHours * 60
   const downtimePct = totalCapMin > 0 ? (Number(downtimeKpi?.total_min ?? 0) / totalCapMin * 100).toFixed(1) : '0'
 
+  /* En yeni veri 2 aydan eskiyse uyar: demo/eski veri "güncel" sanılmasın. */
+  const bugun = new Date()
+  const eskiVeri = donemler.length === 0 ||
+    (bugun.getFullYear() * 12 + bugun.getMonth() + 1) - (donemler[0].yil * 12 + donemler[0].ay) >= 2
+
+  const hedefVar = Number(prodKpi?.target ?? 0) > 0
   const efficiency = Number(prodKpi?.eff ?? 0)
   const fpq = qualKpi?.fpq ? Number(qualKpi.fpq) : null
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-ink">{w.name}</h1>
-          <p className="text-faint">{w.code} - {w.city} - Tip {w.type} - {sewingStaff} dikim - {pMonth}/{pYear}</p>
+      <PageHeader
+        title={String(w.name)}
+        context={`${w.code} · ${w.city ?? '—'} · Tip ${w.type} · ${sewingStaff} dikim · ${donemEtiket({ yil: pYear, ay: pMonth })}`}
+      />
+
+      {donemler.length > 0 && (
+        <div className="overflow-hidden rounded-lg border border-line-soft">
+          {/* useSearchParams istemci tarafında; Suspense sınırı zorunlu. */}
+          <Suspense fallback={<div className="h-[37px] bg-surface" />}>
+            <DonemBar mevcut={donemler} />
+          </Suspense>
         </div>
-      </div>
+      )}
+
+      {eskiVeri && (
+        <p className="rounded-lg border border-line-soft bg-warn-soft px-4 py-2.5 text-[13px] text-body">
+          {donemler.length === 0
+            ? 'Bu atölyeden henüz aylık üretim verisi girilmedi; göstergeler boş.'
+            : `Son üretim verisi ${donemEtiket(donemler[0])} dönemine ait. Güncel dönem girilmedikçe bu ekran eski durumu gösterir.`}
+          {' '}<Link href="/workshop/production" className="font-medium text-accent-ink underline underline-offset-2">Üretim girişine git</Link>
+        </p>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <p className="text-xs text-faint">Verimlilik</p>
-          <p className={`text-3xl font-bold ${efficiency >= 90 ? 'text-green-600' : efficiency >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
-            %{efficiency}
+          <p className={`text-3xl font-bold ${hedefVar ? TONE_TEXT[effTone(efficiency)] : 'text-faint'}`}>
+            {hedefVar ? `%${efficiency}` : '—'}
           </p>
           <p className="text-xs text-faint mt-1">H: {Number(prodKpi?.target ?? 0).toLocaleString('tr-TR')} G: {Number(prodKpi?.actual ?? 0).toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <p className="text-xs text-faint">TL/dk Maliyet</p>
           <p className="text-3xl font-bold text-ink">{costPerMin} <span className="text-sm text-faint">TL</span></p>
-          {marginPct && <p className={`text-xs mt-1 ${Number(marginPct) >= 0 ? 'text-green-600' : 'text-red-600'}`}>Marj: %{marginPct}</p>}
+          {marginPct && <p className={`text-xs mt-1 ${Number(marginPct) >= 0 ? 'text-accent-ink' : 'text-danger'}`}>Marj: %{marginPct}</p>}
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <p className="text-xs text-faint">Kalite (FPQ)</p>
-          <p className={`text-3xl font-bold ${fpq !== null ? (fpq >= 95 ? 'text-green-600' : fpq >= 90 ? 'text-amber-600' : 'text-red-600') : 'text-faint'}`}>
+          <p className={`text-3xl font-bold ${fpq !== null ? TONE_TEXT[fpqTone(fpq)] : 'text-faint'}`}>
             {fpq !== null ? `%${fpq}` : '---'}
           </p>
-          {Number(qualKpi?.rejected ?? 0) > 0 && <p className="text-xs text-red-400 mt-1">Red: {Number(qualKpi?.rejected)} Tamir: {Number(qualKpi?.rework)}</p>}
+          {Number(qualKpi?.rejected ?? 0) > 0 && <p className="text-xs text-danger mt-1">Red: {Number(qualKpi?.rejected)} Tamir: {Number(qualKpi?.rework)}</p>}
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-5">
+        <div className="bg-surface border border-line-soft rounded-xl p-5">
           <p className="text-xs text-faint">Duruş</p>
-          <p className="text-3xl font-bold text-red-600">{downtimeKpi?.total_min ?? 0} <span className="text-sm text-faint">dk</span></p>
+          <p className="text-3xl font-bold text-ink">{downtimeKpi?.total_min ?? 0} <span className="text-sm text-faint">dk</span></p>
           <p className="text-xs text-faint mt-1">Kapasite etkisi: %{downtimePct}</p>
         </div>
       </div>
@@ -171,7 +204,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Model Değişim</p>
           <p className="text-lg font-bold text-ink">{changeKpi?.total_min ?? 0} dk</p>
-          <p className="text-xs text-faint">{changeKpi?.count ?? 0} degisim</p>
+          <p className="text-xs text-faint">{changeKpi?.count ?? 0} değişim</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">İşgücü devri</p>
@@ -181,11 +214,11 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Toplam Gider</p>
           <p className="text-lg font-bold text-ink">{totalExpense > 0 ? (totalExpense / 1000000).toFixed(2) + 'M' : '---'} TL</p>
-          <p className="text-xs text-faint">Gunluk: {workDays > 0 ? Math.round(totalExpense / workDays).toLocaleString('tr-TR') : '---'} TL</p>
+          <p className="text-xs text-faint">Günlük: {workDays > 0 ? Math.round(totalExpense / workDays).toLocaleString('tr-TR') : '---'} TL</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Isınma Personel</p>
-          <p className="text-lg font-bold text-amber-600">{wfKpi?.in_warmup ?? 0} kisi</p>
+          <p className="text-lg font-bold text-ink">{wfKpi?.in_warmup ?? 0} kişi</p>
           <p className="text-xs text-faint">Toplam: {wfKpi?.total_staff ?? Number(w.total_staff)}</p>
         </div>
       </div>
@@ -198,40 +231,41 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           { href: `/workshop/analysis`, Icon: BarChart3, label: 'Analiz' },
         ].map(a => (
           <Link key={a.href} href={a.href}
-            className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 hover:shadow-md hover:border-emerald-300 transition-all flex items-center gap-2.5">
+            className="bg-accent-soft border border-line-soft rounded-xl p-3 hover:border-accent transition-colors flex items-center gap-2.5">
             <a.Icon className="w-5 h-5 text-accent" strokeWidth={1.9} />
-            <span className="text-sm font-medium text-emerald-900">{a.label}</span>
+            <span className="text-sm font-medium text-accent-ink">{a.label}</span>
           </Link>
         ))}
       </div>
 
       {effTrend.length > 1 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-2">Verimlilik Trendi</h2>
           <EffTrendChart data={effTrend as unknown as { year: number; month: number; eff: number }[]} />
         </div>
       )}
 
       {bandPerf.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">Bant Performansları</h2>
           <div className="space-y-3">
             {bandPerf.map((b) => {
               const bEff = Number(b.eff)
-              const barColor = bEff >= 90 ? 'bg-green-500' : bEff >= 70 ? 'bg-amber-500' : 'bg-red-500'
+              const bOlcu = Number(b.target) > 0
+              const barColor = bOlcu ? CUBUK[effTone(bEff)] : CUBUK.neutral
               return (
                 <div key={String(b.code)}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium text-body">{String(b.code)} - {String(b.name)}</span>
-                    <span className={`text-sm font-bold ${bEff >= 90 ? 'text-green-600' : bEff >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
-                      %{bEff}
+                    <span className={`text-sm font-bold ${bOlcu ? TONE_TEXT[effTone(bEff)] : 'text-faint'}`}>
+                      {bOlcu ? `%${bEff}` : '—'}
                     </span>
                   </div>
                   <div className="w-full bg-canvas rounded-full h-2.5">
                     <div className={`h-2.5 rounded-full ${barColor}`} style={{ width: `${Math.min(bEff, 100)}%` }}></div>
                   </div>
                   <p className="text-xs text-faint mt-0.5">
-                    H: {Number(b.target).toLocaleString('tr-TR')} G: {Number(b.actual).toLocaleString('tr-TR')} Gunluk: {Number(b.daily_target).toLocaleString('tr-TR')}/gun
+                    H: {Number(b.target).toLocaleString('tr-TR')} G: {Number(b.actual).toLocaleString('tr-TR')} Günlük: {Number(b.daily_target).toLocaleString('tr-TR')}/gün
                   </p>
                 </div>
               )

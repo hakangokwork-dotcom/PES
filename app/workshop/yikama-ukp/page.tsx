@@ -48,16 +48,16 @@ function YikamaUkpPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-ink">Yıkama & UKP Takibi</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-ink">Yıkama & UKP Takibi</h1>
 
       <div className="flex gap-1 bg-canvas p-1 rounded-lg w-fit">
-        <button onClick={() => setTab('yikama')} className={`px-4 py-2 rounded-md text-sm font-medium ${tab === 'yikama' ? 'bg-white text-ink shadow-sm' : 'text-faint'}`}>Yıkama</button>
-        <button onClick={() => setTab('ukp')} className={`px-4 py-2 rounded-md text-sm font-medium ${tab === 'ukp' ? 'bg-white text-ink shadow-sm' : 'text-faint'}`}>UKP</button>
+        <button onClick={() => setTab('yikama')} className={`px-4 py-2 rounded-md text-sm font-medium ${tab === 'yikama' ? 'bg-surface text-ink shadow-sm' : 'text-faint'}`}>Yıkama</button>
+        <button onClick={() => setTab('ukp')} className={`px-4 py-2 rounded-md text-sm font-medium ${tab === 'ukp' ? 'bg-surface text-ink shadow-sm' : 'text-faint'}`}>UKP</button>
       </div>
 
       {tab === 'yikama' && (
         <div className="space-y-4">
-          <div className="bg-white border border-line-soft rounded-xl p-6">
+          <div className="bg-surface border border-line-soft rounded-xl p-6">
             <h2 className="font-semibold text-ink mb-3">Yıkama Kaydı Ekle</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div><label className="block text-xs text-muted mb-1">Tarih</label><input type="date" className={ic} value={yForm.tarih} onChange={e => setYForm(p => ({...p, tarih: e.target.value}))} /></div>
@@ -69,11 +69,11 @@ function YikamaUkpPage() {
               <div><label className="block text-xs text-muted mb-1">Enerji (kWh)</label><input type="number" inputMode="numeric" className={ic} value={yForm.enerji_kwh} onChange={e => setYForm(p => ({...p, enerji_kwh: e.target.value}))} /></div>
               <div><label className="block text-xs text-muted mb-1">Su (litre)</label><input type="number" inputMode="numeric" className={ic} value={yForm.su_litre} onChange={e => setYForm(p => ({...p, su_litre: e.target.value}))} /></div>
             </div>
-            <button onClick={saveYikama} disabled={saving} className="mt-3 px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
+            <button onClick={saveYikama} disabled={saving} className="mt-3 px-6 py-2 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
           </div>
 
           {yikamaRecords.length > 0 && (
-            <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+            <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead><tr className="text-xs text-faint border-b bg-canvas">
                   <th className="text-left px-3 py-2">Tarih</th><th className="text-right px-2 py-2">Giren</th><th className="text-right px-2 py-2">Çıkan</th><th className="text-right px-2 py-2">Hata</th><th className="text-right px-2 py-2">Verim%</th><th className="text-right px-2 py-2">Çevrim</th>
@@ -85,7 +85,7 @@ function YikamaUkpPage() {
                       <td className="px-3 py-2">{String(r.tarih ?? '').split('T')[0]}</td>
                       <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.giren_adet))}</td>
                       <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.cikan_adet))}</td>
-                      <td className="text-right px-2 py-2 font-mono text-red-600">{Number(r.hatali_adet)}</td>
+                      <td className="text-right px-2 py-2 font-mono text-danger">{Number(r.hatali_adet)}</td>
                       <td className="text-right px-2 py-2 font-mono">{verim}%</td>
                       <td className="text-right px-2 py-2 font-mono">{Number(r.cevrim_sayisi)}</td>
                     </tr>
@@ -99,7 +99,7 @@ function YikamaUkpPage() {
 
       {tab === 'ukp' && (
         <div className="space-y-4">
-          <div className="bg-white border border-line-soft rounded-xl p-6">
+          <div className="bg-surface border border-line-soft rounded-xl p-6">
             <h2 className="font-semibold text-ink mb-3">UKP Kaydı Ekle</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div><label className="block text-xs text-muted mb-1">Tarih</label><input type="date" className={ic} value={uForm.tarih} onChange={e => setUForm(p => ({...p, tarih: e.target.value}))} /></div>
@@ -115,14 +115,14 @@ function YikamaUkpPage() {
               <div className="mt-3 bg-canvas rounded-lg p-3 grid grid-cols-1 gap-3 md:grid-cols-3 text-sm">
                 <div><span className="text-xs text-muted">Kişi Başı Günlük</span><p className="font-bold">{Math.round(uForm.paket_adet / uForm.personel_sayisi)} adet</p></div>
                 <div><span className="text-xs text-muted">Adet Başı Süre</span><p className="font-bold">{(uForm.calisma_dk / uForm.paket_adet).toFixed(1)} dk</p></div>
-                <div><span className="text-xs text-muted">Hata Oranı</span><p className={`font-bold ${uForm.hatali_adet / uForm.kontrol_adet > 0.03 ? 'text-red-600' : 'text-green-600'}`}>{uForm.kontrol_adet > 0 ? (uForm.hatali_adet / uForm.kontrol_adet * 100).toFixed(1) : '0'}%</p></div>
+                <div><span className="text-xs text-muted">Hata Oranı</span><p className={`font-bold ${uForm.hatali_adet / uForm.kontrol_adet > 0.03 ? 'text-danger' : 'text-accent-ink'}`}>{uForm.kontrol_adet > 0 ? (uForm.hatali_adet / uForm.kontrol_adet * 100).toFixed(1) : '0'}%</p></div>
               </div>
             )}
-            <button onClick={saveUkp} disabled={saving} className="mt-3 px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
+            <button onClick={saveUkp} disabled={saving} className="mt-3 px-6 py-2 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
           </div>
 
           {ukpRecords.length > 0 && (
-            <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+            <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead><tr className="text-xs text-faint border-b bg-canvas">
                   <th className="text-left px-3 py-2">Tarih</th><th className="text-right px-2 py-2">Ütü</th><th className="text-right px-2 py-2">Kontrol</th><th className="text-right px-2 py-2">Paket</th><th className="text-right px-2 py-2">Hata</th><th className="text-right px-2 py-2">Personel</th>
@@ -133,7 +133,7 @@ function YikamaUkpPage() {
                     <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.utu_adet))}</td>
                     <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.kontrol_adet))}</td>
                     <td className="text-right px-2 py-2 font-mono">{fmt(Number(r.paket_adet))}</td>
-                    <td className="text-right px-2 py-2 font-mono text-red-600">{Number(r.hatali_adet)}</td>
+                    <td className="text-right px-2 py-2 font-mono text-danger">{Number(r.hatali_adet)}</td>
                     <td className="text-right px-2 py-2 font-mono">{Number(r.personel_sayisi)}</td>
                   </tr>
                 ))}</tbody>

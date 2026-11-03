@@ -49,11 +49,11 @@ function WorkshopQualityPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Kalite Girişi</h1>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">{workshopName} — Kalite Girişi</h1>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl p-4 flex gap-4 items-end flex-wrap">
+      <div className="bg-surface border border-line-soft rounded-xl p-4 flex gap-4 items-end flex-wrap">
         <div><label className="block text-xs font-medium text-muted mb-1">Yıl</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}><option value={2025}>2025</option><option value={2026}>2026</option></select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Ay</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}</select></div>
         <div><label className="block text-xs font-medium text-muted mb-1">Bant</label>
@@ -67,7 +67,7 @@ function WorkshopQualityPage() {
         </div>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div><label className="block text-xs font-medium text-muted mb-1">Kontrol Edilen</label><input type="number" inputMode="numeric" className={ic} value={form.inspected_qty} onChange={e => setForm(p => ({...p, inspected_qty: parseInt(e.target.value)||0}))} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">İlk Geçiş (FPQ)</label><input type="number" inputMode="numeric" className={ic} value={form.first_pass_qty} onChange={e => setForm(p => ({...p, first_pass_qty: parseInt(e.target.value)||0}))} /></div>
@@ -82,13 +82,13 @@ function WorkshopQualityPage() {
         </div>
 
         <div className="mt-4 pt-4 border-t border-line-soft grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="bg-emerald-50 rounded-lg p-3 text-center">
-            <p className="text-xs text-emerald-600">FPQ</p>
-            <p className={`text-2xl font-bold ${Number(fpq) >= 95 ? 'text-green-600' : Number(fpq) >= 90 ? 'text-amber-600' : 'text-red-600'}`}>%{fpq}</p>
+          <div className="bg-accent-soft rounded-lg p-3 text-center">
+            <p className="text-xs text-accent-ink">FPQ</p>
+            <p className={`text-2xl font-bold ${Number(fpq) >= 95 ? 'text-accent-ink' : Number(fpq) >= 90 ? 'text-warn' : 'text-danger'}`}>%{fpq}</p>
           </div>
-          <div className="bg-red-50 rounded-lg p-3 text-center">
-            <p className="text-xs text-red-600">Red Oranı</p>
-            <p className="text-2xl font-bold text-red-700">%{redRate}</p>
+          <div className="bg-danger-soft rounded-lg p-3 text-center">
+            <p className="text-xs text-danger">Red Oranı</p>
+            <p className="text-2xl font-bold text-danger">%{redRate}</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
             <p className="text-xs text-faint">Hedef FPQ</p>
@@ -97,7 +97,7 @@ function WorkshopQualityPage() {
         </div>
       </div>
 
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
       <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">
         {loading ? 'Kaydediliyor...' : 'Kaydet'}
       </button>

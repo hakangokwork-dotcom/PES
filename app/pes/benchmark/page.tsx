@@ -67,8 +67,8 @@ export default async function BenchmarkPage({
   if (data.tableMissing) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-ink">Benchmark Yönetimi</h1>
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Benchmark Yönetimi</h1>
+        <div className="bg-warn-soft border border-line rounded-xl p-4 text-sm text-warn">
           Benchmark tablosu henuz olusturulmamis. Supabase SQL Editor&apos;da <strong>010_benchmark.sql</strong> dosyasini calistirin.
         </div>
       </div>
@@ -113,24 +113,24 @@ export default async function BenchmarkPage({
     const warn = Number(bm.warning_value ?? target)
 
     if (dir === 'higher_better') {
-      if (value >= target) return 'bg-green-100 text-green-800'
-      if (value >= warn) return 'bg-amber-100 text-amber-800'
-      return 'bg-red-100 text-red-800'
+      if (value >= target) return 'bg-accent-soft text-accent-ink'
+      if (value >= warn) return 'bg-warn-soft text-warn'
+      return 'bg-danger-soft text-danger'
     } else {
-      if (value <= target) return 'bg-green-100 text-green-800'
-      if (value <= warn) return 'bg-amber-100 text-amber-800'
-      return 'bg-red-100 text-red-800'
+      if (value <= target) return 'bg-accent-soft text-accent-ink'
+      if (value <= warn) return 'bg-warn-soft text-warn'
+      return 'bg-danger-soft text-danger'
     }
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Benchmark Yönetimi</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Benchmark Yönetimi</h1>
         <p className="text-sm text-faint mt-1">Merkezi hedefler ve atolye karsilastirmasi - {pMonth}/{pYear}</p>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft">
           <h2 className="text-sm font-semibold text-body">Hedef Değerleri</h2>
         </div>
@@ -138,9 +138,9 @@ export default async function BenchmarkPage({
           <thead>
             <tr className="text-xs text-faint border-b border-line-soft">
               <th className="text-left px-4 py-2">Metrik</th>
-              <th className="text-center px-2 py-2 bg-green-50">Hedef</th>
-              <th className="text-center px-2 py-2 bg-amber-50">Uyarı</th>
-              <th className="text-center px-2 py-2 bg-red-50">Kritik</th>
+              <th className="text-center px-2 py-2 bg-accent-soft">Hedef</th>
+              <th className="text-center px-2 py-2 bg-warn-soft">Uyarı</th>
+              <th className="text-center px-2 py-2 bg-danger-soft">Kritik</th>
               <th className="text-center px-2 py-2">Birim</th>
               <th className="text-center px-2 py-2">Yön</th>
             </tr>
@@ -156,9 +156,9 @@ export default async function BenchmarkPage({
                     {ontologyKey && <MetricInfo metricKey={ontologyKey} />}
                   </span>
                 </td>
-                <td className="text-center px-2 py-2 font-mono font-bold text-green-700 bg-green-50">{String(bm.target_value)}</td>
-                <td className="text-center px-2 py-2 font-mono text-amber-700 bg-amber-50">{bm.warning_value != null ? String(bm.warning_value) : '---'}</td>
-                <td className="text-center px-2 py-2 font-mono text-red-700 bg-red-50">{bm.critical_value != null ? String(bm.critical_value) : '---'}</td>
+                <td className="text-center px-2 py-2 font-mono font-bold text-accent-ink bg-accent-soft">{String(bm.target_value)}</td>
+                <td className="text-center px-2 py-2 font-mono text-warn bg-warn-soft">{bm.warning_value != null ? String(bm.warning_value) : '---'}</td>
+                <td className="text-center px-2 py-2 font-mono text-danger bg-danger-soft">{bm.critical_value != null ? String(bm.critical_value) : '---'}</td>
                 <td className="text-center px-2 py-2 text-faint">{bm.unit as string}</td>
                 <td className="text-center px-2 py-2 text-xs text-faint">{(bm.direction as string) === 'higher_better' ? '↑ yuksek' : '↓ dusuk'}</td>
               </tr>
@@ -168,15 +168,15 @@ export default async function BenchmarkPage({
         </table>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft">
-          <h2 className="text-sm font-semibold text-body">Atölye Benchmark Karşılaştırması</h2>
+          <h2 className="text-sm font-semibold text-body">Atölye Benchmark Karşılaştırması</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-faint border-b border-line-soft">
-                <th className="text-left px-3 py-2 sticky left-0 bg-white">Atölye</th>
+                <th className="text-left px-3 py-2 sticky left-0 bg-surface">Atölye</th>
                 {benchmarks.map(bm => {
                   const ontologyKey = METRIC_KEY_MAP[bm.metric_key as string]
                   return (
@@ -194,7 +194,7 @@ export default async function BenchmarkPage({
             <tbody>
               {wsMetrics.map(ws => (
                 <tr key={ws.id as number} className="border-b border-line-soft">
-                  <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-white">{ws.code}</td>
+                  <td className="px-3 py-2 font-medium text-ink sticky left-0 bg-surface">{ws.code}</td>
                   {benchmarks.map(bm => {
                     const key = bm.metric_key as string
                     const val = (ws as Record<string, unknown>)[key] as number ?? 0
@@ -215,17 +215,17 @@ export default async function BenchmarkPage({
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-xs">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-          <div className="w-3 h-3 bg-green-500 rounded-full mx-auto mb-1"></div>
-          <p className="text-green-800 font-medium">Hedefte</p>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+        <div className="bg-accent-soft border border-line-soft rounded-lg p-3 text-center">
           <div className="w-3 h-3 bg-accent rounded-full mx-auto mb-1"></div>
-          <p className="text-amber-800 font-medium">Uyarı</p>
+          <p className="text-accent-ink font-medium">Hedefte</p>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-          <div className="w-3 h-3 bg-red-500 rounded-full mx-auto mb-1"></div>
-          <p className="text-red-800 font-medium">Kritik</p>
+        <div className="bg-warn-soft border border-line-soft rounded-lg p-3 text-center">
+          <div className="w-3 h-3 bg-accent rounded-full mx-auto mb-1"></div>
+          <p className="text-warn font-medium">Uyarı</p>
+        </div>
+        <div className="bg-danger-soft border border-danger-line rounded-lg p-3 text-center">
+          <div className="w-3 h-3 bg-danger rounded-full mx-auto mb-1"></div>
+          <p className="text-danger font-medium">Kritik</p>
         </div>
       </div>
     </div>

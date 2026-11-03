@@ -5,9 +5,9 @@ import Link from 'next/link'
 import type { AtolyeProfilSatiri, DenetimDurum } from '@/lib/pes/atolye-profil'
 
 const DURUM_STIL: Record<DenetimDurum, string> = {
-  SURESI_DOLMUS: 'bg-red-100 text-red-700',
-  YAKLASIYOR: 'bg-amber-100 text-amber-700',
-  GECERLI: 'bg-green-100 text-green-700',
+  SURESI_DOLMUS: 'bg-danger-soft text-danger',
+  YAKLASIYOR: 'bg-warn-soft text-warn',
+  GECERLI: 'bg-accent-soft text-accent-ink',
   YOK: 'bg-canvas text-faint',
 }
 const DURUM_KISA: Record<DenetimDurum, string> = {
@@ -90,10 +90,10 @@ export default function AtolyeProfilTablo({
   }, [satirlar, tip])
 
   const kutular: { anahtar: DenetimDurum; etiket: string; renk: string }[] = [
-    { anahtar: 'SURESI_DOLMUS', etiket: 'Süresi dolmuş', renk: 'text-red-600' },
-    { anahtar: 'YAKLASIYOR', etiket: 'Yaklaşıyor (90 gün)', renk: 'text-amber-600' },
+    { anahtar: 'SURESI_DOLMUS', etiket: 'Süresi dolmuş', renk: 'text-danger' },
+    { anahtar: 'YAKLASIYOR', etiket: 'Yaklaşıyor (90 gün)', renk: 'text-warn' },
     { anahtar: 'YOK', etiket: 'Denetim kaydı yok', renk: 'text-faint' },
-    { anahtar: 'GECERLI', etiket: 'Geçerli', renk: 'text-green-600' },
+    { anahtar: 'GECERLI', etiket: 'Geçerli', renk: 'text-accent-ink' },
   ]
 
   const disaAktarUrl = `/api/pes/atolye-profil?format=xlsx${arsivDahil ? '&arsiv=1' : ''}`
@@ -106,7 +106,7 @@ export default function AtolyeProfilTablo({
           <button
             key={k.anahtar}
             onClick={() => setDurumFiltre(durumFiltre === k.anahtar ? 'hepsi' : k.anahtar)}
-            className={`text-left bg-white border rounded-xl p-4 transition-colors ${
+            className={`text-left bg-surface border rounded-xl p-4 transition-colors ${
               durumFiltre === k.anahtar ? 'border-accent ring-1 ring-accent' : 'border-line-soft hover:bg-canvas'
             }`}
           >
@@ -127,7 +127,7 @@ export default function AtolyeProfilTablo({
         <select
           value={tip}
           onChange={(e) => setTip(e.target.value as DenetimTipi)}
-          className="px-3 py-2 border border-line rounded-lg text-sm bg-white"
+          className="px-3 py-2 border border-line rounded-lg text-sm bg-surface"
         >
           <option value="hepsi">Her iki denetim</option>
           <option value="wkys">Yalnız WKYS</option>
@@ -136,7 +136,7 @@ export default function AtolyeProfilTablo({
         <select
           value={tedarik}
           onChange={(e) => setTedarik(e.target.value)}
-          className="px-3 py-2 border border-line rounded-lg text-sm bg-white max-w-[220px]"
+          className="px-3 py-2 border border-line rounded-lg text-sm bg-surface max-w-[220px]"
         >
           <option value="hepsi">Tüm tedarik müdürlükleri</option>
           {tedarikSecenekleri.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -154,7 +154,7 @@ export default function AtolyeProfilTablo({
         {durumFiltre !== 'hepsi' && ' · filtre açık'}
       </p>
 
-      <div className="bg-white border border-line-soft rounded-xl overflow-x-auto">
+      <div className="bg-surface border border-line-soft rounded-xl overflow-x-auto">
         <table className="w-full text-sm min-w-[1100px]">
           <thead>
             <tr className="bg-canvas border-b border-line-soft">
@@ -213,9 +213,9 @@ export default function AtolyeProfilTablo({
                 <td className="px-4 py-3 text-center">
                   {s.risk_seviyesi ? (
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      s.risk_seviyesi === 'YÜKSEK' ? 'bg-red-100 text-red-700'
-                      : s.risk_seviyesi === 'ORTA' ? 'bg-amber-100 text-amber-700'
-                      : 'bg-green-100 text-green-700'
+                      s.risk_seviyesi === 'YÜKSEK' ? 'bg-danger-soft text-danger'
+                      : s.risk_seviyesi === 'ORTA' ? 'bg-warn-soft text-warn'
+                      : 'bg-accent-soft text-accent-ink'
                     }`}>{s.risk_seviyesi}</span>
                   ) : <span className="text-faint">—</span>}
                 </td>

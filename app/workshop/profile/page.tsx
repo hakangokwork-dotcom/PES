@@ -17,9 +17,9 @@ interface Line {
 }
 
 const LINE_TYPES = [
-  { value: 'Dikim', label: 'Dikim', color: 'bg-emerald-100 text-emerald-700' },
+  { value: 'Dikim', label: 'Dikim', color: 'bg-accent-soft text-accent-ink' },
   { value: 'Kesim', label: 'Kesim', color: 'bg-canvas text-muted' },
-  { value: 'UKP', label: 'UKP', color: 'bg-amber-100 text-amber-700' },
+  { value: 'UKP', label: 'UKP', color: 'bg-warn-soft text-warn' },
   { value: 'Yikama', label: 'Yıkama', color: 'bg-canvas text-muted' },
 ]
 
@@ -207,7 +207,7 @@ function WorkshopProfilePage() {
   if (!w) return <p>Yükleniyor...</p>
 
   const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const eic = 'px-2 py-1 border border-emerald-300 rounded text-sm bg-emerald-50 focus:outline-none focus:border-accent'
+  const eic = 'px-2 py-1 border border-line rounded text-sm bg-accent-soft focus:outline-none focus:border-accent'
 
   // Hesaplanan değerler
   const productive = staffFromLines.dikimOp + staffFromLines.kesimOp + staffFromLines.ukpOp + staffFromLines.yikamaOp
@@ -219,16 +219,16 @@ function WorkshopProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">Atölye Profili</h1>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">Atölye Profili</h1>
         <p className="text-faint">{w.code} — Tüm atölye bilgilerini buradan yönetin</p>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {/* 1. Temel Bilgiler */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">1. Temel Bilgiler</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div><label className="block text-xs font-medium text-muted mb-1">Atölye Kodu</label><input className={`${ic} bg-canvas`} value={w.code} disabled /></div>
@@ -253,7 +253,7 @@ function WorkshopProfilePage() {
       </div>
 
       {/* 2. Bant Yapısı — ÖNCELİKLİ */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-ink">2. Bant Profili ({lines.length})</h2>
@@ -266,7 +266,7 @@ function WorkshopProfilePage() {
 
         {/* Bant ekleme formu */}
         {showLineForm && (
-          <form onSubmit={addLine} className="border border-emerald-200 bg-emerald-50 rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+          <form onSubmit={addLine} className="border border-line-soft bg-accent-soft rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
             <div><label className="block text-xs font-medium text-muted mb-1">Kod</label><input className={ic} value={lineForm.code} onChange={e => setLineForm(p => ({...p, code: e.target.value}))} required /></div>
             <div><label className="block text-xs font-medium text-muted mb-1">Ad</label><input className={ic} value={lineForm.name} onChange={e => setLineForm(p => ({...p, name: e.target.value}))} required /></div>
             <div><label className="block text-xs font-medium text-muted mb-1">Bant Tipi</label>
@@ -320,8 +320,8 @@ function WorkshopProfilePage() {
                     <td className="py-2 text-right text-muted">{l.max_cycle_sec ?? '—'}</td>
                     <td className="py-2 text-center space-x-2">
                       <button onClick={() => { setEditLineId(l.id); setEditLine({ name: l.name, line_type: effectiveType(l.line_type), operator_count: l.operator_count, daily_target: l.daily_target, max_cycle_sec: l.max_cycle_sec ?? '' }) }} className="text-xs text-accent hover:underline">Düzenle</button>
-                      <button onClick={() => openCapabilities(l.id)} className={`text-xs ${capLineId === l.id ? 'text-emerald-700 font-medium' : 'text-emerald-600'} hover:underline`}>Yetenekler</button>
-                      <button onClick={() => deleteLine(l.id, l.code)} className="text-xs text-red-500 hover:underline">Sil</button>
+                      <button onClick={() => openCapabilities(l.id)} className={`text-xs ${capLineId === l.id ? 'text-accent-ink font-medium' : 'text-accent-ink'} hover:underline`}>Yetenekler</button>
+                      <button onClick={() => deleteLine(l.id, l.code)} className="text-xs text-danger hover:underline">Sil</button>
                     </td>
                   </>)}
                 </tr>
@@ -330,10 +330,10 @@ function WorkshopProfilePage() {
                 )}
                 {capLineId === l.id && (
                   <tr><td colSpan={7} className="p-0">
-                    <div className="bg-emerald-50 border-t border-b border-emerald-200 p-4 space-y-3">
+                    <div className="bg-accent-soft border-t border-b border-line-soft p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-emerald-800">{l.code} — Yetenek Profili</span>
-                        <span className="text-[11px] text-emerald-600">{capSelected.size} yetenek secili</span>
+                        <span className="text-sm font-semibold text-accent-ink">{l.code} — Yetenek Profili</span>
+                        <span className="text-[11px] text-accent-ink">{capSelected.size} yetenek secili</span>
                       </div>
                       {capDimensions.filter(dim => {
                         if (!dim.applies_to) return true
@@ -348,7 +348,7 @@ function WorkshopProfilePage() {
                               const isOn = capSelected.has(key)
                               return (
                                 <button key={v.code} onClick={() => toggleCap(dim.code, v.code)}
-                                  className={`px-2 py-0.5 rounded text-[11px] font-medium ${isOn ? 'bg-emerald-500 text-white' : 'bg-white border border-line text-muted hover:bg-line-soft'}`}>
+                                  className={`px-2 py-0.5 rounded text-[11px] font-medium ${isOn ? 'bg-accent text-white' : 'bg-surface border border-line text-muted hover:bg-line-soft'}`}>
                                   {v.label}
                                 </button>
                               )
@@ -358,7 +358,7 @@ function WorkshopProfilePage() {
                       ))}
                       <div className="flex gap-2 pt-1">
                         <button onClick={saveCapabilities} disabled={capSaving}
-                          className="px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50">
+                          className="px-4 py-1.5 bg-accent text-white rounded-lg text-xs font-medium disabled:opacity-50">
                           {capSaving ? 'Kaydediliyor...' : 'Yetenekleri Kaydet'}
                         </button>
                         <button onClick={() => setCapLineId(null)} className="px-4 py-1.5 border border-line rounded-lg text-xs text-muted">Kapat</button>
@@ -385,15 +385,15 @@ function WorkshopProfilePage() {
       </div>
 
       {/* 3. Çalışan Profili — Bantlardan otomatik hesaplanır */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-1">3. Çalışan Profili</h2>
         <p className="text-xs text-faint mb-4">Üretim personeli bantlardan otomatik hesaplanır</p>
 
         {/* Bantlardan gelen (read-only) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <div className="bg-emerald-50 rounded-lg p-3 text-center">
-            <p className="text-[11px] text-emerald-600 font-medium">Dikim Operatörü</p>
-            <p className="text-xl font-bold text-emerald-700">{staffFromLines.dikimOp}</p>
+          <div className="bg-accent-soft rounded-lg p-3 text-center">
+            <p className="text-[11px] text-accent-ink font-medium">Dikim Operatörü</p>
+            <p className="text-xl font-bold text-accent-ink">{staffFromLines.dikimOp}</p>
             <p className="text-[11px] text-emerald-400">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
@@ -401,9 +401,9 @@ function WorkshopProfilePage() {
             <p className="text-xl font-bold text-ink">{staffFromLines.kesimOp}</p>
             <p className="text-[11px] text-muted">{lines.filter(l => effectiveType(l.line_type) === 'Kesim').length} bant</p>
           </div>
-          <div className="bg-amber-50 rounded-lg p-3 text-center">
-            <p className="text-[11px] text-amber-600 font-medium">UKP Operatörü</p>
-            <p className="text-xl font-bold text-amber-700">{staffFromLines.ukpOp}</p>
+          <div className="bg-warn-soft rounded-lg p-3 text-center">
+            <p className="text-[11px] text-warn font-medium">UKP Operatörü</p>
+            <p className="text-xl font-bold text-warn">{staffFromLines.ukpOp}</p>
             <p className="text-[11px] text-amber-400">{lines.filter(l => effectiveType(l.line_type) === 'UKP').length} bant</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
@@ -421,7 +421,7 @@ function WorkshopProfilePage() {
 
         {/* Hesaplanan özet */}
         <div className="pt-3 border-t border-line-soft grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-emerald-50 rounded-lg px-4 py-2"><span className="text-xs text-emerald-600">Verimli Çalışan Oranı</span><p className="text-lg font-bold text-emerald-700">%{verimliOran}</p></div>
+          <div className="bg-accent-soft rounded-lg px-4 py-2"><span className="text-xs text-accent-ink">Verimli Çalışan Oranı</span><p className="text-lg font-bold text-accent-ink">%{verimliOran}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-muted">Üretim Personeli</span><p className="text-lg font-bold text-ink">{productive}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Endirekt</span><p className="text-lg font-bold text-body">{mgmt}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Toplam Çalışan</span><p className="text-lg font-bold text-body">{totalStaff}</p></div>
@@ -429,13 +429,13 @@ function WorkshopProfilePage() {
       </div>
 
       {/* 4. Genel Parametreler */}
-      <div className="bg-white border border-line-soft rounded-xl p-6">
+      <div className="bg-surface border border-line-soft rounded-xl p-6">
         <h2 className="text-lg font-semibold text-ink mb-1">4. Kapasite Özeti</h2>
         <p className="text-xs text-faint mb-4">Bantlardan ve çalışan profilinden otomatik hesaplanır</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Net Çalışma (dk/gün)</p><p className="text-lg font-bold text-body">{(w.net_hours_day * 60).toFixed(0)} dk</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Bant Sayısı</p><p className="text-lg font-bold text-body">{staffFromLines.bantSayisi}</p></div>
-          <div className="bg-emerald-50 rounded-lg p-3"><p className="text-xs text-emerald-600">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-emerald-700">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
+          <div className="bg-accent-soft rounded-lg p-3"><p className="text-xs text-accent-ink">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-accent-ink">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-muted">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-ink">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[11px] text-muted">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
         </div>
       </div>

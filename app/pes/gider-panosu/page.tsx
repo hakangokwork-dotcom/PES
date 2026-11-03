@@ -115,9 +115,9 @@ export default async function GiderPanosu({
   if (!donem || satirlar.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold text-ink">Gider Panosu</h1>
-        <div className="bg-white border border-line-soft rounded-xl p-8 text-center text-faint">
-          Bu dönemde gider beyanı yok. <Link href="/pes/expenses/import" className="text-emerald-700 hover:underline">Gider yükle</Link> ekranını kullanın.
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Gider Panosu</h1>
+        <div className="bg-surface border border-line-soft rounded-xl p-8 text-center text-faint">
+          Bu dönemde gider beyanı yok. <Link href="/pes/expenses/import" className="text-accent-ink hover:underline">Gider yükle</Link> ekranını kullanın.
         </div>
       </div>
     )
@@ -149,7 +149,7 @@ export default async function GiderPanosu({
   const sortLink = (k: string, label: string) => (
     <Link
       href={`/pes/gider-panosu?donem=${donem.yil}-${String(donem.ay).padStart(2,'0')}&sort=${k}`}
-      className={`text-xs rounded px-2 py-1 border ${sort === k ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-line-soft text-body hover:bg-canvas'}`}
+      className={`text-xs rounded px-2 py-1 border ${sort === k ? 'bg-accent-soft border-line text-accent-ink' : 'bg-surface border-line-soft text-body hover:bg-canvas'}`}
     >{label}</Link>
   )
 
@@ -157,7 +157,7 @@ export default async function GiderPanosu({
     <Link
       key={`${d.yil}-${d.ay}`}
       href={`/pes/gider-panosu?donem=${d.yil}-${String(d.ay).padStart(2,'0')}&sort=${sort}`}
-      className={`text-xs rounded px-2 py-1 border ${d.yil === donem.yil && d.ay === donem.ay ? 'bg-ink text-white border-ink' : 'bg-white border-line-soft text-body hover:bg-canvas'}`}
+      className={`text-xs rounded px-2 py-1 border ${d.yil === donem.yil && d.ay === donem.ay ? 'bg-ink text-white border-ink' : 'bg-surface border-line-soft text-body hover:bg-canvas'}`}
     >{AY_ADLARI[d.ay]} {d.yil}</Link>
   )
 
@@ -166,7 +166,7 @@ export default async function GiderPanosu({
       {/* Başlık */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Gider Panosu</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Gider Panosu</h1>
           <p className="text-sm text-faint mt-1">
             {AY_ADLARI[donem.ay]} {donem.yil} — {satirlar.length} atölye beyanı, G1–G8 grup dağılımı ve oran karşılaştırması.
           </p>
@@ -199,7 +199,7 @@ export default async function GiderPanosu({
       </div>
 
       {/* Ana tablo */}
-      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft flex items-center justify-between">
           <h2 className="text-sm font-semibold text-body">Atölye karşılaştırma</h2>
           <span className="text-[11px] text-faint">Renkli çubuk: G1–G8 grup payları (yatay = %100)</span>
@@ -228,14 +228,14 @@ export default async function GiderPanosu({
                 return (
                   <tr key={r.workshop_id} className="border-b border-line-soft hover:bg-canvas">
                     <td className="px-3 py-2">
-                      <Link href={`/workshop?wid=${r.workshop_id}`} className="text-emerald-700 hover:underline font-medium">{r.code}</Link>
+                      <Link href={`/workshop?wid=${r.workshop_id}`} className="text-accent-ink hover:underline font-medium">{r.code}</Link>
                       <span className="text-faint ml-1 text-xs">{r.name}</span>
                       {r.bolge && <span className="ml-1 text-[10px] text-faint">B{r.bolge}</span>}
                     </td>
                     <td className="text-right px-2 py-2 font-mono">{r.total_staff.toLocaleString('tr-TR')}</td>
                     <td className="text-right px-2 py-2 font-mono">{r.alan_m2 ? r.alan_m2.toLocaleString('tr-TR') : '—'}</td>
                     <td className="text-right px-2 py-2 font-mono">{fmtTL(r.brut)}</td>
-                    <td className="text-right px-2 py-2 font-mono text-emerald-700">{fmtTL(r.net)}</td>
+                    <td className="text-right px-2 py-2 font-mono text-accent-ink">{fmtTL(r.net)}</td>
                     <td className="text-right px-2 py-2 font-mono">{kb > 0 ? fmtTL(kb) : '—'}</td>
                     <td className="text-right px-2 py-2 font-mono">{m2 > 0 ? fmtTL(m2) : '—'}</td>
                     <td className="text-right px-2 py-2 font-mono">{(iscilikPay * 100).toFixed(0)}%</td>
@@ -254,7 +254,7 @@ export default async function GiderPanosu({
       </div>
 
       {/* Brüt gider bar chart */}
-      <div className="bg-white border border-line-soft rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-line-soft rounded-xl shadow-sm overflow-hidden">
         <div className="px-4 py-3 bg-canvas border-b border-line-soft">
           <h2 className="text-sm font-semibold text-body">Brüt gider — büyükten küçüğe</h2>
         </div>
@@ -264,7 +264,7 @@ export default async function GiderPanosu({
               <div className="w-40 shrink-0 text-body">{r.code} <span className="text-faint">{r.name}</span></div>
               <div className="flex-1 h-4 bg-canvas rounded overflow-hidden relative">
                 <div
-                  className="h-full bg-emerald-500"
+                  className="h-full bg-accent"
                   style={{ width: `${enBrutli > 0 ? (r.brut / enBrutli * 100) : 0}%` }}
                 />
               </div>
@@ -275,7 +275,7 @@ export default async function GiderPanosu({
       </div>
 
       {/* Grup lejantı */}
-      <div className="bg-white border border-line-soft rounded-xl p-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+      <div className="bg-surface border border-line-soft rounded-xl p-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
         <span className="text-faint">Grup lejantı:</span>
         {G_KEYS.map(k => (
           <span key={k} className="inline-flex items-center gap-1.5">
@@ -287,7 +287,7 @@ export default async function GiderPanosu({
 
       {/* Uyarı: veri kalitesi */}
       {satirlar.some(s => s.quality_status === 'pending_fix') && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+        <div className="bg-warn-soft border border-line-soft rounded-xl p-3 text-xs text-warn">
           <strong>Not:</strong> {satirlar.filter(s => s.quality_status === 'pending_fix').length} atölye beyanı düşük dolulukla işaretli (pending_fix).
           Karşılaştırma yaparken doluluk sütununa dikkat.
         </div>
@@ -352,11 +352,11 @@ function KpiKart({
   etiket, deger, altbilgi, tone,
 }: { etiket: string; deger: string; altbilgi?: string; tone?: 'green' | 'amber' }) {
   const val =
-    tone === 'green' ? 'text-emerald-700'
-    : tone === 'amber' ? 'text-amber-700'
+    tone === 'green' ? 'text-accent-ink'
+    : tone === 'amber' ? 'text-warn'
     : 'text-ink'
   return (
-    <div className="bg-white border border-line-soft rounded-xl p-4">
+    <div className="bg-surface border border-line-soft rounded-xl p-4">
       <p className="text-xs text-faint">{etiket}</p>
       <p className={`text-2xl font-bold ${val}`}>{deger}</p>
       {altbilgi && <p className="text-[11px] text-faint mt-0.5">{altbilgi}</p>}

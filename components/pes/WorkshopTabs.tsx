@@ -73,9 +73,9 @@ const KIND_LABELS: Record<string, string> = {
 const KIND_STYLES: Record<string, string> = {
   ziyaret: 'bg-canvas text-muted',
   denetim: 'bg-canvas text-muted',
-  olay: 'bg-red-100 text-red-700',
-  dmaic: 'bg-amber-100 text-amber-700',
-  fiyat_revizyonu: 'bg-emerald-100 text-emerald-700',
+  olay: 'bg-danger-soft text-danger',
+  dmaic: 'bg-warn-soft text-warn',
+  fiyat_revizyonu: 'bg-accent-soft text-accent-ink',
   not: 'bg-canvas text-muted',
 }
 
@@ -236,7 +236,7 @@ function KimlikTab({ workshopId, account }: { workshopId: number; account: Accou
       <Field label="Adres" value={form.address_full ?? ''} onChange={set('address_full')} textarea />
       <Field label="Notlar" value={form.notes ?? ''} onChange={set('notes')} textarea />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <button
         onClick={save}
@@ -316,7 +316,7 @@ function YetenekTab({ capabilities, lines }: { capabilities: Capability[]; lines
                     className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                       aktif
                         ? 'bg-accent text-white border-accent'
-                        : 'bg-white text-body border-line-soft hover:border-accent'
+                        : 'bg-surface text-body border-line-soft hover:border-accent'
                     }`}
                   >
                     {l.name}
@@ -376,7 +376,7 @@ function IliskiTab({
   return (
     <div className="space-y-8">
       {relAge && (
-        <div className="bg-white border border-line-soft rounded-xl p-4 inline-block">
+        <div className="bg-surface border border-line-soft rounded-xl p-4 inline-block">
           <p className="text-xs text-faint">İlişki Yaşı</p>
           <p className="text-xl font-bold text-ink">{relAge}</p>
         </div>
@@ -386,7 +386,7 @@ function IliskiTab({
       <section>
         <div className="flex items-baseline justify-between mb-3">
           <h3 className="text-sm font-semibold text-ink">Müşteri Kapasite Paylaşımı</h3>
-          <span className={`text-xs ${totalPct > 100 ? 'text-red-600 font-medium' : 'text-faint'}`}>
+          <span className={`text-xs ${totalPct > 100 ? 'text-danger font-medium' : 'text-faint'}`}>
             Toplam %{totalPct.toFixed(1)}
             {totalPct > 100 && ' — %100ü aşıyor'}
           </span>
@@ -457,7 +457,7 @@ function IliskiTab({
               <div key={c.id} className="flex items-center gap-3 text-sm">
                 <span className="font-medium text-ink">{c.name}</span>
                 {c.is_primary && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Birincil</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent-soft text-accent-ink">Birincil</span>
                 )}
                 <span className="text-faint">{c.role}</span>
                 <span className="text-faint ml-auto">{c.phone} {c.email}</span>
@@ -509,7 +509,7 @@ function IliskiTab({
         </div>
       </section>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
     </div>
   )
 }
@@ -584,7 +584,7 @@ function ZamanCizgisiTab({
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       {interactions.length === 0 ? (
         <p className="text-sm text-faint">Henüz kayıt yok.</p>

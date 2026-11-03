@@ -8,7 +8,7 @@ export default function NewWorkshopPage() {
         <Link href="/pes/workshops" className="text-sm text-faint hover:text-ink">
           ← Atölyeler
         </Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">Yeni Atölye</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">Yeni Atölye</h1>
         <p className="text-faint mt-1">Yeni fason atölye kaydı oluşturun</p>
       </div>
 

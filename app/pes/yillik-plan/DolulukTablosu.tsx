@@ -9,10 +9,10 @@ import type { GenelUyum } from '@/lib/pes/yetenek-uyum'
 import { talepDurumuGoster, tr, type YillikPlanVerisi } from './ortak'
 
 const RENK: Record<DolulukRengi, string> = {
-  yok: 'bg-slate-50 text-slate-400',
-  yesil: 'bg-emerald-50 text-emerald-800',
-  sari: 'bg-amber-100 text-amber-800',
-  kirmizi: 'bg-red-100 text-red-700',
+  yok: 'bg-canvas text-faint',
+  yesil: 'bg-accent-soft text-accent-ink',
+  sari: 'bg-warn-soft text-warn',
+  kirmizi: 'bg-danger-soft text-danger',
 }
 
 type Satir = {
@@ -64,12 +64,12 @@ export default function DolulukTablosu({ veri, sec, kompakt = false }: {
         <table className="text-xs border-collapse w-max">
           <thead>
             <tr>
-              <th className="text-left px-2 py-1 sticky left-0 z-10 bg-white">Atölye</th>
+              <th className="text-left px-2 py-1 sticky left-0 z-10 bg-surface">Atölye</th>
               {AYLAR.map((ad) => <th key={ad} className={`px-1 py-1 ${aySinif}`}>{ad}</th>)}
             </tr>
             {talep && yerlesen && (
-              <tr className="border-b text-slate-600">
-                <th className="text-left px-2 py-1 sticky left-0 z-10 bg-white font-normal">
+              <tr className="border-b text-muted">
+                <th className="text-left px-2 py-1 sticky left-0 z-10 bg-surface font-normal">
                   Talep / yerleşen / açık
                 </th>
                 {talep.map((t, m) => {
@@ -93,18 +93,18 @@ export default function DolulukTablosu({ veri, sec, kompakt = false }: {
                 <Fragment key={s.a.workshopId}>
                   {grupBasi && (
                     <tr>
-                      <td colSpan={13} className="px-2 pt-3 pb-1 text-[11px] font-semibold text-slate-500">
+                      <td colSpan={13} className="px-2 pt-3 pb-1 text-[11px] font-semibold text-faint">
                         {UYUM_GRUP_ETIKET[s.uyum as GenelUyum]}
                       </td>
                     </tr>
                   )}
                   <tr onClick={() => sec(s.a.workshopId)}
-                      className={`cursor-pointer hover:bg-slate-50 ${s.uyum === 'uyumsuz' ? 'opacity-50' : ''}`}>
-                    <td className={`px-2 py-1 sticky left-0 z-10 whitespace-nowrap ${secili ? 'bg-slate-200' : 'bg-white'}`}>
+                      className={`cursor-pointer hover:bg-canvas ${s.uyum === 'uyumsuz' ? 'opacity-50' : ''}`}>
+                    <td className={`px-2 py-1 sticky left-0 z-10 whitespace-nowrap ${secili ? 'bg-slate-200' : 'bg-surface'}`}>
                       <div className={`flex min-w-0 items-center gap-1 ${kompakt ? 'max-w-[12rem]' : 'max-w-[16rem]'}`}>
                         <span className="font-medium shrink-0">{s.a.kod}</span>
                         <span className="truncate" title={s.a.ad}>{s.a.ad}</span>
-                        <span className="shrink-0 rounded bg-slate-100 px-1 text-[10px] text-slate-500"
+                        <span className="shrink-0 rounded bg-canvas px-1 text-[10px] text-faint"
                               title={KAYNAK_ACIKLAMA[s.a.bazKaynak]}>
                           {KAYNAK_ETIKET[s.a.bazKaynak]}
                         </span>
@@ -129,7 +129,7 @@ export default function DolulukTablosu({ veri, sec, kompakt = false }: {
                             </div>
                           )}
                           {s.sip[m] > 0 && (
-                            <div className="text-[10px] text-slate-500">sip: {tr.format(s.sip[m])}</div>
+                            <div className="text-[10px] text-faint">sip: {tr.format(s.sip[m])}</div>
                           )}
                         </td>
                       )
@@ -141,7 +141,7 @@ export default function DolulukTablosu({ veri, sec, kompakt = false }: {
           </tbody>
         </table>
       </div>
-      <p className="text-[11px] text-slate-500">
+      <p className="text-[11px] text-faint">
         Hücre: plan / kapasite (adet). Yüzde atölyenin TOPLAM planından hesaplanır — klasman seçiliyken
         de (kapasite klasmanlar arasında paylaşılır). Yeşil ≤ %85, sarı ≤ %100, kırmızı &gt; %100.
         “sip”: atanmış gerçek siparişler (bitiş, yoksa teslim ayı; bilgi amaçlı). “d”: ay düzeltmesi.

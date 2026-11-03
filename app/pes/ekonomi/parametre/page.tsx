@@ -56,14 +56,14 @@ export default async function ParametreSayfasi({
   return (
     <main className="p-6 space-y-4">
       <header>
-        <h1 className="text-xl font-semibold">Ekonomi parametreleri</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Ekonomi parametreleri</h1>
+        <p className="text-sm text-faint">
           {donem} için geçerli değerler ·{' '}
           <Link href="/pes/ekonomi" className="underline">panoya dön</Link>
         </p>
       </header>
 
-      <p className="text-sm bg-slate-50 border rounded px-3 py-2 max-w-3xl">
+      <p className="text-sm bg-canvas border rounded px-3 py-2 max-w-3xl">
         Parametreler dönem versiyonludur. Bir ay hesaplanırken <strong>o aydan küçük veya
         eşit en yakın dönemin</strong> değerleri kullanılır — yani asgari ücret değiştiğinde
         yeni bir dönem eklersiniz, geçmiş aylar bozulmaz.

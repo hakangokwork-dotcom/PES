@@ -105,7 +105,7 @@ export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu, do
       {/* Explorer grid */}
       <div className="grid gap-4 md:grid-cols-[280px_1fr]">
         {/* Rasyo listesi */}
-        <div className="max-h-[500px] overflow-auto border border-neutral-200/50 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-950">
+        <div className="max-h-[500px] overflow-auto border border-neutral-200/50 dark:border-neutral-700 rounded-xl bg-surface dark:bg-neutral-950">
           {gorunenRasyolar.map(m => (
             <button
               key={m.alan}
@@ -169,7 +169,7 @@ export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu, do
                   { k: 'Std. Sapma', v: ist.sd },
                   { k: 'CV', v: ist.cv !== null && ist.cv !== undefined ? ist.cv : null },
                 ].map(s => (
-                  <div key={s.k} className="bg-white dark:bg-neutral-950 px-2.5 py-2">
+                  <div key={s.k} className="bg-surface dark:bg-neutral-950 px-2.5 py-2">
                     <p className="text-[10.5px] tracking-wider uppercase text-neutral-400 dark:text-neutral-500">{s.k}</p>
                     <p className="text-[14px] font-tabular-nums mt-0.5 text-neutral-800 dark:text-neutral-200">
                       {s.k === 'CV'
@@ -219,7 +219,7 @@ export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu, do
                       {hasDeger && (
                         <span
                           className={`absolute top-1.5 h-2 ${pozitif ? 'rounded-r' : 'rounded-l'} ${
-                            pozitif ? 'bg-blue-600 dark:bg-blue-500' : 'bg-red-500 dark:bg-red-400'
+                            pozitif ? 'bg-blue-600 dark:bg-blue-500' : 'bg-danger dark:bg-red-400'
                           }`}
                           style={{
                             left: `${pctA}%`,
@@ -240,7 +240,7 @@ export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu, do
             {ist && meta.yon !== 'notr' && (ist.enIyi || ist.enKotu) && (
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {ist.enIyi && (
-                  <div className="border border-neutral-200/50 dark:border-neutral-700 rounded-lg p-3 bg-white dark:bg-neutral-950">
+                  <div className="border border-neutral-200/50 dark:border-neutral-700 rounded-lg p-3 bg-surface dark:bg-neutral-950">
                     <p className="text-[10px] tracking-wider uppercase text-neutral-400">En iyi</p>
                     <p className="text-[14px] font-medium text-neutral-900 dark:text-neutral-100 mt-1">{ist.enIyi}</p>
                     <p className="text-[11.5px] text-neutral-400 dark:text-neutral-500 font-tabular-nums">
@@ -249,7 +249,7 @@ export default function BolumRasyoGezgini({ veri, istatistik, siralarTablosu, do
                   </div>
                 )}
                 {ist.enKotu && (
-                  <div className="border border-neutral-200/50 dark:border-neutral-700 rounded-lg p-3 bg-white dark:bg-neutral-950">
+                  <div className="border border-neutral-200/50 dark:border-neutral-700 rounded-lg p-3 bg-surface dark:bg-neutral-950">
                     <p className="text-[10px] tracking-wider uppercase text-neutral-400">En kötü</p>
                     <p className="text-[14px] font-medium text-neutral-900 dark:text-neutral-100 mt-1">{ist.enKotu}</p>
                     <p className="text-[11.5px] text-neutral-400 dark:text-neutral-500 font-tabular-nums">

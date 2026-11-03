@@ -75,11 +75,11 @@ function WorkshopProductionPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">{workshopName} — Üretim Girişi</h1>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">{workshopName} — Üretim Girişi</h1>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl p-4">
+      <div className="bg-surface border border-line-soft rounded-xl p-4">
         <div className="flex gap-4 items-end">
           <div>
             <label className="block text-xs font-medium text-muted mb-1">Yıl</label>
@@ -97,7 +97,7 @@ function WorkshopProductionPage() {
       </div>
 
       {lines.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line-soft">
@@ -119,14 +119,14 @@ function WorkshopProductionPage() {
                     <td className="py-2 text-center"><input type="number" inputMode="decimal" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value)||0)} step={0.1} /></td>
                     <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value)||0)} /></td>
                     <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.actual_qty} onChange={e => updateRow(idx, 'actual_qty', parseInt(e.target.value)||0)} /></td>
-                    <td className="py-2 text-center"><span className={`font-bold ${eff >= 90 ? 'text-green-600' : eff >= 70 ? 'text-amber-600' : 'text-red-600'}`}>%{eff.toFixed(1)}</span></td>
+                    <td className="py-2 text-center"><span className={`font-bold ${eff >= 90 ? 'text-accent-ink' : eff >= 70 ? 'text-warn' : 'text-danger'}`}>%{eff.toFixed(1)}</span></td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
 
-          {message && <div className="mt-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+          {message && <div className="mt-4 bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
           <button onClick={handleSave} disabled={loading} className="mt-4 px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">
             {loading ? 'Kaydediliyor...' : 'Kaydet'}
           </button>
@@ -134,7 +134,7 @@ function WorkshopProductionPage() {
       )}
 
       {lines.length === 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">
+        <div className="bg-warn-soft border border-line-soft rounded-xl p-4 text-sm text-warn">
           Önce <Link href={`/workshop/profile`} className="underline">profil sayfasından</Link> bant ekleyin.
         </div>
       )}

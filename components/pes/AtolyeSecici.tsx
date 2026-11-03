@@ -74,7 +74,7 @@ export default function AtolyeSecici({
         <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span className="text-white font-bold text-xl">PES</span>
         </div>
-        <h1 className="text-2xl font-bold text-ink">Hangi atölyede çalışacaksınız?</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Hangi atölyede çalışacaksınız?</h1>
         <p className="text-faint mt-1">
           Seçtiğiniz atölyenin hesabıyla girmiş gibi çalışırsınız: yalnız onun
           verisini görür, yaptığınız her işlem o atölye adına kaydedilir.
@@ -90,7 +90,7 @@ export default function AtolyeSecici({
       />
 
       {hata && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">
+        <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">
           {hata}
         </div>
       )}
@@ -140,7 +140,7 @@ function Kart({
 
   return (
     <div
-      className={`bg-white border rounded-xl p-5 transition-all hover:shadow-md ${
+      className={`bg-surface border rounded-xl p-5 transition-all hover:shadow-md ${
         benimMi ? 'border-accent ring-1 ring-accent/20' : 'border-line-soft hover:border-accent'
       }`}
     >
@@ -152,7 +152,7 @@ function Kart({
             <span className="text-accent font-bold text-lg">{a.code}</span>
             <span className="text-ink font-medium">{a.name}</span>
             {benimMi && (
-              <span className="text-[11px] font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold uppercase tracking-wider bg-accent-soft text-accent-ink border border-line-soft px-2 py-0.5 rounded-full">
                 Benim
               </span>
             )}

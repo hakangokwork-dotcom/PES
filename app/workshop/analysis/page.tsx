@@ -94,13 +94,13 @@ export default async function AnalysisPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-ink mt-2">{w.name} — Analiz</h1>
+        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">{w.name} — Analiz</h1>
         <p className="text-faint">{w.code} · Detaylı performans analizi</p>
       </div>
 
       {prodTrend.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">Verimlilik Trendi</h2>
           <table className="w-full text-sm">
             <thead>
@@ -115,7 +115,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
             <tbody className="divide-y divide-line-soft">
               {prodTrend.map((p, i) => {
                 const eff = Number(p.eff)
-                const color = eff >= 90 ? 'bg-green-500' : eff >= 70 ? 'bg-amber-500' : 'bg-red-500'
+                const color = eff >= 90 ? 'bg-accent' : eff >= 70 ? 'bg-warn' : 'bg-danger'
                 return (
                   <tr key={i}>
                     <td className="py-2 text-body">{String(p.year)}/{String(p.month)}</td>
@@ -136,7 +136,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {costTrend.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">Maliyet Trendi</h2>
           <table className="w-full text-sm">
             <thead>
@@ -158,7 +158,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
                     <td className="py-2 text-right">{(Number(c.total_expense) / 1000).toFixed(0)}K TL</td>
                     <td className="py-2 text-right font-bold text-accent">{String(c.cost_per_min)} TL</td>
                     <td className="py-2 text-right">{Number(c.target_revenue) > 0 ? (Number(c.target_revenue) / 1000).toFixed(0) + 'K' : '—'}</td>
-                    <td className={`py-2 text-right font-medium ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td className={`py-2 text-right font-medium ${margin >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
                       {marginPct !== '—' ? `%${marginPct}` : '—'}
                     </td>
                   </tr>
@@ -170,7 +170,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {expenseItems.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">Gider Dağılımı (Son Ay)</h2>
           <div className="space-y-2">
             {expenseItems.map((e, i) => {
@@ -191,7 +191,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {qualTrend.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">Kalite Trendi</h2>
           <table className="w-full text-sm">
             <thead>
@@ -207,8 +207,8 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <tr key={i}>
                   <td className="py-2 text-body">{String(q.year)}/{String(q.month)}</td>
                   <td className="py-2 text-right">{Number(q.inspected).toLocaleString('tr-TR')}</td>
-                  <td className="py-2 text-right"><span className={`font-bold ${Number(q.fpq_rate) >= 95 ? 'text-green-600' : 'text-amber-600'}`}>%{String(q.fpq_rate)}</span></td>
-                  <td className="py-2 text-right text-red-600">%{String(q.red_rate)}</td>
+                  <td className="py-2 text-right"><span className={`font-bold ${Number(q.fpq_rate) >= 95 ? 'text-accent-ink' : 'text-warn'}`}>%{String(q.fpq_rate)}</span></td>
+                  <td className="py-2 text-right text-danger">%{String(q.red_rate)}</td>
                 </tr>
               ))}
             </tbody>
@@ -217,12 +217,12 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {downtimeByType.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">Duruş Analizi</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {downtimeByType.map((d, i) => (
               <div key={i} className={`rounded-lg p-3 ${
-                d.downtime_type === 'Plansız' ? 'bg-red-50' :
+                d.downtime_type === 'Plansız' ? 'bg-danger-soft' :
                 d.downtime_type === 'Tedarik' ? 'bg-orange-50' :
                 d.downtime_type === 'Organizasyonel' ? 'bg-canvas' : 'bg-canvas'
               }`}>
@@ -236,7 +236,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {workforceTrend.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl p-6">
+        <div className="bg-surface border border-line-soft rounded-xl p-6">
           <h2 className="text-lg font-semibold text-ink mb-4">İşgücü Devir Oranı</h2>
           <table className="w-full text-sm">
             <thead>
@@ -253,8 +253,8 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <tr key={i}>
                   <td className="py-2 text-body">{String(wf.year)}/{String(wf.month)}</td>
                   <td className="py-2 text-right">{String(wf.total_staff)}</td>
-                  <td className="py-2 text-right text-green-600">+{String(wf.joined_count)}</td>
-                  <td className="py-2 text-right text-red-600">-{String(wf.left_count)}</td>
+                  <td className="py-2 text-right text-accent-ink">+{String(wf.joined_count)}</td>
+                  <td className="py-2 text-right text-danger">-{String(wf.left_count)}</td>
                   <td className="py-2 text-right font-bold">{String(wf.turnover_rate)}%</td>
                 </tr>
               ))}
@@ -264,9 +264,9 @@ export default async function AnalysisPage({ searchParams }: Props) {
       )}
 
       {prodTrend.length === 0 && costTrend.length === 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
-          <p className="text-amber-800 font-medium">Henüz analiz için yeterli veri yok</p>
-          <p className="text-sm text-amber-600 mt-1">Üretim ve gider verisi girdikçe analizler otomatik oluşacak</p>
+        <div className="bg-warn-soft border border-line-soft rounded-xl p-6 text-center">
+          <p className="text-warn font-medium">Henüz analiz için yeterli veri yok</p>
+          <p className="text-sm text-warn mt-1">Üretim ve gider verisi girdikçe analizler otomatik oluşacak</p>
           <div className="flex gap-3 justify-center mt-4">
             <Link href={`/workshop/production`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Üretim Girişi</Link>
             <Link href={`/workshop/costs`} className="px-4 py-2 bg-accent text-white rounded-lg text-sm">Gider Girişi</Link>

@@ -38,12 +38,12 @@ export default function YillikPlan({ veri }: { veri: YillikPlanVerisi }) {
     ? veri.atolyeler.find((a) => a.workshopId === veri.atolyeId) ?? null
     : null
   const sekmeSinif = (s: Sekme) =>
-    `rounded px-3 py-1 text-sm ${veri.sekme === s ? 'bg-slate-900 text-white' : 'bg-slate-100 hover:bg-slate-200'}`
+    `rounded px-3 py-1 text-sm ${veri.sekme === s ? 'bg-slate-900 text-white' : 'bg-canvas hover:bg-slate-200'}`
 
   return (
     <div className="space-y-4 p-4">
       <header className="flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold">Yıllık Plan</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Yıllık Plan</h1>
         <select aria-label="Yıl" className="rounded border px-2 py-1 text-sm" value={veri.yil}
                 onChange={(e) => git({ yil: e.target.value })}>
           {[veri.yil - 1, veri.yil, veri.yil + 1].map((y) => <option key={y} value={y}>{y}</option>)}
@@ -61,9 +61,9 @@ export default function YillikPlan({ veri }: { veri: YillikPlanVerisi }) {
             Talep
           </button>
         </nav>
-        {bekliyor && <span className="text-xs text-slate-500">Güncelleniyor…</span>}
+        {bekliyor && <span className="text-xs text-faint">Güncelleniyor…</span>}
       </header>
-      {hata && <div role="alert" className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{hata}</div>}
+      {hata && <div role="alert" className="rounded bg-danger-soft px-3 py-2 text-sm text-danger">{hata}</div>}
 
       {veri.sekme === 'talep' ? (
         <TalepTablosu veri={veri} istek={istek} setHata={setHata} />

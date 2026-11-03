@@ -87,34 +87,34 @@ export default async function ReportsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Raporlar ve Analiz</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Raporlar ve Analiz</h1>
         <p className="text-faint mt-1">Sistem geneli performans özeti</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Aktif Atölye</p>
           <p className="text-2xl font-bold text-ink">{Number(totals.workshop_count)}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Toplam Bant</p>
           <p className="text-2xl font-bold text-ink">{Number(totals.total_lines)}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Dikim Operatörü</p>
           <p className="text-2xl font-bold text-ink">{Number(totals.total_sewing).toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Toplam Çalışan</p>
           <p className="text-2xl font-bold text-ink">{Number(totals.total_staff).toLocaleString('tr-TR')}</p>
         </div>
-        <div className="bg-white border border-line-soft rounded-xl p-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">Günlük Hedef</p>
           <p className="text-2xl font-bold text-ink">{Number(totals.total_daily_target).toLocaleString('tr-TR')}</p>
         </div>
       </div>
 
-      <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+      <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-line-soft">
           <h2 className="text-lg font-semibold text-ink">Atölye Profil Özeti</h2>
         </div>
@@ -149,7 +149,7 @@ export default async function ReportsPage() {
       </div>
 
       {prodSummary.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-line-soft">
             <h2 className="text-lg font-semibold text-ink">Verimlilik Sıralaması</h2>
           </div>
@@ -181,7 +181,7 @@ export default async function ReportsPage() {
       )}
 
       {expenseSummary.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-line-soft">
             <h2 className="text-lg font-semibold text-ink">Maliyet Analizi</h2>
           </div>
@@ -209,7 +209,7 @@ export default async function ReportsPage() {
       )}
 
       {qualitySummary.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-line-soft">
             <h2 className="text-lg font-semibold text-ink">Kalite Analizi</h2>
           </div>
@@ -229,7 +229,7 @@ export default async function ReportsPage() {
                   <td className="px-4 py-3 text-ink">{String(q.code)} — {String(q.name)}</td>
                   <td className="px-4 py-3 text-right">{Number(q.total_inspected).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right">{Number(q.total_fpq).toLocaleString('tr-TR')}</td>
-                  <td className="px-4 py-3 text-right text-red-600">{Number(q.total_rejected).toLocaleString('tr-TR')}</td>
+                  <td className="px-4 py-3 text-right text-danger">{Number(q.total_rejected).toLocaleString('tr-TR')}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={`font-bold ${TONE_TEXT[fpqTone(Number(q.fpq_rate))]}`}>%{String(q.fpq_rate)}</span>
                   </td>
@@ -241,7 +241,7 @@ export default async function ReportsPage() {
       )}
 
       {scoreSummary.length > 0 && (
-        <div className="bg-white border border-line-soft rounded-xl overflow-hidden">
+        <div className="bg-surface border border-line-soft rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-line-soft">
             <h2 className="text-lg font-semibold text-ink">Tedarikçi Skor Sıralaması</h2>
           </div>
@@ -263,11 +263,11 @@ export default async function ReportsPage() {
                   <td className="px-4 py-3 text-right font-bold text-ink">{String(s.composite_sc)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      s.tier === 'Stratejik' ? 'bg-green-100 text-green-700' :
+                      s.tier === 'Stratejik' ? 'bg-accent-soft text-accent-ink' :
                       s.tier === 'Gelişen' ? 'bg-canvas text-muted' :
-                      s.tier === 'İzlemede' ? 'bg-amber-100 text-amber-700' :
+                      s.tier === 'İzlemede' ? 'bg-warn-soft text-warn' :
                       s.tier === 'Risk' ? 'bg-orange-100 text-orange-700' :
-                      'bg-red-100 text-red-700'
+                      'bg-danger-soft text-danger'
                     }`}>{String(s.tier)}</span>
                   </td>
                   <td className="px-4 py-3 text-center text-lg">{s.trend === 'Artış' ? '↑' : s.trend === 'Düşüş' ? '↓' : '→'}</td>

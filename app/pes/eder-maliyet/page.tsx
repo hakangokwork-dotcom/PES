@@ -69,8 +69,8 @@ const ANA_GRUP_SIRA = ['Ön Bant', 'Arka Bant', 'Montaj', 'UKP', 'Yıkama', 'Son
 const ANA_GRUP_RENK: Record<string, string> = {
   'Ön Bant':    'bg-canvas    border-line   text-muted',
   'Arka Bant':  'bg-canvas  border-line text-muted',
-  'Montaj':     'bg-emerald-50 border-emerald-200 text-emerald-900',
-  'UKP':        'bg-amber-50   border-amber-200  text-amber-900',
+  'Montaj':     'bg-accent-soft border-line-soft text-accent-ink',
+  'UKP':        'bg-warn-soft   border-line-soft  text-warn',
   'Yıkama':     'bg-canvas    border-line   text-muted',
   'Son Montaj': 'bg-rose-50    border-rose-200   text-rose-900',
 }
@@ -269,7 +269,7 @@ function EderMaliyetPage() {
           kataloğundan (kv3_urun) çalışır ve kv3/eder tabloları BOŞ; E3'ün
           Model Fiyatlama ekranı 30.319 satırlık MTM kütüphanesinden ve
           gerçek bültenden çalışır. */}
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+      <div className="rounded-lg border border-line-soft bg-warn-soft p-3 text-sm">
         <strong className="font-medium">Bu eski fiyatlama ekranı.</strong>{' '}
         konfeksiyon_v3 kataloğuna dayanır ve kataloğu şu an boştur.
         Bülten ve MTM ölçümlerinden atölyeye özel fiyat için{' '}
@@ -280,7 +280,7 @@ function EderMaliyetPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-ink">Eder Maliyet (eski)</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Eder Maliyet (eski)</h1>
           <p className="text-sm text-faint mt-1">
             konfeksiyon_v3 · Kumaş › Ürün › Özellik · Ana Grup: Ön Bant / Arka Bant / Montaj / UKP / Son Montaj
           </p>
@@ -293,7 +293,7 @@ function EderMaliyetPage() {
 
       {/* New Model Form */}
       {showNew && (
-        <div className="bg-white border border-line-soft rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line-soft rounded-xl p-5 space-y-4">
           <h3 className="font-semibold text-ink">Yeni Model</h3>
           <p className="text-xs text-faint">
             Kaydettiğinizde seçilen ürünün tüm operasyonları (konfeksiyon_v3 kataloğundan) otomatik olarak modele kopyalanır. Sonra tek tek düzenleyebilir/silebilirsiniz.
@@ -368,7 +368,7 @@ function EderMaliyetPage() {
       {/* Main */}
       <div className="grid grid-cols-12 gap-5">
         {/* Models list */}
-        <div className="col-span-12 lg:col-span-3 bg-white border border-line-soft rounded-xl">
+        <div className="col-span-12 lg:col-span-3 bg-surface border border-line-soft rounded-xl">
           <div className="px-4 py-3 border-b border-line-soft">
             <h3 className="font-semibold text-sm text-ink">Modeller ({models.length})</h3>
           </div>
@@ -377,7 +377,7 @@ function EderMaliyetPage() {
             {models.map(m => (
               <button key={m.model_id} onClick={() => setSelectedModel(m)}
                 className={`w-full text-left px-4 py-3 border-b border-line-soft transition-colors ${
-                  selectedModel?.model_id === m.model_id ? 'bg-emerald-50' : 'hover:bg-canvas'
+                  selectedModel?.model_id === m.model_id ? 'bg-accent-soft' : 'hover:bg-canvas'
                 }`}>
                 <div className="font-medium text-sm text-ink truncate">{m.model_adi}</div>
                 <div className="text-[11px] text-faint mt-0.5 truncate">
@@ -395,14 +395,14 @@ function EderMaliyetPage() {
         {/* Details */}
         <div className="col-span-12 lg:col-span-9 space-y-5">
           {!selectedModel && (
-            <div className="bg-white border border-line-soft rounded-xl p-10 text-center text-faint">
+            <div className="bg-surface border border-line-soft rounded-xl p-10 text-center text-faint">
               Bir model seçin veya yeni model oluşturun
             </div>
           )}
           {selectedModel && (
             <>
               {/* Model Header */}
-              <div className="bg-white border border-line-soft rounded-xl p-5">
+              <div className="bg-surface border border-line-soft rounded-xl p-5">
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-ink">{selectedModel.model_adi}</h2>
@@ -412,7 +412,7 @@ function EderMaliyetPage() {
                     </p>
                   </div>
                   <button onClick={() => deleteModel(selectedModel.model_id)}
-                    className="text-xs text-red-600 hover:text-red-800">Modeli Sil</button>
+                    className="text-xs text-danger hover:text-danger">Modeli Sil</button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-4 border-t border-line-soft">
                   <Stat label="Operasyon" value={`${selectedModel.secili_islem_sayisi}`} sub={`${islemler.length} toplam`} />
@@ -424,7 +424,7 @@ function EderMaliyetPage() {
               </div>
 
               {/* Operasyon Tablosu */}
-              <div className="bg-white border border-line-soft rounded-xl">
+              <div className="bg-surface border border-line-soft rounded-xl">
                 <div className="px-5 py-3 border-b border-line-soft flex items-center justify-between">
                   <h3 className="font-semibold text-sm text-ink">
                     Operasyon Kırılımı — Ana Gruplar
@@ -520,8 +520,8 @@ function EderMaliyetPage() {
                               ))}
                               {/* Kontrol / özet satırı */}
                               {ozet && (
-                                <tr className="bg-yellow-50 border-y-2 border-yellow-200 font-medium">
-                                  <td className="px-3 py-2 text-[11px] text-yellow-900">
+                                <tr className="bg-warn-soft border-y-2 border-line-soft font-medium">
+                                  <td className="px-3 py-2 text-[11px] text-warn">
                                     {grup === 'Ön Bant' ? 'Ön Kontrol' :
                                      grup === 'Arka Bant' ? 'Arka Kontrol' :
                                      grup === 'Montaj' ? 'İç Kontrol' :
@@ -529,10 +529,10 @@ function EderMaliyetPage() {
                                      `${grup} Toplam`}
                                   </td>
                                   <td></td><td></td>
-                                  <td className="px-3 py-2 text-right text-yellow-900 font-mono">
+                                  <td className="px-3 py-2 text-right text-warn font-mono">
                                     {(Number(ozet.toplam_teorik_sn) / 60).toFixed(2)} dk
                                   </td>
-                                  <td className="px-3 py-2 text-right text-yellow-900 font-mono">
+                                  <td className="px-3 py-2 text-right text-warn font-mono">
                                     {(Number(ozet.toplam_sure_sn) / 60).toFixed(2)} dk
                                   </td>
                                   <td colSpan={4}></td>
@@ -542,17 +542,17 @@ function EderMaliyetPage() {
                           )
                         })}
                         {/* Genel toplam */}
-                        <tr className="bg-emerald-100 border-y-2 border-emerald-300 font-bold">
-                          <td colSpan={3} className="px-3 py-2.5 text-emerald-900 uppercase text-[11px]">
+                        <tr className="bg-accent-soft border-y-2 border-line font-bold">
+                          <td colSpan={3} className="px-3 py-2.5 text-accent-ink uppercase text-[11px]">
                             Toplam (Eder Maliyet)
                           </td>
-                          <td className="px-3 py-2.5 text-right text-emerald-900 font-mono">
+                          <td className="px-3 py-2.5 text-right text-accent-ink font-mono">
                             {(Number(selectedModel.toplam_teorik_sn) / 60).toFixed(2)} dk
                           </td>
-                          <td className="px-3 py-2.5 text-right text-emerald-900 font-mono">
+                          <td className="px-3 py-2.5 text-right text-accent-ink font-mono">
                             {(totalSn / 60).toFixed(2)} dk
                           </td>
-                          <td colSpan={3} className="px-3 py-2.5 text-right text-emerald-900 font-mono">
+                          <td colSpan={3} className="px-3 py-2.5 text-right text-accent-ink font-mono">
                             {((totalSn / 60) * Number(dkMaliyet)).toFixed(2)} TL
                           </td>
                           <td></td>
@@ -669,7 +669,7 @@ function IslemRow({ islem, onPatch, onDelete, calcDakikaAdet, calcGunlukAdet, sa
           disabled={saving} />
       </td>
       <td className="px-3 py-1.5 text-right">
-        <button onClick={onDelete} className="text-red-500 hover:text-red-700 text-xs" disabled={saving}>×</button>
+        <button onClick={onDelete} className="text-danger hover:text-danger text-xs" disabled={saving}>×</button>
       </td>
     </tr>
   )

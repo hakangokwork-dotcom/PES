@@ -102,20 +102,20 @@ function WorkshopModelsPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Dashboard</Link>
-          <h1 className="text-2xl font-bold text-ink mt-2">Model / SAM Kütüphanesi</h1>
+          <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">Model / SAM Kütüphanesi</h1>
         </div>
         <button onClick={() => showForm ? setShowForm(false) : initForm()} className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium">
           {showForm ? 'İptal' : '+ Yeni Model'}
         </button>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
+      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {/* Yeni Model Formu */}
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white border border-line-soft rounded-xl p-6 space-y-4">
+        <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-semibold text-ink">Model Bilgileri</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div><label className="block text-xs font-medium text-muted mb-1">Model Kodu</label><input className={ic} value={form.code} onChange={e => setForm(p => ({...p, code: e.target.value}))} placeholder="PNT-BAGGY-01" required /></div>
@@ -128,7 +128,7 @@ function WorkshopModelsPage() {
             <thead><tr className="border-b border-line-soft"><th className="py-2 text-left text-faint">Süreç</th><th className="py-2 text-right text-faint w-28">SAM (sn)</th><th className="py-2 text-center text-faint w-24">Kaynak</th></tr></thead>
             <tbody className="divide-y divide-line-soft">
               {samEntries.map((e, i) => (
-                <tr key={i} className={e.sam_minutes > 0 ? 'bg-emerald-50' : ''}>
+                <tr key={i} className={e.sam_minutes > 0 ? 'bg-accent-soft' : ''}>
                   <td className="py-2 text-body">{e.process_name}</td>
                   <td className="py-2 text-right"><input type="number" inputMode="decimal" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
                   <td className="py-2 text-center"><select className="px-2 py-1 border border-line rounded text-sm" value={e.source} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, source: ev.target.value} : s))}><option value="Pratik">Pratik</option><option value="MTM">MTM</option></select></td>
@@ -150,7 +150,7 @@ function WorkshopModelsPage() {
             const maxDaily = bn ? Math.floor((9 * 3600) / Number(bn.bottleneck_sec)) : 0
 
             return (
-              <div key={code} className="bg-white border border-line-soft rounded-xl p-5">
+              <div key={code} className="bg-surface border border-line-soft rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="text-accent font-bold text-lg">{code}</span>
@@ -166,18 +166,18 @@ function WorkshopModelsPage() {
 
                 {/* Darboğaz — model bazlı */}
                 {editBnCode === code ? (
-                  <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
+                  <div className="mb-3 bg-warn-soft border border-line-soft rounded-lg p-3 flex items-center gap-3">
                     <div className="flex-1">
-                      <label className="block text-[11px] text-amber-600 mb-0.5">Darboğaz Operasyonu</label>
-                      <input className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm" value={bnOp} onChange={e => setBnOp(e.target.value)} placeholder="Açık Pat Takma" />
+                      <label className="block text-[11px] text-warn mb-0.5">Darboğaz Operasyonu</label>
+                      <input className="w-full px-2 py-1.5 border border-line rounded text-sm" value={bnOp} onChange={e => setBnOp(e.target.value)} placeholder="Açık Pat Takma" />
                     </div>
                     <div className="w-28">
-                      <label className="block text-[11px] text-amber-600 mb-0.5">Çevrim (sn)</label>
-                      <input type="number" inputMode="decimal" className="w-full px-2 py-1.5 border border-amber-300 rounded text-sm text-right" value={bnSec || ''} onChange={e => setBnSec(parseFloat(e.target.value)||0)} step={0.1} />
+                      <label className="block text-[11px] text-warn mb-0.5">Çevrim (sn)</label>
+                      <input type="number" inputMode="decimal" className="w-full px-2 py-1.5 border border-line rounded text-sm text-right" value={bnSec || ''} onChange={e => setBnSec(parseFloat(e.target.value)||0)} step={0.1} />
                     </div>
                     <div className="w-24 text-center pt-3">
-                      <p className="text-lg font-bold text-amber-900">{bnSec > 0 ? Math.floor((9*3600)/bnSec).toLocaleString('tr-TR') : '—'}</p>
-                      <p className="text-[11px] text-amber-600">adet/gün</p>
+                      <p className="text-lg font-bold text-warn">{bnSec > 0 ? Math.floor((9*3600)/bnSec).toLocaleString('tr-TR') : '—'}</p>
+                      <p className="text-[11px] text-warn">adet/gün</p>
                     </div>
                     <div className="flex gap-1 pt-3">
                       <button onClick={() => saveBn(code)} className="text-xs px-3 py-1.5 bg-accent text-white rounded-lg">Kaydet</button>
@@ -185,14 +185,14 @@ function WorkshopModelsPage() {
                     </div>
                   </div>
                 ) : bn ? (
-                  <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-amber-100" onClick={() => { setEditBnCode(code); setBnOp(bn.bottleneck_operation ?? ''); setBnSec(Number(bn.bottleneck_sec)) }}>
+                  <div className="mb-3 bg-warn-soft border border-line-soft rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-warn-soft" onClick={() => { setEditBnCode(code); setBnOp(bn.bottleneck_operation ?? ''); setBnSec(Number(bn.bottleneck_sec)) }}>
                     <div>
-                      <span className="text-xs text-amber-600">Darboğaz: </span>
-                      <span className="text-sm font-medium text-amber-800">{bn.bottleneck_operation ?? '—'} ({Number(bn.bottleneck_sec)} sn)</span>
+                      <span className="text-xs text-warn">Darboğaz: </span>
+                      <span className="text-sm font-medium text-warn">{bn.bottleneck_operation ?? '—'} ({Number(bn.bottleneck_sec)} sn)</span>
                     </div>
                     <div>
-                      <span className="text-xs text-amber-600">Maks Günlük: </span>
-                      <span className="text-lg font-bold text-amber-900">{maxDaily.toLocaleString('tr-TR')} adet</span>
+                      <span className="text-xs text-warn">Maks Günlük: </span>
+                      <span className="text-lg font-bold text-warn">{maxDaily.toLocaleString('tr-TR')} adet</span>
                     </div>
                   </div>
                 ) : (

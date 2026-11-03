@@ -49,8 +49,8 @@ export default async function ReferansModeller({
   return (
     <main className="p-6 space-y-4">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold">Referans Model Fiyatları</h1>
-        <p className="text-sm text-slate-500 max-w-4xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Referans Model Fiyatları</h1>
+        <p className="text-sm text-faint max-w-4xl">
           MTM kütüphanesindeki {data.satirlar.length}{' '}ürün tipi için ortalama model süresi ×
           bölgesel 3D dakika maliyeti. Dikim MTM&apos;den; <b>kesim ve UKP MTM&apos;de yok</b>,
           atölye personel oranından tahmin edilir (kesim ÷ dikim {data.oranlar.kesim.toLocaleString('tr-TR')},
@@ -62,24 +62,24 @@ export default async function ReferansModeller({
 
       <nav className="flex flex-wrap gap-4 items-center text-sm">
         <span className="flex gap-1 items-center">
-          <span className="text-slate-500 mr-1">Teşvik bölgesi</span>
+          <span className="text-faint mr-1">Teşvik bölgesi</span>
           {bolgeler.map((b) => (
             <Link key={b} href={bag({ bolge: b })}
-              className={`px-2 py-0.5 rounded border ${b === bolge ? 'bg-slate-800 text-white' : 'hover:bg-slate-50'}`}>
+              className={`px-2 py-0.5 rounded border ${b === bolge ? 'bg-slate-800 text-white' : 'hover:bg-canvas'}`}>
               {b} <span className="opacity-70">({data.dkMaliyet[b].toLocaleString('tr-TR')} TL/dk)</span>
             </Link>
           ))}
         </span>
         <span className="flex gap-1 items-center flex-wrap">
-          <span className="text-slate-500 mr-1">Ürün grubu</span>
+          <span className="text-faint mr-1">Ürün grubu</span>
           <Link href={bag({ grup: '' })} className={`px-2 py-0.5 rounded border ${!grupSec ? 'bg-slate-800 text-white' : ''}`}>Tümü</Link>
           {gruplar.map((g) => (
             <Link key={g} href={bag({ grup: g })}
-              className={`px-2 py-0.5 rounded border ${g === grupSec ? 'bg-slate-800 text-white' : 'hover:bg-slate-50'}`}>{g}</Link>
+              className={`px-2 py-0.5 rounded border ${g === grupSec ? 'bg-slate-800 text-white' : 'hover:bg-canvas'}`}>{g}</Link>
           ))}
         </span>
         <span className="flex gap-1 items-center">
-          <span className="text-slate-500 mr-1">Güven</span>
+          <span className="text-faint mr-1">Güven</span>
           <Link href={bag({ guven: '' })} className={`px-2 py-0.5 rounded border ${!guvenSec ? 'bg-slate-800 text-white' : ''}`}>Tümü</Link>
           {(Object.keys(GUVEN_RENK) as Guven[]).map((g) => (
             <Link key={g} href={bag({ guven: g })} title={GUVEN_ACIKLAMA[g]}
@@ -90,11 +90,11 @@ export default async function ReferansModeller({
       </nav>
 
       {!data.dkDonem ? (
-        <p className="border rounded p-6 text-slate-500">Bu dönem için 3D dakika maliyeti yok.</p>
+        <p className="border rounded p-6 text-faint">Bu dönem için 3D dakika maliyeti yok.</p>
       ) : (
         <div className="overflow-x-auto border rounded">
           <table className="text-sm w-full">
-            <thead className="bg-slate-50">
+            <thead className="bg-canvas">
               <tr>
                 <th className="text-left px-3 py-2" rowSpan={2}>Ürün tipi</th>
                 <th className="text-left px-3 py-2" rowSpan={2}>Grup</th>
@@ -102,7 +102,7 @@ export default async function ReferansModeller({
                 <th className="text-center px-3 py-1 border-l" colSpan={4}>Standart dakika</th>
                 <th className="text-center px-3 py-1 border-l" colSpan={4}>Referans fiyat, bölge {bolge} (TL/adet)</th>
               </tr>
-              <tr className="text-xs text-slate-600">
+              <tr className="text-xs text-muted">
                 <th className="text-right px-3 py-1 border-l">Kesim*</th>
                 <th className="text-right px-3 py-1">Dikim</th>
                 <th className="text-right px-3 py-1">UKP*</th>
@@ -119,26 +119,26 @@ export default async function ReferansModeller({
                 const top = s.sure.kesimSn === null || s.sure.ukpSn === null
                   ? null : s.sure.kesimSn + s.sure.dikimSn + s.sure.ukpSn
                 return (
-                  <tr key={s.urunTipiId} className="border-t hover:bg-slate-50">
+                  <tr key={s.urunTipiId} className="border-t hover:bg-canvas">
                     <td className="px-3 py-1.5">
                       <Link href={`/pes/model/referans/${s.urunTipiId}?donem=${donem}`} className="underline">
                         {s.klasman}
                       </Link>
                     </td>
-                    <td className="px-3 py-1.5 text-slate-500">{s.urunGrubu ?? '—'}</td>
+                    <td className="px-3 py-1.5 text-faint">{s.urunGrubu ?? '—'}</td>
                     <td className="px-3 py-1.5">
                       <span className={`text-xs px-1.5 py-0.5 rounded ${GUVEN_RENK[s.guven]}`}
                         title={`${s.modelSayisi} model tahmini · ${s.parcaSayisi} parça`}>
                         {s.guven} · {s.modelSayisi}
                       </span>
                     </td>
-                    <td className="px-3 py-1.5 text-right tabular-nums border-l text-slate-500">{dk(s.sure.kesimSn)}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums border-l text-faint">{dk(s.sure.kesimSn)}</td>
                     <td className="px-3 py-1.5 text-right tabular-nums">{dk(s.sure.dikimSn)}</td>
-                    <td className="px-3 py-1.5 text-right tabular-nums text-slate-500">{dk(s.sure.ukpSn)}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-faint">{dk(s.sure.ukpSn)}</td>
                     <td className="px-3 py-1.5 text-right tabular-nums font-medium">{dk(top)}</td>
-                    <td className="px-3 py-1.5 text-right tabular-nums border-l text-slate-500">{tl(f?.kesimTl ?? null)}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums border-l text-faint">{tl(f?.kesimTl ?? null)}</td>
                     <td className="px-3 py-1.5 text-right tabular-nums">{tl(f?.dikimTl ?? null)}</td>
-                    <td className="px-3 py-1.5 text-right tabular-nums text-slate-500">{tl(f?.ukpTl ?? null)}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-faint">{tl(f?.ukpTl ?? null)}</td>
                     <td className="px-3 py-1.5 text-right tabular-nums font-semibold">{tl(f?.toplamTl ?? null)}</td>
                   </tr>
                 )
@@ -148,7 +148,7 @@ export default async function ReferansModeller({
         </div>
       )}
 
-      <footer className="text-xs text-slate-500 space-y-1 max-w-4xl">
+      <footer className="text-xs text-faint space-y-1 max-w-4xl">
         <p>* Kesim ve UKP tahminidir: dikim sn × personel oranı × (bölüm verimliliği ÷ dikim verimliliği).</p>
         <p>
           Fiyat = standart dakika × 3D dakika maliyeti; verimlilik düzeltmesi ve marj yok (3D verimlilik

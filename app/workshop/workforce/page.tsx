@@ -4,6 +4,10 @@ import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
+import GirenBilgisi from '@/components/pes/GirenBilgisi'
+import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
+
+const BOS_FORM = { total_staff: 0, left_count: 0, joined_count: 0, in_warmup: 0, avg_tenure_mon: 0 }
 
 export default function WorkforceWrapper() {
   return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><WorkshopWorkforcePage /></Suspense>
@@ -14,9 +18,12 @@ function WorkshopWorkforcePage() {
   const [workshopName, setWorkshopName] = useState('')
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const [form, setForm] = useState({ total_staff: 0, left_count: 0, joined_count: 0, in_warmup: 0, avg_tenure_mon: 0 })
+  const [form, setForm] = useState(BOS_FORM)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
     if (!wid) return
@@ -27,18 +34,21 @@ function WorkshopWorkforcePage() {
     if (!wid) return
     fetch(`/api/pes/workforce?workshop_id=${wid}`).then(r => r.json()).then(d => {
       const existing = (d.records ?? []).find((r: Record<string, unknown>) => r.year === year && r.month === month)
-      if (existing) setForm({ total_staff: existing.total_staff, left_count: existing.left_count, joined_count: existing.joined_count, in_warmup: existing.in_warmup, avg_tenure_mon: existing.avg_tenure_mon ?? 0 })
+      setMevcut(existing ?? null)
+      // Kayıt yoksa formu boşalt: önceki ayın değerleri yeni aya yazılmasın.
+      setForm(existing ? { total_staff: existing.total_staff, left_count: existing.left_count, joined_count: existing.joined_count, in_warmup: existing.in_warmup, avg_tenure_mon: existing.avg_tenure_mon ?? 0 } : BOS_FORM)
     })
-  }, [wid, year, month])
+  }, [wid, year, month, yenile])
 
   const turnoverRate = form.total_staff > 0 ? (((form.left_count + form.joined_count) / 2) / form.total_staff * 100).toFixed(1) : '0'
 
   async function handleSave() {
     if (!wid) return
-    setLoading(true); setMessage('')
-    const res = await fetch('/api/pes/workforce', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workshop_id: parseInt(wid), year, month, ...form }) })
+    setLoading(true); setMessage(''); setError('')
+    const res = await fetch('/api/pes/workforce', { method: 'POST', headers: { 'Content-Type': 'application/json', ...surumBasligi(mevcut) }, body: JSON.stringify({ workshop_id: parseInt(wid), year, month, ...form }) })
     setLoading(false)
-    if (res.ok) setMessage('İşgücü verisi kaydedildi')
+    if (res.ok) { setMessage('İşgücü verisi kaydedildi'); setYenile(n => n + 1) }
+    else setError((await res.json()).error ?? 'Kaydedilemedi')
   }
 
   if (!wid) return <AtolyeSecilmedi />
@@ -67,6 +77,8 @@ function WorkshopWorkforcePage() {
           </div>
         </div>
       </div>
+      <GirenBilgisi kayit={mevcut} ben="atolye" />
+      {error && <div className="bg-danger-soft border border-line-soft text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
       {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
       <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">{loading ? 'Kaydediliyor...' : 'Kaydet'}</button>
     </div>

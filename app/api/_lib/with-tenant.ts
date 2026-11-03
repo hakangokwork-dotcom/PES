@@ -54,12 +54,25 @@ export function withTenantRoute<P = Record<string, string>>(
       return await withTenant<NextResponse>(
         tenant.tenantId,
         (sql) => handler(req, { sql, tenant, params }),
-        { workshopId: tenant.workshopId, userEmail: tenant.userEmail },
+        { workshopId: tenant.workshopId, userEmail: tenant.userEmail, kayitSurum: kayitSurumu(req) },
       )
     } catch (err) {
+      /* 055: kayıt bu ekran açıkken diğer panelden değişti. */
+      if ((err as { code?: string })?.code === 'PT409') {
+        return NextResponse.json({ error: (err as Error).message, cakisma: true }, { status: 409 })
+      }
       console.error('[withTenantRoute]', err)
       const msg = err instanceof Error ? err.message : 'Sunucu hatası'
       return NextResponse.json({ error: msg }, { status: 500 })
     }
   }
+}
+
+/* x-kayit-surum: 'yok' | 'eski' | ISO zaman. Başka her değer yok sayılır —
+   geçersiz dize tetikleyicide timestamptz dönüşümünü patlatmasın. */
+function kayitSurumu(req: NextRequest): string | null {
+  const v = req.headers.get('x-kayit-surum')
+  if (!v) return null
+  if (v === 'yok' || v === 'eski') return v
+  return Number.isNaN(Date.parse(v)) ? null : v
 }

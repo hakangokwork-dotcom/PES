@@ -44,6 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Günlük Üretim', href: '/workshop/gunluk-uretim', icon: ClipboardCheck },
       { label: 'Üretim',       href: '/workshop/production', icon: Boxes },
       { label: 'Modeller',     href: '/workshop/models',     icon: Shapes },
+      { label: 'Model Değişimi', href: '/workshop/changeover', icon: Repeat },
       { label: 'Yıkama / UKP', href: '/workshop/yikama-ukp', icon: Droplets },
       { label: 'Yetenek',      href: '/workshop/yetenek',    icon: Gauge },
     ],

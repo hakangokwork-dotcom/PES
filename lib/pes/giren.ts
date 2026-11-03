@@ -15,3 +15,9 @@ export function girenMetni(k: GirenAlanlari | null | undefined): string {
   if (k.girildi_at) parcalar.push(String(k.girildi_at).slice(0, 10).split('-').reverse().join('.'))
   return parcalar.join(' · ')
 }
+
+/** 055: kaydı açarken görülen sürüm. Yazma isteğine eklenir; kayıt bu arada
+ *  diğer panelden değiştiyse sunucu 409 döner, sessizce üzerine yazılmaz. */
+export function surumBasligi(k: GirenAlanlari | null | undefined): Record<string, string> {
+  return { 'x-kayit-surum': !k ? 'yok' : k.girildi_at ? String(k.girildi_at) : 'eski' }
+}

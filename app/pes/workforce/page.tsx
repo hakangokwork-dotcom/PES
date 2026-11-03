@@ -2,18 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
-import type { GirenAlanlari } from '@/lib/pes/giren'
+import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 
 interface Workshop { id: number; code: string; name: string }
+
+const BOS_FORM = { total_staff: 0, left_count: 0, joined_count: 0, in_warmup: 0, avg_tenure_mon: 0 }
 
 export default function WorkforcePage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
   const [workshopId, setWorkshopId] = useState('')
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const [form, setForm] = useState({
-    total_staff: 0, left_count: 0, joined_count: 0, in_warmup: 0, avg_tenure_mon: 0,
-  })
+  const [form, setForm] = useState(BOS_FORM)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -32,13 +32,12 @@ export default function WorkforcePage() {
       .then(d => {
         const existing = (d.records ?? []).find((r: Record<string, unknown>) => r.year === year && r.month === month)
         setMevcut(existing ?? null)
-        if (existing) {
-          setForm({
-            total_staff: existing.total_staff, left_count: existing.left_count,
-            joined_count: existing.joined_count, in_warmup: existing.in_warmup,
-            avg_tenure_mon: existing.avg_tenure_mon ?? 0,
-          })
-        }
+        // Kayıt yoksa formu boşalt: önceki ayın değerleri yeni aya yazılmasın.
+        setForm(existing ? {
+          total_staff: existing.total_staff, left_count: existing.left_count,
+          joined_count: existing.joined_count, in_warmup: existing.in_warmup,
+          avg_tenure_mon: existing.avg_tenure_mon ?? 0,
+        } : BOS_FORM)
       })
   }, [workshopId, year, month, yenile])
 
@@ -55,7 +54,7 @@ export default function WorkforcePage() {
 
     const res = await fetch('/api/pes/workforce', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...surumBasligi(mevcut) },
       body: JSON.stringify({ workshop_id: parseInt(workshopId), year, month, ...form }),
     })
 

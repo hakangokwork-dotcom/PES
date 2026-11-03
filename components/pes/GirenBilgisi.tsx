@@ -1,21 +1,24 @@
-import { girenMetni, type GirenAlanlari } from '@/lib/pes/giren'
+import { girenMetni, TARAF_ETIKET, type GirenAlanlari } from '@/lib/pes/giren'
 
-/* Merkez bir atölyenin dönem kaydını açtığında: kayıt var mı, kim girdi,
-   kaydederse ne olur. Atölye beyanının üzerine sessizce yazılmasın. */
+/* Bir dönem kaydı açıldığında: kayıt var mı, kim girdi, kaydederse ne olur.
+   İki panelde de kullanılır (055: ortak kayıt, onay yok). Diğer tarafın
+   girdiği değerin üzerine sessizce yazılmasın. */
 export default function GirenBilgisi({
-  kayit, uzerineYazar = true,
+  kayit, uzerineYazar = true, ben = 'merkez',
 }: {
   kayit: GirenAlanlari | null | undefined
   uzerineYazar?: boolean
+  ben?: 'atolye' | 'merkez'
 }) {
   if (!kayit) {
-    return <p className="text-xs text-faint">Bu dönem için kayıt yok; kaydettiğinizde merkez kaydı olarak girilir.</p>
+    return <p className="text-xs text-faint">Bu dönem için kayıt yok; kaydettiğinizde {TARAF_ETIKET[ben].toLocaleLowerCase('tr')} olarak girilir.</p>
   }
-  const atolyeden = kayit.giren_taraf === 'atolye'
+  const digerTaraftan = !!kayit.giren_taraf && kayit.giren_taraf !== ben
   return (
-    <p className={`rounded-md px-3 py-2 text-xs ${atolyeden ? 'bg-warn-soft text-body' : 'bg-canvas text-muted'}`}>
+    <p className={`rounded-md px-3 py-2 text-xs ${digerTaraftan ? 'bg-warn-soft text-body' : 'bg-canvas text-muted'}`}>
       <span className="font-medium">Mevcut kayıt:</span> {girenMetni(kayit)}
-      {uzerineYazar && atolyeden && ' — kaydederseniz atölyenin beyanının üzerine merkez kaydı olarak yazılır.'}
+      {uzerineYazar && digerTaraftan &&
+        ` — kaydederseniz ${ben === 'merkez' ? 'atölyenin' : 'merkezin'} girdiği değerin üzerine yazılır; değişiklik iki panelde de görünür.`}
       {!uzerineYazar && ' — kaydetmek yeni bir kayıt ekler.'}
     </p>
   )

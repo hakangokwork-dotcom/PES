@@ -8,7 +8,7 @@ PES, fason üretim yaptıran bir **merkez** ile onun **fason atölyeleri** aras�
 
 - **Atölye** kendi işini yönetmek için veri girer (günlük üretim, duruş, kalite, gider, öz değerlendirme) ve kendi içeriğine bakar (plan, denetim sonucu, karne).
 - **Merkez** ortak yönetim katmanını işletir: sipariş yerleştirme, plan ve onay, olgunluk denetimi, kıyas, ekonomi, yıllık talep.
-- Kural: **atölye beyan eder, merkez doğrular.** Aynı veriye iki taraf yazıyorsa hangisinin kaynak olduğu ekranda yazılı olmalı.
+- Kural: **ortak kayıt, onay yok** (2026-11-03). Atölye de merkez de aynı kaydı değiştirebilir; iki panel aynı satırı okur, kim girdiği ekranda yazılı olur, araya giren değişiklik sessizce ezilmez (409). İleride "yalnız atölye yazar" ya da onay kuralı gelebilir.
 
 Vizyon ve ticari çerçeve: `PLATFORM_VISION_v3.md`, `MODULE_CATALOG.md`, `COMMERCIAL_ROADMAP.md` (Nisan 2026 SaaS pivotu; portal amacı oraya henüz işlenmedi).
 
@@ -45,5 +45,6 @@ Atölye kimliği **oturumdan** gelir (`TenantContext.workshopId`); `?wid=` eski 
 ## Güncel durum (2026-11-02)
 
 - 131 aktif atölye, 1 atölye kullanıcısı; portal fiilen tek yöneticiyle kullanılıyor.
-- Çift yazılan veride (üretim, kalite, duruş, işgücü, gider, profil, bant, yetenek) kim girdi `giren_taraf` / `giren_eposta` kolonlarında (054, tetikleyici). Uygulama bu kolonlara yazmaz.
+- Çift yazılan veride (üretim, kalite, duruş, işgücü, gider, profil, bant, yetenek, model değişimi) kim girdi `giren_taraf` / `giren_eposta` kolonlarında (054, tetikleyici). Uygulama bu kolonlara yazmaz.
+- Ortak kayıt bütünlüğü (055): yazma ekranları kaydı açtıkları sürümü `surumBasligi()` ile gönderir (`lib/pes/giren.ts`); yeni bir yazma ekranı da göndermeli. Künye bant/çalışan sayısı `workshop` ile tetikleyiciyle eşit; ikinci bir kopya açılmaz.
 - Olgunluk: katalog v7 yayında, tamamlanmış denetim yok; atölye akışı v1.10.0 ile düzeldi. Bkz. `docs/2026-11-02-panel-inceleme-raporu.md`.

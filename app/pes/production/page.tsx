@@ -1,13 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { girenMetni, type GirenAlanlari } from '@/lib/pes/giren'
+import { girenMetni, surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 import { useDonem } from '@/lib/pes/useDonem'
 import { useToast } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string; daily_target: number }
-interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number; giren?: GirenAlanlari }
+interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number; giren?: GirenAlanlari & { model_code?: string } }
+
+/* Model değişmediyse yüklenen satırın sürümü; değiştiyse başka bir satır
+   yazılacak, o yüzden kontrol yok. */
+function uretimSurumu(row: ProdRow): Record<string, string> {
+  if (row.giren && row.giren.model_code !== row.model_code) return {}
+  return surumBasligi(row.giren)
+}
 
 export default function ProductionPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
@@ -17,6 +24,7 @@ export default function ProductionPage() {
      tutulur ve tüm /pes ekranları aynı dönemi gösterir. */
   const { yil: year, ay: month } = useDonem()
   const [rows, setRows] = useState<ProdRow[]>([])
+  const [yenile, setYenile] = useState(0)
   const [loading, setLoading] = useState(false)
   const toast = useToast()
   const [error, setError] = useState('')
@@ -68,7 +76,7 @@ export default function ProductionPage() {
           }))
         }
       })
-  }, [workshopId, year, month])
+  }, [workshopId, year, month, yenile])
 
   function updateRow(idx: number, field: string, value: string | number) {
     setRows(prev => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r))
@@ -80,12 +88,13 @@ export default function ProductionPage() {
     setError('')
 
     let saved = 0
+    let hata = false
     for (const row of rows) {
       if (!row.model_code && row.actual_qty === 0) continue
 
       const res = await fetch('/api/pes/production', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...uretimSurumu(row) },
         body: JSON.stringify({
           line_id: row.line_id,
           workshop_id: parseInt(workshopId),
@@ -102,12 +111,14 @@ export default function ProductionPage() {
       else {
         const d = await res.json()
         setError(d.error)
+        hata = true
         break
       }
     }
 
     setLoading(false)
-    if (!error) toast.success(`${saved} bant için üretim verisi kaydedildi`)
+    if (!hata) toast.success(`${saved} bant için üretim verisi kaydedildi`)
+    setYenile((n) => n + 1)
   }
 
   const inputClass = 'w-full px-2 py-1.5 border border-line rounded text-sm focus:outline-none focus:border-accent text-right'

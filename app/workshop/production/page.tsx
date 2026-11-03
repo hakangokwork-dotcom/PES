@@ -4,9 +4,17 @@ import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
+import { girenMetni, surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 
 interface Line { id: number; code: string; name: string; daily_target: number; line_type: string }
-interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number }
+interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number; giren?: GirenAlanlari & { model_code?: string } }
+
+/* Model değişmediyse yüklenen satırın sürümü; değiştiyse başka bir satır
+   yazılacak, o yüzden kontrol yok. */
+function uretimSurumu(row: ProdRow): Record<string, string> {
+  if (row.giren && row.giren.model_code !== row.model_code) return {}
+  return surumBasligi(row.giren)
+}
 
 export default function ProductionWrapper() {
   return <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}><WorkshopProductionPage /></Suspense>
@@ -43,7 +51,7 @@ function WorkshopProductionPage() {
     if (pr.production?.length > 0) {
       setRows(prev => prev.map(row => {
         const existing = pr.production.find((p: Record<string, unknown>) => p.line_id === row.line_id)
-        return existing ? { ...row, model_code: (existing.model_code as string) ?? '', total_sam: Number(existing.total_sam) ?? 0, target_qty: Number(existing.target_qty), actual_qty: Number(existing.actual_qty), work_days: Number(existing.work_days) } : row
+        return existing ? { ...row, model_code: (existing.model_code as string) ?? '', total_sam: Number(existing.total_sam) ?? 0, target_qty: Number(existing.target_qty), actual_qty: Number(existing.actual_qty), work_days: Number(existing.work_days), giren: existing as ProdRow['giren'] } : row
       }))
     }
   }
@@ -58,16 +66,19 @@ function WorkshopProductionPage() {
     if (!wid) return
     setLoading(true); setMessage('')
     let saved = 0
+    let hata = ''
     for (const row of rows) {
       if (!row.model_code && row.actual_qty === 0) continue
       const res = await fetch('/api/pes/production', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...uretimSurumu(row) },
         body: JSON.stringify({ line_id: row.line_id, workshop_id: parseInt(wid), year, month, model_code: row.model_code || `MODEL-${row.line_code}`, total_sam: row.total_sam, target_qty: row.target_qty, actual_qty: row.actual_qty, work_days: row.work_days }),
       })
       if (res.ok) saved++
+      else { hata = (await res.json()).error ?? 'Kaydedilemedi'; break }
     }
     setLoading(false)
-    setMessage(`${saved} bant için üretim verisi kaydedildi`)
+    setMessage(hata ? `${saved} bant kaydedildi; durdu: ${hata}` : `${saved} bant için üretim verisi kaydedildi`)
+    loadLines()
   }
 
   if (!wid) return <AtolyeSecilmedi />
@@ -114,7 +125,7 @@ function WorkshopProductionPage() {
                 const eff = row.target_qty > 0 ? ((row.actual_qty / row.target_qty) * 100) : 0
                 return (
                   <tr key={row.line_id}>
-                    <td className="py-2"><span className="text-accent font-medium">{row.line_code}</span><br/><span className="text-xs text-faint">{row.line_name}</span></td>
+                    <td className="py-2"><span className="text-accent font-medium">{row.line_code}</span><br/><span className="text-xs text-faint">{row.line_name}</span>{row.giren && <span className="block text-[11px] text-faint">{girenMetni(row.giren)}</span>}</td>
                     <td className="py-2"><input className="w-28 px-2 py-1.5 border border-line rounded text-sm" value={row.model_code} onChange={e => updateRow(idx, 'model_code', e.target.value)} placeholder="PNT-001" /></td>
                     <td className="py-2 text-center"><input type="number" inputMode="decimal" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value)||0)} step={0.1} /></td>
                     <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value)||0)} /></td>

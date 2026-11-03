@@ -3,9 +3,10 @@
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import React, { Suspense, useState, useEffect, useMemo } from 'react'
+import { girenMetni, surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 import Link from 'next/link'
 
-interface Workshop {
+interface Workshop extends GirenAlanlari {
   id: number; code: string; name: string; city: string; district: string; type: string
   total_staff: number; sewing_staff: number; ukp_staff: number; cutting_staff: number
   management: number; indirect: number; line_count: number; daily_target: number; net_hours_day: number
@@ -131,7 +132,7 @@ function WorkshopProfilePage() {
     const productive = staffFromLines.dikimOp + staffFromLines.kesimOp + staffFromLines.ukpOp + staffFromLines.yikamaOp
 
     const res = await fetch(`/api/pes/workshops/${w.id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', ...surumBasligi(w) },
       body: JSON.stringify({
         name: w.name, city: w.city, district: w.district, type: w.type, bolge: w.bolge,
         total_staff: productive + mgmt,
@@ -145,8 +146,8 @@ function WorkshopProfilePage() {
       }),
     })
     setLoading(false)
-    if (res.ok) setMessage('Profil kaydedildi')
-    else setError('Kayıt başarısız')
+    if (res.ok) { setMessage('Profil kaydedildi'); loadData() }
+    else setError((await res.json().catch(() => ({}))).error ?? 'Kayıt başarısız')
   }
 
   async function addLine(e: React.FormEvent) {
@@ -222,6 +223,7 @@ function WorkshopProfilePage() {
         <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
         <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">Atölye Profili</h1>
         <p className="text-faint">{w.code} — Tüm atölye bilgilerini buradan yönetin</p>
+        <p className="text-xs text-faint mt-1">Son değişiklik: {girenMetni(w)} · bant ve çalışan sayısı merkezin künyesiyle aynı tutulur.</p>
       </div>
 
       {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}

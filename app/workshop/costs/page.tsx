@@ -4,6 +4,8 @@ import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
+import GirenBilgisi from '@/components/pes/GirenBilgisi'
+import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 
 const MAIN_FIELDS = [
   { key: 'personnel', label: 'Personel Gideri' },
@@ -51,6 +53,8 @@ function WorkshopCostsPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [sektorDkMaliyetler, setSektorDkMaliyetler] = useState<DkMaliyetRef[]>([])
+  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
     if (!wid) return
@@ -70,15 +74,15 @@ function WorkshopCostsPage() {
     if (!wid) return
     fetch(`/api/pes/expenses?workshop_id=${wid}&year=${year}&month=${month}`)
       .then(r => r.json()).then(d => {
-        if (d.expense) {
-          setWorkDays(Number(d.expense.work_days) || 22)
-          setTargetRevenue(Number(d.expense.target_revenue) || 0)
-          const e: Record<string, number> = {}
-          for (const f of MAIN_FIELDS) e[f.key] = Number(d.expense[f.key]) || 0
-          setExpenses(e)
-        }
+        setMevcut(d.expense ?? null)
+        // Kayıt yoksa sıfırla: önceki ayın giderleri yeni aya yazılmasın.
+        setWorkDays(Number(d.expense?.work_days) || 22)
+        setTargetRevenue(Number(d.expense?.target_revenue) || 0)
+        const e: Record<string, number> = {}
+        for (const f of MAIN_FIELDS) e[f.key] = Number(d.expense?.[f.key]) || 0
+        setExpenses(e)
       })
-  }, [wid, year, month])
+  }, [wid, year, month, yenile])
 
   // Diğer giderler alt toplamı
   const otherTotal = Object.values(otherDetails).reduce((a, b) => a + b, 0)
@@ -113,11 +117,11 @@ function WorkshopCostsPage() {
     if (!wid) return
     setLoading(true); setError(''); setMessage('')
     const res = await fetch('/api/pes/expenses', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...surumBasligi(mevcut) },
       body: JSON.stringify({ workshop_id: parseInt(wid), year, month, work_days: workDays, ...expenses, target_revenue: targetRevenue }),
     })
     setLoading(false)
-    if (res.ok) setMessage('Gider kaydedildi')
+    if (res.ok) { setMessage('Gider kaydedildi'); setYenile(n => n + 1) }
     else { const d = await res.json(); setError(d.error) }
   }
 
@@ -314,6 +318,7 @@ function WorkshopCostsPage() {
         )}
       </div>
 
+      <GirenBilgisi kayit={mevcut} ben="atolye" />
       {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
       {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
-import type { GirenAlanlari } from '@/lib/pes/giren'
+import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 import { useRouter } from 'next/navigation'
 import { useDonem } from '@/lib/pes/useDonem'
 import { useToast } from '@/components/ui'
@@ -53,15 +53,14 @@ export default function CostsPage() {
       .then(r => r.json())
       .then(d => {
         setMevcut(d.expense ?? null)
-        if (d.expense) {
-          setWorkDays(d.expense.work_days)
-          setTargetRevenue(d.expense.target_revenue)
-          const newExp: Record<string, number> = {}
-          for (const f of EXPENSE_FIELDS) {
-            newExp[f.key] = d.expense[f.key] ?? 0
-          }
-          setExpenses(newExp)
+        // Kayıt yoksa sıfırla: önceki ayın giderleri yeni aya yazılmasın.
+        setWorkDays(d.expense?.work_days ?? 22)
+        setTargetRevenue(d.expense?.target_revenue ?? 0)
+        const newExp: Record<string, number> = {}
+        for (const f of EXPENSE_FIELDS) {
+          newExp[f.key] = d.expense?.[f.key] ?? 0
         }
+        setExpenses(newExp)
       })
   }, [workshopId, year, month, yenile])
 
@@ -78,7 +77,7 @@ export default function CostsPage() {
 
     const res = await fetch('/api/pes/expenses', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...surumBasligi(mevcut) },
       body: JSON.stringify({
         workshop_id: parseInt(workshopId),
         year, month, work_days: workDays,

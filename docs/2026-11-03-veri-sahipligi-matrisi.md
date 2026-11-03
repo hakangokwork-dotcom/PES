@@ -1,6 +1,6 @@
 # Veri sahipliği matrisi — kim girer, kim onaylar
 
-**Durum:** Karar 1 uygulandı (054, v1.11.0) · Karar 2 ve 3 açık
+**Durum:** Üç karar da uygulandı (054 v1.11.0, 055 v1.12.0)
 **Kural (CLAUDE.md):** atölye beyan eder, merkez doğrular. Aynı veriye iki taraf yazıyorsa hangisinin kaynak olduğu ekranda yazılı olmalı.
 
 Bugünkü durum koddan çıkarıldı: hangi panel hangi API'ye yazıyor. "Önerilen" sütunu karar içindir.
@@ -14,10 +14,10 @@ Bugünkü durum koddan çıkarıldı: hangi panel hangi API'ye yazıyor. "Öneri
 | Kalite (`quality_record`) | yazar | **yazar** | çift yazım | Atölye | Merkez kalite ekibi denetimde doğrular |
 | Duruş (`downtime_record`) | yazar | **yazar** | çift yazım | Atölye | — |
 | İşgücü devri (`workforce_turnover`) | yazar | **yazar** | çift yazım | Atölye | — |
-| Model değişimi (`changeover_record`) | — | yazar | yalnız merkez | Atölye | Atölye ekranı yok; eklenmeli ya da merkezde kalmalı |
+| Model değişimi (`changeover_record`) | yazar | yazar | ortak (055) | Ortak | İki panelde aynı ekran, kim girdi kolonu |
 | Gider beyanı (`monthly_expense`) | yazar | **yazar** | çift yazım | Atölye | Var: beyan kalitesi ve revizyon geçmişi (022) |
 | Ekonomi verisi (040) | yazar | talep açar, okur | iki yönlü | Atölye | Var: merkez talep eder, atölye doldurur |
-| Atölye profili, bantlar | yazar | **yazar** | çift yazım | Atölye | Merkez onayı: kapasiteyi etkileyen alanlar (bant sayısı, kişi) |
+| Atölye profili, bantlar | yazar | **yazar** | ortak (055) | Ortak | Onay yok; bant ve çalışan sayısı künye ile eşit tutulur |
 | Bant yetenekleri | yazar | **yazar** | çift yazım | Atölye | Merkez denetimde doğrular |
 | İş emri | yazar | okur, plan masasından atar | iki yönlü | Merkez (sipariş), atölye (ilerleme) | Künye merkezde, ilerleme atölyede |
 | Plan teklifi | cevaplar | gönderir | iki yönlü | Merkez | Var: kabul / karşı teklif / ret (044) |
@@ -35,8 +35,13 @@ Bugünkü durum koddan çıkarıldı: hangi panel hangi API'ye yazıyor. "Öneri
    Önceki durum: Yedi veri türü iki panelden aynı API ile yazılıyor ve kimin girdiği kaydedilmiyor. Seçenekler:
    - Merkez ekranları salt okunur olur, düzeltme "atölye adına çalış" ile yapılır. En sade; iz kaydı zaten atölye kapsamında kalır.
    - Merkez yazmaya devam eder ama her kayda `kaynak = atolye | merkez` yazılır ve ekranda gösterilir.
-2. **Model değişimi** için atölye ekranı yok. Eklensin mi, yoksa merkezin ölçtüğü bir veri mi?
-3. **Profil ve bant değişiklikleri** kapasiteyi doğrudan değiştiriyor (plan masası, yıllık plan). Atölyenin yaptığı değişiklik merkez onayına mı düşmeli?
+2. **Model değişimi — UYGULANDI (055).** Atölye panelinde de var (`/workshop/changeover`); iki panel aynı listeyi görür, kim girdi kolonu eklendi.
+3. **Profil ve bant değişiklikleri — UYGULANDI (055).** Merkez onayı yok (Hakan, 2026-11-03): "atölye değiştirirse de merkez değiştirirse de iki tarafta değişsin; şu an öncelik veri bütünlüğü." İleride "yalnız atölye yazar" ya da "onaydan sonra değişir" kuralı eklenebilir.
+   Uygulanan bütünlük kuralları:
+   - **Tek kayıt.** İki panel aynı satırı okur ve yazar; kopya yok. Künyedeki bant ve çalışan sayısı (`workshop_profil`) atölye kaydıyla (`workshop.line_count`, `total_staff`) tetikleyiciyle iki yönlü eşitlenir. Önceden 87 atölyede iki panel farklı sayı gösteriyordu; uzlaştırmada künye değeri alındı (atölye kaydı varsayılan 0/1 idi). Aylık kapasite bilerek ayrı: yıllık plan künye ve atölye beyanını ayrı kaynak olarak gösteriyor.
+   - **Sessiz üzerine yazma yok.** Ekran kaydı açtığında gördüğü sürümü (`girildi_at`) `x-kayit-surum` başlığıyla gönderir; kayıt bu arada diğer panelden değiştiyse sunucu 409 döner ("sayfayı yenileyin"). Gider, işgücü, aylık üretim ve atölye profili ekranlarında, iki panelde de.
+   - **Dönem değişince form sıfırlanır.** Önceden kayıt olmayan aya geçince önceki ayın değerleri formda kalıyor ve kaydedilince yeni aya yazılıyordu (gider ve işgücü, iki panel).
+   - **İki taraf da görür.** "Mevcut kayıt: kim · ne zaman" satırı atölye ekranlarında da var; diğer tarafın girdiği değerin üzerine yazmadan önce uyarır.
 
 ## Ekranda taraf etiketi
 

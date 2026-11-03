@@ -14,7 +14,7 @@ import { getDB } from './db'
 export async function withTenant<T>(
   tenantId: string,
   fn: (sql: postgres.TransactionSql) => Promise<T>,
-  opts: { workshopId?: number | null; userEmail?: string | null } = {}
+  opts: { workshopId?: number | null; userEmail?: string | null; kayitSurum?: string | null } = {}
 ): Promise<T> {
   if (!isValidUuid(tenantId)) {
     throw new Error(`withTenant: geçersiz tenant_id (${tenantId})`)
@@ -30,6 +30,9 @@ export async function withTenant<T>(
     /* 054: "kaydı kim girdi" tetikleyicisi buradan okur. Aynı gerekçeyle
        her zaman yazılır; boş = bilinmiyor (betikler, arka plan işleri). */
     await txSql`SELECT set_config('app.current_user_email', ${opts.userEmail ?? ''}, true)`
+    /* 055: ekranın kaydı açtığında gördüğü sürüm; araya başka yazım
+       girdiyse tetikleyici PT409 ile durdurur. Boş = kontrol yok. */
+    await txSql`SELECT set_config('app.beklenen_surum', ${opts.kayitSurum ?? ''}, true)`
     return fn(txSql)
   }) as Promise<T>
 }

@@ -122,13 +122,13 @@ export default async function PesDashboard() {
   const dikkat = [
     {
       sayi: denetim?.dolmus ?? 0,
-      metin: 'atölyenin denetim süresi dolmuş',
+      metin: 'atölyenin sosyal uygunluk denetimi süresi dolmuş',
       href: '/pes/atolye-profil',
       agir: true,
     },
     {
       sayi: denetim?.yaklasan ?? 0,
-      metin: 'atölyenin denetimi 90 gün içinde doluyor',
+      metin: 'atölyenin sosyal uygunluk denetimi 90 gün içinde doluyor',
       href: '/pes/atolye-profil',
       agir: false,
     },

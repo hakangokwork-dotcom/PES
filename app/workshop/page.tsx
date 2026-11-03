@@ -105,12 +105,29 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
       ORDER BY pl.code
     `
 
+    /* MERKEZDEN GELENLER — atölyenin cevap vermesi ya da bilmesi gereken,
+       merkezin başlattığı işler. Portalın iki yönlü akışının atölye ucu. */
+    const [gelen] = await sql`
+      SELECT
+        (SELECT count(*)::int FROM plan_teklif
+          WHERE workshop_id = ${workshopId} AND durum = 'bekliyor') AS bekleyen_teklif,
+        (SELECT count(*)::int FROM work_order
+          WHERE workshop_id = ${workshopId}
+            AND durum NOT IN ('Tamamlandi','Sevk Edildi','İptal')
+            AND teslim_tarihi IS NOT NULL AND teslim_tarihi <= CURRENT_DATE + 7) AS yaklasan_teslim`
+    const [sonDenetim] = await sql`
+      SELECT o.tarih::text AS tarih, o.yuzde::text AS yuzde
+        FROM v_olgunluk_denetim_ozet o
+        JOIN olgunluk_denetim d ON d.id = o.denetim_id
+       WHERE o.workshop_id = ${workshopId} AND d.tur = 'DENETIM' AND d.durum = 'tamamlandi'
+       ORDER BY o.tarih DESC, o.denetim_id DESC LIMIT 1`
+
     const effTrend = await sql`
       SELECT year, month, ROUND(SUM(actual_qty)::numeric / NULLIF(SUM(target_qty), 0) * 100, 1) as eff
       FROM monthly_production WHERE workshop_id = ${workshopId}
       GROUP BY year, month ORDER BY year, month`
 
-    return { mode: 'detail' as const, w, workshopId, donemler, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend }
+    return { mode: 'detail' as const, w, workshopId, donemler, gelen, sonDenetim, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend }
   })
 
   if (!data) redirect('/login')
@@ -126,7 +143,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
 
   if (data.mode === 'notfound') return <p className="text-faint">Atölye bulunamadı</p>
 
-  const { w, workshopId, donemler, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend } = data
+  const { w, workshopId, donemler, gelen, sonDenetim, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend } = data
 
   const totalExpense = Number(expKpi?.total ?? 0)
   const targetRevenue = Number(expKpi?.target_revenue ?? 0)
@@ -172,6 +189,44 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           {' '}<Link href="/workshop/production" className="font-medium text-accent-ink underline underline-offset-2">Üretim girişine git</Link>
         </p>
       )}
+
+      <div className="rounded-xl border border-line-soft bg-surface p-5">
+        <h2 className="mb-3 text-sm font-semibold text-ink">Merkezden gelenler</h2>
+        <ul className="divide-y divide-line-soft">
+          {[
+            {
+              href: '/workshop/plan',
+              deger: String(gelen?.bekleyen_teklif ?? 0),
+              metin: 'plan teklifi cevabınızı bekliyor',
+              vurgu: Number(gelen?.bekleyen_teklif ?? 0) > 0,
+            },
+            {
+              href: '/workshop/is-emri',
+              deger: String(gelen?.yaklasan_teslim ?? 0),
+              metin: 'iş emrinin teslimine 7 gün veya daha az kaldı',
+              vurgu: Number(gelen?.yaklasan_teslim ?? 0) > 0,
+            },
+            {
+              href: '/workshop/olgunluk',
+              deger: sonDenetim?.yuzde ? `%${sonDenetim.yuzde}` : '—',
+              metin: sonDenetim
+                ? `son olgunluk denetimi (${String(sonDenetim.tarih).slice(0, 10).split('-').reverse().join('.')}) — süreç kırılımını görün`
+                : 'henüz resmi olgunluk denetimi yok — öz değerlendirmeyle hazırlanın',
+              vurgu: false,
+            },
+          ].map((g) => (
+            <li key={g.href}>
+              <Link href={g.href} className="group flex items-center gap-3 py-2">
+                <span className={`w-14 shrink-0 text-right text-lg font-semibold tabular-nums ${g.vurgu ? 'text-warn' : 'text-ink'}`}>
+                  {g.deger}
+                </span>
+                <span className="flex-1 text-sm text-body">{g.metin}</span>
+                <span className="text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-accent">→</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-surface border border-line-soft rounded-xl p-5">

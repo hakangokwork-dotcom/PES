@@ -58,7 +58,7 @@ type Capability = {
 /* Yetenek editörü bant bazlı çalışır; sekme atölyenin bantlarını listeler. */
 type Line = { id: number; code: string; name: string }
 
-const TABS = ['Kimlik', 'Profil & Denetim', 'Olgunluk', 'Kapasite', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
+const TABS = ['Kimlik', 'Profil & Sosyal Uygunluk', 'Olgunluk', 'Kapasite', 'Yetenek', 'İlişki', 'Zaman Çizgisi'] as const
 type Tab = (typeof TABS)[number]
 
 const KIND_LABELS: Record<string, string> = {
@@ -134,7 +134,7 @@ export default function WorkshopTabs({
 
       <div className="pt-6">
         {tab === 'Kimlik' && <KimlikTab workshopId={workshopId} account={account} />}
-        {tab === 'Profil & Denetim' && (
+        {tab === 'Profil & Sosyal Uygunluk' && (
           <AtolyeProfilSekmesi
             workshopId={workshopId}
             isActive={isActive}

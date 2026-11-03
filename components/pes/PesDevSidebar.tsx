@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Inbox, Factory, ShieldCheck, CalendarDays, PackagePlus, Radar,
   Boxes, CircleCheck, CirclePause, RefreshCw, Users, Wallet, Upload,
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
-  Shapes, Workflow, Calculator, CalendarRange,
+  Shapes, Workflow, CalendarRange,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
   ArrowRight, Coins, Layers, Ruler, Tags, Timer, FunctionSquare, ClipboardPen, LayoutGrid, Zap,
 } from 'lucide-react'
@@ -27,7 +27,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Dashboard',        href: '/pes',               icon: LayoutDashboard },
       { label: 'Atölyeler',        href: '/pes/workshops',     icon: Factory },
-      { label: 'Profil & Denetim', href: '/pes/atolye-profil', icon: ShieldCheck },
+      { label: 'Profil & Sosyal Uygunluk', href: '/pes/atolye-profil', icon: ShieldCheck },
       { label: 'Olgunluk Durumu', href: '/pes/olgunluk',       icon: Radar },
       { label: 'Atölye Takvimleri', href: '/pes/takvim',       icon: CalendarDays },
       { label: 'Siparişler',        href: '/pes/siparisler',     icon: Inbox },
@@ -50,11 +50,24 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    id: 'analiz',
-    title: 'Analiz',
+    id: 'performans',
+    title: 'Performans',
     items: [
       { label: 'Skorlama',       href: '/pes/scoring',       icon: Star },
       { label: 'Karşılaştırma',  href: '/pes/compare',       icon: ArrowLeftRight },
+      { label: 'Benchmark',      href: '/pes/benchmark',     icon: Gauge },
+      { label: 'Gider Panosu',   href: '/pes/gider-panosu',  icon: ChartColumn },
+      { label: 'Yetenek Raporu', href: '/pes/yetenek-rapor', icon: ClipboardList },
+      { label: 'Yetenek Arama',  href: '/pes/yetenek-arama', icon: Search },
+      { label: 'Veri Kalitesi',  href: '/pes/veri-kalitesi', icon: CircleCheckBig },
+    ],
+  },
+  {
+    /* Eskiden "Analiz" 15 madde taşıyordu; ekonomi ve fiyatlama ailesi
+       kendi grubunda. */
+    id: 'ekonomi',
+    title: 'Ekonomi & Fiyat',
+    items: [
       { label: 'Atölye Ekonomi',  href: '/pes/ekonomi',       icon: Coins },
       { label: 'Klasman Kıyası', href: '/pes/ekonomi/klasman', icon: Layers },
       { label: 'Formül Kütüphanesi', href: '/pes/ekonomi/formuller', icon: FunctionSquare },
@@ -63,11 +76,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Sipariş Simülatörü', href: '/pes/siparis-simulasyon', icon: Zap },
       { label: 'Model Fiyatlama (MTM)', href: '/pes/model',      icon: Ruler },
       { label: 'Referans Model Fiyatları', href: '/pes/model/referans', icon: Tags },
-      { label: 'Gider Panosu',   href: '/pes/gider-panosu',  icon: ChartColumn },
-      { label: 'Benchmark',      href: '/pes/benchmark',     icon: Gauge },
-      { label: 'Yetenek Raporu', href: '/pes/yetenek-rapor', icon: ClipboardList },
-      { label: 'Yetenek Arama',  href: '/pes/yetenek-arama', icon: Search },
-      { label: 'Veri Kalitesi',  href: '/pes/veri-kalitesi', icon: CircleCheckBig },
     ],
   },
   {
@@ -76,7 +84,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Modeller',         href: '/pes/models',            icon: Shapes },
       { label: 'Süreçler',         href: '/pes/processes',         icon: Workflow },
-      { label: 'Eder Maliyet (eski)', href: '/pes/eder-maliyet',    icon: Calculator },
     ],
   },
   {

@@ -135,6 +135,23 @@ Netleşmesi gereken ürün kararı: **hangi veriyi kim girer, kim onaylar.** Bug
 
 ---
 
+## 6b. Uygulama durumu (2026-11-03, dal `feat/olgunluk-atolye-akisi`, v1.10.0)
+
+| Madde | Durum |
+|---|---|
+| 1–6 Olgunluk akışı, süreç seviyeleri, boş durumlar, dashboard sinyali | Yapıldı. Ek bulgu: atölye resmi denetimi API'den değiştirebiliyordu; kapatıldı. |
+| 7 İlk gerçek denetim | Sizde (pilot 3 atölye) |
+| 8 "Atölye seçin" ölü ekranları, `?wid=` | Yapıldı |
+| 9 ASCII Türkçe metinler | Yapıldı (eski nesil sayfalar) |
+| 10 Atölye dashboard dönem seçici, eski veri uyarısı | Yapıldı |
+| 11 Tema token'ları, başlık birliği | Durum renkleri 101 dosyada token'a geçti; başlık tipografisi birleşti. `PageHeader` bileşenine tam geçiş yapılmadı. |
+| 12 Atölye hesapları | Sizde: hangi atölyeler, hangi e-postalar. Komut: `node scripts/create-user.mjs --email=... --sifre=... --atolye=B0xx` |
+| 13 Kim girer / kim onaylar | Taslak: `docs/2026-11-03-veri-sahipligi-matrisi.md` (3 açık karar) |
+| 14 Merkezden gelenler bloğu | Yapıldı (atölye dashboard) |
+| 15 Merkez menüsü | Yapıldı: Performans / Ekonomi & Fiyat; eski Eder Maliyet menüden çıktı |
+| 16 "Profil & Denetim" adı | Yapıldı: "Profil & Sosyal Uygunluk" |
+| 17 Supabase planı | Sizde (ücretli plan kararı) |
+
 ## 7. Dokümantasyon durumu
 
 - PES klasöründe **CLAUDE.md yok**; yalnız üst klasör `IDEAMD/CLAUDE.md` (wiki kuralları) var. Vizyon üç dosyada (`PLATFORM_VISION_v3`, `MODULE_CATALOG`, `COMMERCIAL_ROADMAP`) ve hepsi Nisan 2026 SaaS pivotunu anlatıyor; "merkez ↔ fason portalı" amacı yazılı değil.

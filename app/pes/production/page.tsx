@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { girenMetni, type GirenAlanlari } from '@/lib/pes/giren'
 import { useDonem } from '@/lib/pes/useDonem'
 import { useToast } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string; daily_target: number }
-interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number }
+interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number; giren?: GirenAlanlari }
 
 export default function ProductionPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
@@ -60,6 +61,7 @@ export default function ProductionPage() {
                 target_qty: existing.target_qty ?? 0,
                 actual_qty: existing.actual_qty ?? 0,
                 work_days: existing.work_days ?? 22,
+                giren: existing as GirenAlanlari,
               }
             }
             return row
@@ -153,7 +155,7 @@ export default function ProductionPage() {
                   const eff = row.target_qty > 0 ? ((row.actual_qty / row.target_qty) * 100) : 0
                   return (
                     <tr key={row.line_id}>
-                      <td className="py-2 text-accent font-medium">{row.line_code}<br/><span className="text-xs text-faint">{row.line_name}</span></td>
+                      <td className="py-2 text-accent font-medium">{row.line_code}<br/><span className="text-xs text-faint">{row.line_name}</span>{row.giren && <span className="block text-[11px] text-faint">{girenMetni(row.giren)}</span>}</td>
                       <td className="py-2"><input className="w-32 px-2 py-1.5 border border-line rounded text-sm" value={row.model_code} onChange={e => updateRow(idx, 'model_code', e.target.value)} placeholder="PNT-001" /></td>
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 80}} value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value) || 0)} min={0} step={0.1} /></td>
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 90}} value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value) || 0)} min={0} /></td>

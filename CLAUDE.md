@@ -45,4 +45,5 @@ Atölye kimliği **oturumdan** gelir (`TenantContext.workshopId`); `?wid=` eski 
 ## Güncel durum (2026-11-02)
 
 - 131 aktif atölye, 1 atölye kullanıcısı; portal fiilen tek yöneticiyle kullanılıyor.
-- Olgunluk: katalog v7 yayında, tamamlanmış denetim yok. Atölye tarafındaki akış kırık. Bkz. `docs/2026-11-02-panel-inceleme-raporu.md`.
+- Çift yazılan veride (üretim, kalite, duruş, işgücü, gider, profil, bant, yetenek) kim girdi `giren_taraf` / `giren_eposta` kolonlarında (054, tetikleyici). Uygulama bu kolonlara yazmaz.
+- Olgunluk: katalog v7 yayında, tamamlanmış denetim yok; atölye akışı v1.10.0 ile düzeldi. Bkz. `docs/2026-11-02-panel-inceleme-raporu.md`.

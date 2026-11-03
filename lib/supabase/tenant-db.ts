@@ -14,7 +14,7 @@ import { getDB } from './db'
 export async function withTenant<T>(
   tenantId: string,
   fn: (sql: postgres.TransactionSql) => Promise<T>,
-  opts: { workshopId?: number | null } = {}
+  opts: { workshopId?: number | null; userEmail?: string | null } = {}
 ): Promise<T> {
   if (!isValidUuid(tenantId)) {
     throw new Error(`withTenant: geçersiz tenant_id (${tenantId})`)
@@ -27,6 +27,9 @@ export async function withTenant<T>(
        Boş dize = kısıt yok = merkez kullanıcısı (bugünkü davranış). */
     await txSql`SELECT set_config('app.current_workshop_id',
                   ${opts.workshopId != null ? String(opts.workshopId) : ''}, true)`
+    /* 054: "kaydı kim girdi" tetikleyicisi buradan okur. Aynı gerekçeyle
+       her zaman yazılır; boş = bilinmiyor (betikler, arka plan işleri). */
+    await txSql`SELECT set_config('app.current_user_email', ${opts.userEmail ?? ''}, true)`
     return fn(txSql)
   }) as Promise<T>
 }

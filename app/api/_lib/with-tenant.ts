@@ -54,7 +54,7 @@ export function withTenantRoute<P = Record<string, string>>(
       return await withTenant<NextResponse>(
         tenant.tenantId,
         (sql) => handler(req, { sql, tenant, params }),
-        { workshopId: tenant.workshopId },
+        { workshopId: tenant.workshopId, userEmail: tenant.userEmail },
       )
     } catch (err) {
       console.error('[withTenantRoute]', err)

@@ -1,6 +1,6 @@
 # Veri sahipliği matrisi — kim girer, kim onaylar
 
-**Durum:** TASLAK · 2026-11-03 · Hakan onayı bekliyor
+**Durum:** Karar 1 uygulandı (054, v1.11.0) · Karar 2 ve 3 açık
 **Kural (CLAUDE.md):** atölye beyan eder, merkez doğrular. Aynı veriye iki taraf yazıyorsa hangisinin kaynak olduğu ekranda yazılı olmalı.
 
 Bugünkü durum koddan çıkarıldı: hangi panel hangi API'ye yazıyor. "Önerilen" sütunu karar içindir.
@@ -31,7 +31,8 @@ Bugünkü durum koddan çıkarıldı: hangi panel hangi API'ye yazıyor. "Öneri
 
 ## Açık kararlar
 
-1. **Çift yazım.** Yedi veri türü iki panelden aynı API ile yazılıyor ve kimin girdiği kaydedilmiyor. Seçenekler:
+1. **Çift yazım — UYGULANDI (2026-11-03).** İki taraf da yazmaya devam ediyor; her kayıt artık `giren_taraf` (atolye/merkez), `giren_eposta` ve `girildi_at` taşıyor. Tetikleyici doldurur (054), istemci taklit edemez. Merkez ekranları mevcut kaydın kimden geldiğini gösterir ve atölye beyanının üzerine yazmadan önce uyarır. Eski kayıtlar "kaynak bilinmiyor".
+   Önceki durum: Yedi veri türü iki panelden aynı API ile yazılıyor ve kimin girdiği kaydedilmiyor. Seçenekler:
    - Merkez ekranları salt okunur olur, düzeltme "atölye adına çalış" ile yapılır. En sade; iz kaydı zaten atölye kapsamında kalır.
    - Merkez yazmaya devam eder ama her kayda `kaynak = atolye | merkez` yazılır ve ekranda gösterilir.
 2. **Model değişimi** için atölye ekranı yok. Eklensin mi, yoksa merkezin ölçtüğü bir veri mi?

@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { Badge, DataTable, EmptyState, type Column } from '@/components/ui'
+import { girenMetni, type GirenAlanlari } from '@/lib/pes/giren'
 
 interface Workshop { id: number; code: string; name: string }
 interface Line { id: number; code: string; name: string }
-interface DowntimeRow { id: number; line_code: string; workshop_code: string; occurred_at: string; duration_min: number; downtime_type: string; reason: string | null; affected_ops: number }
+interface DowntimeRow extends GirenAlanlari { id: number; line_code: string; workshop_code: string; occurred_at: string; duration_min: number; downtime_type: string; reason: string | null; affected_ops: number }
 
 /* Duruş türü bir SINIFLANDIRMA değil, ciddiyet göstergesi: plansız duruş
    üretimi durdurur, planlı olan planın parçasıdır. O yüzden ton taşıyor. */
@@ -47,6 +48,10 @@ export default function DowntimePage() {
       render: r => <span className="block max-w-[220px] truncate text-muted">{r.reason ?? '—'}</span>,
     },
     { key: 'affected_ops', label: 'Etk. Op.', numeric: true },
+    {
+      key: 'giren_taraf', label: 'Giren',
+      render: r => <span className="text-xs text-faint">{girenMetni(r)}</span>,
+    },
   ]
   const [workshopId, setWorkshopId] = useState('')
   const [showForm, setShowForm] = useState(false)

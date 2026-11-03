@@ -52,5 +52,5 @@ export async function withServerTenant<T>(
   const workshopId = ws?.workshop_id ??
     await secilenAtolye(tenant_type === 'internal' && (role === 'owner' || role === 'admin'))
 
-  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id), { workshopId })
+  return withTenant(tenantId, (txSql) => fn(txSql, tenantId, user.id), { workshopId, userEmail: user.email ?? null })
 }

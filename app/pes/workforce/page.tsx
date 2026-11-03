@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import GirenBilgisi from '@/components/pes/GirenBilgisi'
+import type { GirenAlanlari } from '@/lib/pes/giren'
 
 interface Workshop { id: number; code: string; name: string }
 
@@ -15,6 +17,8 @@ export default function WorkforcePage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
     fetch('/api/pes/workshops').then(r => r.json()).then(d => setWorkshops(d.workshops ?? []))
@@ -27,6 +31,7 @@ export default function WorkforcePage() {
       .then(r => r.json())
       .then(d => {
         const existing = (d.records ?? []).find((r: Record<string, unknown>) => r.year === year && r.month === month)
+        setMevcut(existing ?? null)
         if (existing) {
           setForm({
             total_staff: existing.total_staff, left_count: existing.left_count,
@@ -35,7 +40,7 @@ export default function WorkforcePage() {
           })
         }
       })
-  }, [workshopId, year, month])
+  }, [workshopId, year, month, yenile])
 
   const netChange = form.joined_count - form.left_count
   const turnoverRate = form.total_staff > 0
@@ -57,7 +62,7 @@ export default function WorkforcePage() {
     const data = await res.json()
     setLoading(false)
     if (!res.ok) setError(data.error)
-    else setMessage('İşgücü verisi kaydedildi')
+    else { setMessage('İşgücü verisi kaydedildi'); setYenile((n) => n + 1) }
   }
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-right'
@@ -144,6 +149,7 @@ export default function WorkforcePage() {
             <p><strong>Referans:</strong> ≤%20 İyi · %20–40 Normal · %40–60 Yüksek · &gt;%60 Kritik</p>
           </div>
 
+          <GirenBilgisi kayit={mevcut} />
           {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
           {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 

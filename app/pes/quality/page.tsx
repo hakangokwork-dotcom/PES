@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import GirenBilgisi from '@/components/pes/GirenBilgisi'
+import type { GirenAlanlari } from '@/lib/pes/giren'
 import { useDonem } from '@/lib/pes/useDonem'
 import { useToast } from '@/components/ui'
 
@@ -24,10 +26,22 @@ export default function QualityPage() {
   const [loading, setLoading] = useState(false)
   const toast = useToast()
   const [error, setError] = useState('')
+  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
     fetch('/api/pes/workshops').then(r => r.json()).then(d => setWorkshops(d.workshops ?? []))
   }, [])
+
+  /* Bu dönemde girilmiş kayıt var mı, kim girdi — kalite kaydı ekleme
+     mantığında çalışır (üzerine yazmaz), yine de merkez bilmeli. */
+  useEffect(() => {
+    if (!workshopId) { setMevcut(null); return }
+    fetch(`/api/pes/quality?workshop_id=${workshopId}`)
+      .then(r => r.json())
+      .then(d => setMevcut((d.records ?? []).find(
+        (r: Record<string, unknown>) => r.year === year && r.month === month) ?? null))
+  }, [workshopId, year, month, yenile])
 
   const fpq = form.inspected_qty > 0 ? ((form.first_pass_qty / form.inspected_qty) * 100).toFixed(1) : '—'
   const redRate = form.inspected_qty > 0 ? ((form.rejected_qty / form.inspected_qty) * 100).toFixed(1) : '—'
@@ -47,7 +61,7 @@ export default function QualityPage() {
     const data = await res.json()
     setLoading(false)
     if (!res.ok) setError(data.error)
-    else toast.success('Kalite verisi kaydedildi')
+    else { toast.success('Kalite verisi kaydedildi'); setYenile((n) => n + 1) }
   }
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-right'
@@ -123,6 +137,7 @@ export default function QualityPage() {
             </div>
           </div>
 
+          <GirenBilgisi kayit={mevcut} uzerineYazar={false} />
           {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
 
           <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors text-sm font-medium disabled:opacity-50">

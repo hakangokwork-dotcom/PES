@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import GirenBilgisi from '@/components/pes/GirenBilgisi'
+import type { GirenAlanlari } from '@/lib/pes/giren'
 import { useRouter } from 'next/navigation'
 import { useDonem } from '@/lib/pes/useDonem'
 import { useToast } from '@/components/ui'
@@ -37,6 +39,8 @@ export default function CostsPage() {
   const [loading, setLoading] = useState(false)
   const toast = useToast()
   const [error, setError] = useState('')
+  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
     fetch('/api/pes/workshops').then(r => r.json()).then(d => setWorkshops(d.workshops ?? []))
@@ -48,6 +52,7 @@ export default function CostsPage() {
     fetch(`/api/pes/expenses?workshop_id=${workshopId}&year=${year}&month=${month}`)
       .then(r => r.json())
       .then(d => {
+        setMevcut(d.expense ?? null)
         if (d.expense) {
           setWorkDays(d.expense.work_days)
           setTargetRevenue(d.expense.target_revenue)
@@ -58,7 +63,7 @@ export default function CostsPage() {
           setExpenses(newExp)
         }
       })
-  }, [workshopId, year, month])
+  }, [workshopId, year, month, yenile])
 
   const total = Object.values(expenses).reduce((a, b) => a + b, 0)
   const selectedWorkshop = workshops.find(w => w.id === parseInt(workshopId))
@@ -88,7 +93,7 @@ export default function CostsPage() {
     if (!res.ok) {
       setError(data.error)
     } else {
-      toast.success('Gider kaydedildi')
+      toast.success('Gider kaydedildi'); setYenile((n) => n + 1)
       router.refresh()
     }
   }
@@ -162,6 +167,7 @@ export default function CostsPage() {
           </div>
 
           {/* Kaydet */}
+          <GirenBilgisi kayit={mevcut} />
           {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
 
           <button

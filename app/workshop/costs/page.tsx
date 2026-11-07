@@ -3,7 +3,9 @@
 import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
-import Link from 'next/link'
+import DonemSecici from '@/components/pes/DonemSecici'
+import { Button, Card, CardBody, Field, Input, PageHeader, useToast } from '@/components/ui'
+import { useDonem } from '@/lib/pes/useDonem'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
 import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 
@@ -31,7 +33,7 @@ interface Workshop { id: number; code: string; name: string; type: string; sewin
 
 export default function WorkshopCostsWrapper() {
   return (
-    <Suspense fallback={<div className="p-6 text-faint">Yükleniyor...</div>}>
+    <Suspense fallback={<div className="p-6 text-faint">Yükleniyor…</div>}>
       <WorkshopCostsPage />
     </Suspense>
   )
@@ -42,16 +44,14 @@ interface DkMaliyetRef { bolge: number; dk_maliyet_tl: number }
 function WorkshopCostsPage() {
   const wid = useAktifAtolyeId()
   const [w, setW] = useState<Workshop | null>(null)
-  const [year, setYear] = useState(2026)
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const { yil: year, ay: month } = useDonem()
+  const toast = useToast()
   const [workDays, setWorkDays] = useState(22)
   const [targetRevenue, setTargetRevenue] = useState(0)
   const [expenses, setExpenses] = useState<Record<string, number>>(Object.fromEntries(MAIN_FIELDS.map(f => [f.key, 0])))
   const [otherDetails, setOtherDetails] = useState<Record<string, number>>(Object.fromEntries(OTHER_DETAILS.map(d => [d, 0])))
   const [showOtherDetails, setShowOtherDetails] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [sektorDkMaliyetler, setSektorDkMaliyetler] = useState<DkMaliyetRef[]>([])
   const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
   const [yenile, setYenile] = useState(0)
@@ -115,48 +115,45 @@ function WorkshopCostsPage() {
 
   async function handleSave() {
     if (!wid) return
-    setLoading(true); setError(''); setMessage('')
+    setLoading(true)
     const res = await fetch('/api/pes/expenses', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...surumBasligi(mevcut) },
       body: JSON.stringify({ workshop_id: parseInt(wid), year, month, work_days: workDays, ...expenses, target_revenue: targetRevenue }),
     })
     setLoading(false)
-    if (res.ok) { setMessage('Gider kaydedildi'); setYenile(n => n + 1) }
-    else { const d = await res.json(); setError(d.error) }
+    if (res.ok) { toast.success('Giderler kaydedildi'); setYenile(n => n + 1) }
+    else toast.error((await res.json().catch(() => ({}))).error ?? 'Kaydedilemedi')
   }
 
   if (!wid) return <AtolyeSecilmedi />
-  const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-right'
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <Link href={`/workshop`} className="text-sm text-faint hover:text-ink">← Panel</Link>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink mt-2">{w?.name ?? ''} — Maliyet Yönetimi</h1>
-      </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader crumbs={[{ label: 'Panel', href: '/workshop' }, { label: 'Gider' }]} title="Aylık gider girişi" context={w?.name} />
 
-      {/* Dönem seçimi */}
-      <div className="bg-surface border border-line-soft rounded-xl p-4 flex gap-4 items-end">
-        <div><label className="block text-xs font-medium text-muted mb-1">Yıl</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={year} onChange={e => setYear(parseInt(e.target.value))}><option value={2025}>2025</option><option value={2026}>2026</option></select></div>
-        <div><label className="block text-xs font-medium text-muted mb-1">Ay</label><select className="px-3 py-2 border border-line rounded-lg text-sm" value={month} onChange={e => setMonth(parseInt(e.target.value))}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-        <div><label className="block text-xs font-medium text-muted mb-1">Çalışma Günü</label><input type="number" inputMode="numeric" className="w-16 px-2 py-2 border border-line rounded-lg text-sm text-center" value={workDays} onChange={e => setWorkDays(parseInt(e.target.value)||22)} /></div>
-      </div>
+      <Card>
+        <CardBody className="flex flex-wrap items-end gap-4">
+          <DonemSecici />
+          <Field label="Çalışma günü" className="w-32">
+            <Input type="number" min={1} max={31} suffix="gün" value={workDays} onChange={e => setWorkDays(parseInt(e.target.value) || 22)} />
+          </Field>
+        </CardBody>
+      </Card>
 
       {/* Ana Gider Kalemleri */}
-      <div className="bg-surface border border-line-soft rounded-xl p-6">
+      <div className="rounded-lg border border-line-soft bg-surface p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Gider Kalemleri</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {MAIN_FIELDS.map(f => (
-            <div key={f.key}>
-              <label className="block text-xs font-medium text-muted mb-1">{f.label}</label>
-              <input type="number" inputMode="numeric" className={ic} value={expenses[f.key]} onChange={e => setExpenses(p => ({...p, [f.key]: parseInt(e.target.value)||0}))} />
-            </div>
+            <Field key={f.key} label={f.label}>
+              <Input type="number" min={0} suffix="TL" value={expenses[f.key]} onChange={e => setExpenses(p => ({...p, [f.key]: parseInt(e.target.value)||0}))} />
+            </Field>
           ))}
         </div>
 
         {/* Diğer Giderler Alt Kalemleri */}
         <div className="mt-4">
-          <button onClick={() => setShowOtherDetails(!showOtherDetails)} className="text-xs text-accent hover:underline">
+          <button type="button" aria-expanded={showOtherDetails} onClick={() => setShowOtherDetails(!showOtherDetails)} className="min-h-9 text-xs text-accent hover:underline">
             {showOtherDetails ? '▾ Diğer gider detaylarını gizle' : '▸ Diğer giderlerin alt kalemlerini göster'}
           </button>
           {showOtherDetails && (
@@ -164,10 +161,9 @@ function WorkshopCostsPage() {
               <p className="text-xs text-faint mb-3">&quot;Diğer Giderler&quot; kaleminin alt dağılımı (bilgi amaçlı)</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {OTHER_DETAILS.map(d => (
-                  <div key={d}>
-                    <label className="block text-[11px] font-medium text-faint mb-0.5">{d}</label>
-                    <input type="number" inputMode="numeric" className="w-full px-2 py-1.5 border border-line rounded text-xs text-right" value={otherDetails[d]} onChange={e => setOtherDetails(p => ({...p, [d]: parseInt(e.target.value)||0}))} />
-                  </div>
+                  <Field key={d} label={d}>
+                    <Input type="number" min={0} suffix="TL" value={otherDetails[d]} onChange={e => setOtherDetails(p => ({...p, [d]: parseInt(e.target.value)||0}))} />
+                  </Field>
                 ))}
               </div>
               <p className="text-xs text-faint mt-2">Alt kalem toplamı: {otherTotal.toLocaleString('tr-TR')} TL</p>
@@ -177,13 +173,12 @@ function WorkshopCostsPage() {
       </div>
 
       {/* Hedef Ciro */}
-      <div className="bg-surface border border-line-soft rounded-xl p-6">
+      <div className="rounded-lg border border-line-soft bg-surface p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Hedef Ciro</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-muted mb-1">Aylık Hedef Ciro (TL)</label>
-            <input type="number" inputMode="numeric" className={ic} value={targetRevenue} onChange={e => setTargetRevenue(parseInt(e.target.value)||0)} />
-          </div>
+          <Field label="Aylık hedef ciro">
+            <Input type="number" min={0} suffix="TL" value={targetRevenue} onChange={e => setTargetRevenue(parseInt(e.target.value)||0)} />
+          </Field>
           <div className="bg-canvas rounded-lg p-3">
             <p className="text-xs text-faint">Günlük Hedef Kazanç</p>
             <p className="text-lg font-bold text-ink">{dailyRevenue > 0 ? dailyRevenue.toLocaleString('tr-TR') : '—'} TL</p>
@@ -196,7 +191,7 @@ function WorkshopCostsPage() {
       </div>
 
       {/* Hesaplanan Metrikler */}
-      <div className="bg-surface border border-line-soft rounded-xl p-6">
+      <div className="rounded-lg border border-line-soft bg-surface p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Hesaplanan Metrikler</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-canvas rounded-lg p-4 text-center">
@@ -319,12 +314,7 @@ function WorkshopCostsPage() {
       </div>
 
       <GirenBilgisi kayit={mevcut} ben="atolye" />
-      {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
-
-      <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-hover text-sm font-medium disabled:opacity-50">
-        {loading ? 'Kaydediliyor...' : 'Giderleri Kaydet'}
-      </button>
+      <Button size="lg" loading={loading} onClick={handleSave}>Giderleri kaydet</Button>
     </div>
   )
 }

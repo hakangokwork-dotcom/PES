@@ -43,3 +43,31 @@ describe('Input inputMode', () => {
     expect(screen.getByLabelText('a').getAttribute('inputmode')).toBe('numeric')
   })
 })
+
+/* Etiket alana bağlı olsun: ekran okuyucu adı okur, etikete dokununca odak
+   alana gider. Yardım/hata metni aria-describedby ile okunur. */
+describe('Field etiket bağlantısı', () => {
+  afterEach(cleanup)
+
+  it('etiket Input\'u adlandırır, yardım metni açıklar', async () => {
+    const { Field } = await import('./Field')
+    render(<Field label="Ayrılan" hint="Bu ay işten ayrılan"><Input type="number" /></Field>)
+    const alan = screen.getByLabelText('Ayrılan')
+    expect(alan.tagName).toBe('INPUT')
+    const aciklama = document.getElementById(alan.getAttribute('aria-describedby')!)
+    expect(aciklama?.textContent).toBe('Bu ay işten ayrılan')
+    expect(alan.hasAttribute('aria-invalid')).toBe(false)
+  })
+
+  it('hata varsa aria-invalid', async () => {
+    const { Field } = await import('./Field')
+    render(<Field label="Süre" error="Süre girin"><Input /></Field>)
+    expect(screen.getByLabelText('Süre').getAttribute('aria-invalid')).toBe('true')
+  })
+
+  it('Select de bağlanır', async () => {
+    const { Field, Select } = await import('./Field')
+    render(<Field label="Ay"><Select><option>Ocak</option></Select></Field>)
+    expect(screen.getByLabelText('Ay').tagName).toBe('SELECT')
+  })
+})

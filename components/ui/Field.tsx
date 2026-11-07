@@ -1,27 +1,48 @@
-import type { InputHTMLAttributes, SelectHTMLAttributes, ReactNode } from 'react'
+'use client'
+
+import { createContext, useContext, useId, type InputHTMLAttributes, type SelectHTMLAttributes, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+/* Field içindeki Input/Select bu bağlamdan kimliğini alır: etiket alana
+   bağlanır (ekran okuyucu ve etikete dokununca odak), yardım/hata metni
+   aria-describedby ile okunur. */
+const FieldCtx = createContext<{ id: string; aciklamaId?: string; hatali: boolean } | null>(null)
 
 /* Field: etiket + kontrol + yardım/hata. Hata metni alanın ALTINDA durur;
    sayfanın tepesindeki kırmızı kutu artık kullanılmıyor. */
 export function Field({
   label, hint, error, className, children,
 }: { label?: string; hint?: string; error?: string; className?: string; children: ReactNode }) {
+  const id = useId()
+  const aciklamaId = error || hint ? `${id}-aciklama` : undefined
   return (
-    <div className={cn('flex flex-col gap-1.5', className)}>
-      {label && (
-        <label className="text-[11px] font-medium uppercase tracking-[0.06em] text-faint">
-          {label}
-        </label>
-      )}
-      {children}
-      {(error || hint) && (
-        <span className={cn('text-xs leading-snug', error ? 'text-danger' : 'text-faint')}>
-          {error || hint}
-        </span>
-      )}
-    </div>
+    <FieldCtx.Provider value={{ id, aciklamaId, hatali: !!error }}>
+      <div className={cn('flex flex-col gap-1.5', className)}>
+        {label && (
+          <label htmlFor={id} className="text-[11px] font-medium uppercase tracking-[0.06em] text-faint">
+            {label}
+          </label>
+        )}
+        {children}
+        {aciklamaId && (
+          <span id={aciklamaId} className={cn('text-xs leading-snug', error ? 'text-danger' : 'text-faint')}>
+            {error || hint}
+          </span>
+        )}
+      </div>
+    </FieldCtx.Provider>
   )
+}
+
+/** Field bağlamından gelen erişilebilirlik nitelikleri; açıkça verilen kazanır. */
+function useAlanNitelik(rest: { id?: string; 'aria-describedby'?: string; 'aria-invalid'?: unknown }, invalid?: boolean) {
+  const f = useContext(FieldCtx)
+  return {
+    id: rest.id ?? f?.id,
+    'aria-describedby': rest['aria-describedby'] ?? f?.aciklamaId,
+    'aria-invalid': (invalid || f?.hatali) ? true : undefined,
+  }
 }
 
 const BASE =
@@ -49,9 +70,11 @@ function sayisalKlavye(rest: InputHTMLAttributes<HTMLInputElement>) {
 export function Input({ align = 'left', suffix, invalid, className, ...rest }: InputProps) {
   const numeric = align === 'right' || rest.type === 'number'
   const inputMode = sayisalKlavye(rest)
+  const nitelik = useAlanNitelik(rest, invalid)
   const field = (
     <input
       {...rest}
+      {...nitelik}
       inputMode={inputMode}
       className={cn(
         BASE,
@@ -72,6 +95,7 @@ export function Input({ align = 'left', suffix, invalid, className, ...rest }: I
     )}>
       <input
         {...rest}
+        {...nitelik}
         inputMode={inputMode}
         className={cn('h-full w-full border-0 bg-transparent px-2.5 text-[13px] text-ink outline-none', numeric && 'text-right num', className)}
       />
@@ -81,10 +105,12 @@ export function Input({ align = 'left', suffix, invalid, className, ...rest }: I
 }
 
 export function Select({ className, children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
+  const nitelik = useAlanNitelik(rest)
   return (
     <div className="relative">
       <select
         {...rest}
+        {...nitelik}
         className={cn(BASE, 'appearance-none border-line pr-8', className)}
       >
         {children}

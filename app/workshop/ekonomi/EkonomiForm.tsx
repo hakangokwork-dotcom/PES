@@ -123,7 +123,7 @@ export default function EkonomiForm({
         <button
           type="submit"
           disabled={bekliyor}
-          className="px-4 py-2 rounded bg-slate-900 text-white text-sm disabled:opacity-50"
+          className="px-4 py-2 rounded -ink text-white text-sm disabled:opacity-50"
         >
           {bekliyor ? 'Kaydediliyor…' : 'Kaydet'}
         </button>

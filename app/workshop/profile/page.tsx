@@ -396,7 +396,7 @@ function WorkshopProfilePage() {
           <div className="bg-accent-soft rounded-lg p-3 text-center">
             <p className="text-[11px] text-accent-ink font-medium">Dikim Operatörü</p>
             <p className="text-xl font-bold text-accent-ink">{staffFromLines.dikimOp}</p>
-            <p className="text-[11px] text-emerald-400">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
+            <p className="text-[11px] text-accent-ink">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
             <p className="text-[11px] text-muted font-medium">Kesim Operatörü</p>
@@ -406,7 +406,7 @@ function WorkshopProfilePage() {
           <div className="bg-warn-soft rounded-lg p-3 text-center">
             <p className="text-[11px] text-warn font-medium">UKP Operatörü</p>
             <p className="text-xl font-bold text-warn">{staffFromLines.ukpOp}</p>
-            <p className="text-[11px] text-amber-400">{lines.filter(l => effectiveType(l.line_type) === 'UKP').length} bant</p>
+            <p className="text-[11px] text-warn">{lines.filter(l => effectiveType(l.line_type) === 'UKP').length} bant</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
             <p className="text-[11px] text-muted font-medium">Yıkama Operatörü</p>

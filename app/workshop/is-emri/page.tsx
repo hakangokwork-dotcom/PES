@@ -5,6 +5,7 @@ import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { durumEtiket } from '@/lib/pes/durum-etiket'
 
 interface Line { id: number; code: string; name: string; daily_target?: number; operator_count?: number }
 interface WO {
@@ -48,8 +49,8 @@ const DURUM_RENK: Record<string, string> = {
   'Planlandi':    'bg-canvas text-muted',
   'Bekleniyor':   'bg-warn-soft text-warn',
   'Devam':        'bg-accent-soft text-accent-ink',
-  'Duraklatildi': 'bg-orange-100 text-orange-800',
-  'Tamamlandi':   'bg-emerald-200 text-accent-ink',
+  'Duraklatildi': 'bg-warn-soft text-warn',
+  'Tamamlandi':   'bg-accent-soft text-accent-ink',
   'İptal':        'bg-danger-soft text-danger',
   'Sevk Edildi':  'bg-canvas text-muted',
 }
@@ -229,7 +230,7 @@ function IsEmriPage() {
           value={filter.q} onChange={e => setFilter({ ...filter, q: e.target.value })} />
         <select className="px-3 py-1.5 text-sm border border-line-soft rounded-lg" value={filter.durum} onChange={e => setFilter({ ...filter, durum: e.target.value })}>
           <option value="">Tüm Durum</option>
-          {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{d}</option>)}
+          {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{durumEtiket(d)}</option>)}
         </select>
         <select className="px-3 py-1.5 text-sm border border-line-soft rounded-lg" value={filter.oncelik} onChange={e => setFilter({ ...filter, oncelik: e.target.value })}>
           <option value="">Tüm Öncelik</option>
@@ -311,7 +312,7 @@ function IsEmriPage() {
             </Field>
             <Field label="Durum">
               <select className="input" value={form.durum} onChange={e => setForm({ ...form, durum: e.target.value })}>
-                {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{d}</option>)}
+                {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{durumEtiket(d)}</option>)}
               </select>
             </Field>
           </div>
@@ -339,7 +340,7 @@ function IsEmriPage() {
                   return (
                     <div key={i}
                       className={`bg-surface border rounded-lg p-3 transition cursor-pointer ${
-                        isSelected ? 'border-accent ring-2 ring-emerald-200' : 'border-line hover:border-line'
+                        isSelected ? 'border-accent ring-2 ring-accent/30' : 'border-line hover:border-line'
                       }`}
                       onClick={() => applySuggestion(s)}>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -409,11 +410,11 @@ function IsEmriPage() {
               <div className="flex-1 min-w-[260px]">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-ink text-sm">{o.is_emri_no}</span>
-                  <Badge cls={DURUM_RENK[o.durum] || 'bg-canvas text-ink'}>{o.durum}</Badge>
+                  <Badge cls={DURUM_RENK[o.durum] || 'bg-canvas text-ink'}>{durumEtiket(o.durum)}</Badge>
                   <Badge cls={ONCELIK_RENK[o.oncelik] || 'bg-canvas text-faint'}>{o.oncelik}</Badge>
                   {o.aciliyet === 'kritik' && <Badge cls="bg-danger text-white">⚠ Teslim Geçti</Badge>}
                   {o.aciliyet === 'acil'  && <Badge cls="bg-warn text-white">⏰ Acil</Badge>}
-                  {!o.sample_onaylandi && <Badge cls="bg-orange-100 text-orange-700">Numune onayı bekliyor</Badge>}
+                  {!o.sample_onaylandi && <Badge cls="bg-warn-soft text-warn">Numune onayı bekliyor</Badge>}
                 </div>
                 <div className="text-sm text-body mt-1 truncate">
                   <span className="font-medium">{o.model_adi}</span>
@@ -475,7 +476,7 @@ function Stat({ label, value, tone = 'slate' }: { label: string; value: number; 
     emerald: 'bg-accent-soft text-accent-ink',
     amber: 'bg-warn-soft text-warn',
     red: 'bg-danger-soft text-danger',
-    orange: 'bg-orange-50 text-orange-900',
+    orange: 'bg-warn-soft text-warn',
   }
   return (
     <div className={`rounded-lg p-3 ${tones[tone]}`}>

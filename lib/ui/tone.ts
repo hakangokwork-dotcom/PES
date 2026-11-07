@@ -15,11 +15,22 @@ export function effTone(value: number | null | undefined): Tone {
   return 'bad'
 }
 
+export const FPQ_GOOD = 97
+export const FPQ_WARN = 93
+
 /** Kalite oranı (FPQ, ilk geçiş) — verimlilikten farklı eşik istersen burada tut. */
 export function fpqTone(value: number | null | undefined): Tone {
   if (value === null || value === undefined || Number.isNaN(value)) return 'neutral'
-  if (value >= 97) return 'good'
-  if (value >= 93) return 'warn'
+  if (value >= FPQ_GOOD) return 'good'
+  if (value >= FPQ_WARN) return 'warn'
+  return 'bad'
+}
+
+/** İşgücü devir oranı (%) — düşük iyi. Eşikler metrics-ontology isgucu_devir ile aynı. */
+export function devirTone(value: number | null | undefined): Tone {
+  if (value === null || value === undefined || Number.isNaN(value)) return 'neutral'
+  if (value < 5) return 'good'
+  if (value < 10) return 'warn'
   return 'bad'
 }
 
@@ -50,6 +61,22 @@ export const TONE_TEXT: Record<Tone, string> = {
   bad: 'text-danger font-semibold',
 }
 
+/** Dolu çubuk (yatay bar) zemini */
+export const TONE_BAR: Record<Tone, string> = {
+  neutral: 'bg-line',
+  good: 'bg-accent',
+  warn: 'bg-warn',
+  bad: 'bg-danger',
+}
+
+/** Rengin yanında yazılan kelime — durum yalnız renkle anlatılmasın. */
+export const TONE_ETIKET: Record<Tone, string> = {
+  neutral: '',
+  good: 'İyi',
+  warn: 'Uyarı',
+  bad: 'Kritik',
+}
+
 /* GRAFİK RENKLERİ — recharts sınıf değil, somut renk dizesi istiyor;
    CSS değişkeni SSR'da çözülmüyor. Bu yüzden token'ların hex karşılığı
    BURADA, tek yerde durur. app/ ve components/ altında elle yazılmış
@@ -69,7 +96,7 @@ export const GRAFIK_AKSAN = GRAFIK_RENK.good
    --color-faint'in hex karşılığı; recharts CSS değişkeni kabul etmiyor.
    Elle #f0f0f0 / #9ca3af yazmak yerine buradan alınır. */
 export const GRAFIK_IZGARA = '#D6DCE1'
-export const GRAFIK_ETIKET = '#7A8894'
+export const GRAFIK_ETIKET = '#646F7B'
 
 /** Satır işareti — satırın tamamı boyanmaz, ince bir sol şerit gelir */
 export const TONE_ROW: Record<Tone, string> = {

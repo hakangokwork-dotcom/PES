@@ -5,6 +5,7 @@ import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { girenMetni, surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
+import { effTone, TONE_TEXT } from '@/lib/ui/tone'
 
 interface Line { id: number; code: string; name: string; daily_target: number; line_type: string }
 interface ProdRow { line_id: number; line_code: string; line_name: string; model_code: string; total_sam: number; target_qty: number; actual_qty: number; work_days: number; giren?: GirenAlanlari & { model_code?: string } }
@@ -130,7 +131,7 @@ function WorkshopProductionPage() {
                     <td className="py-2 text-center"><input type="number" inputMode="decimal" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.total_sam} onChange={e => updateRow(idx, 'total_sam', parseFloat(e.target.value)||0)} step={0.1} /></td>
                     <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value)||0)} /></td>
                     <td className="py-2 text-center"><input type="number" inputMode="numeric" className="w-20 px-2 py-1.5 border border-line rounded text-sm text-center" value={row.actual_qty} onChange={e => updateRow(idx, 'actual_qty', parseInt(e.target.value)||0)} /></td>
-                    <td className="py-2 text-center"><span className={`font-bold ${eff >= 90 ? 'text-accent-ink' : eff >= 70 ? 'text-warn' : 'text-danger'}`}>%{eff.toFixed(1)}</span></td>
+                    <td className="py-2 text-center"><span className={TONE_TEXT[effTone(row.target_qty > 0 ? eff : null)]}>{row.target_qty > 0 ? `%${eff.toFixed(1)}` : '—'}</span></td>
                   </tr>
                 )
               })}

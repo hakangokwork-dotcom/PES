@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
 import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
+import { devirTone, TONE_BADGE } from '@/lib/ui/tone'
 
 interface Workshop { id: number; code: string; name: string }
 
@@ -17,7 +18,7 @@ export default function WorkforcePage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [mevcut, setMevcut] = useState<(GirenAlanlari & { devir_orani?: string | null }) | null>(null)
   const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
@@ -42,9 +43,8 @@ export default function WorkforcePage() {
   }, [workshopId, year, month, yenile])
 
   const netChange = form.joined_count - form.left_count
-  const turnoverRate = form.total_staff > 0
-    ? (((form.left_count + form.joined_count) / 2) / form.total_staff * 100).toFixed(1)
-    : '0'
+  // Oran veritabanında hesaplanır (056); ekran yeniden hesaplamaz.
+  const devir = mevcut?.devir_orani == null ? null : Number(mevcut.devir_orani)
 
   async function handleSave() {
     if (!workshopId) return
@@ -131,11 +131,10 @@ export default function WorkforcePage() {
                   {netChange > 0 ? '+' : ''}{netChange}
                 </p>
               </div>
-              <div className={`rounded-lg p-3 text-center ${Number(turnoverRate) <= 20 ? 'bg-accent-soft' : Number(turnoverRate) <= 40 ? 'bg-warn-soft' : 'bg-danger-soft'}`}>
-                <p className="text-xs text-faint">Devir Oranı</p>
-                <p className={`text-xl font-bold ${Number(turnoverRate) <= 20 ? 'text-accent-ink' : Number(turnoverRate) <= 40 ? 'text-warn' : 'text-danger'}`}>
-                  %{turnoverRate}
-                </p>
+              <div className={`rounded-lg p-3 text-center ${TONE_BADGE[devirTone(devir)]}`}>
+                <p className="text-xs">Kayıtlı devir oranı</p>
+                <p className="text-xl font-bold">{devir == null ? '—' : `%${devir.toLocaleString('tr-TR')}`}</p>
+                <p className="text-[11px]">ayrılan / toplam · kaydedince güncellenir</p>
               </div>
               <div className="bg-canvas rounded-lg p-3 text-center">
                 <p className="text-xs text-faint">Isınma Sürecinde</p>

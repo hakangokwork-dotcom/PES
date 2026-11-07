@@ -98,7 +98,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
             {teklif.turNo}. tur · gönderildi {teklif.gonderildi} · {teklif.kalemler.length} iş
           </p>
         </div>
-        <span className="text-xs px-2 py-0.5 rounded bg-slate-900 text-white">Cevap bekliyor</span>
+        <span className="text-xs px-2 py-0.5 rounded -ink text-white">Cevap bekliyor</span>
       </header>
 
       <div className="overflow-x-auto">
@@ -174,7 +174,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
             key={d}
             onClick={() => { setDurum(d); setHata(null) }}
             className={`px-3 py-1.5 rounded text-sm text-white ${renk} ${
-              durum === d ? 'ring-2 ring-offset-1 ring-slate-900' : 'opacity-80 hover:opacity-100'}`}>
+              durum === d ? 'ring-2 ring-offset-1 -ink' : 'opacity-80 hover:opacity-100'}`}>
             {etiket}
           </button>
         ))}
@@ -214,7 +214,7 @@ export default function Cevapla({ teklif }: { teklif: TeklifGorunum }) {
       <button
         onClick={gonder}
         disabled={!durum || onHata.length > 0 || bekliyor}
-        className="px-4 py-2 rounded bg-slate-900 text-white text-sm disabled:opacity-40">
+        className="px-4 py-2 rounded -ink text-white text-sm disabled:opacity-40">
         {bekliyor ? 'Gönderiliyor…' : 'Cevabı gönder'}
       </button>
     </section>

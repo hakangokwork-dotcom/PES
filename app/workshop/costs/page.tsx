@@ -206,7 +206,7 @@ function WorkshopCostsPage() {
           <div className="bg-accent-soft rounded-lg p-4 text-center">
             <p className="text-xs text-accent-ink">Dakika Başı Maliyet</p>
             <p className="text-xl font-bold text-accent">{costPerMin.toFixed(2)} TL/dk</p>
-            <p className="text-[11px] text-emerald-400">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
+            <p className="text-[11px] text-accent-ink">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
           </div>
           <div className="bg-canvas rounded-lg p-4 text-center">
             <p className="text-xs text-muted">Kişi Başı Aylık Gider</p>

@@ -70,7 +70,7 @@ export default async function YetenekPage({ searchParams }: Props) {
                   }`}
                 >
                   {b.name as string}
-                  <span className={`ml-2 text-xs ${aktif ? 'text-emerald-100' : 'text-faint'}`}>
+                  <span className={`ml-2 text-xs ${aktif ? 'text-white/80' : 'text-faint'}`}>
                     {b.yetenek as number}
                   </span>
                 </Link>

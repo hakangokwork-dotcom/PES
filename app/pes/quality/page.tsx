@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
 import type { GirenAlanlari } from '@/lib/pes/giren'
 import { useDonem } from '@/lib/pes/useDonem'
+import { fpqTone, TONE_TEXT } from '@/lib/ui/tone'
 import { useToast } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
@@ -122,17 +123,17 @@ export default function QualityPage() {
 
             {/* Hesaplanan Metrikler */}
             <div className="mt-6 pt-4 border-t border-line-soft grid grid-cols-3 gap-4">
-              <div className="bg-accent-soft rounded-lg p-3 text-center">
-                <p className="text-xs text-accent-ink">FPQ</p>
-                <p className={`text-xl font-bold ${Number(fpq) >= 95 ? 'text-accent-ink' : Number(fpq) >= 90 ? 'text-warn' : 'text-danger'}`}>%{fpq}</p>
+              <div className="bg-canvas rounded-lg p-3 text-center">
+                <p className="text-xs text-faint">FPQ</p>
+                <p className={`text-xl font-bold ${TONE_TEXT[fpqTone(fpq === '—' ? null : Number(fpq))]}`}>%{fpq}</p>
               </div>
-              <div className="bg-danger-soft rounded-lg p-3 text-center">
-                <p className="text-xs text-danger">Red Oranı</p>
-                <p className="text-xl font-bold text-danger">%{redRate}</p>
+              <div className="bg-canvas rounded-lg p-3 text-center">
+                <p className="text-xs text-faint">Red Oranı</p>
+                <p className="text-xl font-bold text-ink">%{redRate}</p>
               </div>
-              <div className="bg-warn-soft rounded-lg p-3 text-center">
-                <p className="text-xs text-warn">Yeniden İşlem</p>
-                <p className="text-xl font-bold text-warn">%{reworkRate}</p>
+              <div className="bg-canvas rounded-lg p-3 text-center">
+                <p className="text-xs text-faint">Yeniden İşlem</p>
+                <p className="text-xl font-bold text-ink">%{reworkRate}</p>
               </div>
             </div>
           </div>

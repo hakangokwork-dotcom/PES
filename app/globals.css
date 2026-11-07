@@ -28,7 +28,7 @@
   --color-ink: #0F1720;         /* başlık, birincil değer */
   --color-body: #3F4C59;        /* gövde metni */
   --color-muted: #5B6874;       /* ikincil metin, ghost düğme */
-  --color-faint: #7A8894;       /* etiket, yardım metni */
+  --color-faint: #646F7B;       /* etiket, yardım metni — beyazda 5,1:1 (WCAG AA) */
 
   /* Aksan — mevcut PES yeşili korunuyor. */
   --color-accent: #197A56;

@@ -117,7 +117,7 @@ export default async function KarneSayfasi({
             const s = `${x.yil}-${String(x.ay).padStart(2, '0')}`
             return (
               <Link key={s} href={`/workshop/ekonomi/karne?donem=${s}`}
-                    className={`px-2 py-1 rounded ${s === donem ? 'bg-slate-900 text-white' : 'hover:bg-canvas border border-line-soft'}`}>
+                    className={`px-2 py-1 rounded ${s === donem ? '-ink text-white' : 'hover:bg-canvas border border-line-soft'}`}>
                 {s}
               </Link>
             )
@@ -183,12 +183,12 @@ export default async function KarneSayfasi({
                           genislik === 0 ? 50 : ((v - ist.enDusuk) / genislik) * 100
                         return (
                           <>
-                            <div className="absolute h-full rounded bg-slate-300"
+                            <div className="absolute h-full rounded bg-line"
                                  style={{ left: `${oran(ist.q1)}%`, width: `${oran(ist.q3) - oran(ist.q1)}%` }} />
-                            <div className="absolute h-full w-px bg-slate-500"
+                            <div className="absolute h-full w-px bg-muted"
                                  style={{ left: `${oran(ist.medyan)}%` }} />
                             {kendiDeger !== null && (
-                              <div className="absolute -top-0.5 h-3 w-1 rounded bg-slate-900"
+                              <div className="absolute -top-0.5 h-3 w-1 rounded -ink"
                                    style={{ left: `${oran(kendiDeger)}%` }} />
                             )}
                           </>

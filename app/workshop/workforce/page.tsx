@@ -6,6 +6,7 @@ import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
 import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
+import { devirTone, TONE_BADGE } from '@/lib/ui/tone'
 
 const BOS_FORM = { total_staff: 0, left_count: 0, joined_count: 0, in_warmup: 0, avg_tenure_mon: 0 }
 
@@ -22,7 +23,7 @@ function WorkshopWorkforcePage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [mevcut, setMevcut] = useState<GirenAlanlari | null>(null)
+  const [mevcut, setMevcut] = useState<(GirenAlanlari & { devir_orani?: string | null }) | null>(null)
   const [yenile, setYenile] = useState(0)
 
   useEffect(() => {
@@ -40,7 +41,8 @@ function WorkshopWorkforcePage() {
     })
   }, [wid, year, month, yenile])
 
-  const turnoverRate = form.total_staff > 0 ? (((form.left_count + form.joined_count) / 2) / form.total_staff * 100).toFixed(1) : '0'
+  // Oran veritabanında hesaplanır (056); ekran yeniden hesaplamaz.
+  const devir = mevcut?.devir_orani == null ? null : Number(mevcut.devir_orani)
 
   async function handleSave() {
     if (!wid) return
@@ -71,9 +73,10 @@ function WorkshopWorkforcePage() {
           <div><label className="block text-xs font-medium text-muted mb-1">Başlayan</label><input type="number" inputMode="numeric" className={ic} value={form.joined_count} onChange={e => setForm(p => ({...p, joined_count: parseInt(e.target.value)||0}))} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">Isınma Sürecinde</label><input type="number" inputMode="numeric" className={ic} value={form.in_warmup} onChange={e => setForm(p => ({...p, in_warmup: parseInt(e.target.value)||0}))} /></div>
           <div><label className="block text-xs font-medium text-muted mb-1">Ort. Kıdem (ay)</label><input type="number" inputMode="decimal" className={ic} value={form.avg_tenure_mon} onChange={e => setForm(p => ({...p, avg_tenure_mon: parseFloat(e.target.value)||0}))} step={0.1} /></div>
-          <div className={`rounded-lg p-3 text-center ${Number(turnoverRate) <= 20 ? 'bg-accent-soft' : Number(turnoverRate) <= 40 ? 'bg-warn-soft' : 'bg-danger-soft'}`}>
-            <p className="text-xs text-faint">Devir Oranı</p>
-            <p className={`text-2xl font-bold ${Number(turnoverRate) <= 20 ? 'text-accent-ink' : Number(turnoverRate) <= 40 ? 'text-warn' : 'text-danger'}`}>%{turnoverRate}</p>
+          <div className={`rounded-lg p-3 text-center ${TONE_BADGE[devirTone(devir)]}`}>
+            <p className="text-xs">Kayıtlı devir oranı</p>
+            <p className="text-2xl font-bold">{devir == null ? '—' : `%${devir.toLocaleString('tr-TR')}`}</p>
+            <p className="text-[11px]">ayrılan / toplam · kaydedince güncellenir</p>
           </div>
         </div>
       </div>

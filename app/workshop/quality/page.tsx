@@ -4,6 +4,7 @@ import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
+import { fpqTone, FPQ_GOOD, TONE_TEXT } from '@/lib/ui/tone'
 
 const DEFECTS = ['Dikiş hatası','Montaj hatası','Kemer/fermuar hatası','Temizlik hatası','Ütü hatası','Etiket/paket hatası','Ölçü hatası']
 
@@ -82,17 +83,17 @@ function WorkshopQualityPage() {
         </div>
 
         <div className="mt-4 pt-4 border-t border-line-soft grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="bg-accent-soft rounded-lg p-3 text-center">
-            <p className="text-xs text-accent-ink">FPQ</p>
-            <p className={`text-2xl font-bold ${Number(fpq) >= 95 ? 'text-accent-ink' : Number(fpq) >= 90 ? 'text-warn' : 'text-danger'}`}>%{fpq}</p>
+          <div className="bg-canvas rounded-lg p-3 text-center">
+            <p className="text-xs text-faint">FPQ</p>
+            <p className={`text-2xl font-bold ${TONE_TEXT[fpqTone(fpq === '—' ? null : Number(fpq))]}`}>%{fpq}</p>
           </div>
-          <div className="bg-danger-soft rounded-lg p-3 text-center">
-            <p className="text-xs text-danger">Red Oranı</p>
-            <p className="text-2xl font-bold text-danger">%{redRate}</p>
+          <div className="bg-canvas rounded-lg p-3 text-center">
+            <p className="text-xs text-faint">Red Oranı</p>
+            <p className="text-2xl font-bold text-ink">%{redRate}</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
             <p className="text-xs text-faint">Hedef FPQ</p>
-            <p className="text-2xl font-bold text-faint">≥%95</p>
+            <p className="text-2xl font-bold text-faint">≥%{FPQ_GOOD}</p>
           </div>
         </div>
       </div>

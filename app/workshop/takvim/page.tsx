@@ -5,6 +5,7 @@ import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { durumEtiket } from '@/lib/pes/durum-etiket'
 
 interface WO {
   id: number
@@ -386,7 +387,7 @@ function TakvimPage() {
         </select>
         <select value={filterDurum} onChange={e => setFilterDurum(e.target.value)} className="px-2 py-1.5 text-sm border border-line-soft rounded">
           <option value="">Tüm Durum</option>
-          {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{d}</option>)}
+          {Object.keys(DURUM_RENK).map(d => <option key={d} value={d}>{durumEtiket(d)}</option>)}
         </select>
         <label className="flex items-center gap-1 text-xs text-muted ml-2">
           <input type="checkbox" checked={showWeekends} onChange={e => setShowWeekends(e.target.checked)} />
@@ -411,7 +412,7 @@ function TakvimPage() {
         {Object.entries(colorMode === 'durum' ? DURUM_RENK : ONCELIK_RENK).map(([k, v]) => (
           <span key={k} className="inline-flex items-center gap-1">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: v }} />
-            <span>{k}</span>
+            <span>{colorMode === 'durum' ? durumEtiket(k) : k}</span>
           </span>
         ))}
       </div>
@@ -481,7 +482,7 @@ function TakvimPage() {
                   sub: s.wo?.is_emri_no || '',
                   color: s.stage_renk,
                   href: `/workshop/is-emri/${s.work_order_id}`,
-                  tooltip: `${s.wo?.model_adi || ''} · ${s.stage_name} · ${s.durum} · %${s.ilerleme_pct}`,
+                  tooltip: `${s.wo?.model_adi || ''} · ${s.stage_name} · ${durumEtiket(s.durum)} · %${s.ilerleme_pct}`,
                   ilerleme: s.ilerleme_pct,
                   isActual: !!s.gercek_baslangic,
                 })
@@ -499,7 +500,7 @@ function TakvimPage() {
                   sub: `${o.is_emri_no} · ${o.siparis_miktari}`,
                   color: colorMode === 'durum' ? (DURUM_RENK[o.durum] || '#94a3b8') : (ONCELIK_RENK[o.oncelik] || '#94a3b8'),
                   href: `/workshop/is-emri/${o.id}`,
-                  tooltip: `${o.is_emri_no} · ${o.model_adi}\n${o.musteri || ''} · ${o.siparis_miktari} adet\n${o.durum} · ${o.oncelik}\n%${o.ilerleme_pct} ilerleme`,
+                  tooltip: `${o.is_emri_no} · ${o.model_adi}\n${o.musteri || ''} · ${o.siparis_miktari} adet\n${durumEtiket(o.durum)} · ${o.oncelik}\n%${o.ilerleme_pct} ilerleme`,
                   ilerleme: o.ilerleme_pct,
                   isDragging,
                 })

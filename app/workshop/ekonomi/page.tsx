@@ -128,7 +128,7 @@ export default async function AtolyeEkonomiSayfasi({
               const dd = doluluk(g.k, g.gider_var)
               return (
                 <Link key={s} href={`/workshop/ekonomi?donem=${s}`}
-                      className={`px-2 py-1 rounded border ${s === donem ? 'border-line bg-slate-900 text-white' : 'border-line-soft hover:bg-canvas'}`}>
+                      className={`px-2 py-1 rounded border ${s === donem ? 'border-line -ink text-white' : 'border-line-soft hover:bg-canvas'}`}>
                   {s}
                   <span className={`ml-1 text-xs ${s === donem ? 'text-faint' : 'text-faint'}`}>
                     {dd === 'tam' ? '✓' : '!'}

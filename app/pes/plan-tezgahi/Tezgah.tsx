@@ -213,7 +213,7 @@ export default function Tezgah({
           <button
             disabled={bekliyor || !yeniAd.trim()}
             onClick={() => cagir('/api/pes/plan-tezgahi', 'POST', { ad: yeniAd })}
-            className="px-3 py-1.5 rounded bg-slate-900 text-white text-sm disabled:opacity-50">
+            className="px-3 py-1.5 rounded -ink text-white text-sm disabled:opacity-50">
             Oluştur
           </button>
         </div>
@@ -290,7 +290,7 @@ export default function Tezgah({
                   <div className="text-[10px] text-faint truncate">{h.atolyeAdi}</div>
                 )}
                 {h.planIpucu && (
-                  <div className="text-[10px] text-indigo-600 truncate" title={`Yıllık plan: ${h.planIpucu}`}>
+                  <div className="text-[10px] text-muted truncate" title={`Yıllık plan: ${h.planIpucu}`}>
                     Plan: {h.planIpucu}
                   </div>
                 )}
@@ -318,7 +318,7 @@ export default function Tezgah({
                     <th key={g}
                         className={`border-b border-line-soft px-1 py-1 w-10 font-normal ${
                           e.pazar ? 'bg-canvas text-faint' : 'bg-canvas'} ${
-                          g === bugun ? 'ring-1 ring-inset ring-slate-900' : ''}`}>
+                          g === bugun ? 'ring-1 ring-inset -ink' : ''}`}>
                       <div className="font-medium">{e.gun}</div>
                       <div className="text-[10px] text-faint">{e.ad}</div>
                     </th>
@@ -395,9 +395,9 @@ export default function Tezgah({
                                   : kap > 0 ? `kapasite ${tr.format(kap)}` : 'kapasite yok'
                               }
                               className={`relative border-b border-line-soft h-9 align-middle text-center cursor-pointer ${
-                                uzerinde ? 'bg-slate-900/10 outline outline-1 outline-slate-900' :
-                                cakisik ? 'bg-red-200' :
-                                dolu ? (citli ? 'bg-amber-200' : 'bg-emerald-200') :
+                                uzerinde ? '-ink/10 outline outline-1 -ink' :
+                                cakisik ? 'bg-danger/30' :
+                                dolu ? (citli ? 'bg-warn/25' : 'bg-accent/25') :
                                 kap === 0 ? 'bg-canvas' : 'bg-surface hover:bg-canvas'
                               }`}>
                               {dolu && (
@@ -413,7 +413,7 @@ export default function Tezgah({
                               {baslayan.map((k, i) => (
                                 <span
                                   key={k.id}
-                                  className="pointer-events-none absolute left-0.5 z-10 flex items-center gap-1 whitespace-nowrap rounded bg-slate-900/85 px-1 text-[10px] leading-4 text-white"
+                                  className="pointer-events-none absolute left-0.5 z-10 flex items-center gap-1 whitespace-nowrap rounded -ink/85 px-1 text-[10px] leading-4 text-white"
                                   style={{ top: 2 + i * 14 }}
                                 >
                                   {k.isEmriNo}

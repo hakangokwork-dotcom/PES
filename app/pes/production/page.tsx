@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { girenMetni, surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
 import { useDonem } from '@/lib/pes/useDonem'
+import { effTone, TONE_TEXT } from '@/lib/ui/tone'
 import { useToast } from '@/components/ui'
 
 interface Workshop { id: number; code: string; name: string }
@@ -172,7 +173,7 @@ export default function ProductionPage() {
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 90}} value={row.target_qty} onChange={e => updateRow(idx, 'target_qty', parseInt(e.target.value) || 0)} min={0} /></td>
                       <td className="py-2"><input type="number" className={inputClass} style={{width: 90}} value={row.actual_qty} onChange={e => updateRow(idx, 'actual_qty', parseInt(e.target.value) || 0)} min={0} /></td>
                       <td className="py-2 text-right">
-                        <span className={`font-medium ${eff >= 90 ? 'text-accent-ink' : eff >= 70 ? 'text-warn' : 'text-danger'}`}>
+                        <span className={TONE_TEXT[effTone(row.target_qty > 0 ? eff : null)]}>
                           %{eff.toFixed(1)}
                         </span>
                       </td>

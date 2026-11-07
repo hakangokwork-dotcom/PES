@@ -7,6 +7,7 @@ import {
 import { Badge, EmptyState } from '@/components/ui'
 import { GRAFIK_AKSAN, GRAFIK_RENK } from '@/lib/ui/tone'
 import type { PlanGercek } from '@/lib/pes/plan-gercek'
+import { durumEtiket } from '@/lib/pes/durum-etiket'
 
 /* Plan / gerçek karşılaştırması (tasarım K6, §6.2).
 
@@ -134,7 +135,7 @@ export default function PlanGercekSekmesi({ workOrderId }: { workOrderId: number
                       <Badge tone="good">gününde</Badge>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-muted">{a.durum}</td>
+                  <td className="px-3 py-2 text-muted">{durumEtiket(a.durum)}</td>
                 </tr>
               ))}
             </tbody>

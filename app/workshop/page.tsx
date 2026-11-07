@@ -7,7 +7,7 @@ import { Boxes, Wallet, Gauge, BarChart3 } from 'lucide-react'
 import { PageHeader } from '@/components/ui'
 import DonemBar from '@/components/pes/DonemBar'
 import { etkinDonem, donemEtiket, type Donem } from '@/lib/pes/donem'
-import { effTone, fpqTone, TONE_TEXT, type Tone } from '@/lib/ui/tone'
+import { effTone, fpqTone, devirTone, TONE_TEXT, type Tone } from '@/lib/ui/tone'
 import { EffTrendChart } from '@/components/pes/DashboardCharts'
 import AtolyeSecici, { type AtolyeSatiri } from '@/components/pes/AtolyeSecici'
 
@@ -89,8 +89,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
     `
 
     const [wfKpi] = await sql`
-      SELECT total_staff, left_count, joined_count, in_warmup,
-             CASE WHEN total_staff > 0 THEN ROUND(left_count::numeric / total_staff * 100, 1) ELSE 0 END as turnover_pct
+      SELECT total_staff, left_count, joined_count, in_warmup, devir_orani
       FROM workforce_turnover WHERE workshop_id = ${workshopId} ORDER BY year DESC, month DESC LIMIT 1
     `
 
@@ -263,7 +262,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">
           <p className="text-xs text-faint">İşgücü devri</p>
-          <p className="text-lg font-bold text-ink">%{wfKpi?.turnover_pct ?? 0}</p>
+          <p className={`text-lg font-bold ${TONE_TEXT[devirTone(wfKpi?.devir_orani == null ? null : Number(wfKpi.devir_orani))]}`}>{wfKpi?.devir_orani == null ? '—' : `%${Number(wfKpi.devir_orani).toLocaleString('tr-TR')}`}</p>
           <p className="text-xs text-faint">Giden: {wfKpi?.left_count ?? 0} Gelen: {wfKpi?.joined_count ?? 0}</p>
         </div>
         <div className="bg-canvas border border-line-soft rounded-xl p-4">

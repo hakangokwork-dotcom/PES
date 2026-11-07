@@ -58,9 +58,9 @@ function WorkshopDowntimePage() {
 
       {totalMin > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="bg-danger-soft border border-danger-line rounded-xl p-4"><p className="text-xs text-danger">Toplam Duruş</p><p className="text-xl font-bold text-danger">{totalMin} dk</p></div>
+          <div className="bg-surface border border-line-soft rounded-xl p-4"><p className="text-xs text-faint">Toplam Duruş</p><p className="text-xl font-bold text-ink">{totalMin} dk</p></div>
           <div className="bg-surface border border-line-soft rounded-xl p-4"><p className="text-xs text-faint">Kayıt</p><p className="text-xl font-bold">{records.length}</p></div>
-          <div className="bg-warn-soft border border-line-soft rounded-xl p-4"><p className="text-xs text-warn">Ortalama</p><p className="text-xl font-bold text-warn">{records.length > 0 ? Math.round(totalMin/records.length) : 0} dk</p></div>
+          <div className="bg-surface border border-line-soft rounded-xl p-4"><p className="text-xs text-faint">Ortalama</p><p className="text-xl font-bold text-ink">{records.length > 0 ? Math.round(totalMin/records.length) : 0} dk</p></div>
         </div>
       )}
 
@@ -90,7 +90,7 @@ function WorkshopDowntimePage() {
                     <td className="px-4 py-3 text-muted">{new Date(r.occurred_at).toLocaleString('tr-TR')}</td>
                     <td className="px-4 py-3">{r.line_code}</td>
                     <td className="px-4 py-3 text-right text-danger font-medium">{r.duration_min} dk</td>
-                    <td className="px-4 py-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.downtime_type === 'Plansız' ? 'bg-danger-soft text-danger' : r.downtime_type === 'Tedarik' ? 'bg-orange-100 text-orange-700' : 'bg-canvas text-muted'}`}>{r.downtime_type}</span></td>
+                    <td className="px-4 py-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.downtime_type === 'Plansız' ? 'bg-danger-soft text-danger' : r.downtime_type === 'Tedarik' ? 'bg-warn-soft text-warn' : 'bg-canvas text-muted'}`}>{r.downtime_type}</span></td>
                     <td className="px-4 py-3 text-muted truncate max-w-[200px]">{r.reason ?? '—'}</td>
                   </tr>
                 ))}

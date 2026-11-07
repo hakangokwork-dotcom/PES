@@ -18,7 +18,7 @@ const COLOR_CLASSES: Record<string, string> = {
   amber:  'bg-warn-soft  text-warn  border-line-soft',
   red:    'bg-danger-soft    text-danger    border-danger-line',
   blue:   'bg-canvas   text-muted   border-line',
-  orange: 'bg-orange-100 text-orange-700 border-orange-200',
+  orange: 'bg-warn-soft text-warn border-line-soft',
 }
 
 export default function MetricInfo({ metricKey, value, size = 14, iconOnly = true }: MetricInfoProps) {

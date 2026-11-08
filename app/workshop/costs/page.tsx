@@ -8,6 +8,7 @@ import { Button, Card, CardBody, Field, Input, PageHeader, useToast } from '@/co
 import { useDonem } from '@/lib/pes/useDonem'
 import GirenBilgisi from '@/components/pes/GirenBilgisi'
 import { surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
+import { sayi, tl, yuzde } from '@/lib/ui/sayi'
 
 const MAIN_FIELDS = [
   { key: 'personnel', label: 'Personel Gideri' },
@@ -196,12 +197,12 @@ function WorkshopCostsPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-canvas rounded-lg p-4 text-center">
             <p className="text-xs text-faint">Toplam Gider</p>
-            <p className="text-xl font-bold text-ink">{(total / 1000000).toFixed(2)}M TL</p>
+            <p className="text-xl font-bold text-ink">{tl(total)}</p>
           </div>
           <div className="bg-accent-soft rounded-lg p-4 text-center">
             <p className="text-xs text-accent-ink">Dakika Başı Maliyet</p>
-            <p className="text-xl font-bold text-accent">{costPerMin.toFixed(2)} TL/dk</p>
-            <p className="text-[11px] text-accent-ink">{productiveStaff} op × {workDays} gün × {((w?.net_hours_day ?? 9) * 60).toFixed(0)} dk</p>
+            <p className="text-xl font-bold text-accent">{tl(costPerMin, 2)}/dk</p>
+            <p className="text-[11px] text-accent-ink">{productiveStaff} op × {workDays} gün × {sayi((w?.net_hours_day ?? 9) * 60)} dk</p>
           </div>
           <div className="bg-canvas rounded-lg p-4 text-center">
             <p className="text-xs text-muted">Kişi Başı Aylık Gider</p>
@@ -210,9 +211,9 @@ function WorkshopCostsPage() {
           <div className={`rounded-lg p-4 text-center ${netMargin >= 0 ? 'bg-accent-soft' : 'bg-danger-soft'}`}>
             <p className="text-xs text-faint">Net Marj</p>
             <p className={`text-xl font-bold ${netMargin >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
-              {targetRevenue > 0 ? `%${marginPct.toFixed(1)}` : '—'}
+              {targetRevenue > 0 ? yuzde(marginPct) : '—'}
             </p>
-            {targetRevenue > 0 && <p className="text-[11px] text-faint">{(netMargin / 1000).toFixed(0)}K TL</p>}
+            {targetRevenue > 0 && <p className="text-[11px] text-faint">{tl(netMargin)}</p>}
           </div>
         </div>
 
@@ -223,7 +224,7 @@ function WorkshopCostsPage() {
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
               <div className="bg-accent-soft border-2 border-accent rounded-lg p-3 text-center">
                 <p className="text-[11px] font-semibold text-accent-ink">GERÇEK</p>
-                <p className="text-xl font-bold text-accent-ink">{costPerMin.toFixed(2)}</p>
+                <p className="text-xl font-bold text-accent-ink">{sayi(costPerMin, 2)}</p>
                 <p className="text-[11px] text-accent-ink">TL/dk</p>
               </div>
               {[1, 2, 3, 4, 5, 6].map(bolge => {
@@ -235,10 +236,10 @@ function WorkshopCostsPage() {
                 return (
                   <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-accent-soft border-line-soft' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-danger-soft border-danger-line'}`}>
                     <p className="text-[11px] text-faint">{bolge}. Bölge</p>
-                    <p className="text-lg font-bold text-ink">{refVal > 0 ? refVal.toFixed(2) : '—'}</p>
+                    <p className="text-lg font-bold text-ink">{refVal > 0 ? sayi(refVal, 2) : '—'}</p>
                     {refVal > 0 && (
                       <p className={`text-[11px] font-medium ${isLower ? 'text-accent-ink' : 'text-danger'}`}>
-                        {diff > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+                        {diff > 0 ? '+' : ''}{yuzde(diffPct)}
                       </p>
                     )}
                   </div>
@@ -290,13 +291,13 @@ function WorkshopCostsPage() {
                   <div className="flex-1 bg-canvas rounded-full h-3">
                     <div className="h-3 rounded-full bg-accent" style={{ width: `${pct}%`, opacity: 0.4 + (pct / 100) * 0.6 }}></div>
                   </div>
-                  <span className="text-xs text-body w-20 text-right">{(expenses[f.key] / 1000).toFixed(0)}K</span>
-                  <span className="text-xs text-faint w-12 text-right">%{pct.toFixed(0)}</span>
+                  <span className="text-xs text-body w-20 text-right">{sayi(expenses[f.key])}</span>
+                  <span className="text-xs text-faint w-12 text-right">{yuzde(pct, 0)}</span>
                 </div>
               )
             })}
           </div>
-          <p className="text-xs text-warn mt-2">Personel + SGK: %{personnelPct.toFixed(1)}</p>
+          <p className="text-xs text-warn mt-2">Personel + SGK: {yuzde(personnelPct)}</p>
         </div>
 
         {/* Atölye Tipine Göre Kapsam */}

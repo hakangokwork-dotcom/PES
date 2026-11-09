@@ -1,5 +1,5 @@
 import postgres from 'postgres'
-import { createClient } from './server'
+import { oturumKullanicisi } from './server'
 import { getDB } from './db'
 import { withTenant } from './tenant-db'
 import { secilenAtolye } from '@/lib/auth/tenant-context'
@@ -24,8 +24,7 @@ import { secilenAtolye } from '@/lib/auth/tenant-context'
 export async function withServerTenant<T>(
   fn: (sql: postgres.TransactionSql, tenantId: string, userId: string) => Promise<T>
 ): Promise<T | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await oturumKullanicisi()
   if (!user) return null
 
   // 019c: doğrudan tenant_user sorgusu yerine SECURITY DEFINER bootstrap.
@@ -33,17 +32,16 @@ export async function withServerTenant<T>(
   // tenant_user politikaları 0 satır döndürür.
   const sql = getDB()
   const tenantRows = await sql`
-    SELECT tenant_id, role, tenant_type FROM resolve_tenant_context(${user.id}::uuid)
-  ` as Array<{ tenant_id: string; role: string; tenant_type: string }>
+    SELECT tenant_id, role, tenant_type, resolve_workshop_id(${user.id}::uuid) AS workshop_id
+    FROM resolve_tenant_context(${user.id}::uuid)
+  ` as Array<{ tenant_id: string; role: string; tenant_type: string; workshop_id: number | null }>
   if (tenantRows.length === 0) return null
 
   const tenantId = tenantRows[0].tenant_id
 
-  /* 033: kullanıcı bir atölyeye bağlıysa RLS onu yalnız kendi atölyesine
-     kısıtlar. Bağ yoksa NULL döner ve hiçbir şey değişmez. */
-  const [ws] = await sql`
-    SELECT resolve_workshop_id(${user.id}::uuid) AS workshop_id
-  ` as Array<{ workshop_id: number | null }>
+  /* 033: kullanıcı bir atölyeye bağlıysa (workshop_id, yukarıdaki sorguda)
+     RLS onu yalnız kendi atölyesine kısıtlar. Bağ yoksa NULL. */
+  const ws = tenantRows[0]
 
   /* Bağ yoksa: merkez yöneticisi atölye panelinde bir atölye seçmişse o
      atölyenin hesabıyla girmiş gibi kısıtlanır (lib/auth/atolye-kapsam.ts).

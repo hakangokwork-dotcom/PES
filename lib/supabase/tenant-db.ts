@@ -21,18 +21,19 @@ export async function withTenant<T>(
   }
   const sql = getDB()
   return sql.begin(async (txSql) => {
-    await txSql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`
-    /* 033: atölye kullanıcısı kısıtı. HER ZAMAN yazılır — boş bırakmak
-       havuzdan gelen bağlantıda önceki değerin kalması riskini doğurur.
-       Boş dize = kısıt yok = merkez kullanıcısı (bugünkü davranış). */
-    await txSql`SELECT set_config('app.current_workshop_id',
-                  ${opts.workshopId != null ? String(opts.workshopId) : ''}, true)`
-    /* 054: "kaydı kim girdi" tetikleyicisi buradan okur. Aynı gerekçeyle
-       her zaman yazılır; boş = bilinmiyor (betikler, arka plan işleri). */
-    await txSql`SELECT set_config('app.current_user_email', ${opts.userEmail ?? ''}, true)`
-    /* 055: ekranın kaydı açtığında gördüğü sürüm; araya başka yazım
-       girdiyse tetikleyici PT409 ile durdurur. Boş = kontrol yok. */
-    await txSql`SELECT set_config('app.beklenen_surum', ${opts.kayitSurum ?? ''}, true)`
+    /* Dört ayar TEK sorguda: her biri ayrı gidiş-dönüştü, her işlemde.
+       - current_workshop_id (033): atölye kullanıcısı kısıtı. HER ZAMAN
+         yazılır — boş bırakmak havuzdan gelen bağlantıda önceki değerin
+         kalması riskini doğurur. Boş = kısıt yok = merkez kullanıcısı.
+       - current_user_email (054): "kaydı kim girdi" tetikleyicisi okur;
+         boş = bilinmiyor (betikler, arka plan işleri).
+       - beklenen_surum (055): ekranın kaydı açtığında gördüğü sürüm; araya
+         başka yazım girdiyse tetikleyici PT409 ile durdurur. Boş = kontrol yok. */
+    await txSql`SELECT
+      set_config('app.current_tenant_id', ${tenantId}, true),
+      set_config('app.current_workshop_id', ${opts.workshopId != null ? String(opts.workshopId) : ''}, true),
+      set_config('app.current_user_email', ${opts.userEmail ?? ''}, true),
+      set_config('app.beklenen_surum', ${opts.kayitSurum ?? ''}, true)`
     return fn(txSql)
   }) as Promise<T>
 }

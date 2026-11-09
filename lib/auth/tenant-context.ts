@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server'
 import { cookies, headers } from 'next/headers'
 import { ATOLYE_COOKIE, KAPSAM_HEADER, gecerliAtolyeId } from '@/lib/auth/atolye-kapsam'
-import { createClient } from '@/lib/supabase/server'
+import { cache } from 'react'
+import { oturumKullanicisi } from '@/lib/supabase/server'
 import { getDB } from '@/lib/supabase/db'
 
 const TENANT_COOKIE = 'pma_tenant_id'
@@ -42,9 +43,8 @@ export type TenantContext = {
  * yoktur. O durumda header adımı atlanır, cookie ve primary tenant kalır —
  * zaten x-tenant-id yalnız API istemcileri için.
  */
-export async function getTenantContext(req?: NextRequest | null): Promise<TenantContext | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export const getTenantContext = cache(async (req?: NextRequest | null): Promise<TenantContext | null> => {
+  const user = await oturumKullanicisi()
   if (!user) return null
 
   const claimedTenantId =
@@ -59,26 +59,23 @@ export async function getTenantContext(req?: NextRequest | null): Promise<Tenant
   // bağlanıyor, auth.uid() NULL, tenant_user politikaları 0 satır döndürür.
   // Fonksiyon claimedTenantId verilirse üyeliği doğrular, verilmezse
   // primary tenant'a düşer; her iki durumda da yalnız bu user'ın üyelikleri.
+  /* 033: atölye bağı da aynı sorguda (ayrı gidiş-dönüş idi). SECURITY
+     DEFINER — aynı gerekçe: pes_app rolü workshop_user'ı doğrudan okuyamaz. */
   const rows = await sql`
-    SELECT tenant_id, role, tenant_type
+    SELECT tenant_id, role, tenant_type, resolve_workshop_id(${user.id}::uuid) AS workshop_id
     FROM resolve_tenant_context(${user.id}::uuid, ${claimedTenantId}::uuid)
   ` as Array<{
     tenant_id: string
     role: TenantContext['role']
     tenant_type: TenantContext['tenantType']
+    workshop_id: number | null
   }>
   if (rows.length === 0) return null
 
   const { tenant_id, role, tenant_type } = rows[0]
 
-  /* 033: atölye bağı. SECURITY DEFINER — resolve_tenant_context ile aynı
-     gerekçe: pes_app rolü workshop_user'ı doğrudan okuyamaz. */
-  const wsRows = await sql`
-    SELECT resolve_workshop_id(${user.id}::uuid) AS workshop_id
-  ` as Array<{ workshop_id: number | null }>
-
   const isInternalAdmin = tenant_type === 'internal' && (role === 'owner' || role === 'admin')
-  const bagliAtolye = wsRows[0]?.workshop_id ?? null
+  const bagliAtolye = rows[0].workshop_id ?? null
   const secilen = bagliAtolye == null ? await secilenAtolye(isInternalAdmin) : null
 
   return {
@@ -91,7 +88,7 @@ export async function getTenantContext(req?: NextRequest | null): Promise<Tenant
     tenantType: tenant_type,
     isInternalAdmin,
   }
-}
+})
 
 /**
  * Merkez yöneticisinin atölye panelinde seçtiği atölye; kapsam dışındaysa

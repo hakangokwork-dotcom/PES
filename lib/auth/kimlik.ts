@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { oturumKullanicisi } from '@/lib/supabase/server'
 import { withTenant } from '@/lib/supabase/tenant-db'
 import type { TenantContext } from '@/lib/auth/tenant-context'
 
@@ -19,9 +19,7 @@ export async function kimlikBilgisi(tenant: TenantContext): Promise<{
   let tenantAdi: string | null = null
 
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    eposta = user?.email ?? null
+    eposta = (await oturumKullanicisi())?.email ?? null
   } catch (err) {
     console.error('[kimlik] e-posta okunamadı', err)
   }

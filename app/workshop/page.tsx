@@ -50,26 +50,28 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
     const pYear = secili.yil
     const pMonth = secili.ay
 
-    const [prodKpi] = await sql`
+    /* Sorgular birbirinden bağımsız: sırayla beklemek yerine birlikte
+       gönderilir (postgres.js aynı bağlantıda ardışık gönderir). */
+    const q_prodKpi = sql`
       SELECT COALESCE(SUM(target_qty), 0)::int as target, COALESCE(SUM(actual_qty), 0)::int as actual,
              CASE WHEN SUM(target_qty) > 0 THEN ROUND(SUM(actual_qty)::numeric / SUM(target_qty) * 100, 1) ELSE 0 END as eff
       FROM monthly_production WHERE workshop_id = ${workshopId} AND year = ${pYear} AND month = ${pMonth}
     `
 
-    const [expKpi] = await sql`
+    const q_expKpi = sql`
       SELECT (personnel+sgk+food+electricity+water+gas+transport+vehicle+cargo+machine_maint+thread+other) as total,
              target_revenue, work_days
       FROM monthly_expense WHERE workshop_id = ${workshopId} ORDER BY year DESC, month DESC LIMIT 1
     `
 
-    const [qualKpi] = await sql`
+    const q_qualKpi = sql`
       SELECT CASE WHEN SUM(inspected_qty) > 0 THEN ROUND(SUM(first_pass_qty)::numeric / SUM(inspected_qty) * 100, 1) ELSE NULL END as fpq,
              COALESCE(SUM(rejected_qty), 0)::int as rejected,
              COALESCE(SUM(rework_qty), 0)::int as rework
       FROM quality_record WHERE workshop_id = ${workshopId} AND year = ${pYear} AND month = ${pMonth}
     `
 
-    const [downtimeKpi] = await sql`
+    const q_downtimeKpi = sql`
       SELECT COALESCE(SUM(dr.duration_min), 0)::int as total_min, COUNT(*)::int as count,
              COALESCE(SUM(CASE WHEN dr.downtime_type = 'Plansiz' THEN dr.duration_min ELSE 0 END), 0)::int as unplanned_min
       FROM downtime_record dr
@@ -79,7 +81,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         AND EXTRACT(MONTH FROM dr.occurred_at) = ${pMonth}
     `
 
-    const [changeKpi] = await sql`
+    const q_changeKpi = sql`
       SELECT COALESCE(SUM(total_min), 0)::int as total_min, COUNT(*)::int as count
       FROM changeover_record cr
       JOIN production_line pl ON pl.id = cr.line_id
@@ -88,12 +90,12 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
         AND EXTRACT(MONTH FROM cr.occurred_date) = ${pMonth}
     `
 
-    const [wfKpi] = await sql`
+    const q_wfKpi = sql`
       SELECT total_staff, left_count, joined_count, in_warmup, devir_orani
       FROM workforce_turnover WHERE workshop_id = ${workshopId} ORDER BY year DESC, month DESC LIMIT 1
     `
 
-    const bandPerf = await sql`
+    const q_bandPerf = sql`
       SELECT pl.code, pl.name, pl.daily_target,
              COALESCE(SUM(mp.actual_qty), 0)::int as actual, COALESCE(SUM(mp.target_qty), 0)::int as target,
              CASE WHEN SUM(mp.target_qty) > 0 THEN ROUND(SUM(mp.actual_qty)::numeric / SUM(mp.target_qty) * 100, 1) ELSE 0 END as eff
@@ -106,7 +108,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
 
     /* MERKEZDEN GELENLER — atölyenin cevap vermesi ya da bilmesi gereken,
        merkezin başlattığı işler. Portalın iki yönlü akışının atölye ucu. */
-    const [gelen] = await sql`
+    const q_gelen = sql`
       SELECT
         (SELECT count(*)::int FROM plan_teklif
           WHERE workshop_id = ${workshopId} AND durum = 'bekliyor') AS bekleyen_teklif,
@@ -114,17 +116,21 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           WHERE workshop_id = ${workshopId}
             AND durum NOT IN ('Tamamlandi','Sevk Edildi','İptal')
             AND teslim_tarihi IS NOT NULL AND teslim_tarihi <= CURRENT_DATE + 7) AS yaklasan_teslim`
-    const [sonDenetim] = await sql`
+    const q_sonDenetim = sql`
       SELECT o.tarih::text AS tarih, o.yuzde::text AS yuzde
         FROM v_olgunluk_denetim_ozet o
         JOIN olgunluk_denetim d ON d.id = o.denetim_id
        WHERE o.workshop_id = ${workshopId} AND d.tur = 'DENETIM' AND d.durum = 'tamamlandi'
        ORDER BY o.tarih DESC, o.denetim_id DESC LIMIT 1`
 
-    const effTrend = await sql`
+    const q_effTrend = sql`
       SELECT year, month, ROUND(SUM(actual_qty)::numeric / NULLIF(SUM(target_qty), 0) * 100, 1) as eff
       FROM monthly_production WHERE workshop_id = ${workshopId}
       GROUP BY year, month ORDER BY year, month`
+
+    const [[prodKpi], [expKpi], [qualKpi], [downtimeKpi], [changeKpi], [wfKpi], bandPerf, [gelen], [sonDenetim], effTrend] = await Promise.all([
+      q_prodKpi, q_expKpi, q_qualKpi, q_downtimeKpi, q_changeKpi, q_wfKpi, q_bandPerf, q_gelen, q_sonDenetim, q_effTrend,
+    ])
 
     return { mode: 'detail' as const, w, workshopId, donemler, gelen, sonDenetim, pYear, pMonth, prodKpi, expKpi, qualKpi, downtimeKpi, changeKpi, wfKpi, bandPerf, effTrend }
   })

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -25,3 +26,12 @@ export async function createClient() {
     }
   )
 }
+
+/* Oturumdaki kullanıcı — bir sayfa isteğinde layout, kimlik bloğu ve sayfa
+   ayrı ayrı soruyordu; her biri Supabase Auth'a bir ağ gidiş-dönüşüydü.
+   cache() aynı render içinde tek çağrıya indirir (route handler'da etkisiz). */
+export const oturumKullanicisi = cache(async () => {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+})

@@ -31,7 +31,7 @@ Atölye kimliği **oturumdan** gelir (`TenantContext.workshopId`); `?wid=` eski 
 ## Ortam
 
 - Üretim DB: Supabase projesi `esucqswvhlnrmcownhbd` (`.env.local` ve canlı paket aynı). Supabase MCP'de görünen `jvgzfvrpjdzwfdtfvvax` **PES değildir**.
-- Canlı: https://pes.provsm.com (Vercel `pes-platform`). Ücretsiz Supabase planı boşta duraklayabilir; ilk istek 1–3 dk hata verir.
+- Canlı: https://fason.win (Cloudflare'de kayıtlı, DNS Cloudflare'de vekilsiz CNAME; Vercel `pes-platform`, asıl adres www.fason.win). Yedek adres pes-platform-tan.vercel.app bazı ağlarda engelli. provsm.com alt alanı YOK (2026-11-03'ten beri PES ProVSM'den bağımsız). Ücretsiz Supabase planı boşta duraklayabilir; ilk istek 1–3 dk hata verir.
 - Üretim veritabanına yalnız salt okunur sorgu; yazma işlemi migration üzerinden.
 
 ## Çalışma kuralları

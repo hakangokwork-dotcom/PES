@@ -23,9 +23,10 @@ const KURU = process.argv.includes('--kuru')
 
 const DEPO = 'hakangokwork-dotcom/PES'
 /* İlk adres asıl canlı adres; doğrulama onun üzerinden yapılır çünkü
-   *.vercel.app bazı ağlardan erişilemiyor (2026-11-02). Özel alan adı da
-   belirli bir dağıtıma bağlı bir alias; otomatik taşınmıyor. */
-const ALIASLAR = ['pes.provsm.com', 'pes-platform-tan.vercel.app']
+   *.vercel.app bazı ağlardan (kurum ağı, bazı sağlayıcılar) açılmıyor.
+   www.fason.win 2026-11-09'dan beri asıl adres; fason.win oraya 308 ile
+   yönlenir (Vercel proje ayarı). pes.provsm.com 2026-11-03'te kaldırıldı. */
+const ALIASLAR = ['www.fason.win', 'pes-platform-tan.vercel.app']
 const ALIAS = ALIASLAR[0]
 const KAPSAM = 'promode'
 

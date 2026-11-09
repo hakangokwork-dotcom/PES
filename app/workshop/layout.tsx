@@ -46,6 +46,17 @@ export default async function WorkshopLayout({ children }: { children: React.Rea
       >
         {/* SW yalnız atölye panelinde: /pes kabuk önbelleği almaz. */}
         <SwKayit />
+        {/* Merkez yöneticisi atölye adına girmiş: her sayfada, telefonda da
+            görünsün; kaydedilen her şey bu atölyenin kaydı olur. */}
+        {tenant.atolyeSecimi && sabitAtolye && (
+          <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-line-soft bg-warn-soft px-4 py-2 text-[13px] text-body">
+            <span className="flex-1">
+              <strong className="font-semibold text-ink">{sabitAtolye.code} {sabitAtolye.name}</strong> adına çalışıyorsunuz.
+            </span>
+            <a href="/workshop/gir" className="font-medium text-accent-ink underline underline-offset-2">Atölye değiştir</a>
+            <a href="/pes" className="font-medium text-accent-ink underline underline-offset-2">Merkeze dön</a>
+          </div>
+        )}
         {children}
       </WorkshopKabuk>
     </AktifAtolyeSaglayici>

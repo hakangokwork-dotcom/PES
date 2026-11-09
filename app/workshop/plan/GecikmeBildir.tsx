@@ -146,7 +146,7 @@ export default function GecikmeBildir({
           {tamam && <p className="text-sm text-accent-ink">Bildirim gönderildi.</p>}
 
           <button onClick={gonder} disabled={bekliyor || onHata.length > 0}
-                  className="px-4 py-2 rounded bg-slate-900 text-white text-sm disabled:opacity-40">
+                  className="px-4 py-2 rounded -ink text-white text-sm disabled:opacity-40">
             {bekliyor ? 'Gönderiliyor…' : 'Gecikmeyi bildir'}
           </button>
         </>

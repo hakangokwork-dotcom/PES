@@ -28,7 +28,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <Ctx.Provider value={{ push }}>
       {children}
-      <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col gap-2">
+      <div role="status" aria-live="polite" className="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col gap-2">
         {items.map(t => <Row key={t.id} toast={t} onClose={() => drop(t.id)} />)}
       </div>
     </Ctx.Provider>

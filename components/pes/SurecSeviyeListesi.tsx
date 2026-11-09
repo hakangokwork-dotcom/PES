@@ -1,5 +1,6 @@
 import { Badge, Card } from '@/components/ui'
 import type { SurecSatiri } from '@/lib/pes/olgunluk-denetim'
+import { SEVIYE_ETIKET } from '@/lib/pes/olgunluk'
 
 /* "HER SÜREÇTE NASILIM" — kategori ortalaması bunu saklıyordu.
    Üstte en zayıf süreçler (aksiyonun başladığı yer), altında tam liste
@@ -11,7 +12,8 @@ const SEVIYE_TON = ['bad', 'warn', 'neutral', 'good'] as const
 
 function Seviye({ v }: { v: number | null | undefined }) {
   if (v === null || v === undefined) return <span className="num text-faint">—</span>
-  return <Badge tone={SEVIYE_TON[v] ?? 'neutral'}>{v}</Badge>
+  // Rakamın yanında ad: durum yalnız renkle anlatılmasın.
+  return <Badge tone={SEVIYE_TON[v] ?? 'neutral'}>{v} · {SEVIYE_ETIKET[v] ?? ''}</Badge>
 }
 
 export default function SurecSeviyeListesi({

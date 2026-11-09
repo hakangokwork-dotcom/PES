@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import AtolyeSecilmedi from '@/components/pes/AtolyeSecilmedi'
 import { aktifAtolyeId } from '@/lib/auth/aktif-atolye'
 import Link from 'next/link'
+import { effTone, fpqTone, TONE_BAR, TONE_TEXT } from '@/lib/ui/tone'
 import { withServerTenant } from '@/lib/supabase/tenant-server'
 
 export const dynamic = 'force-dynamic'
@@ -60,8 +61,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
     `
 
     const workforceTrend = await sql`
-      SELECT year, month, total_staff, left_count, joined_count, in_warmup,
-             CASE WHEN total_staff > 0 THEN ROUND(((left_count+joined_count)/2.0) / total_staff * 100, 1) ELSE 0 END as turnover_rate
+      SELECT year, month, total_staff, left_count, joined_count, in_warmup, devir_orani
       FROM workforce_turnover WHERE workshop_id = ${workshopId}
       ORDER BY year, month
     `
@@ -115,7 +115,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
             <tbody className="divide-y divide-line-soft">
               {prodTrend.map((p, i) => {
                 const eff = Number(p.eff)
-                const color = eff >= 90 ? 'bg-accent' : eff >= 70 ? 'bg-warn' : 'bg-danger'
+                const color = TONE_BAR[effTone(Number(p.target) > 0 ? eff : null)]
                 return (
                   <tr key={i}>
                     <td className="py-2 text-body">{String(p.year)}/{String(p.month)}</td>
@@ -207,7 +207,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <tr key={i}>
                   <td className="py-2 text-body">{String(q.year)}/{String(q.month)}</td>
                   <td className="py-2 text-right">{Number(q.inspected).toLocaleString('tr-TR')}</td>
-                  <td className="py-2 text-right"><span className={`font-bold ${Number(q.fpq_rate) >= 95 ? 'text-accent-ink' : 'text-warn'}`}>%{String(q.fpq_rate)}</span></td>
+                  <td className="py-2 text-right"><span className={`font-bold ${TONE_TEXT[fpqTone(q.fpq_rate == null ? null : Number(q.fpq_rate))]}`}>%{String(q.fpq_rate)}</span></td>
                   <td className="py-2 text-right text-danger">%{String(q.red_rate)}</td>
                 </tr>
               ))}
@@ -223,7 +223,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
             {downtimeByType.map((d, i) => (
               <div key={i} className={`rounded-lg p-3 ${
                 d.downtime_type === 'Plansız' ? 'bg-danger-soft' :
-                d.downtime_type === 'Tedarik' ? 'bg-orange-50' :
+                d.downtime_type === 'Tedarik' ? 'bg-warn-soft' :
                 d.downtime_type === 'Organizasyonel' ? 'bg-canvas' : 'bg-canvas'
               }`}>
                 <p className="text-xs text-muted">{String(d.downtime_type)}</p>
@@ -255,7 +255,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
                   <td className="py-2 text-right">{String(wf.total_staff)}</td>
                   <td className="py-2 text-right text-accent-ink">+{String(wf.joined_count)}</td>
                   <td className="py-2 text-right text-danger">-{String(wf.left_count)}</td>
-                  <td className="py-2 text-right font-bold">{String(wf.turnover_rate)}%</td>
+                  <td className="py-2 text-right font-bold">{wf.devir_orani == null ? '—' : `%${Number(wf.devir_orani).toLocaleString('tr-TR')}`}</td>
                 </tr>
               ))}
             </tbody>

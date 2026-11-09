@@ -67,7 +67,7 @@ export default function Teklifler({
               const t = (g as { teklifler?: unknown[] }).teklifler ?? []
               return `${t.length} atölyeye teklif gönderildi`
             })}
-          className="px-3 py-1.5 rounded bg-slate-900 text-white text-sm disabled:opacity-40"
+          className="px-3 py-1.5 rounded -ink text-white text-sm disabled:opacity-40"
           title={kalemVar ? 'Taslağı ilgili atölyelere gönder' : 'Önce iş yerleştirin'}>
           Atölyelere gönder
         </button>

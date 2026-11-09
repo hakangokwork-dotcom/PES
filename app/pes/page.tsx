@@ -6,7 +6,8 @@ import {
   BarChart3, Gauge, TrendingUp, TrendingDown, Minus, ArrowRight,
 } from 'lucide-react'
 import { EffTrendChart, WorkshopEffBar, TierDonut } from '@/components/pes/DashboardCharts'
-import { effTone, TONE_TEXT } from '@/lib/ui/tone'
+import { Badge } from '@/components/ui'
+import { effTone, TONE_TEXT, TONE_ETIKET } from '@/lib/ui/tone'
 import { malzemeGecikenSiparisler } from '@/lib/pes/malzeme-uyari'
 
 export const dynamic = 'force-dynamic'
@@ -200,6 +201,7 @@ export default async function PesDashboard() {
                     {d.sayi}
                   </span>
                   <span className="flex-1 text-sm text-body">{d.metin}</span>
+                  <Badge tone={d.agir ? 'bad' : 'warn'}>{TONE_ETIKET[d.agir ? 'bad' : 'warn']}</Badge>
                   <ArrowRight className="size-3.5 shrink-0 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
                 </Link>
               </li>

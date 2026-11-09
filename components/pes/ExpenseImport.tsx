@@ -51,7 +51,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   accepted: 'bg-accent-soft text-accent-ink',
   winsorized: 'bg-warn-soft text-warn',
-  pending_fix: 'bg-orange-100 text-orange-700',
+  pending_fix: 'bg-warn-soft text-warn',
   rejected: 'bg-danger-soft text-danger',
 }
 

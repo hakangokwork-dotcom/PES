@@ -162,20 +162,6 @@ export default function WorkshopSidebar({
             <span className="text-ink">{sabitAtolye.name}</span>
           </div>
         ) : null}
-        {sabitAtolye && atolyeSecimi && (
-          /* Atölye hesabı yerine merkezden seçilerek girildi; yaptığı her
-             iş bu atölyenin adına. Çıkış yolu açık dursun. */
-          <div className="mt-1.5 flex items-center justify-between gap-2 px-1">
-            <span className="text-[11px] font-medium text-faint">Bu atölye adına çalışıyorsunuz</span>
-            <a
-              href="/workshop/gir"
-              className="flex items-center gap-1 text-[11px] font-medium text-accent hover:underline"
-            >
-              <Repeat className="size-3" strokeWidth={1.8} />
-              Atölye değiştir
-            </a>
-          </div>
-        )}
         {!sabitAtolye && (
           <select
             value={wid}

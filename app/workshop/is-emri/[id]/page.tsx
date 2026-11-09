@@ -4,6 +4,7 @@ import { useAktifAtolyeId } from '@/components/pes/AktifAtolye'
 import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { durumEtiket } from '@/lib/pes/durum-etiket'
 import PlanGercekSekmesi from '@/components/pes/PlanGercekSekmesi'
 
 interface WO {
@@ -91,8 +92,8 @@ const DURUM_RENK: Record<string, string> = {
   'Planlandi': 'bg-canvas text-muted',
   'Bekleniyor': 'bg-warn-soft text-warn',
   'Devam': 'bg-accent-soft text-accent-ink',
-  'Duraklatildi': 'bg-orange-100 text-orange-800',
-  'Tamamlandi': 'bg-emerald-200 text-accent-ink',
+  'Duraklatildi': 'bg-warn-soft text-warn',
+  'Tamamlandi': 'bg-accent-soft text-accent-ink',
   'İptal': 'bg-danger-soft text-danger',
   'Sevk Edildi': 'bg-canvas text-muted',
 }
@@ -101,7 +102,7 @@ const STAGE_DURUM_RENK: Record<string, string> = {
   'Hazır':        'bg-canvas text-muted',
   'Devam':        'bg-accent-soft text-accent-ink',
   'Duraklatildi': 'bg-warn-soft text-warn',
-  'Tamamlandi':   'bg-emerald-200 text-accent-ink',
+  'Tamamlandi':   'bg-accent-soft text-accent-ink',
   'İptal':        'bg-danger-soft text-danger',
 }
 const MATERIAL_DURUM_RENK: Record<string, string> = {
@@ -225,7 +226,7 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
         <div className="flex-1 min-w-[300px]">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs uppercase tracking-wider text-faint font-semibold">{order.is_emri_no}</span>
-            <Badge cls={DURUM_RENK[order.durum] || 'bg-canvas text-ink'}>{order.durum}</Badge>
+            <Badge cls={DURUM_RENK[order.durum] || 'bg-canvas text-ink'}>{durumEtiket(order.durum)}</Badge>
             {order.aciliyet === 'kritik' && <Badge cls="bg-danger text-white">⚠ Teslim Geçti ({Math.abs(order.teslim_kalan_gun || 0)}g)</Badge>}
             {order.aciliyet === 'acil' && <Badge cls="bg-warn text-white">⏰ {order.teslim_kalan_gun}g kaldı</Badge>}
             <Badge cls={
@@ -246,7 +247,7 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-faint mr-1">Hızlı Durum:</span>
           {['Devam','Duraklatildi','Tamamlandi'].filter(d => d !== order.durum).map(d => (
-            <button key={d} onClick={() => changeStatus(d)}
+            <button key={durumEtiket(d)} onClick={() => changeStatus(d)}
               className="text-xs px-2.5 py-1.5 border border-line rounded-lg hover:bg-canvas">
               {d}
             </button>
@@ -606,7 +607,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-line-soft" style={{ backgroundColor: (stage.stage_renk || '#94a3b8') + '15' }}>
         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stage.stage_renk || '#94a3b8' }} />
         <span className="font-semibold text-base">{stage.stage_name}</span>
-        <Badge cls={STAGE_DURUM_RENK[stage.durum] || 'bg-canvas'}>{stage.durum}</Badge>
+        <Badge cls={STAGE_DURUM_RENK[stage.durum] || 'bg-canvas'}>{durumEtiket(stage.durum)}</Badge>
         {stage.gecikme_gun != null && stage.gecikme_gun > 0 && (
           <Badge cls="bg-danger-soft text-danger">+{stage.gecikme_gun}g gecikme</Badge>
         )}
@@ -634,7 +635,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {isStarted && !isDone && (
           <>
             {stage.durum !== 'Duraklatildi' && (
-              <button onClick={quickPause} className="text-xs px-2 py-1 bg-warn-soft text-warn rounded hover:bg-amber-200">⏸</button>
+              <button onClick={quickPause} className="text-xs px-2 py-1 bg-warn-soft text-warn rounded hover:brightness-95">⏸</button>
             )}
             <button onClick={quickFinish}
               className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover flex items-center gap-1">
@@ -1012,7 +1013,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                 </div>
                 <div className="flex items-center gap-1">
                   {!j.resolved && j.tip === 'PROBLEM' && (
-                    <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-accent-soft text-accent-ink rounded hover:bg-emerald-200">Çözüldü</button>
+                    <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-accent-soft text-accent-ink rounded hover:brightness-95">Çözüldü</button>
                   )}
                   <button onClick={() => togglePaylasim(j)} className="text-xs px-2 py-0.5 bg-canvas hover:bg-line-soft rounded" title="Admin paylaşımını aç/kapat">🔗</button>
                   <button onClick={() => del(j.id)} className="text-xs text-danger px-1">×</button>

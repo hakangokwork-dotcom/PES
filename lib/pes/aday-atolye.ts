@@ -62,7 +62,15 @@ export async function adayAtolyeler(
   sql: postgres.TransactionSql,
   istek: AdayIstek,
 ): Promise<Aday[]> {
+  /* Süresi dolmuş denetimler bir kez sayılır: görünümü atölye başına alt
+     sorguda çalıştırmak RLS altında saniyeler sürüyordu (atolye-profil.ts). */
   const satirlar = await sql`
+    WITH dolmus AS MATERIALIZED (
+      SELECT workshop_id, COUNT(*)::int AS n
+        FROM v_atolye_denetim_durum
+       WHERE durum = 'SURESI_DOLMUS'
+       GROUP BY workshop_id
+    )
     SELECT
       w.id, w.code, w.name,
       (SELECT COALESCE(SUM(pl.daily_target), 0)::int
@@ -74,9 +82,7 @@ export async function adayAtolyeler(
         WHERE pl2.workshop_id = w.id
           AND a.plan_bitis >= ${istek.bugun}::date
           AND a.plan_baslangic <= ${istek.teslimTarihi}::date)     AS dolu_gun,
-      (SELECT COUNT(*)::int
-         FROM v_atolye_denetim_durum d
-        WHERE d.workshop_id = w.id AND d.durum = 'SURESI_DOLMUS')  AS denetim_dolmus,
+      COALESCE(dl.n, 0)                                           AS denetim_dolmus,
       /* Künye kodu verilmişse yalnız o kodla eşleşen kayıtlar sayılır; iki
          kod da verilmişse her biri AYRI sayılır — bir line_capability satırı
          tek boyut taşır, ikisini aynı satırda aramak hep sıfır verir. */
@@ -103,6 +109,7 @@ export async function adayAtolyeler(
       p.tedarik_mudurlugu
     FROM workshop w
     LEFT JOIN workshop_profil p ON p.workshop_id = w.id
+    LEFT JOIN dolmus dl ON dl.workshop_id = w.id
     WHERE w.is_active
     ORDER BY w.code` as unknown as Satir[]
 

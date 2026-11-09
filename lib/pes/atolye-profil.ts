@@ -67,7 +67,12 @@ export async function atolyeProfilSatirlari(
   sql: postgres.TransactionSql,
   opts: { arsivDahil?: boolean } = {}
 ): Promise<AtolyeProfilSatiri[]> {
+  /* Görünüm bir kez hesaplanır (MATERIALIZED). Doğrudan iki kez JOIN
+     edilince planlayıcı onu her atölye satırı için yeniden çalıştırıyor,
+     RLS fonksiyonları da her seferinde dönüyordu: uygulama rolüyle ~23 sn,
+     böyle ~0,15 sn (2026-11-09 ölçümü). */
   const rows = await sql`
+    WITH dd AS MATERIALIZED (SELECT * FROM v_atolye_denetim_durum)
     SELECT
       w.id, w.code, w.name, w.city, w.is_active,
       p.t_kod, p.tedarik_mudurlugu, p.teknik_mudur, p.fku, p.bolge_ad,
@@ -95,9 +100,9 @@ export async function atolyeProfilSatirlari(
       so.durum               AS sosyal_durum
     FROM workshop w
     LEFT JOIN workshop_profil p ON p.workshop_id = w.id
-    LEFT JOIN v_atolye_denetim_durum wk
+    LEFT JOIN dd wk
            ON wk.workshop_id = w.id AND wk.denetim_tipi = 'WKYS'
-    LEFT JOIN v_atolye_denetim_durum so
+    LEFT JOIN dd so
            ON so.workshop_id = w.id AND so.denetim_tipi = 'SOSYAL'
     WHERE ${opts.arsivDahil ? sql`TRUE` : sql`w.is_active`}
     ORDER BY

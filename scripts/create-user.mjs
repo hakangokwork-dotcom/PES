@@ -16,6 +16,7 @@
  * PANEL → ROL:
  *   --panel=tam     (VARSAYILAN) → rol 'admin'  → HER İKİ panel: /pes + /workshop
  *   --panel=atolye               → rol 'editor' → yalnız /workshop
+ *   --panel=sahip                → rol 'owner'  → her iki panel; merkezin sahibi
  *
  * ŞU ANKİ KURULUM: ekip tam yetkili. Herkes atölye verisini girer, sonra
  * merkez panelinden değerlendirmeleri görür. Panel ayrımı (her atölyenin
@@ -52,7 +53,8 @@ const arg = (n, d) => {
 }
 
 /* 'tam' = her iki panel (admin). 'yonetim' eski ad, aynı role işaret eder. */
-const PANEL_ROL = { tam: 'admin', yonetim: 'admin', atolye: 'editor' }
+/* 'sahip' = owner: admin'in yetkileri + ileride kullanıcı yönetimi. Tek kişiye verilir. */
+const PANEL_ROL = { sahip: 'owner', tam: 'admin', yonetim: 'admin', atolye: 'editor' }
 
 const sql = postgres(env.DATABASE_URL, { max: 1, prepare: false, connect_timeout: 20 })
 
@@ -91,7 +93,7 @@ const tenantSlug = arg('tenant', 'default')
 const hata = []
 if (!email || !email.includes('@')) hata.push('--email geçerli bir adres olmalı')
 if (!sifre || sifre.length < 8) hata.push('--sifre en az 8 karakter olmalı')
-if (!PANEL_ROL[panel]) hata.push(`--panel 'tam' veya 'atolye' olmalı (verilen: ${panel})`)
+if (!PANEL_ROL[panel]) hata.push(`--panel 'sahip', 'tam' veya 'atolye' olmalı (verilen: ${panel})`)
 if (hata.length) {
   console.error('\n✗ ' + hata.join('\n✗ '))
   console.error('\nÖrnek: node scripts/create-user.mjs --email=ahmet@pes.local --sifre=\'Gizli1234!\'\n')

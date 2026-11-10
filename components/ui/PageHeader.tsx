@@ -12,7 +12,7 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-6 border-b border-line-soft pb-4">
+    <header className="flex flex-wrap items-end justify-between gap-6 pb-2">
       <div className="flex flex-col gap-1">
         {crumbs && crumbs.length > 0 && (
           <nav className="flex items-center gap-1.5 text-xs text-faint">
@@ -24,8 +24,8 @@ export function PageHeader({
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
-        {context && <div className="num text-[13px] text-muted">{context}</div>}
+        <h1 className="font-serif text-[30px] leading-tight font-medium tracking-tight text-ink">{title}</h1>
+        {context && <div className="num text-sm text-muted">{context}</div>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </header>

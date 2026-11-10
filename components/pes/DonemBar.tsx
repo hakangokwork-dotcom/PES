@@ -30,13 +30,13 @@ export default function DonemBar({ mevcut }: { mevcut: Donem[] }) {
   }
 
   return (
-    <div className="flex items-center gap-2 border-b border-line-soft bg-surface px-6 py-2 lg:px-8">
+    <div className="flex items-center gap-2 border-b border-line-soft bg-canvas px-6 py-2 lg:px-8">
       <span className="text-[11px] font-medium uppercase tracking-wider text-faint">Dönem</span>
 
       <select
         value={secili.yil}
         onChange={e => git({ yil: Number(e.target.value), ay: secili.ay })}
-        className="rounded-md border border-line bg-surface px-2 py-1 text-[13px] text-ink focus:border-accent focus:outline-none"
+        className="rounded-lg border border-line bg-surface px-2 py-1 text-[13px] text-ink focus:border-accent focus:outline-none"
       >
         {yillar.map(y => <option key={y} value={y}>{y}</option>)}
       </select>
@@ -44,7 +44,7 @@ export default function DonemBar({ mevcut }: { mevcut: Donem[] }) {
       <select
         value={secili.ay}
         onChange={e => git({ yil: secili.yil, ay: Number(e.target.value) })}
-        className="rounded-md border border-line bg-surface px-2 py-1 text-[13px] text-ink focus:border-accent focus:outline-none"
+        className="rounded-lg border border-line bg-surface px-2 py-1 text-[13px] text-ink focus:border-accent focus:outline-none"
       >
         {aylar.map(a => <option key={a} value={a}>{AY_ADLARI[a]}</option>)}
       </select>

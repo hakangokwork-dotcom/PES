@@ -353,7 +353,7 @@ export default function Tezgah({
                           )
                         }
                         return (
-                          <span className="ml-2 text-xs font-normal text-accent-ink">
+                          <span className="ml-2 text-xs font-normal text-ok-ink">
                             yetenek uyumlu
                           </span>
                         )

@@ -75,7 +75,7 @@ const KIND_STYLES: Record<string, string> = {
   denetim: 'bg-canvas text-muted',
   olay: 'bg-danger-soft text-danger',
   dmaic: 'bg-warn-soft text-warn',
-  fiyat_revizyonu: 'bg-accent-soft text-accent-ink',
+  fiyat_revizyonu: 'bg-ok-soft text-ok-ink',
   not: 'bg-canvas text-muted',
 }
 
@@ -457,7 +457,7 @@ function IliskiTab({
               <div key={c.id} className="flex items-center gap-3 text-sm">
                 <span className="font-medium text-ink">{c.name}</span>
                 {c.is_primary && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent-soft text-accent-ink">Birincil</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-ok-soft text-ok-ink">Birincil</span>
                 )}
                 <span className="text-faint">{c.role}</span>
                 <span className="text-faint ml-auto">{c.phone} {c.email}</span>

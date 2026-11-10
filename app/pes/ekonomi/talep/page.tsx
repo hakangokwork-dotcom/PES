@@ -20,7 +20,7 @@ import TalepEylem from './TalepEylem'
 export const dynamic = 'force-dynamic'
 
 const DURUM_RENK: Record<Doluluk, string> = {
-  tam: 'bg-accent-soft text-accent-ink',
+  tam: 'bg-ok-soft text-ok-ink',
   'gider-yok': 'bg-warn-soft text-warn',
   eksik: 'bg-warn-soft text-warn',
   'veri-yok': 'bg-canvas text-muted',
@@ -128,7 +128,7 @@ export default async function TalepSayfasi({
 
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
         {[
-          ['Tam', sayim.tam, 'text-accent-ink'],
+          ['Tam', sayim.tam, 'text-ok-ink'],
           ['Eksik alan', sayim.eksik, 'text-warn'],
           ['Gider bekleniyor', sayim.giderYok, 'text-warn'],
           ['Veri yok', sayim.veriYok, 'text-muted'],

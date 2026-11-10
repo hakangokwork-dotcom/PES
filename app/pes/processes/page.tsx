@@ -140,7 +140,7 @@ export default function ProcessesPage() {
   ]
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-accent-soft'
+  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-ok-soft'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

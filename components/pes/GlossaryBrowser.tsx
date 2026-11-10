@@ -6,7 +6,7 @@ import type { MetricDefinition } from '@/lib/pes/metrics-ontology'
 type Category = { code: string; label: string; count: number }
 
 const THRESHOLD_STYLES: Record<string, string> = {
-  green: 'bg-accent-soft text-accent-ink border-line-soft',
+  green: 'bg-ok-soft text-ok-ink border-line-soft',
   amber: 'bg-warn-soft text-warn border-line-soft',
   red: 'bg-danger-soft text-danger border-danger-line',
   blue: 'bg-canvas text-muted border-line',
@@ -110,7 +110,7 @@ export default function GlossaryBrowser({
                       <ul className="text-xs space-y-0.5">
                         {m.sources.map((s, i) => (
                           <li key={i}>
-                            <code className="font-mono text-accent-ink">
+                            <code className="font-mono text-ok-ink">
                               {s.table}{s.column ? `.${s.column}` : ''}
                             </code>
                             <span className="text-faint"> — {s.label}</span>

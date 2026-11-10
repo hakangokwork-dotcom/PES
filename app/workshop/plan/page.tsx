@@ -165,7 +165,7 @@ export default async function AtolyePlanSayfasi() {
                   {t.taslakAdi} · {t.turNo}. tur
                 </span>
                 <span className={`text-xs px-2 py-0.5 rounded ${
-                  t.durum === 'kabul' ? 'bg-accent-soft text-accent-ink'
+                  t.durum === 'kabul' ? 'bg-ok-soft text-ok-ink'
                   : t.durum === 'ret' ? 'bg-danger-soft text-danger'
                   : 'bg-warn-soft text-warn'}`}>
                   {DURUM_ETIKET[t.durum]}

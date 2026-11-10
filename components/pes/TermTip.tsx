@@ -65,8 +65,8 @@ export default function TermTip({
         aria-controls={open ? panelId : undefined}
         className={
           showIcon
-            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[11px] text-faint hover:border-accent hover:text-accent-ink transition-colors align-middle'
-            : 'inline text-left underline decoration-dotted decoration-line underline-offset-2 hover:decoration-emerald-600 hover:text-accent-ink transition-colors cursor-help'
+            ? 'inline-flex items-center justify-center w-4 h-4 rounded-full border border-line text-[11px] text-faint hover:border-accent hover:text-ok-ink transition-colors align-middle'
+            : 'inline text-left underline decoration-dotted decoration-line underline-offset-2 hover:decoration-emerald-600 hover:text-ok-ink transition-colors cursor-help'
         }
       >
         {showIcon ? '?' : label}
@@ -122,7 +122,7 @@ export default function TermTip({
             <span className="block text-xs space-y-0.5">
               {metric.sources.map((s, i) => (
                 <span key={i} className="block">
-                  <span className="font-mono text-accent-ink">
+                  <span className="font-mono text-ok-ink">
                     {s.table}{s.column ? `.${s.column}` : ''}
                   </span>
                   <span className="text-faint"> — {s.label}</span>
@@ -183,7 +183,7 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 }
 
 const THRESHOLD_STYLES: Record<string, string> = {
-  green: 'bg-accent-soft text-accent-ink border-line-soft',
+  green: 'bg-ok-soft text-ok-ink border-line-soft',
   amber: 'bg-warn-soft text-warn border-line-soft',
   red: 'bg-danger-soft text-danger border-danger-line',
   blue: 'bg-canvas text-muted border-line',

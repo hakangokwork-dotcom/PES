@@ -53,8 +53,8 @@ export default async function WorkshopLayout({ children }: { children: React.Rea
             <span className="flex-1">
               <strong className="font-semibold text-ink">{sabitAtolye.code} {sabitAtolye.name}</strong> adına çalışıyorsunuz.
             </span>
-            <a href="/workshop/gir" className="font-medium text-accent-ink underline underline-offset-2">Atölye değiştir</a>
-            <a href="/pes" className="font-medium text-accent-ink underline underline-offset-2">Merkeze dön</a>
+            <a href="/workshop/gir" className="font-medium text-ok-ink underline underline-offset-2">Atölye değiştir</a>
+            <a href="/pes" className="font-medium text-ok-ink underline underline-offset-2">Merkeze dön</a>
           </div>
         )}
         {children}

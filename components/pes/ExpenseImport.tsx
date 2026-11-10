@@ -49,7 +49,7 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  accepted: 'bg-accent-soft text-accent-ink',
+  accepted: 'bg-ok-soft text-ok-ink',
   winsorized: 'bg-warn-soft text-warn',
   pending_fix: 'bg-warn-soft text-warn',
   rejected: 'bg-danger-soft text-danger',
@@ -144,7 +144,7 @@ export default function ExpenseImport() {
 
             <div className="flex flex-wrap gap-1.5 mt-3">
               {Object.entries(result.mapping.expense).map(([col, header]) => (
-                <span key={col} className="text-xs px-2 py-1 rounded-full bg-accent-soft text-accent-ink border border-line-soft">
+                <span key={col} className="text-xs px-2 py-1 rounded-full bg-ok-soft text-ok-ink border border-line-soft">
                   {header} → {col}
                 </span>
               ))}
@@ -240,11 +240,11 @@ export default function ExpenseImport() {
           )}
 
           {committed && (
-            <div className="bg-accent-soft border border-line-soft rounded-xl p-4">
-              <p className="text-sm text-accent-ink font-medium">
+            <div className="bg-ok-soft border border-line-soft rounded-xl p-4">
+              <p className="text-sm text-ok-ink font-medium">
                 {result.summary.matched} beyan içeri aktarıldı ve skorlandı.
               </p>
-              <a href="/pes/veri-kalitesi" className="text-sm text-accent-ink underline mt-1 inline-block">
+              <a href="/pes/veri-kalitesi" className="text-sm text-ok-ink underline mt-1 inline-block">
                 Veri kalitesi raporuna git →
               </a>
             </div>
@@ -256,7 +256,7 @@ export default function ExpenseImport() {
 }
 
 function Stat({ label, value, tone = 'neutral' }: { label: string; value: number; tone?: 'good' | 'bad' | 'neutral' }) {
-  const color = tone === 'good' ? 'text-accent-ink' : tone === 'bad' ? 'text-danger' : 'text-ink'
+  const color = tone === 'good' ? 'text-ok-ink' : tone === 'bad' ? 'text-danger' : 'text-ink'
   return (
     <div className="bg-surface border border-line-soft rounded-xl p-4">
       <p className="text-xs text-faint">{label}</p>

@@ -69,7 +69,7 @@ const ANA_GRUP_SIRA = ['Ön Bant', 'Arka Bant', 'Montaj', 'UKP', 'Yıkama', 'Son
 const ANA_GRUP_RENK: Record<string, string> = {
   'Ön Bant':    'bg-canvas    border-line   text-muted',
   'Arka Bant':  'bg-canvas  border-line text-muted',
-  'Montaj':     'bg-accent-soft border-line-soft text-accent-ink',
+  'Montaj':     'bg-ok-soft border-line-soft text-ok-ink',
   'UKP':        'bg-warn-soft   border-line-soft  text-warn',
   'Yıkama':     'bg-canvas    border-line   text-muted',
   'Son Montaj': 'bg-rose-50    border-rose-200   text-rose-900',
@@ -377,7 +377,7 @@ function EderMaliyetPage() {
             {models.map(m => (
               <button key={m.model_id} onClick={() => setSelectedModel(m)}
                 className={`w-full text-left px-4 py-3 border-b border-line-soft transition-colors ${
-                  selectedModel?.model_id === m.model_id ? 'bg-accent-soft' : 'hover:bg-canvas'
+                  selectedModel?.model_id === m.model_id ? 'bg-ok-soft' : 'hover:bg-canvas'
                 }`}>
                 <div className="font-medium text-sm text-ink truncate">{m.model_adi}</div>
                 <div className="text-[11px] text-faint mt-0.5 truncate">
@@ -542,17 +542,17 @@ function EderMaliyetPage() {
                           )
                         })}
                         {/* Genel toplam */}
-                        <tr className="bg-accent-soft border-y-2 border-line font-bold">
-                          <td colSpan={3} className="px-3 py-2.5 text-accent-ink uppercase text-[11px]">
+                        <tr className="bg-ok-soft border-y-2 border-line font-bold">
+                          <td colSpan={3} className="px-3 py-2.5 text-ok-ink uppercase text-[11px]">
                             Toplam (Eder Maliyet)
                           </td>
-                          <td className="px-3 py-2.5 text-right text-accent-ink font-mono">
+                          <td className="px-3 py-2.5 text-right text-ok-ink font-mono">
                             {(Number(selectedModel.toplam_teorik_sn) / 60).toFixed(2)} dk
                           </td>
-                          <td className="px-3 py-2.5 text-right text-accent-ink font-mono">
+                          <td className="px-3 py-2.5 text-right text-ok-ink font-mono">
                             {(totalSn / 60).toFixed(2)} dk
                           </td>
-                          <td colSpan={3} className="px-3 py-2.5 text-right text-accent-ink font-mono">
+                          <td colSpan={3} className="px-3 py-2.5 text-right text-ok-ink font-mono">
                             {((totalSn / 60) * Number(dkMaliyet)).toFixed(2)} TL
                           </td>
                           <td></td>

@@ -113,11 +113,11 @@ export default async function BenchmarkPage({
     const warn = Number(bm.warning_value ?? target)
 
     if (dir === 'higher_better') {
-      if (value >= target) return 'bg-accent-soft text-accent-ink'
+      if (value >= target) return 'bg-ok-soft text-ok-ink'
       if (value >= warn) return 'bg-warn-soft text-warn'
       return 'bg-danger-soft text-danger'
     } else {
-      if (value <= target) return 'bg-accent-soft text-accent-ink'
+      if (value <= target) return 'bg-ok-soft text-ok-ink'
       if (value <= warn) return 'bg-warn-soft text-warn'
       return 'bg-danger-soft text-danger'
     }
@@ -138,7 +138,7 @@ export default async function BenchmarkPage({
           <thead>
             <tr className="text-xs text-faint border-b border-line-soft">
               <th className="text-left px-4 py-2">Metrik</th>
-              <th className="text-center px-2 py-2 bg-accent-soft">Hedef</th>
+              <th className="text-center px-2 py-2 bg-ok-soft">Hedef</th>
               <th className="text-center px-2 py-2 bg-warn-soft">Uyarı</th>
               <th className="text-center px-2 py-2 bg-danger-soft">Kritik</th>
               <th className="text-center px-2 py-2">Birim</th>
@@ -156,7 +156,7 @@ export default async function BenchmarkPage({
                     {ontologyKey && <MetricInfo metricKey={ontologyKey} />}
                   </span>
                 </td>
-                <td className="text-center px-2 py-2 font-mono font-bold text-accent-ink bg-accent-soft">{String(bm.target_value)}</td>
+                <td className="text-center px-2 py-2 font-mono font-bold text-ok-ink bg-ok-soft">{String(bm.target_value)}</td>
                 <td className="text-center px-2 py-2 font-mono text-warn bg-warn-soft">{bm.warning_value != null ? String(bm.warning_value) : '---'}</td>
                 <td className="text-center px-2 py-2 font-mono text-danger bg-danger-soft">{bm.critical_value != null ? String(bm.critical_value) : '---'}</td>
                 <td className="text-center px-2 py-2 text-faint">{bm.unit as string}</td>
@@ -215,9 +215,9 @@ export default async function BenchmarkPage({
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-xs">
-        <div className="bg-accent-soft border border-line-soft rounded-lg p-3 text-center">
+        <div className="bg-ok-soft border border-line-soft rounded-lg p-3 text-center">
           <div className="w-3 h-3 bg-accent rounded-full mx-auto mb-1"></div>
-          <p className="text-accent-ink font-medium">Hedefte</p>
+          <p className="text-ok-ink font-medium">Hedefte</p>
         </div>
         <div className="bg-warn-soft border border-line-soft rounded-lg p-3 text-center">
           <div className="w-3 h-3 bg-accent rounded-full mx-auto mb-1"></div>

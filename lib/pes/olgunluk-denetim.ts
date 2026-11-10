@@ -375,13 +375,13 @@ export function olgunlukSinifi(yuzde: string | number | null): string {
   return 'D'
 }
 
-/** Seviye (0-3) -> ısı haritası rengi. Nötr gri ile marka yeşili arası. */
+/** Seviye (0-3) -> ısı haritası rengi. Nötr ile iyi (yeşil) arası. */
 export function seviyeRengi(seviye: number | null | undefined): string {
   if (seviye === null || seviye === undefined) return 'bg-canvas text-faint'
   if (seviye < 0.5) return 'bg-danger-soft text-danger'
   if (seviye < 1.5) return 'bg-warn-soft text-warn'
   if (seviye < 2.5) return 'bg-canvas text-body'
-  return 'bg-accent-soft text-accent-ink'
+  return 'bg-ok-soft text-ok-ink'
 }
 
 /** Kriterin puana girip girmediği — MARKA maddeleri atölyeyi bağlamaz. */

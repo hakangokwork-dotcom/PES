@@ -75,7 +75,7 @@ export default function SureKarsilastirma({ bultenId, donem, satirlar }: {
                     )}
                   </td>
                   <td className={`px-3 py-2 text-right tabular-nums ${
-                    fark === null ? 'text-faint' : fark > 0 ? 'text-rose-700' : 'text-accent-ink'}`}>
+                    fark === null ? 'text-faint' : fark > 0 ? 'text-rose-700' : 'text-ok-ink'}`}>
                     {fark === null ? '—' : `${fark > 0 ? '+' : ''}${dk.format(fark)}`}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">{f(s.beyanDk)}</td>

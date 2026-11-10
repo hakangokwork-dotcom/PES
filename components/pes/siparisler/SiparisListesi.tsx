@@ -67,7 +67,7 @@ export default function SiparisListesi() {
   return (
     <div className="space-y-3">
       {onsecim.bant && (
-        <p className="rounded-lg border border-accent-soft bg-accent-soft/60 px-3 py-2 text-[12.5px] text-accent-ink">
+        <p className="rounded-lg border border-ok-soft bg-ok-soft/60 px-3 py-2 text-[12.5px] text-ok-ink">
           Takvimden geldiniz: seçtiğiniz bant ve tarih, "Atölyeye ata" ile sihirbaza önseçili gider.
         </p>
       )}

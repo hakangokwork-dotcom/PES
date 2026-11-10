@@ -196,7 +196,7 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           {donemler.length === 0
             ? 'Bu atölyeden henüz aylık üretim verisi girilmedi; göstergeler boş.'
             : `Son üretim verisi ${donemEtiket(donemler[0])} dönemine ait. Güncel dönem girilmedikçe bu ekran eski durumu gösterir.`}
-          {' '}<Link href="/workshop/production" className="font-medium text-accent-ink underline underline-offset-2">Aylık üretim girişine git</Link>
+          {' '}<Link href="/workshop/production" className="font-medium text-ok-ink underline underline-offset-2">Aylık üretim girişine git</Link>
         </p>
       )}
 
@@ -269,9 +269,9 @@ export default async function WorkshopDashboard({ searchParams }: Props) {
           { href: `/workshop/costs`, Icon: Wallet, label: 'Gider' },
         ].map(a => (
           <Link key={a.href} href={a.href}
-            className="bg-accent-soft border border-line-soft rounded-lg p-3 hover:border-accent transition-colors flex items-center gap-2.5">
+            className="bg-ok-soft border border-line-soft rounded-lg p-3 hover:border-accent transition-colors flex items-center gap-2.5">
             <a.Icon className="w-5 h-5 text-accent" strokeWidth={1.9} />
-            <span className="text-sm font-medium text-accent-ink">{a.label}</span>
+            <span className="text-sm font-medium text-ok-ink">{a.label}</span>
           </Link>
         ))}
       </nav>

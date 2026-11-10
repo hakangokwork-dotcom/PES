@@ -788,7 +788,7 @@ function KriterSatiri({
                     'num h-5 w-5 text-[11px] leading-none transition-colors ' +
                     (sv > 1 ? 'border-l border-line ' : '') +
                     (sv === kriter.seviye
-                      ? 'bg-accent-soft font-semibold text-accent-ink'
+                      ? 'bg-ok-soft font-semibold text-ok-ink'
                       : 'bg-surface text-faint hover:bg-canvas hover:text-ink')
                   }
                 >
@@ -932,7 +932,7 @@ function KategoriBasligi({
       />
       <button disabled={!degisti || bekliyor}
               onClick={() => onKaydet({ kod: kod.trim(), ad: ad.trim() }).then(() => setDuzenle(false))}
-              className="shrink-0 text-[11px] text-accent-ink hover:underline disabled:opacity-40">
+              className="shrink-0 text-[11px] text-ok-ink hover:underline disabled:opacity-40">
         Kaydet
       </button>
       <button onClick={yoksay} className="shrink-0 text-[11px] text-faint hover:text-ink">
@@ -991,7 +991,7 @@ function Gecmis({
                 <span className="min-w-0 flex-1 text-muted line-through">{gosterilecek}</span>
                 {onGeriGetir && eskiMetin && (
                   <button onClick={() => onGeriGetir(eskiMetin)}
-                          className="shrink-0 text-accent-ink hover:underline"
+                          className="shrink-0 text-ok-ink hover:underline"
                           title="Eski metni forma doldurur; kaydetmek sana kalır">
                     geri getir
                   </button>

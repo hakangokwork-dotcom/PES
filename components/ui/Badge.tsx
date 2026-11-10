@@ -9,7 +9,7 @@ export function Badge({
 }: { tone?: Tone; className?: string; children: ReactNode }) {
   return (
     <span className={cn(
-      'inline-flex items-center rounded-[4px] px-2 py-[3px] text-[11px] font-medium tracking-[0.04em]',
+      'inline-flex items-center rounded-full px-2.5 py-[3px] text-[11px] font-medium',
       TONE_BADGE[tone], className,
     )}>
       {children}

@@ -1,10 +1,16 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono, Quicksand, Source_Sans_3, IBM_Plex_Mono } from "next/font/google"
+import { Geist, Geist_Mono, Source_Serif_4, Quicksand, Source_Sans_3, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import { ToastProvider } from "@/components/ui"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
+  subsets: ["latin", "latin-ext"],
+})
+
+/* Başlıklar ve büyük sayılar (font-serif). Claude arayüzünün editoryal tonu. */
+const serifBaslik = Source_Serif_4({
+  variable: "--font-serif-baslik",
   subsets: ["latin", "latin-ext"],
 })
 
@@ -49,7 +55,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#197A56",
+  themeColor: "#B5532F",
 }
 
 export default function RootLayout({
@@ -58,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="tr" className={`${geistSans.variable} ${geistMono.variable} ${vsimDisplay.variable} ${vsimSans.variable} ${vsimMono.variable} h-full antialiased`}>
+    <html lang="tr" className={`${geistSans.variable} ${geistMono.variable} ${serifBaslik.variable} ${vsimDisplay.variable} ${vsimSans.variable} ${vsimMono.variable} h-full antialiased`}>
       {/* font-sans açıkça yazılı: globals.css'teki `font-family: Arial` satırı
           kalktı, yazı tipi artık @theme'deki --font-sans üzerinden Geist. */}
       <body className="min-h-full flex flex-col font-sans">

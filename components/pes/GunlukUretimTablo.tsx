@@ -180,7 +180,7 @@ export default function GunlukUretimTablo({ workshopId }: { workshopId: number }
                   <div className="flex items-end gap-2">
                     <span className="w-24">
                       <span className="mb-1 block text-[11px] uppercase tracking-[0.06em] text-faint">
-                        Plan{s.planAdet != null && <span className="ml-1 rounded bg-accent-soft px-1 normal-case tracking-normal text-accent-ink">elle</span>}
+                        Plan{s.planAdet != null && <span className="ml-1 rounded bg-ok-soft px-1 normal-case tracking-normal text-ok-ink">elle</span>}
                       </span>
                       <Input
                         value={t.plan}

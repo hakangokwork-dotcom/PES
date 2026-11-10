@@ -111,7 +111,7 @@ export default function LineManager({ workshop, lines }: Props) {
   }
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-accent-soft'
+  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-ok-soft'
 
   return (
     <div className="bg-surface border border-line-soft rounded-xl p-6">

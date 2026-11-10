@@ -10,7 +10,7 @@ import { talepDurumuGoster, tr, type YillikPlanVerisi } from './ortak'
 
 const RENK: Record<DolulukRengi, string> = {
   yok: 'bg-canvas text-faint',
-  yesil: 'bg-accent-soft text-accent-ink',
+  yesil: 'bg-ok-soft text-ok-ink',
   sari: 'bg-warn-soft text-warn',
   kirmizi: 'bg-danger-soft text-danger',
 }

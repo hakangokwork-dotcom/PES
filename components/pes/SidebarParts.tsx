@@ -35,10 +35,10 @@ export function NavLink({
     <Link
       href={item.href}
       className={cn(
-        'flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] transition-colors',
+        'flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] transition-colors',
         active
-          ? 'border-l-2 border-accent bg-accent-soft pl-[10px] font-medium text-accent'
-          : 'text-muted hover:bg-canvas hover:text-ink',
+          ? 'bg-surface font-medium text-ink shadow-[0_1px_2px_rgba(31,30,27,0.08)] [&>svg]:text-accent'
+          : 'text-muted hover:bg-line-soft hover:text-ink',
       )}
     >
       <Icon className="size-4 shrink-0" strokeWidth={1.8} />

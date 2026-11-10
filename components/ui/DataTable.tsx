@@ -72,7 +72,7 @@ export function DataTable<T>({
   const pad = density === 'tight' ? 'px-4 py-2.5' : 'px-4 py-3.5'
 
   return (
-    <div className="overflow-hidden rounded-lg border border-line-soft bg-surface">
+    <div className="overflow-hidden rounded-xl border border-line-soft bg-surface shadow-[0_1px_2px_rgba(31,30,27,0.04)]">
       {toolbar && (
         <div className="flex flex-wrap items-center gap-3 border-b border-line-soft px-4 py-3">{toolbar}</div>
       )}

@@ -5,16 +5,16 @@ export type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 export type Size = 'sm' | 'md' | 'lg'
 
 export const VARIANT: Record<Variant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-hover',
-  secondary: 'bg-surface text-ink border border-line hover:bg-canvas',
+  primary: 'bg-accent text-white shadow-[0_1px_2px_rgba(31,30,27,0.12)] hover:bg-accent-hover',
+  secondary: 'bg-surface text-ink border border-line shadow-[0_1px_2px_rgba(31,30,27,0.04)] hover:bg-canvas',
   ghost: 'text-muted hover:bg-canvas hover:text-ink',
   danger: 'bg-surface text-danger border border-danger-line hover:bg-danger-soft',
 }
 
 export const SIZE: Record<Size, string> = {
-  sm: 'h-7 px-2.5 text-xs gap-1.5 rounded-[5px]',
-  md: 'h-9 px-3.5 text-[13px] gap-2 rounded-md',
-  lg: 'h-11 px-[18px] text-sm gap-2 rounded-md',
+  sm: 'h-7 px-2.5 text-xs gap-1.5 rounded-md',
+  md: 'h-9 px-3.5 text-[13px] gap-2 rounded-lg',
+  lg: 'h-11 px-[18px] text-sm gap-2 rounded-lg',
 }
 
 export function buttonClass(variant: Variant, size: Size, className?: string) {

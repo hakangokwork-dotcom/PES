@@ -130,7 +130,7 @@ export default function OlgunlukFiloTablosu({
             {satirlar.map((s) => (
               <tr key={s.workshop_id} className="border-b border-line-soft last:border-0">
                 <td className="sticky left-0 z-10 bg-surface px-3 py-1.5">
-                  <Link href={`/pes/workshops/${s.workshop_id}`} className="hover:text-accent-ink">
+                  <Link href={`/pes/workshops/${s.workshop_id}`} className="hover:text-ok-ink">
                     <span className="num text-faint">{s.atolye_kodu}</span>{' '}
                     <span className="text-ink">{s.atolye_adi}</span>
                   </Link>
@@ -166,7 +166,7 @@ export default function OlgunlukFiloTablosu({
                 <td className="whitespace-nowrap px-3 py-1.5">
                   {s.taslak_id ? (
                     <Link href={`/pes/olgunluk/denetim/${s.taslak_id}`}
-                          className="text-accent-ink underline underline-offset-2">
+                          className="text-ok-ink underline underline-offset-2">
                       Taslağa devam
                     </Link>
                   ) : s.denetim_id ? (

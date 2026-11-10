@@ -33,7 +33,7 @@ import OlgunlukRadar from '@/components/pes/OlgunlukRadar'
 const BEKLEME_MS = 700
 
 const SECENEKLER: { deger: Sonuc; sinif: string }[] = [
-  { deger: 'EVET', sinif: 'bg-accent-soft text-accent-ink' },
+  { deger: 'EVET', sinif: 'bg-ok-soft text-ok-ink' },
   { deger: 'HAYIR', sinif: 'bg-danger-soft text-danger' },
   { deger: 'KAPSAM_DISI', sinif: 'bg-canvas text-muted' },
 ]
@@ -303,7 +303,7 @@ export default function OlgunlukDenetimEkrani({
                         <span className="min-w-0 flex-1 truncate">{s.ad}</span>
                         <span className={cn(
                           'num shrink-0 text-[11px]',
-                          tam ? 'text-accent-ink' : 'text-faint',
+                          tam ? 'text-ok-ink' : 'text-faint',
                         )}>
                           {cevapli}/{s.kriter_adedi}
                         </span>

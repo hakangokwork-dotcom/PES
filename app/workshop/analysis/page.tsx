@@ -158,7 +158,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
                     <td className="py-2 text-right">{(Number(c.total_expense) / 1000).toFixed(0)}K TL</td>
                     <td className="py-2 text-right font-bold text-accent">{String(c.cost_per_min)} TL</td>
                     <td className="py-2 text-right">{Number(c.target_revenue) > 0 ? (Number(c.target_revenue) / 1000).toFixed(0) + 'K' : '—'}</td>
-                    <td className={`py-2 text-right font-medium ${margin >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
+                    <td className={`py-2 text-right font-medium ${margin >= 0 ? 'text-ok-ink' : 'text-danger'}`}>
                       {marginPct !== '—' ? `%${marginPct}` : '—'}
                     </td>
                   </tr>
@@ -253,7 +253,7 @@ export default async function AnalysisPage({ searchParams }: Props) {
                 <tr key={i}>
                   <td className="py-2 text-body">{String(wf.year)}/{String(wf.month)}</td>
                   <td className="py-2 text-right">{String(wf.total_staff)}</td>
-                  <td className="py-2 text-right text-accent-ink">+{String(wf.joined_count)}</td>
+                  <td className="py-2 text-right text-ok-ink">+{String(wf.joined_count)}</td>
                   <td className="py-2 text-right text-danger">-{String(wf.left_count)}</td>
                   <td className="py-2 text-right font-bold">{wf.devir_orani == null ? '—' : `%${Number(wf.devir_orani).toLocaleString('tr-TR')}`}</td>
                 </tr>

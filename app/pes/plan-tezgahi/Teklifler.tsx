@@ -71,7 +71,7 @@ export default function Teklifler({
           title={kalemVar ? 'Taslağı ilgili atölyelere gönder' : 'Önce iş yerleştirin'}>
           Atölyelere gönder
         </button>
-        {mesaj && <span className="text-sm text-accent-ink">{mesaj}</span>}
+        {mesaj && <span className="text-sm text-ok-ink">{mesaj}</span>}
         {hata && <span className="text-sm text-danger">{hata}</span>}
       </div>
 
@@ -94,7 +94,7 @@ export default function Teklifler({
                     <span className="text-xs text-faint"> · {t.turNo}. tur · {t.kalemler.length} iş</span>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded ${
-                    t.durum === 'kabul' ? 'bg-accent-soft text-accent-ink'
+                    t.durum === 'kabul' ? 'bg-ok-soft text-ok-ink'
                     : t.durum === 'ret' ? 'bg-danger-soft text-danger'
                     : t.durum === 'revizyon' ? 'bg-warn-soft text-warn'
                     : 'bg-canvas text-muted'}`}>

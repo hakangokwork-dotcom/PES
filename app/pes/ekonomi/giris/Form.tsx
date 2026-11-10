@@ -76,7 +76,7 @@ export default function Form({ atolyeler, donem, mevcut, workshopId }: {
         {durum === 'gonderiliyor' ? 'Kaydediliyor…' : 'Kaydet'}
       </button>
 
-      {durum === 'kaydedildi' && <p className="text-sm text-accent-ink">Kaydedildi. Satır artık "elle" kaynaklı.</p>}
+      {durum === 'kaydedildi' && <p className="text-sm text-ok-ink">Kaydedildi. Satır artık "elle" kaynaklı.</p>}
       {durum !== 'hazir' && durum !== 'gonderiliyor' && durum !== 'kaydedildi' &&
         <p className="text-sm text-rose-700">{durum}</p>}
     </form>

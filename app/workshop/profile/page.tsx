@@ -18,7 +18,7 @@ interface Line {
 }
 
 const LINE_TYPES = [
-  { value: 'Dikim', label: 'Dikim', color: 'bg-accent-soft text-accent-ink' },
+  { value: 'Dikim', label: 'Dikim', color: 'bg-ok-soft text-ok-ink' },
   { value: 'Kesim', label: 'Kesim', color: 'bg-canvas text-muted' },
   { value: 'UKP', label: 'UKP', color: 'bg-warn-soft text-warn' },
   { value: 'Yikama', label: 'Yıkama', color: 'bg-canvas text-muted' },
@@ -208,7 +208,7 @@ function WorkshopProfilePage() {
   if (!w) return <p>Yükleniyor...</p>
 
   const ic = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const eic = 'px-2 py-1 border border-line rounded text-sm bg-accent-soft focus:outline-none focus:border-accent'
+  const eic = 'px-2 py-1 border border-line rounded text-sm bg-ok-soft focus:outline-none focus:border-accent'
 
   // Hesaplanan değerler
   const productive = staffFromLines.dikimOp + staffFromLines.kesimOp + staffFromLines.ukpOp + staffFromLines.yikamaOp
@@ -227,7 +227,7 @@ function WorkshopProfilePage() {
       </div>
 
       {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-ok-soft border border-line-soft text-ok-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {/* 1. Temel Bilgiler */}
       <div className="bg-surface border border-line-soft rounded-xl p-6">
@@ -268,7 +268,7 @@ function WorkshopProfilePage() {
 
         {/* Bant ekleme formu */}
         {showLineForm && (
-          <form onSubmit={addLine} className="border border-line-soft bg-accent-soft rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+          <form onSubmit={addLine} className="border border-line-soft bg-ok-soft rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
             <div><label className="block text-xs font-medium text-muted mb-1">Kod</label><input className={ic} value={lineForm.code} onChange={e => setLineForm(p => ({...p, code: e.target.value}))} required /></div>
             <div><label className="block text-xs font-medium text-muted mb-1">Ad</label><input className={ic} value={lineForm.name} onChange={e => setLineForm(p => ({...p, name: e.target.value}))} required /></div>
             <div><label className="block text-xs font-medium text-muted mb-1">Bant Tipi</label>
@@ -322,7 +322,7 @@ function WorkshopProfilePage() {
                     <td className="py-2 text-right text-muted">{l.max_cycle_sec ?? '—'}</td>
                     <td className="py-2 text-center space-x-2">
                       <button onClick={() => { setEditLineId(l.id); setEditLine({ name: l.name, line_type: effectiveType(l.line_type), operator_count: l.operator_count, daily_target: l.daily_target, max_cycle_sec: l.max_cycle_sec ?? '' }) }} className="text-xs text-accent hover:underline">Düzenle</button>
-                      <button onClick={() => openCapabilities(l.id)} className={`text-xs ${capLineId === l.id ? 'text-accent-ink font-medium' : 'text-accent-ink'} hover:underline`}>Yetenekler</button>
+                      <button onClick={() => openCapabilities(l.id)} className={`text-xs ${capLineId === l.id ? 'text-ok-ink font-medium' : 'text-ok-ink'} hover:underline`}>Yetenekler</button>
                       <button onClick={() => deleteLine(l.id, l.code)} className="text-xs text-danger hover:underline">Sil</button>
                     </td>
                   </>)}
@@ -332,10 +332,10 @@ function WorkshopProfilePage() {
                 )}
                 {capLineId === l.id && (
                   <tr><td colSpan={7} className="p-0">
-                    <div className="bg-accent-soft border-t border-b border-line-soft p-4 space-y-3">
+                    <div className="bg-ok-soft border-t border-b border-line-soft p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-accent-ink">{l.code} — Yetenek Profili</span>
-                        <span className="text-[11px] text-accent-ink">{capSelected.size} yetenek secili</span>
+                        <span className="text-sm font-semibold text-ok-ink">{l.code} — Yetenek Profili</span>
+                        <span className="text-[11px] text-ok-ink">{capSelected.size} yetenek secili</span>
                       </div>
                       {capDimensions.filter(dim => {
                         if (!dim.applies_to) return true
@@ -393,10 +393,10 @@ function WorkshopProfilePage() {
 
         {/* Bantlardan gelen (read-only) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <div className="bg-accent-soft rounded-lg p-3 text-center">
-            <p className="text-[11px] text-accent-ink font-medium">Dikim Operatörü</p>
-            <p className="text-xl font-bold text-accent-ink">{staffFromLines.dikimOp}</p>
-            <p className="text-[11px] text-accent-ink">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
+          <div className="bg-ok-soft rounded-lg p-3 text-center">
+            <p className="text-[11px] text-ok-ink font-medium">Dikim Operatörü</p>
+            <p className="text-xl font-bold text-ok-ink">{staffFromLines.dikimOp}</p>
+            <p className="text-[11px] text-ok-ink">{lines.filter(l => effectiveType(l.line_type) === 'Dikim').length} bant</p>
           </div>
           <div className="bg-canvas rounded-lg p-3 text-center">
             <p className="text-[11px] text-muted font-medium">Kesim Operatörü</p>
@@ -423,7 +423,7 @@ function WorkshopProfilePage() {
 
         {/* Hesaplanan özet */}
         <div className="pt-3 border-t border-line-soft grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-accent-soft rounded-lg px-4 py-2"><span className="text-xs text-accent-ink">Verimli Çalışan Oranı</span><p className="text-lg font-bold text-accent-ink">%{verimliOran}</p></div>
+          <div className="bg-ok-soft rounded-lg px-4 py-2"><span className="text-xs text-ok-ink">Verimli Çalışan Oranı</span><p className="text-lg font-bold text-ok-ink">%{verimliOran}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-muted">Üretim Personeli</span><p className="text-lg font-bold text-ink">{productive}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Endirekt</span><p className="text-lg font-bold text-body">{mgmt}</p></div>
           <div className="bg-canvas rounded-lg px-4 py-2"><span className="text-xs text-faint">Toplam Çalışan</span><p className="text-lg font-bold text-body">{totalStaff}</p></div>
@@ -437,7 +437,7 @@ function WorkshopProfilePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Net Çalışma (dk/gün)</p><p className="text-lg font-bold text-body">{(w.net_hours_day * 60).toFixed(0)} dk</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-faint">Bant Sayısı</p><p className="text-lg font-bold text-body">{staffFromLines.bantSayisi}</p></div>
-          <div className="bg-accent-soft rounded-lg p-3"><p className="text-xs text-accent-ink">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-accent-ink">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
+          <div className="bg-ok-soft rounded-lg p-3"><p className="text-xs text-ok-ink">Günlük Hedef (toplam)</p><p className="text-lg font-bold text-ok-ink">{staffFromLines.totalHedef.toLocaleString('tr-TR')}</p></div>
           <div className="bg-canvas rounded-lg p-3"><p className="text-xs text-muted">Aylık Kapasite (dk)</p><p className="text-lg font-bold text-ink">{totalCapacityMin.toLocaleString('tr-TR')}</p><p className="text-[11px] text-muted">{staffFromLines.dikimOp} op × 22 gün × {(w.net_hours_day * 60).toFixed(0)} dk</p></div>
         </div>
       </div>

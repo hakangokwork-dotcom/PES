@@ -263,7 +263,7 @@ export default async function ReportsPage() {
                   <td className="px-4 py-3 text-right font-bold text-ink">{String(s.composite_sc)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      s.tier === 'Stratejik' ? 'bg-accent-soft text-accent-ink' :
+                      s.tier === 'Stratejik' ? 'bg-ok-soft text-ok-ink' :
                       s.tier === 'Gelişen' ? 'bg-canvas text-muted' :
                       s.tier === 'İzlemede' ? 'bg-warn-soft text-warn' :
                       s.tier === 'Risk' ? 'bg-orange-100 text-orange-700' :

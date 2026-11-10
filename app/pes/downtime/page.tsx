@@ -125,7 +125,7 @@ export default function DowntimePage() {
         </div>
       )}
 
-      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-ok-soft border border-line-soft text-ok-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {showForm && (
         <form onSubmit={handleAdd} className="bg-surface border border-line-soft rounded-xl p-6 space-y-4">

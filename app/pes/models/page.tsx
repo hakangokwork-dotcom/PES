@@ -205,7 +205,7 @@ export default function ModelsPage() {
   }, {} as Record<string, { name: string; template_code: string; category_name: string; items: ModelRow[] }>)
 
   const inputClass = 'w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
-  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-accent-soft'
+  const editInputClass = 'px-2 py-1 border border-line rounded text-sm focus:outline-none focus:border-accent bg-ok-soft'
 
   const totalFormSamSec = samEntries.reduce((sum, e) => sum + e.sam_minutes, 0)
   const totalFormSamMin = totalFormSamSec / 60
@@ -262,7 +262,7 @@ export default function ModelsPage() {
             </thead>
             <tbody className="divide-y divide-line-soft">
               {samEntries.map((entry, idx) => (
-                <tr key={idx} className={entry.sam_minutes > 0 ? 'bg-accent-soft' : ''}>
+                <tr key={idx} className={entry.sam_minutes > 0 ? 'bg-ok-soft' : ''}>
                   <td className="py-2 text-body">{entry.process_name}</td>
                   <td className="py-2 text-right">
                     <input type="number" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right focus:outline-none focus:border-accent"
@@ -340,7 +340,7 @@ export default function ModelsPage() {
                       groupEditRows.map((row, idx) => {
                         const hasSam = row.sam_minutes > 0
                         return (
-                          <tr key={row.process_id} className={hasSam ? 'bg-accent-soft' : ''}>
+                          <tr key={row.process_id} className={hasSam ? 'bg-ok-soft' : ''}>
                             <td className="py-1.5 text-muted">
                               <span className="text-xs text-faint mr-1">{row.process_code}</span>
                               {row.process_name}

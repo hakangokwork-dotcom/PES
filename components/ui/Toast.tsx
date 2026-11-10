@@ -51,7 +51,7 @@ function Row({ toast, onClose }: { toast: Toast; onClose: () => void }) {
     )}>
       <span className={cn(
         'grid size-4 shrink-0 place-items-center rounded-full',
-        ok ? 'bg-accent-soft text-accent-ink' : 'bg-danger-soft text-danger',
+        ok ? 'bg-ok-soft text-ok-ink' : 'bg-danger-soft text-danger',
       )}>
         {ok ? <Check className="size-2.5" strokeWidth={3} /> : <AlertTriangle className="size-2.5" strokeWidth={3} />}
       </span>

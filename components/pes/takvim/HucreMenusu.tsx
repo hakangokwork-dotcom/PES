@@ -56,7 +56,7 @@ export default function HucreMenusu({ hedef, onKapat, onYenile }: {
 
   return (
     <div ref={kutu} className="fixed z-[70] w-[280px] rounded-lg border border-line bg-surface p-1.5 shadow-2xl" style={stil} role="menu">
-      <div className="mb-1 border-b border-line-soft px-2 py-1.5 font-mono text-[10.5px] text-faint">
+      <div className="mb-1 border-b border-line-soft px-2 py-1.5 num text-[10.5px] text-faint">
         {hedef.atolyeAdi} / {hedef.bantAdi} · {trTarih(hedef.tarih)}<br />atölyede {nf(hedef.bosAdet)} adet boş
       </div>
 

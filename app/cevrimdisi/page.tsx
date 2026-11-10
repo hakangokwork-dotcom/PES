@@ -8,7 +8,7 @@ export const dynamic = 'force-static'
 export default function CevrimdisiSayfasi() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
-      <span className="grid size-14 place-items-center rounded-full bg-accent-soft text-accent-ink">
+      <span className="grid size-14 place-items-center rounded-full bg-ok-soft text-ok-ink">
         <WifiOff className="size-7" strokeWidth={1.8} />
       </span>
       <h1 className="text-lg font-semibold text-ink">Bağlantı yok</h1>

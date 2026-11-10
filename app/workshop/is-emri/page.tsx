@@ -48,9 +48,9 @@ const DURUM_RENK: Record<string, string> = {
   'Taslak':       'bg-canvas text-ink',
   'Planlandi':    'bg-canvas text-muted',
   'Bekleniyor':   'bg-warn-soft text-warn',
-  'Devam':        'bg-accent-soft text-accent-ink',
+  'Devam':        'bg-ok-soft text-ok-ink',
   'Duraklatildi': 'bg-warn-soft text-warn',
-  'Tamamlandi':   'bg-accent-soft text-accent-ink',
+  'Tamamlandi':   'bg-ok-soft text-ok-ink',
   'İptal':        'bg-danger-soft text-danger',
   'Sevk Edildi':  'bg-canvas text-muted',
 }
@@ -353,7 +353,7 @@ function IsEmriPage() {
                         <span className="text-faint"> · {s.gun_sayisi} gün · {s.daily_target} adet/gün</span>
                       </div>
                       {s.reasons.length > 0 && (
-                        <div className="mt-1.5 text-[11px] text-accent-ink">
+                        <div className="mt-1.5 text-[11px] text-ok-ink">
                           {s.reasons.map((r, j) => <div key={j}>✓ {r}</div>)}
                         </div>
                       )}
@@ -371,7 +371,7 @@ function IsEmriPage() {
                         <span className="text-[11px] font-mono text-muted">%{s.capacity_pct}</span>
                       </div>
                       <div className="mt-2 text-center">
-                        <span className={`text-xs font-medium ${isSelected ? 'text-accent-ink' : 'text-muted'}`}>
+                        <span className={`text-xs font-medium ${isSelected ? 'text-ok-ink' : 'text-muted'}`}>
                           {isSelected ? '✓ Seçili' : 'Bunu seç →'}
                         </span>
                       </div>
@@ -439,7 +439,7 @@ function IsEmriPage() {
               <div className="text-right space-y-1 min-w-[100px]">
                 <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Aşamalar</div>
                 <div className="text-sm font-mono">
-                  <span className="text-accent-ink font-semibold">{o.tamamlanan_asama}</span>
+                  <span className="text-ok-ink font-semibold">{o.tamamlanan_asama}</span>
                   <span className="text-faint"> / {o.toplam_asama}</span>
                 </div>
                 {o.acik_problem > 0 && (
@@ -473,7 +473,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Stat({ label, value, tone = 'slate' }: { label: string; value: number; tone?: string }) {
   const tones: Record<string, string> = {
     slate: 'bg-canvas text-ink',
-    emerald: 'bg-accent-soft text-accent-ink',
+    emerald: 'bg-ok-soft text-ok-ink',
     amber: 'bg-warn-soft text-warn',
     red: 'bg-danger-soft text-danger',
     orange: 'bg-warn-soft text-warn',

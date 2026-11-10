@@ -185,7 +185,7 @@ export default function AtolyeOzDegerlendirme({
                           yarım kalmış resmi denetim atölyeye gösterilmez. */}
                       {d.tur === 'OZ_DEGERLENDIRME' || d.durum === 'tamamlandi' ? (
                         <Link href={`/workshop/olgunluk/${d.denetim_id}`}
-                              className="text-accent-ink underline underline-offset-2">
+                              className="text-ok-ink underline underline-offset-2">
                           {d.tur === 'OZ_DEGERLENDIRME' && d.durum === 'taslak' ? 'Devam et' : 'Görüntüle'}
                         </Link>
                       ) : (

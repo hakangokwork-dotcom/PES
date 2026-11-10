@@ -5,7 +5,7 @@ import {
   BarChart, Bar, Cell, PieChart, Pie, Area, AreaChart,
 } from 'recharts'
 
-import { effTone, GRAFIK_AKSAN, GRAFIK_RENK } from '@/lib/ui/tone'
+import { effTone, GRAFIK_AKSAN, GRAFIK_RENK, GRAFIK_IZGARA, GRAFIK_ETIKET } from '@/lib/ui/tone'
 
 /* Renkler ve eşikler tone.ts'te; burada elle yazılmış hex yok. */
 const GREEN = GRAFIK_AKSAN
@@ -14,8 +14,8 @@ const AY = ['', 'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl',
 const effColor = (v: number) => GRAFIK_RENK[effTone(v)]
 
 const tooltipStyle = {
-  contentStyle: { borderRadius: 10, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,.06)' },
-  labelStyle: { color: '#6b7280', fontWeight: 600 },
+  contentStyle: { borderRadius: 10, border: `1px solid ${GRAFIK_IZGARA}`, fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,.06)' },
+  labelStyle: { color: GRAFIK_ETIKET, fontWeight: 600 },
 }
 
 export function EffTrendChart({ data }: { data: { year: number; month: number; eff: number }[] }) {
@@ -29,9 +29,9 @@ export function EffTrendChart({ data }: { data: { year: number; month: number; e
             <stop offset="100%" stopColor={GREEN} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-        <XAxis dataKey="ay" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} unit="%" />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRAFIK_IZGARA} vertical={false} />
+        <XAxis dataKey="ay" tick={{ fontSize: 12, fill: GRAFIK_ETIKET }} axisLine={false} tickLine={false} />
+        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: GRAFIK_ETIKET }} axisLine={false} tickLine={false} unit="%" />
         <Tooltip {...tooltipStyle} formatter={(v) => [`%${Number(v)}`, 'Verimlilik']} />
         <Area type="monotone" dataKey="verim" stroke={GREEN} strokeWidth={2.5} fill="url(#effGrad)" dot={{ r: 4, fill: GREEN }} activeDot={{ r: 6 }} />
       </AreaChart>
@@ -44,11 +44,11 @@ export function WorkshopEffBar({ data }: { data: { code: string; eff: number }[]
   return (
     <ResponsiveContainer width="100%" height={Math.max(200, rows.length * 34)}>
       <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 30, left: 8, bottom: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-        <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} unit="%" />
-        <YAxis type="category" dataKey="code" tick={{ fontSize: 12, fill: '#374151', fontWeight: 600 }} axisLine={false} tickLine={false} width={54} />
-        <Tooltip {...tooltipStyle} cursor={{ fill: '#f9fafb' }} formatter={(v) => [`%${Number(v)}`, 'Verimlilik']} />
-        <Bar dataKey="verim" radius={[0, 6, 6, 0]} barSize={16} label={{ position: 'right', fontSize: 11, fill: '#6b7280', formatter: (v: unknown) => `%${Number(v)}` }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={GRAFIK_IZGARA} horizontal={false} />
+        <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: GRAFIK_ETIKET }} axisLine={false} tickLine={false} unit="%" />
+        <YAxis type="category" dataKey="code" tick={{ fontSize: 12, fill: '#1F1E1B', fontWeight: 600 }} axisLine={false} tickLine={false} width={54} />
+        <Tooltip {...tooltipStyle} cursor={{ fill: '#F3F1EA' }} formatter={(v) => [`%${Number(v)}`, 'Verimlilik']} />
+        <Bar dataKey="verim" radius={[0, 6, 6, 0]} barSize={16} label={{ position: 'right', fontSize: 11, fill: GRAFIK_ETIKET, formatter: (v: unknown) => `%${Number(v)}` }}>
           {rows.map((r, i) => <Cell key={i} fill={effColor(r.verim)} />)}
         </Bar>
       </BarChart>
@@ -57,11 +57,11 @@ export function WorkshopEffBar({ data }: { data: { code: string; eff: number }[]
 }
 
 const TIER_COLORS: Record<string, string> = {
-  'Stratejik': GREEN, 'Gelişen': '#2563eb', 'İzlemede': '#d97706', 'Risk': '#ea580c', 'Kritik': '#dc2626',
+  'Stratejik': GRAFIK_RENK.good, 'Gelişen': '#2563eb', 'İzlemede': '#d97706', 'Risk': '#ea580c', 'Kritik': '#dc2626',
 }
 
 export function TierDonut({ data }: { data: { tier: string; c: number }[] }) {
-  const rows = data.map(d => ({ name: d.tier, value: Number(d.c), color: TIER_COLORS[d.tier] ?? '#9ca3af' }))
+  const rows = data.map(d => ({ name: d.tier, value: Number(d.c), color: TIER_COLORS[d.tier] ?? GRAFIK_ETIKET }))
   const total = rows.reduce((s, r) => s + r.value, 0)
   return (
     <div className="flex items-center gap-4">

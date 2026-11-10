@@ -98,10 +98,10 @@ export default function PoPaneli({
           <Kutu ton="wrn"><b>Risk dökümanı yok.</b> Kumaş kalite görselleri ve risk parametreleri girilmemiş. <em>(Ayrı proje.)</em></Kutu>
 
           <dl className="mb-3.5 grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1 text-xs">
-            <dt className="text-faint">Sipariş adedi</dt><dd className="text-right font-mono font-medium text-ink">{nf(atama.adet)}</dd>
-            <dt className="text-faint">Atölye kapasitesi</dt><dd className="text-right font-mono font-medium text-ink">{nf(kapasite)} /gün (ortak)</dd>
-            <dt className="text-faint">Planlanan bitiş</dt><dd className={`text-right font-mono font-medium ${gecikme ? 'text-danger' : 'text-ink'}`}>{trTarih(bitis)}</dd>
-            <dt className="text-faint">Teslim tarihi</dt><dd className="text-right font-mono font-medium text-ink">{atama.teslim_tarihi ? trTarih(atama.teslim_tarihi) : '—'}</dd>
+            <dt className="text-faint">Sipariş adedi</dt><dd className="text-right num font-medium text-ink">{nf(atama.adet)}</dd>
+            <dt className="text-faint">Atölye kapasitesi</dt><dd className="text-right num font-medium text-ink">{nf(kapasite)} /gün (ortak)</dd>
+            <dt className="text-faint">Planlanan bitiş</dt><dd className={`text-right num font-medium ${gecikme ? 'text-danger' : 'text-ink'}`}>{trTarih(bitis)}</dd>
+            <dt className="text-faint">Teslim tarihi</dt><dd className="text-right num font-medium text-ink">{atama.teslim_tarihi ? trTarih(atama.teslim_tarihi) : '—'}</dd>
           </dl>
 
           <div className="mb-3.5 flex gap-px overflow-x-auto border-b border-line" role="tablist">
@@ -132,12 +132,12 @@ export default function PoPaneli({
                     const ger = gercekler[g.tarih]
                     const fark = ger != null ? ger - g.adet : null
                     return (
-                      <tr key={g.tarih} className={`border-b border-line-soft ${g.tarih <= bugun ? 'bg-accent-soft/30' : ''}`}>
-                        <td className="py-1 font-mono text-body">{trTarih(g.tarih)} <span className="text-faint">{TR_GUN[yerelTarih(g.tarih).getDay()]}</span>
-                          {g.elle && <span className="ml-1.5 rounded bg-accent-soft px-1 text-[9.5px] font-semibold text-accent-ink">elle</span>}</td>
-                        <td className={`py-1 text-right font-mono tabular-nums ${g.elle ? 'font-semibold text-ink' : 'text-body'}`}>{nf(g.adet)}</td>
-                        <td className="py-1 text-right font-mono tabular-nums text-body">{ger != null ? nf(ger) : '—'}</td>
-                        <td className={`py-1 text-right font-mono tabular-nums ${fark == null ? 'text-faint' : fark < 0 ? 'text-danger' : 'text-accent-ink'}`}>
+                      <tr key={g.tarih} className={`border-b border-line-soft ${g.tarih <= bugun ? 'bg-ok-soft/30' : ''}`}>
+                        <td className="py-1 num text-body">{trTarih(g.tarih)} <span className="text-faint">{TR_GUN[yerelTarih(g.tarih).getDay()]}</span>
+                          {g.elle && <span className="ml-1.5 rounded bg-ok-soft px-1 text-[9.5px] font-semibold text-ok-ink">elle</span>}</td>
+                        <td className={`py-1 text-right num tabular-nums ${g.elle ? 'font-semibold text-ink' : 'text-body'}`}>{nf(g.adet)}</td>
+                        <td className="py-1 text-right num tabular-nums text-body">{ger != null ? nf(ger) : '—'}</td>
+                        <td className={`py-1 text-right num tabular-nums ${fark == null ? 'text-faint' : fark < 0 ? 'text-danger' : 'text-ok-ink'}`}>
                           {fark == null ? '—' : `${fark > 0 ? '+' : ''}${nf(fark)}`}</td>
                       </tr>
                     )
@@ -168,8 +168,8 @@ export default function PoPaneli({
                       <tr key={a.id} className="border-b border-line-soft align-top">
                         <td className="py-1.5 pr-2"><b className="text-ink">{a.name}</b>
                           {!a.zorunlu && <Etiket ton="wait">opsiyonel</Etiket>}{dis && <Etiket ton="wait">dış atölye</Etiket>}</td>
-                        <td className="py-1.5 pr-2 font-mono text-body">{a.plan_baslangic ? `${trTarih(a.plan_baslangic)} → ${a.plan_bitis ? trTarih(a.plan_bitis) : '?'}` : '—'}</td>
-                        <td className="py-1.5 pr-2 font-mono text-body">{a.gercek_baslangic ? `${trTarih(a.gercek_baslangic)}${a.gercek_bitis ? ` → ${trTarih(a.gercek_bitis)}` : ' →'}` : '—'}</td>
+                        <td className="py-1.5 pr-2 num text-body">{a.plan_baslangic ? `${trTarih(a.plan_baslangic)} → ${a.plan_bitis ? trTarih(a.plan_bitis) : '?'}` : '—'}</td>
+                        <td className="py-1.5 pr-2 num text-body">{a.gercek_baslangic ? `${trTarih(a.gercek_baslangic)}${a.gercek_bitis ? ` → ${trTarih(a.gercek_bitis)}` : ' →'}` : '—'}</td>
                         <td className="py-1.5"><Etiket ton={bitti ? 'ok' : basladi ? 'wait' : gec ? 'bad' : 'wait'}>
                           {bitti ? 'Tamamlandı' : basladi ? 'Devam' : gec ? 'Gecikti' : 'Beklemede'}</Etiket></td>
                       </tr>
@@ -202,10 +202,10 @@ export default function PoPaneli({
                           <td className="py-1.5 pr-2"><b className="text-ink">{m.tip}</b> · {m.ad}
                             <div className="text-[10.5px] text-faint">{[m.kod, m.tedarikci].filter(Boolean).join(' · ')}</div>
                             <Etiket ton={m.durum === 'Geldi' ? 'ok' : m.durum === 'Eksik' || gec ? 'bad' : 'wait'}>{m.durum}{gec ? ' · gecikti' : ''}</Etiket></td>
-                          <td className="py-1.5 text-right font-mono">{m.beklenen_tarih ? trTarih(m.beklenen_tarih) : '—'}</td>
-                          <td className="py-1.5 text-right font-mono">{m.gelis_tarihi ? trTarih(m.gelis_tarihi) : '—'}</td>
-                          <td className="py-1.5 text-right font-mono">{m.miktar != null ? `${nf(m.miktar)} ${m.birim ?? ''}` : '—'}</td>
-                          <td className={`py-1.5 text-right font-mono ${eksik ? 'font-semibold text-danger' : ''}`}>
+                          <td className="py-1.5 text-right num">{m.beklenen_tarih ? trTarih(m.beklenen_tarih) : '—'}</td>
+                          <td className="py-1.5 text-right num">{m.gelis_tarihi ? trTarih(m.gelis_tarihi) : '—'}</td>
+                          <td className="py-1.5 text-right num">{m.miktar != null ? `${nf(m.miktar)} ${m.birim ?? ''}` : '—'}</td>
+                          <td className={`py-1.5 text-right num ${eksik ? 'font-semibold text-danger' : ''}`}>
                             {m.gelen_miktar != null ? `${nf(m.gelen_miktar)} ${m.birim ?? ''}` : '—'}
                             {eksik && <div className="text-[10px]">−{nf(m.miktar! - m.gelen_miktar!)}</div>}</td>
                         </tr>
@@ -227,11 +227,11 @@ export default function PoPaneli({
                 ? <Kutu ton="wrn">Test yapılmamış. Kesim bu test girilmeden planlanmamalı.</Kutu>
                 : (
                   <dl className="grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1 text-xs">
-                    <dt className="text-faint">Test tarihi</dt><dd className="text-right font-mono text-ink">{trTarih(test.tarih)}</dd>
-                    <dt className="text-faint">Yıkama sayısı</dt><dd className="text-right font-mono text-ink">{test.yikama_sayisi ?? '—'}</dd>
-                    <dt className="text-faint">En çekmesi</dt><dd className="text-right font-mono text-ink">%{test.en_cekme_pct ?? '—'}</dd>
-                    <dt className="text-faint">Boy çekmesi</dt><dd className={`text-right font-mono ${(test.boy_cekme_pct ?? 0) < -5 ? 'text-danger' : 'text-ink'}`}>%{test.boy_cekme_pct ?? '—'}</dd>
-                    <dt className="text-faint">May kayması</dt><dd className={`text-right font-mono ${(test.may_kaymasi_pct ?? 0) > 3 ? 'text-danger' : 'text-ink'}`}>%{test.may_kaymasi_pct ?? '—'}</dd>
+                    <dt className="text-faint">Test tarihi</dt><dd className="text-right num text-ink">{trTarih(test.tarih)}</dd>
+                    <dt className="text-faint">Yıkama sayısı</dt><dd className="text-right num text-ink">{test.yikama_sayisi ?? '—'}</dd>
+                    <dt className="text-faint">En çekmesi</dt><dd className="text-right num text-ink">%{test.en_cekme_pct ?? '—'}</dd>
+                    <dt className="text-faint">Boy çekmesi</dt><dd className={`text-right num ${(test.boy_cekme_pct ?? 0) < -5 ? 'text-danger' : 'text-ink'}`}>%{test.boy_cekme_pct ?? '—'}</dd>
+                    <dt className="text-faint">May kayması</dt><dd className={`text-right num ${(test.may_kaymasi_pct ?? 0) > 3 ? 'text-danger' : 'text-ink'}`}>%{test.may_kaymasi_pct ?? '—'}</dd>
                     <dt className="text-faint">Sonuç</dt><dd className="text-right"><Etiket ton={testDurumu(test).sinif === 'ok' ? 'ok' : 'bad'}>{test.sonuc}</Etiket></dd>
                     <dt className="text-faint">Yapan</dt><dd className="text-right text-ink">{test.yapan ?? '—'}</dd>
                   </dl>
@@ -249,7 +249,7 @@ export default function PoPaneli({
                     j.tip === 'PROBLEM' || j.tip === 'BLOKAJ' ? 'border-danger' : j.tip === 'UYARI' ? 'border-warn' : j.tip === 'KAIZEN' ? 'border-accent' : 'border-line'}`}>
                     {j.baslik && <h4 className="text-xs font-semibold text-ink">{j.baslik}</h4>}
                     <p className="text-[11.5px] leading-relaxed text-body">{j.aciklama}</p>
-                    <div className="mt-0.5 font-mono text-[10.5px] text-faint">{j.tip} · {trTarih(isoTarih(j.tarih))}{j.stage_name ? ` · ${j.stage_name}` : ''}{j.yazan ? ` · ${j.yazan}` : ''}</div>
+                    <div className="mt-0.5 num text-[10.5px] text-faint">{j.tip} · {trTarih(isoTarih(j.tarih))}{j.stage_name ? ` · ${j.stage_name}` : ''}{j.yazan ? ` · ${j.yazan}` : ''}</div>
                   </div>
                 ))}
             </>
@@ -257,7 +257,7 @@ export default function PoPaneli({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 border-t border-line-soft bg-canvas px-4 py-2.5 text-[11.5px] text-faint">
-          Plan <b className="font-mono text-ink">{nf(tPlan)}</b> · Gerçek <b className="font-mono text-ink">{nf(tGercek)}</b> · <b className="font-mono text-ink">{plan.length}</b> iş günü
+          Plan <b className="num text-ink">{nf(tPlan)}</b> · Gerçek <b className="num text-ink">{nf(tGercek)}</b> · <b className="num text-ink">{plan.length}</b> iş günü
         </div>
       </aside>
     </>
@@ -267,7 +267,7 @@ export default function PoPaneli({
 function Baslik({ etiket, sahip }: { etiket: string; sahip: string }) {
   return (
     <p className="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-faint">
-      {etiket} <span className="rounded bg-accent-soft px-1.5 py-px text-[9.5px] font-semibold normal-case tracking-normal text-accent-ink">{sahip}</span>
+      {etiket} <span className="rounded bg-ok-soft px-1.5 py-px text-[9.5px] font-semibold normal-case tracking-normal text-ok-ink">{sahip}</span>
     </p>
   )
 }
@@ -282,6 +282,6 @@ function Kutu({ ton, children }: { ton: 'dan' | 'wrn'; children: React.ReactNode
 function Etiket({ ton, children }: { ton: 'ok' | 'wait' | 'bad'; children: React.ReactNode }) {
   return (
     <span className={`ml-1 inline-block rounded px-1.5 text-[9.5px] font-semibold ${
-      ton === 'ok' ? 'bg-accent-soft text-accent-ink' : ton === 'bad' ? 'bg-danger-soft text-danger' : 'bg-warn-soft text-warn'}`}>{children}</span>
+      ton === 'ok' ? 'bg-ok-soft text-ok-ink' : ton === 'bad' ? 'bg-danger-soft text-danger' : 'bg-warn-soft text-warn'}`}>{children}</span>
   )
 }

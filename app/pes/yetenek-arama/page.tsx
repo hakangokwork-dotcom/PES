@@ -196,7 +196,7 @@ export default async function YetenekAramaPage({
 
         <div className="space-y-4">
           {ozet.length > 0 && (
-            <div className="bg-accent-soft border border-line-soft rounded-lg px-4 py-2.5 text-sm text-accent-ink">
+            <div className="bg-ok-soft border border-line-soft rounded-lg px-4 py-2.5 text-sm text-ok-ink">
               <span className="font-medium">Aranan: </span>
               {ozet.join('  ·  ')}
             </div>

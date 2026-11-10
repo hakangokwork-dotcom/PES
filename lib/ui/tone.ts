@@ -48,7 +48,7 @@ export function tierTone(tier: string | null | undefined): Tone {
 /** Rozet zemin + metin */
 export const TONE_BADGE: Record<Tone, string> = {
   neutral: 'bg-canvas text-muted',
-  good: 'bg-accent-soft text-accent-ink',
+  good: 'bg-ok-soft text-ok-ink',
   warn: 'bg-warn-soft text-warn',
   bad: 'bg-danger-soft text-danger',
 }
@@ -56,7 +56,7 @@ export const TONE_BADGE: Record<Tone, string> = {
 /** Sadece metin rengi — tablo hücrelerindeki sayılar için */
 export const TONE_TEXT: Record<Tone, string> = {
   neutral: 'text-ink',
-  good: 'text-accent-ink font-medium',
+  good: 'text-ok-ink font-medium',
   warn: 'text-warn font-medium',
   bad: 'text-danger font-semibold',
 }
@@ -64,7 +64,7 @@ export const TONE_TEXT: Record<Tone, string> = {
 /** Dolu çubuk (yatay bar) zemini */
 export const TONE_BAR: Record<Tone, string> = {
   neutral: 'bg-line',
-  good: 'bg-accent',
+  good: 'bg-ok',
   warn: 'bg-warn',
   bad: 'bg-danger',
 }
@@ -83,20 +83,20 @@ export const TONE_ETIKET: Record<Tone, string> = {
    marka hex'i kalmadı; değişiklik gerekirse globals.css ile birlikte
    burası güncellenir. */
 export const GRAFIK_RENK: Record<Tone, string> = {
-  neutral: '#5B6874',
-  good: '#197A56',
-  warn: '#96601A',
+  neutral: '#6E6C66',
+  good: '#2E7550',
+  warn: '#8F5E14',
   bad: '#A32B2B',
 }
 
-/** Grafiklerde marka yeşili (çizgi, alan, bar). */
-export const GRAFIK_AKSAN = GRAFIK_RENK.good
+/** Grafiklerde marka rengi (çizgi, alan, bar) — globals.css --color-accent. */
+export const GRAFIK_AKSAN = '#B5532F'
 
 /* Grafik kromu — ızgara ve eksen etiketi. globals.css'teki --color-line ve
    --color-faint'in hex karşılığı; recharts CSS değişkeni kabul etmiyor.
    Elle #f0f0f0 / #9ca3af yazmak yerine buradan alınır. */
-export const GRAFIK_IZGARA = '#D6DCE1'
-export const GRAFIK_ETIKET = '#646F7B'
+export const GRAFIK_IZGARA = '#DAD7CC'
+export const GRAFIK_ETIKET = '#6E6C66'
 
 /** Satır işareti — satırın tamamı boyanmaz, ince bir sol şerit gelir */
 export const TONE_ROW: Record<Tone, string> = {

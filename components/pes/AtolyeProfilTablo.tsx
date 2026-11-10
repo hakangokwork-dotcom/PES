@@ -7,7 +7,7 @@ import type { AtolyeProfilSatiri, DenetimDurum } from '@/lib/pes/atolye-profil'
 const DURUM_STIL: Record<DenetimDurum, string> = {
   SURESI_DOLMUS: 'bg-danger-soft text-danger',
   YAKLASIYOR: 'bg-warn-soft text-warn',
-  GECERLI: 'bg-accent-soft text-accent-ink',
+  GECERLI: 'bg-ok-soft text-ok-ink',
   YOK: 'bg-canvas text-faint',
 }
 const DURUM_KISA: Record<DenetimDurum, string> = {
@@ -93,7 +93,7 @@ export default function AtolyeProfilTablo({
     { anahtar: 'SURESI_DOLMUS', etiket: 'Süresi dolmuş', renk: 'text-danger' },
     { anahtar: 'YAKLASIYOR', etiket: 'Yaklaşıyor (90 gün)', renk: 'text-warn' },
     { anahtar: 'YOK', etiket: 'Denetim kaydı yok', renk: 'text-faint' },
-    { anahtar: 'GECERLI', etiket: 'Geçerli', renk: 'text-accent-ink' },
+    { anahtar: 'GECERLI', etiket: 'Geçerli', renk: 'text-ok-ink' },
   ]
 
   const disaAktarUrl = `/api/pes/atolye-profil?format=xlsx${arsivDahil ? '&arsiv=1' : ''}`
@@ -215,7 +215,7 @@ export default function AtolyeProfilTablo({
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                       s.risk_seviyesi === 'YÜKSEK' ? 'bg-danger-soft text-danger'
                       : s.risk_seviyesi === 'ORTA' ? 'bg-warn-soft text-warn'
-                      : 'bg-accent-soft text-accent-ink'
+                      : 'bg-ok-soft text-ok-ink'
                     }`}>{s.risk_seviyesi}</span>
                   ) : <span className="text-faint">—</span>}
                 </td>

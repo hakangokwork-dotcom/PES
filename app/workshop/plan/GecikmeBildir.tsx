@@ -123,7 +123,7 @@ export default function GecikmeBildir({
             {kayma !== null && (
               <span className={`ml-2 px-1.5 py-0.5 rounded ${
                 kayma > 0 ? 'bg-danger-soft text-danger'
-                : kayma < 0 ? 'bg-accent-soft text-accent-ink'
+                : kayma < 0 ? 'bg-ok-soft text-ok-ink'
                 : 'bg-canvas text-muted'}`}>
                 {kayma > 0 ? `${kayma} gün gecikme` : kayma < 0 ? `${-kayma} gün erken` : 'kayma yok'}
               </span>
@@ -143,7 +143,7 @@ export default function GecikmeBildir({
             <p className="text-sm text-warn">{onHata[0].mesaj}</p>
           )}
           {hata && <p className="text-sm text-danger">{hata}</p>}
-          {tamam && <p className="text-sm text-accent-ink">Bildirim gönderildi.</p>}
+          {tamam && <p className="text-sm text-ok-ink">Bildirim gönderildi.</p>}
 
           <button onClick={gonder} disabled={bekliyor || onHata.length > 0}
                   className="px-4 py-2 rounded -ink text-white text-sm disabled:opacity-40">

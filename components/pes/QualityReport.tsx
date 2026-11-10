@@ -37,7 +37,7 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  accepted: 'bg-accent-soft text-accent-ink',
+  accepted: 'bg-ok-soft text-ok-ink',
   winsorized: 'bg-warn-soft text-warn',
   pending_fix: 'bg-warn-soft text-warn',
   rejected: 'bg-danger-soft text-danger',
@@ -52,7 +52,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 const n = (v: string | number | null | undefined) => (v === null || v === undefined ? 0 : Number(v))
 
 function scoreColor(v: number) {
-  if (v >= 70) return 'text-accent-ink'
+  if (v >= 70) return 'text-ok-ink'
   if (v >= 50) return 'text-warn'
   return 'text-danger'
 }

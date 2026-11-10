@@ -140,7 +140,7 @@ function DenetimBlogu({
             kalan === null ? 'bg-canvas text-faint'
             : kalan < 0 ? 'bg-danger-soft text-danger'
             : kalan <= 90 ? 'bg-warn-soft text-warn'
-            : 'bg-accent-soft text-accent-ink'
+            : 'bg-ok-soft text-ok-ink'
           }`}>
             {kalan !== null && kalan < 0
               ? `Süresi ${Math.abs(kalan)} gün önce doldu`
@@ -287,7 +287,7 @@ export default function AtolyeProfilSekmesi({
         <div>
           <p className="font-medium text-ink">
             Çalışma durumu:{' '}
-            <span className={isActive ? 'text-accent-ink' : 'text-faint'}>
+            <span className={isActive ? 'text-ok-ink' : 'text-faint'}>
               {isActive ? 'Aktif — şu anda çalışıyor' : 'Pasif — şu anda çalışmıyor'}
             </span>
           </p>

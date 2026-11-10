@@ -92,7 +92,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
             Tip {w.type} — {TYPE_LABELS[w.type]}
           </span>
           {w.is_active ? (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-accent-soft text-accent-ink">Aktif</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-ok-soft text-ok-ink">Aktif</span>
           ) : (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-canvas text-faint">Pasif</span>
           )}

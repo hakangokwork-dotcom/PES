@@ -253,7 +253,7 @@ export default async function EkonomiKarne({
                     {skor === null ? (
                       <span className="text-faint">—</span>
                     ) : (
-                      <span className={skor >= 50 ? 'text-accent-ink' : 'text-rose-700'}>
+                      <span className={skor >= 50 ? 'text-ok-ink' : 'text-rose-700'}>
                         {Math.round(skor)}
                       </span>
                     )}

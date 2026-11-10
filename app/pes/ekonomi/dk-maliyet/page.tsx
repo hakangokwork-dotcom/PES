@@ -22,7 +22,7 @@ const KULLANAN = [
 ]
 
 const ISLEM: Record<string, { ad: string; renk: string }> = {
-  ekle: { ad: 'eklendi', renk: 'bg-accent-soft text-accent-ink' },
+  ekle: { ad: 'eklendi', renk: 'bg-ok-soft text-ok-ink' },
   guncelle: { ad: 'güncellendi', renk: 'bg-warn-soft text-warn' },
   sil: { ad: 'silindi', renk: 'bg-rose-100 text-rose-800' },
 }

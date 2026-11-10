@@ -219,7 +219,7 @@ export default async function PesDashboard() {
             {avgEff !== null && (
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-ink">%{avgEff}</span>
-                <span className={`flex items-center gap-0.5 text-xs font-medium ${trendDelta > 0 ? 'text-accent-ink' : trendDelta < 0 ? 'text-danger' : 'text-faint'}`}>
+                <span className={`flex items-center gap-0.5 text-xs font-medium ${trendDelta > 0 ? 'text-ok-ink' : trendDelta < 0 ? 'text-danger' : 'text-faint'}`}>
                   {trendDelta > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : trendDelta < 0 ? <TrendingDown className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
                   {trendDelta > 0 ? '+' : ''}{trendDelta.toFixed(1)}
                 </span>

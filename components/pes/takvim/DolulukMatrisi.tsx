@@ -101,7 +101,7 @@ export default function DolulukMatrisi({ veri, paketler, yil, onAySec }: Props) 
                     return (
                       <td key={m} className="px-1 py-1 text-center">
                         <button type="button" onClick={() => onAySec(m)}
-                          className="mx-auto block h-6 w-full max-w-[52px] rounded font-mono text-[10.5px] font-semibold tabular-nums hover:ring-2 hover:ring-accent"
+                          className="mx-auto block h-6 w-full max-w-[52px] rounded num text-[10.5px] font-semibold tabular-nums hover:ring-2 hover:ring-accent"
                           style={{
                             background: st ? RAMP[st - 1] : 'var(--color-line-soft)',
                             color: st >= 4 ? '#fff' : 'var(--color-ink)',
@@ -116,9 +116,9 @@ export default function DolulukMatrisi({ veri, paketler, yil, onAySec }: Props) 
                       </td>
                     )
                   })}
-                  <td className="px-2 py-1 text-right font-mono tabular-nums text-body">{nf(r.kapasite)}</td>
-                  <td className="px-2 py-1 text-right font-mono tabular-nums text-body">{nf(r.yerlesen)}</td>
-                  <td className={`px-2 py-1 text-right font-mono tabular-nums ${r.bos > 0 ? 'font-semibold text-accent-ink' : 'text-faint'}`}>{nf(r.bos)}</td>
+                  <td className="px-2 py-1 text-right num tabular-nums text-body">{nf(r.kapasite)}</td>
+                  <td className="px-2 py-1 text-right num tabular-nums text-body">{nf(r.yerlesen)}</td>
+                  <td className={`px-2 py-1 text-right num tabular-nums ${r.bos > 0 ? 'font-semibold text-ok-ink' : 'text-faint'}`}>{nf(r.bos)}</td>
                 </tr>
               </Grup>
             )

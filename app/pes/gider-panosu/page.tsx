@@ -117,7 +117,7 @@ export default async function GiderPanosu({
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Gider Panosu</h1>
         <div className="bg-surface border border-line-soft rounded-xl p-8 text-center text-faint">
-          Bu dönemde gider beyanı yok. <Link href="/pes/expenses/import" className="text-accent-ink hover:underline">Gider yükle</Link> ekranını kullanın.
+          Bu dönemde gider beyanı yok. <Link href="/pes/expenses/import" className="text-ok-ink hover:underline">Gider yükle</Link> ekranını kullanın.
         </div>
       </div>
     )
@@ -149,7 +149,7 @@ export default async function GiderPanosu({
   const sortLink = (k: string, label: string) => (
     <Link
       href={`/pes/gider-panosu?donem=${donem.yil}-${String(donem.ay).padStart(2,'0')}&sort=${k}`}
-      className={`text-xs rounded px-2 py-1 border ${sort === k ? 'bg-accent-soft border-line text-accent-ink' : 'bg-surface border-line-soft text-body hover:bg-canvas'}`}
+      className={`text-xs rounded px-2 py-1 border ${sort === k ? 'bg-ok-soft border-line text-ok-ink' : 'bg-surface border-line-soft text-body hover:bg-canvas'}`}
     >{label}</Link>
   )
 
@@ -228,14 +228,14 @@ export default async function GiderPanosu({
                 return (
                   <tr key={r.workshop_id} className="border-b border-line-soft hover:bg-canvas">
                     <td className="px-3 py-2">
-                      <Link href={`/workshop?wid=${r.workshop_id}`} className="text-accent-ink hover:underline font-medium">{r.code}</Link>
+                      <Link href={`/workshop?wid=${r.workshop_id}`} className="text-ok-ink hover:underline font-medium">{r.code}</Link>
                       <span className="text-faint ml-1 text-xs">{r.name}</span>
                       {r.bolge && <span className="ml-1 text-[10px] text-faint">B{r.bolge}</span>}
                     </td>
                     <td className="text-right px-2 py-2 font-mono">{r.total_staff.toLocaleString('tr-TR')}</td>
                     <td className="text-right px-2 py-2 font-mono">{r.alan_m2 ? r.alan_m2.toLocaleString('tr-TR') : '—'}</td>
                     <td className="text-right px-2 py-2 font-mono">{fmtTL(r.brut)}</td>
-                    <td className="text-right px-2 py-2 font-mono text-accent-ink">{fmtTL(r.net)}</td>
+                    <td className="text-right px-2 py-2 font-mono text-ok-ink">{fmtTL(r.net)}</td>
                     <td className="text-right px-2 py-2 font-mono">{kb > 0 ? fmtTL(kb) : '—'}</td>
                     <td className="text-right px-2 py-2 font-mono">{m2 > 0 ? fmtTL(m2) : '—'}</td>
                     <td className="text-right px-2 py-2 font-mono">{(iscilikPay * 100).toFixed(0)}%</td>
@@ -352,7 +352,7 @@ function KpiKart({
   etiket, deger, altbilgi, tone,
 }: { etiket: string; deger: string; altbilgi?: string; tone?: 'green' | 'amber' }) {
   const val =
-    tone === 'green' ? 'text-accent-ink'
+    tone === 'green' ? 'text-ok-ink'
     : tone === 'amber' ? 'text-warn'
     : 'text-ink'
   return (

@@ -61,7 +61,7 @@ export default function Bildirimler({ bildirimler }: { bildirimler: BildirimSati
           </span>
         )}
         {ozet.erkeneCekilen > 0 && (
-          <span className="text-sm text-accent-ink">
+          <span className="text-sm text-ok-ink">
             {ozet.erkeneCekilen} iş erkene çekildi
           </span>
         )}
@@ -90,7 +90,7 @@ export default function Bildirimler({ bildirimler }: { bildirimler: BildirimSati
                   {g !== null && (
                     <span className={`text-xs px-2 py-0.5 rounded ${
                       g > 0 ? 'bg-danger-soft text-danger'
-                      : g < 0 ? 'bg-accent-soft text-accent-ink'
+                      : g < 0 ? 'bg-ok-soft text-ok-ink'
                       : 'bg-canvas text-muted'}`}>
                       {g > 0 ? `${g} gün gecikme` : g < 0 ? `${-g} gün erken` : 'kayma yok'}
                     </span>

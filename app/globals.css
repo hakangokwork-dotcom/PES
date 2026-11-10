@@ -19,35 +19,43 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Başlık ve büyük sayılar: serif. Claude arayüzünün sıcak, editoryal dili. */
+  --font-serif: var(--font-serif-baslik);
 
-  /* Nötr ölçek — tek ölçek. gray-* / slate-* karışımı artık kullanılmıyor. */
-  --color-canvas: #F6F8F9;      /* sayfa zemini */
+  /* Nötr ölçek — sıcak fildişi (2026-11-10, Claude tasarım dili).
+     Soğuk gri yerine taş/kâğıt tonu; kontrast oranları korunuyor. */
+  --color-canvas: #FAF9F5;      /* sayfa zemini */
+  --color-sidebar: #F3F1EA;     /* kenar çubuğu zemini, zeminden bir ton koyu */
   --color-surface: #FFFFFF;     /* kart, tablo, panel */
-  --color-line: #D6DCE1;        /* görünür kenarlık, input çerçevesi */
-  --color-line-soft: #EEF1F3;   /* tablo satır ayracı */
-  --color-ink: #0F1720;         /* başlık, birincil değer */
-  --color-body: #3F4C59;        /* gövde metni */
-  --color-muted: #5B6874;       /* ikincil metin, ghost düğme */
-  --color-faint: #646F7B;       /* etiket, yardım metni — beyazda 5,1:1 (WCAG AA) */
+  --color-line: #DAD7CC;        /* görünür kenarlık, input çerçevesi */
+  --color-line-soft: #ECEAE2;   /* tablo satır ayracı, kart kenarı */
+  --color-ink: #1F1E1B;         /* başlık, birincil değer */
+  --color-body: #3D3C38;        /* gövde metni */
+  --color-muted: #5E5D58;       /* ikincil metin, ghost düğme */
+  --color-faint: #6E6C66;       /* etiket, yardım metni — beyazda 5,3:1 (WCAG AA) */
 
-  /* Aksan — mevcut PES yeşili korunuyor. */
-  --color-accent: #197A56;
-  --color-accent-hover: #145E42;
-  --color-accent-soft: #EAF3EF;
-  --color-accent-ink: #14684A;  /* açık zemin üstünde okunur yeşil metin */
+  /* Aksan — Claude kil rengi. Beyaz yazı üstünde 4,9:1. */
+  --color-accent: #B5532F;
+  --color-accent-hover: #994426;
+  --color-accent-soft: #F6E8E0;
+  --color-accent-ink: #9C4626;  /* açık zemin üstünde okunur kil metin */
 
-  /* Durum — SADECE bir eşiğe göre iyi/kötü söylerken kullanılır. */
-  --color-warn: #96601A;
-  --color-warn-soft: #FEF4E5;
+  /* Durum — SADECE bir eşiğe göre iyi/kötü söylerken kullanılır.
+     "İyi" artık aksandan ayrı: aksan kil rengi, iyi yeşil kalır. */
+  --color-ok: #2E7550;
+  --color-ok-soft: #E7F1EA;
+  --color-ok-ink: #276545;
+  --color-warn: #8F5E14;
+  --color-warn-soft: #FBF0DC;
   --color-danger: #A32B2B;
-  --color-danger-soft: #FBECEC;
-  --color-danger-line: #E8C9C9;
+  --color-danger-soft: #FBECEA;
+  --color-danger-line: #E8C9C6;
 
   /* Geriye dönük uyum: eski sınıflar migrasyon bitene kadar çalışsın.
      Tüm ekranlar dönüştükten sonra bu üç satır silinir. */
   --color-pes-accent: var(--color-accent);
   --color-pes-accent-dark: var(--color-accent-hover);
-  --color-pes-accent-light: #21BF61;
+  --color-pes-accent-light: #D97757;
 }
 
 :root {
@@ -65,9 +73,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Sayısal hücrelerde basamaklar üst üste gelsin. */
+/* Sayısal hücrelerde basamaklar üst üste gelsin. tabular-nums yeterli; mono yazı tipi "terminal" gibi gösteriyordu. */
 .num {
-  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -117,4 +124,14 @@ body {
      siliyordu. Yapışkan başlığın altındaki satırları örtmesi için opak
      kalmalı, ama sayfanın kendi tonuyla aynı olmalı. */
   background: var(--color-canvas);
+}
+
+/* Başlıklar serif (Claude tasarım dili). Taban katmanında: bir başlıkta
+   açıkça yazılmış yazı tipi sınıfı her zaman kazanır. VSIM kendi
+   tipografisini taşır, dışarıda kalır. */
+@layer base {
+  main :where(h1, h2, h3):not(.vsim-root *) {
+    font-family: var(--font-serif);
+    letter-spacing: -0.005em;
+  }
 }

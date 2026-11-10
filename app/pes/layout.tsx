@@ -29,7 +29,7 @@ export default async function PesLayout({ children }: { children: React.ReactNod
       <div className="flex-1 min-w-0 flex flex-col">
         {donemler.length > 0 && (
           /* useSearchParams istemci tarafında; Suspense sınırı zorunlu. */
-          <Suspense fallback={<div className="h-[37px] border-b border-line-soft bg-surface" />}>
+          <Suspense fallback={<div className="h-[37px] border-b border-line-soft bg-canvas" />}>
             <DonemBar mevcut={donemler} />
           </Suspense>
         )}

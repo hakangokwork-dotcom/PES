@@ -228,7 +228,7 @@ export default function SiparisYerlestirSihirbazi({ asamalar, havuzPo, onAtolyeI
             <span className={cn(
               'flex size-6 items-center justify-center rounded-full text-[11px] font-medium',
               i < adim ? 'bg-accent text-white'
-                : i === adim ? 'bg-accent-soft text-accent-ink ring-1 ring-accent'
+                : i === adim ? 'bg-ok-soft text-ok-ink ring-1 ring-accent'
                 : 'bg-canvas text-faint',
             )}>
               {i < adim ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
@@ -282,7 +282,7 @@ export default function SiparisYerlestirSihirbazi({ asamalar, havuzPo, onAtolyeI
                 return (
                   <label key={a.code} className={cn(
                     'flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 text-[13px] transition-colors',
-                    secili ? 'border-accent bg-accent-soft/40 text-ink' : 'border-line-soft text-muted hover:bg-canvas',
+                    secili ? 'border-accent bg-ok-soft/40 text-ink' : 'border-line-soft text-muted hover:bg-canvas',
                   )}>
                     <input
                       type="checkbox"
@@ -436,7 +436,7 @@ export default function SiparisYerlestirSihirbazi({ asamalar, havuzPo, onAtolyeI
                             onClick={() => setDisAtolye(d => ({ ...d, [kod]: a.workshopId }))}
                             className={cn(
                               'flex w-full items-center gap-3 border-b border-line-soft px-3 py-2 text-left text-[13px] last:border-0',
-                              secili === a.workshopId ? 'bg-accent-soft text-ink' : 'hover:bg-canvas',
+                              secili === a.workshopId ? 'bg-ok-soft text-ink' : 'hover:bg-canvas',
                             )}
                           >
                             <span className="w-8 shrink-0 text-right tabular-nums text-faint">{a.puan}</span>

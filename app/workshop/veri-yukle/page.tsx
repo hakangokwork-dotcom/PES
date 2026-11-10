@@ -16,7 +16,7 @@ const TEMPLATES = [
 ]
 
 const COLORS: Record<string, string> = {
-  emerald: 'border-line-soft bg-accent-soft',
+  emerald: 'border-line-soft bg-ok-soft',
   blue: 'border-line bg-canvas',
   purple: 'border-line bg-canvas',
   red: 'border-danger-line bg-danger-soft',
@@ -137,7 +137,7 @@ function VeriYuklePage() {
               </div>
 
               {res && (
-                <div className={`text-xs px-3 py-2 rounded-lg ${res.ok || res.imported ? 'bg-accent-soft text-accent-ink' : 'bg-danger-soft text-danger'}`}>
+                <div className={`text-xs px-3 py-2 rounded-lg ${res.ok || res.imported ? 'bg-ok-soft text-ok-ink' : 'bg-danger-soft text-danger'}`}>
                   {res.imported ? `${res.imported} kayit yuklendi` : res.error || res.message}
                 </div>
               )}

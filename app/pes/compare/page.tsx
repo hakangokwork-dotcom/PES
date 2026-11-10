@@ -109,7 +109,7 @@ export default async function ComparePage({
 
   const fmt = (n: number) => n.toLocaleString('tr-TR')
   const tierColor = (t: string) => {
-    if (t === 'Stratejik') return 'bg-accent-soft text-accent-ink'
+    if (t === 'Stratejik') return 'bg-ok-soft text-ok-ink'
     if (t === 'Gelisen') return 'bg-canvas text-muted'
     if (t === 'Izlemede') return 'bg-warn-soft text-warn'
     if (t === 'Risk') return 'bg-orange-100 text-orange-800'
@@ -167,7 +167,7 @@ export default async function ComparePage({
               {rows.map(r => (
                 <tr key={r.id as number} className="border-b border-line-soft hover:bg-canvas">
                   <td className="px-3 py-2">
-                    <Link href={`/workshop?wid=${r.id}`} className="text-accent-ink hover:underline font-medium">{r.code as string}</Link>
+                    <Link href={`/workshop?wid=${r.id}`} className="text-ok-ink hover:underline font-medium">{r.code as string}</Link>
                     <span className="text-faint ml-1 text-xs">{r.name as string}</span>
                   </td>
                   <td className="text-center px-2 py-2 text-xs text-faint">{r.type as string}</td>
@@ -175,7 +175,7 @@ export default async function ComparePage({
                     {r.efficiency > 0 ? `%${r.efficiency}` : '---'}
                   </td>
                   <td className="text-right px-2 py-2 font-mono">{r.costPerMin > 0 ? r.costPerMin.toFixed(2) : '---'}</td>
-                  <td className={`text-right px-2 py-2 font-mono ${r.marginPct >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
+                  <td className={`text-right px-2 py-2 font-mono ${r.marginPct >= 0 ? 'text-ok-ink' : 'text-danger'}`}>
                     {r.marginPct !== 0 ? `%${r.marginPct}` : '---'}
                   </td>
                   <td className={`text-right px-2 py-2 font-mono ${r.fpq > 0 ? TONE_TEXT[fpqTone(r.fpq)] : 'text-faint'}`}>

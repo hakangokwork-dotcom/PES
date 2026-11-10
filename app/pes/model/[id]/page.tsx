@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 const BOLUM_RENK: Record<string, string> = {
   KESIM: 'bg-warn-soft text-warn',
   DIKIM: 'bg-blue-100 text-blue-800',
-  UKP: 'bg-accent-soft text-accent-ink',
+  UKP: 'bg-ok-soft text-ok-ink',
 }
 
 export default async function BultenDetay({ params }: { params: Promise<{ id: string }> }) {

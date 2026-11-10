@@ -127,7 +127,7 @@ export default function EkonomiForm({
         >
           {bekliyor ? 'Kaydediliyor…' : 'Kaydet'}
         </button>
-        {tamam && <span className="text-sm text-accent-ink">Kaydedildi.</span>}
+        {tamam && <span className="text-sm text-ok-ink">Kaydedildi.</span>}
         {hata && <span className="text-sm text-danger">{hata}</span>}
       </div>
     </form>

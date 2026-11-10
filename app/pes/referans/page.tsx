@@ -105,11 +105,11 @@ export default function ReferansPage() {
         </div>
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
         {result && (
-          <div className="mt-4 bg-accent-soft border border-line-soft rounded-lg p-4">
-            <p className="text-sm font-semibold text-accent-ink mb-2">Yükleme tamamlandı:</p>
+          <div className="mt-4 bg-ok-soft border border-line-soft rounded-lg p-4">
+            <p className="text-sm font-semibold text-ok-ink mb-2">Yükleme tamamlandı:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(result).map(([k, v]) => (
-                <div key={k} className="text-xs text-accent-ink">
+                <div key={k} className="text-xs text-ok-ink">
                   <span className="font-medium">{k}:</span> {v.toLocaleString('tr-TR')} kayit
                 </div>
               ))}

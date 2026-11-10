@@ -158,7 +158,7 @@ export default function CostsPage() {
                   <p className="text-sm text-faint">Toplam Gider</p>
                   <p className="text-2xl font-bold text-ink">{total.toLocaleString('tr-TR')} TL</p>
                   {costPerMin > 0 && (
-                    <p className="text-sm text-accent-ink font-medium">{costPerMin.toFixed(2)} TL/dk</p>
+                    <p className="text-sm text-ok-ink font-medium">{costPerMin.toFixed(2)} TL/dk</p>
                   )}
                 </div>
               </div>

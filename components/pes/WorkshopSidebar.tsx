@@ -136,14 +136,14 @@ export default function WorkshopSidebar({
 
   // Çekmecede (fixed, inset-y-0) h-full; masaüstü sütununda min-h-screen.
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-line-soft bg-surface lg:h-auto lg:min-h-screen">
+    <aside className="flex h-full w-64 flex-col border-r border-line-soft bg-sidebar lg:h-auto lg:min-h-screen">
       <div className="flex h-14 shrink-0 items-center border-b border-line-soft px-4">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-md bg-accent text-[11px] font-bold tracking-wider text-white">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-[11px] font-bold tracking-wider text-white">
             PES
           </span>
           <span>
-            <span className="block text-sm font-semibold leading-tight text-ink">Atölye Paneli</span>
+            <span className="block font-serif text-[15px] font-semibold leading-tight text-ink">Atölye Paneli</span>
             <span className="block text-[11px] leading-tight tracking-wide text-faint">Verimlilik Sistemi</span>
           </span>
         </div>
@@ -189,7 +189,7 @@ export default function WorkshopSidebar({
             value={arama}
             onChange={e => setArama(e.target.value)}
             placeholder="Sayfa ara"
-            className="w-full rounded-md border border-line-soft bg-canvas py-1.5 pl-7 pr-2.5 text-xs text-ink placeholder:text-faint focus:border-line focus:bg-surface focus:outline-none"
+            className="w-full rounded-lg border border-line-soft bg-surface py-1.5 pl-7 pr-2.5 text-xs text-ink placeholder:text-faint focus:border-line focus:bg-surface focus:outline-none"
           />
         </div>
       </div>

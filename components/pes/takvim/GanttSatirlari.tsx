@@ -114,8 +114,8 @@ export default function GanttSatirlari({
             const kapali = pazarMi(t), bugunMu = t === bugun
             return (
               <div key={t} className={`flex flex-col items-center justify-center gap-px border-r border-line-soft py-1 ${
-                bugunMu ? 'bg-accent-soft shadow-[inset_0_-2px_0_var(--color-accent)]' : kapali ? 'bg-canvas' : 'bg-surface'}`}>
-                <span className={`font-mono text-[11px] tabular-nums ${bugunMu ? 'font-semibold text-accent-ink' : kapali ? 'text-faint' : 'font-semibold text-body'}`}>{d.getDate()}</span>
+                bugunMu ? 'bg-ok-soft shadow-[inset_0_-2px_0_var(--color-accent)]' : kapali ? 'bg-canvas' : 'bg-surface'}`}>
+                <span className={`num text-[11px] tabular-nums ${bugunMu ? 'font-semibold text-ok-ink' : kapali ? 'text-faint' : 'font-semibold text-body'}`}>{d.getDate()}</span>
                 <span className="text-[9.5px] text-faint">{TR_GUN[d.getDay()]}</span>
               </div>
             )
@@ -139,7 +139,7 @@ export default function GanttSatirlari({
                 </div>
                 <div className="flex items-center gap-3 px-3 text-[11px] text-faint" style={{ gridColumn: '2 / -1' }}>
                   <span>{gws.length} atölye</span>
-                  <span className="font-mono">toplam {nf(toplamKap)} adet/gün</span>
+                  <span className="num">toplam {nf(toplamKap)} adet/gün</span>
                 </div>
               </div>
 
@@ -198,7 +198,7 @@ function AtolyeSatiri({ w, bantlar, paket, gunler, bugun, sablon, icSablon, geni
     ? Math.round(calisan.reduce((s, d) => s + Math.min(1.4, d.oran), 0) / calisan.length * 100) : 0
 
   return (
-    <div className="grid border-b border-line-soft bg-surface" style={{ gridTemplateColumns: sablon, minHeight: genis ? 54 : 42 }}>
+    <div className="grid border-b border-line-soft bg-surface" style={{ gridTemplateColumns: sablon, minHeight: genis ? 66 : 46 }}>
       <div className="sticky left-0 z-20 flex items-center overflow-hidden border-r border-line bg-surface pl-5 pr-2.5">
         <button type="button" onClick={onToggle} className="flex w-full min-w-0 items-center gap-1.5 text-left">
           <Caret acik={acik} />
@@ -225,10 +225,15 @@ function AtolyeSatiri({ w, bantlar, paket, gunler, bugun, sablon, icSablon, geni
             return (
               <div key={d.tarih} className="flex flex-col justify-end px-0.5"
                 title={`${trTarih(d.tarih)} · plan ${nf(d.plan)}${d.rezerve ? ` + rezerve ${nf(d.rezerve)}` : ''} / kapasite ${nf(d.kapasite)}${d.gercek ? ` · gerçekleşen ${nf(d.gercek)}` : ''}`}>
+                {/* Doluluk yüzdesi her çalışma gününde; ay görünümünde tek bilgi bu. */}
+                <div className={`mb-0.5 text-center text-[9.5px] leading-none num ${
+                  asim || d.oran > 1 ? 'font-semibold text-danger' : d.oran > 0 ? 'font-medium text-ink' : 'text-faint'}`}>
+                  %{Math.round(d.oran * 100)}
+                </div>
                 {genis && (
-                  <div className="mb-0.5 text-center font-mono text-[9.5px] leading-tight text-faint tabular-nums">
+                  <div className="mb-0.5 text-center text-[9.5px] leading-tight text-faint num">
                     <b className="text-ink">{nf(d.plan)}</b>/{nf(d.kapasite)}
-                    {d.gercek > 0 && <><br /><span className="text-accent-ink">{nf(d.gercek)} ✓</span></>}
+                    {d.gercek > 0 && <><br /><span className="text-ok-ink">{nf(d.gercek)} ✓</span></>}
                   </div>
                 )}
                 <div className="relative overflow-hidden rounded-sm"
@@ -276,14 +281,14 @@ function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, blokl
         ) : (
           <span className="truncate pl-[18px] text-xs text-body">{bant.name}</span>
         )}
-        <span className="ml-auto shrink-0 font-mono text-[10px] text-faint">{nf(bant.daily_target)}/gün</span>
+        <span className="ml-auto shrink-0 num text-[10px] text-faint">{nf(bant.daily_target)}/gün</span>
       </div>
       <div className="relative grid content-start" style={{ gridColumn: '2 / -1', gridTemplateColumns: icSablon, minHeight: 36 }}>
         {/* Arka katman: gün hücreleri */}
         <div className="absolute inset-0 grid" style={{ gridTemplateColumns: icSablon }}>
           {gunler.map(t => (
             <div key={t}
-              className={`border-r border-line-soft ${pazarMi(t) ? 'bg-canvas' : ''} ${t === bugun ? 'bg-accent-soft/50' : ''} ${onHucre ? 'cursor-cell hover:bg-accent-soft hover:shadow-[inset_0_0_0_1px_var(--color-accent)]' : ''}`}
+              className={`border-r border-line-soft ${pazarMi(t) ? 'bg-canvas' : ''} ${t === bugun ? 'bg-ok-soft/50' : ''} ${onHucre ? 'cursor-cell hover:bg-ok-soft hover:shadow-[inset_0_0_0_1px_var(--color-accent)]' : ''}`}
               onClick={onHucre ? e => onHucre(t, e.clientX, e.clientY) : undefined}
               onDragOver={onBirak ? e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' } : undefined}
               onDrop={onBirak ? e => { e.preventDefault(); const id = Number(e.dataTransfer.getData('text/plain')); if (id) onBirak(id, t) } : undefined} />
@@ -306,7 +311,7 @@ function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, blokl
                 : `${b.tip} · ${b.notlar ?? ''}\n${trTarih(b.baslangic_tarihi)} → ${trTarih(b.bitis_tarihi)}`}>
               <span className="truncate px-1.5 text-[10.5px] font-semibold">
                 {rez ? `Rezerve${eski ? ' · süresi geçti' : ''}` : b.tip === 'BAKIM' ? 'Bakım' : b.tip === 'İZİN' ? 'İzin' : 'Blok'}
-                {rez && genis && b.adet ? <span className="ml-1.5 font-mono font-medium opacity-70">{nf(b.adet)}/gün</span> : null}
+                {rez && genis && b.adet ? <span className="ml-1.5 num font-medium opacity-70">{nf(b.adet)}/gün</span> : null}
               </span>
             </div>
           )
@@ -332,9 +337,9 @@ function BantSatiri({ bant, paket, gunler, bugun, sablon, icSablon, genis, blokl
               title={`${kaynak.is_emri_no} · ${kaynak.model_adi}\n${kaynak.musteri ?? ''} · ${nf(a.adet)} adet\nPlan ${trTarih(a.planBaslangic)} → ${trTarih(bitis)}${kaynak.teslim_tarihi ? ` · Teslim ${trTarih(kaynak.teslim_tarihi)}` : ''}${gercek ? `\nGerçekleşen ${nf(gercek)} (%${Math.round(ilerleme)})` : ''}${gec ? '\n⚠ Planlanan bitiş teslimi aşıyor' : ''}`}>
               <span className="absolute inset-y-0 left-0 opacity-70" style={{ width: `${ilerleme}%`, background: '#4FA57F' }} />
               <span className="relative z-[1] flex items-center gap-1.5 truncate px-1.5 text-[10.5px] font-semibold text-ink">
-                <span className="font-mono">{kaynak.is_emri_no}</span>
-                {genislik >= 6 && <span className="font-mono font-medium opacity-70">{nf(a.adet)}</span>}
-                {genislik >= 11 && gercek > 0 && <span className="font-mono font-medium opacity-70">%{Math.round(ilerleme)}</span>}
+                <span className="num">{kaynak.is_emri_no}</span>
+                {genislik >= 6 && <span className="num font-medium opacity-70">{nf(a.adet)}</span>}
+                {genislik >= 11 && gercek > 0 && <span className="num font-medium opacity-70">%{Math.round(ilerleme)}</span>}
               </span>
               {gec && <span className="absolute inset-y-0 right-0 z-[2] w-1 bg-warn" title="Teslim riski" />}
             </button>

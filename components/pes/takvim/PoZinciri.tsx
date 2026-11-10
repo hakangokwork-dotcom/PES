@@ -33,7 +33,7 @@ const STIL: Record<Sinif, React.CSSProperties> = {
 }
 
 const ROZET: Record<Rozet['sinif'], string> = {
-  ok:   'bg-accent-soft text-accent-ink',
+  ok:   'bg-ok-soft text-ok-ink',
   wait: 'bg-warn-soft text-warn',
   bad:  'bg-danger-soft text-danger',
   neu:  'bg-canvas text-faint border border-line-soft',
@@ -77,7 +77,7 @@ export default function PoSatiri({
       {/* Sol: PO künyesi ve satır içi durum */}
       <div className="sticky left-0 z-20 flex flex-col justify-center gap-1 border-r border-line bg-canvas/95 py-1.5 pl-14 pr-2.5">
         <button type="button" onClick={() => onAtamaSec?.(atama)} className="flex min-w-0 items-center gap-1.5 text-left">
-          <span className="shrink-0 font-mono text-[11.5px] font-semibold text-ink">{atama.is_emri_no}</span>
+          <span className="shrink-0 num text-[11.5px] font-semibold text-ink">{atama.is_emri_no}</span>
           <span className="truncate text-[10.5px] text-faint">{atama.model_adi}</span>
         </button>
         <div className="flex flex-wrap gap-1">
@@ -92,7 +92,7 @@ export default function PoSatiri({
       <div className="relative grid content-start" style={{ gridColumn: '2 / -1', gridTemplateColumns: icSablon, minHeight: 36 }}>
         <div className="absolute inset-0 grid" style={{ gridTemplateColumns: icSablon }}>
           {gunler.map(t => (
-            <div key={t} className={`border-r border-line-soft ${pazarMi(t) ? 'bg-canvas' : ''} ${t === bugun ? 'bg-accent-soft/50' : ''}`} />
+            <div key={t} className={`border-r border-line-soft ${pazarMi(t) ? 'bg-canvas' : ''} ${t === bugun ? 'bg-ok-soft/50' : ''}`} />
           ))}
         </div>
 

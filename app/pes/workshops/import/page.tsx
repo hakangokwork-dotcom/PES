@@ -73,7 +73,7 @@ export default function ImportWorkshopsPage() {
             type="file"
             accept=".csv,.txt"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-faint file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-accent-soft file:text-accent hover:file:bg-accent-soft"
+            className="block w-full text-sm text-faint file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-ok-soft file:text-accent hover:file:bg-ok-soft"
           />
           <p className="text-xs text-faint mt-2">
             Semicolon (;) ile ayrılmış CSV dosyası. İlk satır header olmalı.
@@ -108,13 +108,13 @@ export default function ImportWorkshopsPage() {
           <h2 className="text-lg font-semibold text-ink">Import Sonucu</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="bg-accent-soft border border-line-soft rounded-lg p-3">
-              <p className="text-xs text-accent-ink">Parse Edilen</p>
-              <p className="text-xl font-bold text-accent-ink">{result.stats.total_parsed}</p>
+            <div className="bg-ok-soft border border-line-soft rounded-lg p-3">
+              <p className="text-xs text-ok-ink">Parse Edilen</p>
+              <p className="text-xl font-bold text-ok-ink">{result.stats.total_parsed}</p>
             </div>
-            <div className="bg-accent-soft border border-line-soft rounded-lg p-3">
-              <p className="text-xs text-accent-ink">Yeni Eklenen</p>
-              <p className="text-xl font-bold text-accent-ink">{result.stats.inserted}</p>
+            <div className="bg-ok-soft border border-line-soft rounded-lg p-3">
+              <p className="text-xs text-ok-ink">Yeni Eklenen</p>
+              <p className="text-xl font-bold text-ok-ink">{result.stats.inserted}</p>
             </div>
             <div className="bg-canvas border border-line rounded-lg p-3">
               <p className="text-xs text-muted">Güncellenen</p>

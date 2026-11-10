@@ -199,18 +199,18 @@ function WorkshopCostsPage() {
             <p className="text-xs text-faint">Toplam Gider</p>
             <p className="text-xl font-bold text-ink">{tl(total)}</p>
           </div>
-          <div className="bg-accent-soft rounded-lg p-4 text-center">
-            <p className="text-xs text-accent-ink">Dakika Başı Maliyet</p>
+          <div className="bg-ok-soft rounded-lg p-4 text-center">
+            <p className="text-xs text-ok-ink">Dakika Başı Maliyet</p>
             <p className="text-xl font-bold text-accent">{tl(costPerMin, 2)}/dk</p>
-            <p className="text-[11px] text-accent-ink">{productiveStaff} op × {workDays} gün × {sayi((w?.net_hours_day ?? 9) * 60)} dk</p>
+            <p className="text-[11px] text-ok-ink">{productiveStaff} op × {workDays} gün × {sayi((w?.net_hours_day ?? 9) * 60)} dk</p>
           </div>
           <div className="bg-canvas rounded-lg p-4 text-center">
             <p className="text-xs text-muted">Kişi Başı Aylık Gider</p>
             <p className="text-xl font-bold text-ink">{perPersonExpense.toLocaleString('tr-TR')} TL</p>
           </div>
-          <div className={`rounded-lg p-4 text-center ${netMargin >= 0 ? 'bg-accent-soft' : 'bg-danger-soft'}`}>
+          <div className={`rounded-lg p-4 text-center ${netMargin >= 0 ? 'bg-ok-soft' : 'bg-danger-soft'}`}>
             <p className="text-xs text-faint">Net Marj</p>
-            <p className={`text-xl font-bold ${netMargin >= 0 ? 'text-accent-ink' : 'text-danger'}`}>
+            <p className={`text-xl font-bold ${netMargin >= 0 ? 'text-ok-ink' : 'text-danger'}`}>
               {targetRevenue > 0 ? yuzde(marginPct) : '—'}
             </p>
             {targetRevenue > 0 && <p className="text-[11px] text-faint">{tl(netMargin)}</p>}
@@ -222,10 +222,10 @@ function WorkshopCostsPage() {
           <div className="mt-4 pt-4 border-t border-line-soft">
             <h3 className="text-sm font-semibold text-body mb-3">Gerçek Maliyet vs Sektör Referans (TL/dk)</h3>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
-              <div className="bg-accent-soft border-2 border-accent rounded-lg p-3 text-center">
-                <p className="text-[11px] font-semibold text-accent-ink">GERÇEK</p>
-                <p className="text-xl font-bold text-accent-ink">{sayi(costPerMin, 2)}</p>
-                <p className="text-[11px] text-accent-ink">TL/dk</p>
+              <div className="bg-ok-soft border-2 border-accent rounded-lg p-3 text-center">
+                <p className="text-[11px] font-semibold text-ok-ink">GERÇEK</p>
+                <p className="text-xl font-bold text-ok-ink">{sayi(costPerMin, 2)}</p>
+                <p className="text-[11px] text-ok-ink">TL/dk</p>
               </div>
               {[1, 2, 3, 4, 5, 6].map(bolge => {
                 const ref = sektorDkMaliyetler.find(d => d.bolge === bolge)
@@ -234,11 +234,11 @@ function WorkshopCostsPage() {
                 const diffPct = refVal > 0 ? (diff / refVal) * 100 : 0
                 const isLower = diff < 0
                 return (
-                  <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-accent-soft border-line-soft' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-danger-soft border-danger-line'}`}>
+                  <div key={bolge} className={`rounded-lg p-3 text-center border ${isLower ? 'bg-ok-soft border-line-soft' : diff === 0 ? 'bg-canvas border-line-soft' : 'bg-danger-soft border-danger-line'}`}>
                     <p className="text-[11px] text-faint">{bolge}. Bölge</p>
                     <p className="text-lg font-bold text-ink">{refVal > 0 ? sayi(refVal, 2) : '—'}</p>
                     {refVal > 0 && (
-                      <p className={`text-[11px] font-medium ${isLower ? 'text-accent-ink' : 'text-danger'}`}>
+                      <p className={`text-[11px] font-medium ${isLower ? 'text-ok-ink' : 'text-danger'}`}>
                         {diff > 0 ? '+' : ''}{yuzde(diffPct)}
                       </p>
                     )}
@@ -265,9 +265,9 @@ function WorkshopCostsPage() {
                 <p className="text-xs text-muted">Adet Başı Ciro</p>
                 <p className="text-lg font-bold text-ink">{revenuePerPiece > 0 ? revenuePerPiece.toLocaleString('tr-TR') : '—'} TL</p>
               </div>
-              <div className={`rounded-lg p-3 text-center ${revenuePerPiece > costPerPiece ? 'bg-accent-soft' : 'bg-danger-soft'}`}>
+              <div className={`rounded-lg p-3 text-center ${revenuePerPiece > costPerPiece ? 'bg-ok-soft' : 'bg-danger-soft'}`}>
                 <p className="text-xs text-faint">Adet Kârı</p>
-                <p className={`text-lg font-bold ${revenuePerPiece > costPerPiece ? 'text-accent-ink' : 'text-danger'}`}>
+                <p className={`text-lg font-bold ${revenuePerPiece > costPerPiece ? 'text-ok-ink' : 'text-danger'}`}>
                   {revenuePerPiece > 0 ? (revenuePerPiece - costPerPiece).toLocaleString('tr-TR') : '—'} TL
                 </p>
               </div>

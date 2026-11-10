@@ -208,11 +208,11 @@ function Sayac({ n, etiket, ton, aktif, onClick }: {
     ? 'border-line-soft bg-canvas text-faint cursor-default'
     : ton === 'danger' ? 'border-danger-line bg-danger-soft text-danger'
     : ton === 'warn' ? 'border-warn-line bg-warn-soft text-warn'
-    : 'border-transparent bg-accent-soft text-accent-ink'
+    : 'border-transparent bg-ok-soft text-ok-ink'
   return (
     <button type="button" disabled={n === 0} onClick={onClick}
       className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11.5px] font-medium ${renk} ${aktif ? 'ring-2 ring-accent ring-offset-1' : ''}`}>
-      <b className="font-mono text-[12.5px] tabular-nums">{n}</b> {etiket}
+      <b className="num text-[12.5px]">{n}</b> {etiket}
     </button>
   )
 }

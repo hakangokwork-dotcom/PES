@@ -91,25 +91,25 @@ const DURUM_RENK: Record<string, string> = {
   'Taslak': 'bg-canvas text-ink',
   'Planlandi': 'bg-canvas text-muted',
   'Bekleniyor': 'bg-warn-soft text-warn',
-  'Devam': 'bg-accent-soft text-accent-ink',
+  'Devam': 'bg-ok-soft text-ok-ink',
   'Duraklatildi': 'bg-warn-soft text-warn',
-  'Tamamlandi': 'bg-accent-soft text-accent-ink',
+  'Tamamlandi': 'bg-ok-soft text-ok-ink',
   'İptal': 'bg-danger-soft text-danger',
   'Sevk Edildi': 'bg-canvas text-muted',
 }
 const STAGE_DURUM_RENK: Record<string, string> = {
   'Beklemede':    'bg-canvas text-muted',
   'Hazır':        'bg-canvas text-muted',
-  'Devam':        'bg-accent-soft text-accent-ink',
+  'Devam':        'bg-ok-soft text-ok-ink',
   'Duraklatildi': 'bg-warn-soft text-warn',
-  'Tamamlandi':   'bg-accent-soft text-accent-ink',
+  'Tamamlandi':   'bg-ok-soft text-ok-ink',
   'İptal':        'bg-danger-soft text-danger',
 }
 const MATERIAL_DURUM_RENK: Record<string, string> = {
   'Bekleniyor':     'bg-canvas text-muted',
   'Sipariş Verildi':'bg-canvas text-muted',
   'Yolda':          'bg-warn-soft text-warn',
-  'Geldi':          'bg-accent-soft text-accent-ink',
+  'Geldi':          'bg-ok-soft text-ok-ink',
   'Eksik':          'bg-danger-soft text-danger',
   'İade':           'bg-danger-soft text-danger',
 }
@@ -118,7 +118,7 @@ const JOURNAL_TIP_RENK: Record<string, { bg: string; text: string; icon: string 
   'PROBLEM': { bg: 'bg-danger-soft',   text: 'text-danger',   icon: '⚠️' },
   'KAIZEN':  { bg: 'bg-canvas',  text: 'text-muted',  icon: '💡' },
   'UYARI':   { bg: 'bg-warn-soft', text: 'text-warn', icon: '🔔' },
-  'BAŞARI':  { bg: 'bg-accent-soft', text: 'text-accent-ink', icon: '✅' },
+  'BAŞARI':  { bg: 'bg-ok-soft', text: 'text-ok-ink', icon: '✅' },
   'BLOKAJ':  { bg: 'bg-canvas', text: 'text-muted', icon: '🚧' },
 }
 
@@ -183,7 +183,7 @@ function WoDetailPage() {
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (
             <button key={k} onClick={() => setTab(k as 'ozet'|'asamalar'|'plangercek'|'malzemeler'|'cekme'|'gunluk'|'gecmis')}
-              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-accent text-accent-ink font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
+              className={`px-3 py-2.5 text-sm border-b-2 transition ${tab === k ? 'border-accent text-ok-ink font-medium' : 'border-transparent text-faint hover:text-ink'}`}>
               <span className="mr-1">{icon}</span>{label}
             </button>
           ))}
@@ -263,10 +263,10 @@ function WoHeader({ order, onRefresh }: { order: WO; onRefresh: () => void }) {
         <div>
           <div className="text-[11px] uppercase tracking-wider text-faint font-semibold">Onaylar</div>
           <div className="flex flex-col gap-1 mt-1.5 text-xs">
-            <span className={order.tech_pack_onaylandi ? 'text-accent-ink' : 'text-warn'}>
+            <span className={order.tech_pack_onaylandi ? 'text-ok-ink' : 'text-warn'}>
               {order.tech_pack_onaylandi ? '✓' : '○'} Tech Pack onaylandı
             </span>
-            <span className={order.sample_onaylandi ? 'text-accent-ink' : 'text-warn'}>
+            <span className={order.sample_onaylandi ? 'text-ok-ink' : 'text-warn'}>
               {order.sample_onaylandi ? '✓' : '○'} Numune onaylandı
             </span>
             <span className={order.paylasim_admin ? 'text-muted' : 'text-faint'}>
@@ -474,18 +474,18 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
       <div className="flex items-center gap-2">
         {!showAdd ? (
           <button onClick={() => setShowAdd(true)}
-            className="text-sm px-4 py-2 bg-surface border border-dashed border-line rounded-lg hover:border-line hover:bg-accent-soft/30 text-muted flex items-center gap-2">
+            className="text-sm px-4 py-2 bg-surface border border-dashed border-line rounded-lg hover:border-line hover:bg-ok-soft/30 text-muted flex items-center gap-2">
             <span className="text-lg leading-none">+</span> Opsiyonel Aşama Ekle
           </button>
         ) : (
-          <div className="flex-1 bg-accent-soft border border-line-soft rounded-lg p-3 flex items-center gap-2 flex-wrap">
+          <div className="flex-1 bg-ok-soft border border-line-soft rounded-lg p-3 flex items-center gap-2 flex-wrap">
             <span className="text-xs text-ink font-medium">Hangi aşama eklensin?</span>
             {eklenebilir.length === 0 ? (
               <span className="text-xs text-faint italic">Tüm katalog aşamaları zaten eklenmiş.</span>
             ) : (
               eklenebilir.map(c => (
                 <button key={c.id} onClick={() => addStage(c.id)}
-                  className="text-xs px-3 py-1.5 bg-surface border border-line hover:bg-accent-soft rounded-md flex items-center gap-1.5">
+                  className="text-xs px-3 py-1.5 bg-surface border border-line hover:bg-ok-soft rounded-md flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.renk }} />
                   {c.name}
                 </button>
@@ -612,7 +612,7 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           <Badge cls="bg-danger-soft text-danger">+{stage.gecikme_gun}g gecikme</Badge>
         )}
         {stage.gecikme_gun != null && stage.gecikme_gun < 0 && (
-          <Badge cls="bg-accent-soft text-accent-ink">{Math.abs(stage.gecikme_gun)}g erken</Badge>
+          <Badge cls="bg-ok-soft text-ok-ink">{Math.abs(stage.gecikme_gun)}g erken</Badge>
         )}
 
         {/* Bant seçici inline */}
@@ -697,10 +697,10 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
         {/* GERÇEK kolonu */}
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-accent-ink font-semibold">⏱ Gerçek</span>
+            <span className="text-[11px] uppercase tracking-wider text-ok-ink font-semibold">⏱ Gerçek</span>
             {!editGercek && (
               <button onClick={() => setEditGercek(true)}
-                className="text-xs text-accent-ink hover:text-accent-ink">✏ Değiştir</button>
+                className="text-xs text-ok-ink hover:text-ok-ink">✏ Değiştir</button>
             )}
           </div>
           {!editGercek ? (
@@ -712,17 +712,17 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
               </div>
             </div>
           ) : (
-            <div className="space-y-2 bg-accent-soft -m-1 p-3 rounded">
+            <div className="space-y-2 bg-ok-soft -m-1 p-3 rounded">
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[11px] text-muted block">Gerçek Başlangıç</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekStart} onChange={e => setGercekStart(e.target.value)} />
-                  <button onClick={() => setGercekStart(todayISO())} className="text-[11px] text-accent-ink hover:text-accent-ink mt-0.5">→ Bugün</button>
+                  <button onClick={() => setGercekStart(todayISO())} className="text-[11px] text-ok-ink hover:text-ok-ink mt-0.5">→ Bugün</button>
                 </div>
                 <div>
                   <label className="text-[11px] text-muted block">Gerçek Bitiş</label>
                   <input type="date" className="w-full text-sm px-2 py-1 border border-line rounded" value={gercekEnd} onChange={e => setGercekEnd(e.target.value)} />
-                  <button onClick={() => setGercekEnd(todayISO())} className="text-[11px] text-accent-ink hover:text-accent-ink mt-0.5">→ Bugün</button>
+                  <button onClick={() => setGercekEnd(todayISO())} className="text-[11px] text-ok-ink hover:text-ok-ink mt-0.5">→ Bugün</button>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -1009,11 +1009,11 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                   {j.stage_name && <Badge cls="bg-canvas text-muted">📊 {j.stage_name}</Badge>}
                   <span className="text-xs text-faint">{j.tarih} · {j.vardiya}</span>
                   {j.paylasim_admin && <Badge cls="bg-canvas text-muted">🔗 Admin paylaşımda</Badge>}
-                  {j.resolved && <Badge cls="bg-accent-soft text-accent-ink">✓ Çözüldü</Badge>}
+                  {j.resolved && <Badge cls="bg-ok-soft text-ok-ink">✓ Çözüldü</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
                   {!j.resolved && j.tip === 'PROBLEM' && (
-                    <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-accent-soft text-accent-ink rounded hover:brightness-95">Çözüldü</button>
+                    <button onClick={() => resolveEntry(j)} className="text-xs px-2 py-0.5 bg-ok-soft text-ok-ink rounded hover:brightness-95">Çözüldü</button>
                   )}
                   <button onClick={() => togglePaylasim(j)} className="text-xs px-2 py-0.5 bg-canvas hover:bg-line-soft rounded" title="Admin paylaşımını aç/kapat">🔗</button>
                   <button onClick={() => del(j.id)} className="text-xs text-danger px-1">×</button>
@@ -1028,7 +1028,7 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
               )}
               {j.resolved && j.resolved_notlar && (
                 <div className="mt-2 pl-3 border-l-2 border-line text-xs text-muted">
-                  <span className="font-semibold text-accent-ink">Çözüm Notu: </span>{j.resolved_notlar}
+                  <span className="font-semibold text-ok-ink">Çözüm Notu: </span>{j.resolved_notlar}
                 </div>
               )}
               {j.yazan && <div className="text-[11px] text-faint mt-2">— {j.yazan}</div>}
@@ -1069,7 +1069,7 @@ type CekmeTesti = {
   sonuc: string; yapan: string | null; notlar: string | null
 }
 const CEKME_SONUC_RENK: Record<string, string> = {
-  UYGUN: 'bg-accent-soft text-accent-ink', 'RİSKLİ': 'bg-warn-soft text-warn',
+  UYGUN: 'bg-ok-soft text-ok-ink', 'RİSKLİ': 'bg-warn-soft text-warn',
   RED: 'bg-danger-soft text-danger', BEKLIYOR: 'bg-canvas text-muted',
 }
 function CekmeTestiTab({ woId }: { woId: number }) {

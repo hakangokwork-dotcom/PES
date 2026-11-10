@@ -115,7 +115,7 @@ function YikamaUkpPage() {
               <div className="mt-3 bg-canvas rounded-lg p-3 grid grid-cols-1 gap-3 md:grid-cols-3 text-sm">
                 <div><span className="text-xs text-muted">Kişi Başı Günlük</span><p className="font-bold">{Math.round(uForm.paket_adet / uForm.personel_sayisi)} adet</p></div>
                 <div><span className="text-xs text-muted">Adet Başı Süre</span><p className="font-bold">{(uForm.calisma_dk / uForm.paket_adet).toFixed(1)} dk</p></div>
-                <div><span className="text-xs text-muted">Hata Oranı</span><p className={`font-bold ${uForm.hatali_adet / uForm.kontrol_adet > 0.03 ? 'text-danger' : 'text-accent-ink'}`}>{uForm.kontrol_adet > 0 ? (uForm.hatali_adet / uForm.kontrol_adet * 100).toFixed(1) : '0'}%</p></div>
+                <div><span className="text-xs text-muted">Hata Oranı</span><p className={`font-bold ${uForm.hatali_adet / uForm.kontrol_adet > 0.03 ? 'text-danger' : 'text-ok-ink'}`}>{uForm.kontrol_adet > 0 ? (uForm.hatali_adet / uForm.kontrol_adet * 100).toFixed(1) : '0'}%</p></div>
               </div>
             )}
             <button onClick={saveUkp} disabled={saving} className="mt-3 px-6 py-2 bg-accent text-white rounded-lg text-sm font-medium disabled:opacity-50">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>

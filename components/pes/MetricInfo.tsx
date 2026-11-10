@@ -14,7 +14,7 @@ interface MetricInfoProps {
 }
 
 const COLOR_CLASSES: Record<string, string> = {
-  green:  'bg-accent-soft  text-accent-ink  border-line-soft',
+  green:  'bg-ok-soft  text-ok-ink  border-line-soft',
   amber:  'bg-warn-soft  text-warn  border-line-soft',
   red:    'bg-danger-soft    text-danger    border-danger-line',
   blue:   'bg-canvas   text-muted   border-line',
@@ -50,7 +50,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="inline-flex items-center justify-center rounded-full text-faint hover:text-accent-ink hover:bg-accent-soft transition-colors"
+        className="inline-flex items-center justify-center rounded-full text-faint hover:text-ok-ink hover:bg-ok-soft transition-colors"
         style={{ width: size + 4, height: size + 4 }}
         title={`${metric.label} — formül & kaynak`}
         aria-label={`${metric.label} bilgisi`}
@@ -102,7 +102,7 @@ export default function MetricInfo({ metricKey, value, size = 14, iconOnly = tru
                 <li key={i} className="flex items-start gap-2">
                   <span className="text-faint mt-0.5">•</span>
                   <div>
-                    <span className="font-mono text-accent-ink">
+                    <span className="font-mono text-ok-ink">
                       {s.table}{s.column ? `.${s.column}` : ''}
                     </span>
                     {s.label && <span className="text-faint ml-1">— {s.label}</span>}

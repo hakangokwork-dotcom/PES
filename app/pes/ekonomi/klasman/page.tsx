@@ -184,7 +184,7 @@ export default async function KlasmanSayfasi({
                     </td>
                     <td className={`px-3 py-2 text-right tabular-nums ${
                       o.medyanMarj === null ? 'text-faint'
-                        : o.medyanMarj < 0 ? 'text-rose-700' : 'text-accent-ink'}`}>
+                        : o.medyanMarj < 0 ? 'text-rose-700' : 'text-ok-ink'}`}>
                       {fmtRasyo(meta('marj'), o.medyanMarj)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
@@ -240,7 +240,7 @@ export default async function KlasmanSayfasi({
                           const v = a.rasyolar[alan]
                           const m = meta(alan)
                           const renk = v === null ? 'text-faint'
-                            : alan === 'marj' ? (v < 0 ? 'text-rose-700' : 'text-accent-ink')
+                            : alan === 'marj' ? (v < 0 ? 'text-rose-700' : 'text-ok-ink')
                             : ''
                           return (
                             <td key={alan} className={`px-3 py-2 text-right tabular-nums ${renk}`}>

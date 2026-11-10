@@ -83,7 +83,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
               const a = gecerlilikAraligi(tumDonemler, d.donem)
               const gecerli = d.donem === gecerliDonem
               return (
-                <tr key={d.donem} className={`border-t ${gecerli ? 'bg-accent-soft' : ''}`}>
+                <tr key={d.donem} className={`border-t ${gecerli ? 'bg-ok-soft' : ''}`}>
                   <td className="px-3 py-2 font-medium tabular-nums">
                     {d.donem}
                     {gecerli && <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-accent text-white">bugün geçerli</span>}
@@ -95,7 +95,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
                       <td key={b} className="px-3 py-2 text-right tabular-nums">
                         {tl(d.degerler[b])}
                         {o !== null && o !== 0 && (
-                          <span className={`block text-xs ${o > 0 ? 'text-rose-600' : 'text-accent-ink'}`}>{yuzde(o)}</span>
+                          <span className={`block text-xs ${o > 0 ? 'text-rose-600' : 'text-ok-ink'}`}>{yuzde(o)}</span>
                         )}
                       </td>
                     )
@@ -145,7 +145,7 @@ export default function Yonetim({ donemler, buAy }: { donemler: DonemSatiri[]; b
           className="px-4 py-2 rounded bg-slate-900 text-white disabled:opacity-50">
           {durum.tur === 'gonderiliyor' ? 'Kaydediliyor…' : `${donem} için kaydet`}
         </button>
-        {durum.tur === 'ok' && <p className="text-sm text-accent-ink">{durum.metin}</p>}
+        {durum.tur === 'ok' && <p className="text-sm text-ok-ink">{durum.metin}</p>}
         {durum.tur === 'hata' && <p className="text-sm text-rose-700">{durum.metin}</p>}
       </form>
     </div>

@@ -16,7 +16,7 @@ describe('manifest', () => {
   })
 
   it('tema rengi mevcut vurgu yeşilidir', () => {
-    expect(m.theme_color).toBe('#197A56')
+    expect(m.theme_color).toBe('#B5532F')
     expect(m.background_color).toBe('#F6F8F9')
   })
 

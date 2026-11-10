@@ -169,7 +169,7 @@ export default function YetenekEditoru({
       {mesaj && (
         <div className={`text-sm px-4 py-2 rounded-lg border ${
           mesaj.tip === 'ok'
-            ? 'bg-accent-soft border-line-soft text-accent-ink'
+            ? 'bg-ok-soft border-line-soft text-ok-ink'
             : 'bg-danger-soft border-danger-line text-danger'}`}>
           {mesaj.metin}
         </div>
@@ -204,7 +204,7 @@ export default function YetenekEditoru({
                       value={seviye}
                       onChange={(e) => seviyeAyarla(b.code, v.code, Number(e.target.value))}
                       title="Yetkinlik seviyesi"
-                      className="bg-accent-soft text-accent-ink text-xs px-1.5 border-l border-accent focus:outline-none cursor-pointer"
+                      className="bg-ok-soft text-ok-ink text-xs px-1.5 border-l border-accent focus:outline-none cursor-pointer"
                     >
                       {[0, 1, 2, 3].map((s) => (
                         <option key={s} value={s}>{s} · {SEVIYE_ETIKET[s]}</option>

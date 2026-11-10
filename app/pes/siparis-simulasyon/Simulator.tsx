@@ -42,7 +42,7 @@ function Varsayim({ kaynak }: { kaynak?: string }) {
   const olcum = kaynak === 'olcum'
   return (
     <span className={`ml-1 align-middle text-[10px] px-1 py-0.5 rounded ${
-      olcum ? 'bg-accent-soft text-accent-ink' : 'bg-warn-soft text-warn'}`}>
+      olcum ? 'bg-ok-soft text-ok-ink' : 'bg-warn-soft text-warn'}`}>
       {olcum ? 'ölçüm' : kaynak === 'beyan' ? 'beyan' : 'varsayım'}
     </span>
   )
@@ -178,7 +178,7 @@ export default function Simulator({
           <div className="mt-1 font-semibold tabular-nums">{tl2.format(kararliBirimDk)} dk</div>
           <div className="text-[11px] text-faint">
             {tl.format(bulten.dikimSn)} sn ÷ 60 ÷ {pct.format(effSewing)}
-            <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-accent-soft text-accent-ink">ölçüm</span>
+            <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-ok-soft text-ok-ink">ölçüm</span>
           </div>
         </div>
       </section>
@@ -278,7 +278,7 @@ export default function Simulator({
                   süre {d > 0 ? '+' : ''}{pct.format(d)}
                 </div>
                 <div className={`text-lg font-semibold tabular-nums ${
-                  (c ?? 0) > 0 ? 'text-accent-ink' : 'text-danger'}`}>
+                  (c ?? 0) > 0 ? 'text-ok-ink' : 'text-danger'}`}>
                   {c === null ? '—' : `${c > 0 ? '+' : ''}${pct.format(c)}`}
                 </div>
                 <div className="text-[11px] text-faint">çıktı</div>

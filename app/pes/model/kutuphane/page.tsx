@@ -14,7 +14,7 @@ import { withServerTenant } from '@/lib/supabase/tenant-server'
 export const dynamic = 'force-dynamic'
 
 const GUVEN_RENK: Record<string, string> = {
-  YUKSEK: 'bg-accent-soft text-accent-ink',
+  YUKSEK: 'bg-ok-soft text-ok-ink',
   ORTA: 'bg-warn-soft text-warn',
   DUSUK: 'bg-rose-100 text-rose-800',
   TEK_OLCUM: 'bg-canvas text-muted',

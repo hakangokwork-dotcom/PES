@@ -136,7 +136,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-medium text-ink">Sürüm {r.revision_no}</span>
                           {r.is_current ? (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-accent-soft text-accent-ink font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-ok-soft text-ok-ink font-medium">
                               geçerli
                             </span>
                           ) : (
@@ -173,7 +173,7 @@ export default function RevisionHistory({ rows }: { rows: Row[] }) {
                                   <span className="text-faint">→</span>
                                   <span className="font-medium text-ink">{fmt(c.to)}</span>
                                   {c.pct !== null && (
-                                    <span className={c.pct > 0 ? 'text-danger' : 'text-accent-ink'}>
+                                    <span className={c.pct > 0 ? 'text-danger' : 'text-ok-ink'}>
                                       {c.pct > 0 ? '+' : ''}{c.pct.toFixed(1)}%
                                     </span>
                                   )}

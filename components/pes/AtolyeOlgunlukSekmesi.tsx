@@ -186,7 +186,7 @@ export default function AtolyeOlgunlukSekmesi({
                     <td className="px-3 py-1.5 text-muted">{d.denetci ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-1.5">
                       <Link href={`/pes/olgunluk/denetim/${d.denetim_id}`}
-                            className="text-accent-ink underline underline-offset-2">
+                            className="text-ok-ink underline underline-offset-2">
                         {d.durum === 'taslak' ? 'Devam et' : 'Aç'}
                       </Link>
                     </td>

@@ -111,7 +111,7 @@ function WorkshopModelsPage() {
       </div>
 
       {error && <div className="bg-danger-soft border border-danger-line text-danger text-sm px-4 py-2 rounded-lg">{error}</div>}
-      {message && <div className="bg-accent-soft border border-line-soft text-accent-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
+      {message && <div className="bg-ok-soft border border-line-soft text-ok-ink text-sm px-4 py-2 rounded-lg">{message}</div>}
 
       {/* Yeni Model Formu */}
       {showForm && (
@@ -128,7 +128,7 @@ function WorkshopModelsPage() {
             <thead><tr className="border-b border-line-soft"><th className="py-2 text-left text-faint">Süreç</th><th className="py-2 text-right text-faint w-28">SAM (sn)</th><th className="py-2 text-center text-faint w-24">Kaynak</th></tr></thead>
             <tbody className="divide-y divide-line-soft">
               {samEntries.map((e, i) => (
-                <tr key={i} className={e.sam_minutes > 0 ? 'bg-accent-soft' : ''}>
+                <tr key={i} className={e.sam_minutes > 0 ? 'bg-ok-soft' : ''}>
                   <td className="py-2 text-body">{e.process_name}</td>
                   <td className="py-2 text-right"><input type="number" inputMode="decimal" className="w-24 px-2 py-1.5 border border-line rounded text-sm text-right" value={e.sam_minutes || ''} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, sam_minutes: parseFloat(ev.target.value)||0} : s))} step={0.1} placeholder="0" /></td>
                   <td className="py-2 text-center"><select className="px-2 py-1 border border-line rounded text-sm" value={e.source} onChange={ev => setSamEntries(p => p.map((s, j) => j === i ? {...s, source: ev.target.value} : s))}><option value="Pratik">Pratik</option><option value="MTM">MTM</option></select></td>

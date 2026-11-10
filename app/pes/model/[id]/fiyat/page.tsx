@@ -120,7 +120,7 @@ export default async function FiyatSayfasi({
             <tbody>
               {fiyatlar.map((r: Record<string, unknown>) => {
                 const marj = r.marj === null ? null : Number(r.marj)
-                const renk = marj === null ? '' : marj >= hedefMarj ? 'text-accent-ink'
+                const renk = marj === null ? '' : marj >= hedefMarj ? 'text-ok-ink'
                   : marj >= 0 ? 'text-warn' : 'text-rose-700'
                 const asim = r.kapasite_payi !== null && Number(r.kapasite_payi) > 1
                 return (

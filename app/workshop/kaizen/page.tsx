@@ -8,7 +8,7 @@ interface KaizenItem { id: number; baslik: string; kategori: string; hedef_metri
 
 const KATEGORILER = ['DARBOGAZ', 'WIP', 'KALITE', 'MALIYET', 'CHANGEOVER', 'GENEL']
 const DURUMLAR = ['PLAN', 'UYGULA', 'KONTROL', 'STANDART', 'IPTAL']
-const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-warn-soft text-warn', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-accent-soft text-accent-ink', IPTAL: 'bg-canvas text-faint' }
+const durumColor: Record<string, string> = { PLAN: 'bg-canvas text-muted', UYGULA: 'bg-warn-soft text-warn', KONTROL: 'bg-canvas text-muted', STANDART: 'bg-ok-soft text-ok-ink', IPTAL: 'bg-canvas text-faint' }
 const durumLabel: Record<string, string> = { PLAN: 'Plan', UYGULA: 'Uygula', KONTROL: 'Kontrol', STANDART: 'Standart', IPTAL: 'Iptal' }
 
 export default function Wrapper() {
@@ -77,9 +77,9 @@ function KaizenPage() {
           <p className="text-3xl font-bold text-muted">{kontrolCount}</p>
           <p className="text-xs text-muted">KONTROL (CHECK)</p>
         </div>
-        <div className="bg-accent-soft border border-line-soft rounded-xl p-4 text-center">
-          <p className="text-3xl font-bold text-accent-ink">{standartCount}</p>
-          <p className="text-xs text-accent-ink">STANDART (ACT)</p>
+        <div className="bg-ok-soft border border-line-soft rounded-xl p-4 text-center">
+          <p className="text-3xl font-bold text-ok-ink">{standartCount}</p>
+          <p className="text-xs text-ok-ink">STANDART (ACT)</p>
         </div>
       </div>
 
@@ -118,7 +118,7 @@ function KaizenPage() {
                   {a.hedef_metrik && (
                     <p className="text-sm text-faint mt-1">
                       {a.hedef_metrik}: {Number(a.mevcut_deger)} → {Number(a.hedef_deger)}
-                      {a.sonuc_deger !== null && <span className={`ml-2 font-bold ${Number(a.sonuc_deger) >= Number(a.hedef_deger) ? 'text-accent-ink' : 'text-danger'}`}>Sonuc: {Number(a.sonuc_deger)}</span>}
+                      {a.sonuc_deger !== null && <span className={`ml-2 font-bold ${Number(a.sonuc_deger) >= Number(a.hedef_deger) ? 'text-ok-ink' : 'text-danger'}`}>Sonuc: {Number(a.sonuc_deger)}</span>}
                     </p>
                   )}
                   <p className="text-xs text-faint mt-0.5">{a.sorumlu || '---'} | {a.baslangic_tarihi ? `${a.baslangic_tarihi} → ${a.bitis_tarihi || '...'}` : '---'}</p>

@@ -74,7 +74,7 @@ export default function Form({ tanimlar, donem, mevcut }: {
       </button>
 
       {durum === 'kaydedildi' && etki && (
-        <p className="text-sm text-accent-ink">
+        <p className="text-sm text-ok-ink">
           Kaydedildi. {yeniDonem} ve sonrasındaki {etki.satir} ekonomi satırı
           ({etki.atolye} atölye) artık bu değerlerle hesaplanıyor.
         </p>

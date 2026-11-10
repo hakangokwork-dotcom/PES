@@ -12,6 +12,10 @@ PES, fason üretim yaptıran bir **merkez** ile onun **fason atölyeleri** aras�
 
 Vizyon ve ticari çerçeve: `PLATFORM_VISION_v3.md`, `MODULE_CATALOG.md`, `COMMERCIAL_ROADMAP.md` (Nisan 2026 SaaS pivotu; portal amacı oraya henüz işlenmedi).
 
+## Proje wiki'si
+
+`_wiki_PES/` (Karpathy LLM Wiki deseni): modüller, kavramlar, veri nesneleri, kararlar ve dersler. Proje hakkında soru gelince önce `_wiki_PES/index.md`; wiki işlemleri `_wiki_PES/CLAUDE.md` şemasına uyar. Bir iş kalıcı bir ders ya da karar ürettiyse ilgili sayfayı güncelle ve `log.md`'ye yaz.
+
 ## İki panel
 
 | Panel | Yol | Kim | Koruma |

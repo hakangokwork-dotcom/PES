@@ -17,3 +17,8 @@ Yalnız sona eklenir. Biçim [[CLAUDE]]'da.
 ## [2026-11-10] ingest | v1.16.0 tasarım dili
 - oluşturuldu: kararlar/2026-11-10-tasarim-dili.md
 - güncellendi: index.md
+
+## [2026-11-17] ingest | migration 057, atölye gider beyanı 2026-09
+- veri: 20 atölyenin gider beyanı `monthly_expense` 2026-09'a ayrı kayıt olarak yazıldı; 2026-08 kayıtlarına (11 atölye) dokunulmadı. Ham satırlar `expense_declaration_staging`'de.
+- yeni atölye: KARATUR (B115), AYAZ EFE (B116). KARTAL FASHION = KARTAL TEKSTİL (B056, pasif).
+- ders: havuz (6543) üzerinden `SET default_transaction_read_only = on` oturumda kalmaz, havuzdaki bağlantıda kalır ve sonraki yazmayı bozar. Salt okunur sorgu için `BEGIN READ ONLY` kullan.

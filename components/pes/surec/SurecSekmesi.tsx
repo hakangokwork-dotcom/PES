@@ -2,7 +2,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Badge } from '@/components/ui'
+import { Badge, Button } from '@/components/ui'
 import AdimSartname, { type SartnameOzet } from './AdimSartname'
 import AdimKumas from './AdimKumas'
 import AdimCekme from './AdimCekme'
@@ -23,13 +23,26 @@ const SONRAKI = ['Pastal / kesim', 'Kesim ve dikim kontrol', 'Yıkamaya sevk', '
 export default function SurecSekmesi({ woId }: { woId: number }) {
   const [d, setD] = useState<{ durum: SurecDurumu; sartnameler: SartnameOzet[] } | null>(null)
   const [acik, setAcik] = useState<number | null>(null)
+  const [hata, setHata] = useState<string | null>(null)
 
   const yukle = useCallback(async () => {
-    const r = await fetch(`/api/pes/work-orders/${woId}/surec`)
-    if (r.ok) setD(await r.json())
+    setHata(null)
+    try {
+      const r = await fetch(`/api/pes/work-orders/${woId}/surec`)
+      if (r.ok) { setD(await r.json()); return }
+      setHata((await r.json().catch(() => null))?.error ?? 'Süreç bilgisi alınamadı')
+    } catch {
+      setHata('Sunucuya ulaşılamadı')
+    }
   }, [woId])
   useEffect(() => { yukle() }, [yukle])
 
+  if (hata && !d) return (
+    <div className="flex items-center gap-3 text-sm">
+      <span className="text-danger">{hata}</span>
+      <Button size="sm" variant="secondary" onClick={yukle}>Tekrar dene</Button>
+    </div>
+  )
   if (!d) return <div className="text-faint text-sm">Yükleniyor…</div>
   const { durum } = d
 

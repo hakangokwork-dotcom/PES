@@ -50,8 +50,10 @@ export default function AdimKumas({ woId, onDegisti }: { woId: number; onDegisti
   }
 
   async function sil(t: Top) {
-    if (!confirm(`${t.top_no} numaralı top silinsin mi? Testleri de silinir.`)) return
-    await fetch(`/api/pes/work-orders/${woId}/toplar?top=${t.id}`, { method: 'DELETE' })
+    if (!confirm(`${t.top_no} numaralı top silinsin mi?`)) return
+    setHata(null)
+    const r = await fetch(`/api/pes/work-orders/${woId}/toplar?top=${t.id}`, { method: 'DELETE' })
+    if (!r.ok) setHata((await r.json()).error ?? 'Silinemedi')
     await yukle(); onDegisti()
   }
 

@@ -16,22 +16,28 @@ type Test = {
 type Grup = { cekme_grubu: string; top_sayisi: number; cozgu_ort: string; cozgu_min: string; cozgu_max: string; atki_ort: string; atki_min: string; atki_max: string }
 
 const SONUC_TON = { UYGUN: 'good', 'RİSKLİ': 'warn', RED: 'bad', BEKLIYOR: 'neutral' } as const
-const bugun = () => new Date().toISOString().slice(0, 10)
-const BOS = { topId: '', tarih: bugun(), yikamaReceti: '', hedefRenk: '', yikamaSayisi: '1', boyCekme: '', enCekme: '', mayKaymasi: '', tonDegerlendirme: '', sonuc: 'UYGUN', yapan: '', notlar: '' }
+// Yerel gün; toISOString UTC verir ve gece yarısından sonra dünü yazardı. Her sıfırlamada yeniden hesaplanır.
+const bos = () => ({ topId: '', tarih: new Date().toLocaleDateString('sv-SE'), yikamaReceti: '', hedefRenk: '', yikamaSayisi: '1', boyCekme: '', enCekme: '', mayKaymasi: '', tonDegerlendirme: '', sonuc: 'UYGUN', yapan: '', notlar: '' })
+type Form = ReturnType<typeof bos>
+type Grupla = { ton_grubu: string; cekme_grubu: string }
 
 export default function AdimCekme({ woId, onDegisti }: { woId: number; onDegisti: () => void }) {
   const [testler, setTestler] = useState<Test[]>([])
   const [toplar, setToplar] = useState<Top[]>([])
   const [gruplar, setGruplar] = useState<Grup[]>([])
-  const [yeni, setYeni] = useState(BOS)
+  const [yeni, setYeni] = useState(bos)
   const [hata, setHata] = useState<string | null>(null)
+  // Gruplama ızgarası: top id → ekrandaki (kaydedilmemiş olabilir) değerler
+  const [grup, setGrup] = useState<Record<number, Grupla>>({})
 
   const yukle = useCallback(async () => {
     const [a, b] = await Promise.all([
       fetch(`/api/pes/work-orders/${woId}/cekme-testi`).then(r => r.json()),
       fetch(`/api/pes/work-orders/${woId}/toplar`).then(r => r.json()),
     ])
-    setTestler(a.testler ?? []); setToplar(b.toplar ?? []); setGruplar(b.gruplar ?? [])
+    const tl: Top[] = b.toplar ?? []
+    setTestler(a.testler ?? []); setToplar(tl); setGruplar(b.gruplar ?? [])
+    setGrup(Object.fromEntries(tl.map(t => [t.id, { ton_grubu: t.ton_grubu ?? '', cekme_grubu: t.cekme_grubu ?? '' }])))
   }, [woId])
   useEffect(() => { yukle() }, [yukle])
 
@@ -42,27 +48,30 @@ export default function AdimCekme({ woId, onDegisti }: { woId: number; onDegisti
     })
     const d = await r.json()
     if (!r.ok) { setHata(d.error ?? 'Kaydedilemedi'); return }
-    setYeni({ ...BOS, tarih: yeni.tarih, yikamaReceti: yeni.yikamaReceti, hedefRenk: yeni.hedefRenk, yapan: yeni.yapan })
+    setYeni({ ...bos(), tarih: yeni.tarih, yikamaReceti: yeni.yikamaReceti, hedefRenk: yeni.hedefRenk, yapan: yeni.yapan })
     await yukle(); onDegisti()
   }
 
   async function sil(id: number) {
     if (!confirm('Bu test kaydı silinsin mi?')) return
-    await fetch(`/api/pes/work-orders/${woId}/cekme-testi?testId=${id}`, { method: 'DELETE' })
+    setHata(null)
+    const r = await fetch(`/api/pes/work-orders/${woId}/cekme-testi?testId=${id}`, { method: 'DELETE' })
+    if (!r.ok) setHata((await r.json()).error ?? 'Silinemedi')
     await yukle(); onDegisti()
   }
 
-  async function grupYaz(t: Top, alan: 'ton_grubu' | 'cekme_grubu', deger: string) {
-    if ((t[alan] ?? '') === deger.trim()) return
+  /* Ton ve çekme grubu tek istekte: iki ayrı yazım ikinci 409'a düşmesin. */
+  async function grupKaydet(t: Top) {
     setHata(null)
     const r = await fetch(`/api/pes/work-orders/${woId}/toplar?top=${t.id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json', ...surumBasligi(t) }, body: JSON.stringify({ [alan]: deger }),
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', ...surumBasligi(t) }, body: JSON.stringify(grup[t.id]),
     })
     if (!r.ok) setHata((await r.json()).error ?? 'Kaydedilemedi')
     await yukle(); onDegisti()
   }
+  const grupYaz = (id: number, alan: keyof Grupla, v: string) => setGrup(gs => ({ ...gs, [id]: { ...gs[id], [alan]: v } }))
 
-  const g = (k: keyof typeof BOS, etiket: string, ek: Partial<React.ComponentProps<typeof Input>> = {}) => (
+  const g = (k: keyof Form, etiket: string, ek: Partial<React.ComponentProps<typeof Input>> = {}) => (
     <Field label={etiket}><Input value={yeni[k]} onChange={e => setYeni({ ...yeni, [k]: e.target.value })} {...ek} /></Field>
   )
 
@@ -82,9 +91,10 @@ export default function AdimCekme({ woId, onDegisti }: { woId: number; onDegisti
         {g('yikamaReceti', 'Yıkama reçetesi / rev.')}
         {g('hedefRenk', 'Hedef renk (C1…)')}
         {g('yikamaSayisi', 'Yıkama sayısı', { inputMode: 'numeric', align: 'right' })}
-        {g('boyCekme', 'Çözgü (boy) %', { inputMode: 'decimal', align: 'right' })}
-        {g('enCekme', 'Atkı (en) %', { inputMode: 'decimal', align: 'right' })}
-        {g('mayKaymasi', 'Dönme %', { inputMode: 'decimal', align: 'right' })}
+        {/* inputMode text: iOS'un ondalık klavyesinde eksi yok; çekme negatif yazılır. */}
+        {g('boyCekme', 'Çözgü (boy) %', { inputMode: 'text', align: 'right' })}
+        {g('enCekme', 'Atkı (en) %', { inputMode: 'text', align: 'right' })}
+        {g('mayKaymasi', 'Dönme %', { inputMode: 'text', align: 'right' })}
         {g('tonDegerlendirme', 'Ton değerlendirmesi')}
         <Field label="Sonuç">
           <Select value={yeni.sonuc} onChange={e => setYeni({ ...yeni, sonuc: e.target.value })}>
@@ -113,7 +123,7 @@ export default function AdimCekme({ woId, onDegisti }: { woId: number; onDegisti
                   <td className="num text-right">{t.may_kaymasi_pct ?? '—'}</td>
                   <td className="text-xs">{t.ton_degerlendirme ?? '—'}</td>
                   <td><Badge tone={SONUC_TON[t.sonuc]}>{t.sonuc}</Badge></td>
-                  <td><button onClick={() => sil(t.id)} className="text-xs text-danger hover:underline">Sil</button></td>
+                  <td>{t.top_id === null && <button onClick={() => sil(t.id)} className="text-xs text-danger hover:underline">Sil</button>}</td>
                 </tr>
               ))}
             </tbody>
@@ -126,16 +136,21 @@ export default function AdimCekme({ woId, onDegisti }: { woId: number; onDegisti
           <h4 className="text-sm font-medium text-ink">Gruplama</h4>
           <p className="text-xs text-faint">Topları yıkama sonrası renk ve çekme davranışına göre gruplayın. İki lot aynı gruba girebilir, bir lot birkaç gruba ayrılabilir. Hem ortalamaya hem aralığa bakın.</p>
           <table className="w-full text-sm">
-            <thead className="text-left text-xs text-faint"><tr><th className="py-1">Lot · top</th><th>Durum</th><th>Ton grubu</th><th>Çekme grubu</th></tr></thead>
+            <thead className="text-left text-xs text-faint"><tr><th className="py-1">Lot · top</th><th>Durum</th><th>Ton grubu</th><th>Çekme grubu</th><th></th></tr></thead>
             <tbody>
-              {toplar.map(t => (
-                <tr key={`${t.id}-${t.girildi_at}`} className="border-t border-line-soft">
-                  <td className="py-1">{t.tedarikci_lotu} · {t.top_no}</td>
-                  <td className="text-xs">{t.durum}</td>
-                  <td><div className="w-24"><Input defaultValue={t.ton_grubu ?? ''} onBlur={e => grupYaz(t, 'ton_grubu', e.target.value)} /></div></td>
-                  <td><div className="w-24"><Input defaultValue={t.cekme_grubu ?? ''} onBlur={e => grupYaz(t, 'cekme_grubu', e.target.value)} /></div></td>
-                </tr>
-              ))}
+              {toplar.map(t => {
+                const v = grup[t.id] ?? { ton_grubu: '', cekme_grubu: '' }
+                const degisti = v.ton_grubu.trim() !== (t.ton_grubu ?? '') || v.cekme_grubu.trim() !== (t.cekme_grubu ?? '')
+                return (
+                  <tr key={t.id} className="border-t border-line-soft">
+                    <td className="py-1">{t.tedarikci_lotu} · {t.top_no}</td>
+                    <td className="text-xs">{t.durum}</td>
+                    <td><div className="w-24"><Input value={v.ton_grubu} onChange={e => grupYaz(t.id, 'ton_grubu', e.target.value)} /></div></td>
+                    <td><div className="w-24"><Input value={v.cekme_grubu} onChange={e => grupYaz(t.id, 'cekme_grubu', e.target.value)} /></div></td>
+                    <td><Button size="sm" variant="secondary" disabled={!degisti} onClick={() => grupKaydet(t)}>Kaydet</Button></td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           {gruplar.length > 0 && (

@@ -22,6 +22,18 @@ Akış: merkez PO'yu girer → kalemden iş emri açar, rota seçer → operasyo
 
 Varsayılan (itiraz yoksa geçerli): her firmanın kendi hesabı olur; firma atandığı operasyonu kabul/ret eder (044 gerekçe kodları); alıcı firma sevki sayarak teslim alır.
 
+### 2.1 Çerçeve düzeltmesi (kullanıcı, 2026-11-17) — bu bölüm aşağıdakilerle çelişirse bu geçerlidir
+
+> "ERP gibi davranmak istemiyorum, operasyonumu yönetmek istiyorum… önemli olan ne zaman neyi planladım, ne zaman ne gerçekleşti, bu gerçekleşmenin checklisti veya kalitesi istediğim şekilde oldu mu, nerede problem çıktı… 10 topu kabul edilecek 3 topu red edilip geri gönderilecek." — "Bu detayı bilmem ya da hafıza tutmam önemli."
+
+- **Odak operasyon yönetimi (TNA), stok/defter değil.** İş emri = planlı adımlar zinciri. Her adımda dört şey: **plan** (tarih, sorumlu firma), **gerçekleşen** (tarih; gecikme günü türetilir), **kontrol** (adımın kontrol listesi/formları ve kalite sonucu), **sorun** (neden kodu, etki, çözüm).
+- **Plan tarihleri elle girilir**, ama **her değişiklik saklanır**: ilk plan, her revizyon (kim, ne zaman, gerekçe kodu), güncel plan, gerçek. Tablo `adim_plan_gecmisi` (§4.6).
+- **Teslimat = kabul/red/iade, kalem bazında.** Sevk yerine teslimat: malzeme tipi Kumaş | Aksesuar | Yarı mamul | Mamul. Alıcı her kalemi (kumaşta top, aksesuarda kalem/parti) **kabul ya da red** eder, red nedeni ve foto ile; red edilenler için **iade** kaydı (irsaliye, tarih). Kumaş topu kabul/red sürüm 1'in `kumas_top.durum`'una yazılır.
+- **Hafıza kuralı:** hiçbir kayıt sessizce ezilmez ya da silinmez; düzeltme yeni kayıtla yapılır, ilk kayıt durur (plan revizyonu, test, kabul/red kararı, sorun çözümü).
+- **Miktar kuralları uyarıdır, engel değil** (§5'teki 1. madde uyarıya iner). Engel olarak kalanlar: ret edilmiş/firmasız adıma teslimat, zorunlu kontrol eksikken adımı Tamam yapmak, alıcı değişince gerekçe, kayıt silme.
+- **Sorun kaydı** mevcut `work_order_journal` (tip PROBLEM/BLOKAJ) üzerinden; adıma (`stage_id`, zaten var) ve isteğe bağlı teslimat kalemine bağlanır, neden kodu kataloğu eklenir.
+- **Panolar:** iş emri zaman çizelgesi (ilk plan / güncel plan / gerçek çubukları, geciken adım kırmızı); sorun panosu (adım × firma × neden); kontrol durumu (eksik kontrol listeleri, kötü kalite sonuçları).
+
 ## 3. SAP karşılıkları
 
 | SAP | PES | Durum |
@@ -114,6 +126,24 @@ sevk_kalem
 Alıcı firma sevkte değişirse hedef operasyonun `is_ortagi_id`'si de yeni firmaya geçer (o operasyonda başka firmadan teslim alınmış sevk yoksa); varsa sevk reddedilir: aynı operasyonu iki firma yapmaz — merkez operasyonu böler (sürüm 2c'de "operasyonu böl" kapsam dışı; bu durumda 422).
 
 Fotoğraflar: `surec_gorsel` (062) `adim='SEVK'`, `kayit_id = sevk.id`.
+
+### 4.6 Plan geçmişi, teslimat kabul/red/iade, sorun (çerçeve düzeltmesi §2.1)
+
+```
+adim_plan_gecmisi
+  id, stage_kayit_id → work_order_stage, plan_baslangic, plan_bitis, sorumlu_ortak_id,
+  gerekce_kodu NULL (ilk kayıtta NULL; sonrakilerde zorunlu — 044 kodları + 'MUSTERI_TALEBI'),
+  not_metni, giren_*, created_at
+  -- work_order_stage.plan_* her değiştiğinde tetikleyici eski değeri buraya yazar; ilk plan = en eski satır.
+
+sevk → teslimat olarak kullanılır (§4.4) + malzeme_tipi ('Kumaş'|'Aksesuar'|'Yarı mamul'|'Mamul'), iade_edilen_sevk_id NULL
+sevk_kalem + karar ('Bekliyor'|'Kabul'|'Red'), red_nedeni NULL, top_id NULL → kumas_top, aciklama
+  -- Kumaş teslimatında her top bir kalem; karar kumas_top.durum'a yansır (Kabul → Serbest değil Karantina→ test sonrası Serbest; Red → Red).
+  -- Red kalemler için "İade et": kaynak = alıcı, hedef = gönderen, iade_edilen_sevk_id = asıl teslimat.
+
+sorun_neden (katalog)  kod, ad, adim_tipi NULL   -- ör. KUMAS_HATA, EN_FARKI, TON_FARKI, GEC_GELDI, OLCU_DISI…
+work_order_journal (VAR) + teslimat_kalem_id NULL, neden_kodu NULL, etki ('Gecikme'|'Kalite'|'Maliyet'|'Diğer') NULL
+```
 
 ### 4.5 Görünümler (hesaplanan değerler yalnız burada)
 

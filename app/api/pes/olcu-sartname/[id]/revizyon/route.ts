@@ -1,13 +1,14 @@
 // app/api/pes/olcu-sartname/[id]/revizyon/route.ts
 import { NextResponse } from 'next/server'
-import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { withTenantRoute, idOku, gecersizKimlik } from '@/app/api/_lib/with-tenant'
 
 /** POST → kaynak şartnamenin noktaları ve değerleriyle yeni 'Önerilen' revizyon. { id } döner. */
 export const POST = withTenantRoute<{ id: string }>(async (_req, { sql, tenant, params }) => {
   if (tenant.workshopId !== null) {
     return NextResponse.json({ error: 'Ölçü şartnamesini yalnız merkez yönetir' }, { status: 403 })
   }
-  const kaynak = Number(params.id)
+  const kaynak = idOku(params.id)
+  if (kaynak === null) return gecersizKimlik()
   const [s] = await sql`SELECT model_bulten_id, kumas_kategorisi, asama FROM olcu_sartname WHERE id = ${kaynak}`
   if (!s) return NextResponse.json({ error: 'Şartname bulunamadı' }, { status: 404 })
 

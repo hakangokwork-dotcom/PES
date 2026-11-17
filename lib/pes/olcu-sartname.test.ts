@@ -1,6 +1,6 @@
 // lib/pes/olcu-sartname.test.ts
 import { describe, it, expect } from 'vitest'
-import { kabulAraligi, sartnameYapistir } from './olcu-sartname'
+import { kabulAraligi, sartnameYapistir, sonrakiKod, gercekTarih } from './olcu-sartname'
 
 /* Kullanıcının gönderdiği 32 beden tablosu (2026-11-17), sekmeyle ayrılmış. */
 const TABLO = [
@@ -55,5 +55,24 @@ describe('sartnameYapistir', () => {
     const r = sartnameYapistir('Bel\t43,00\t±1')
     expect(r.satirlar).toHaveLength(0)
     expect(r.hatalar[0]).toMatch(/Satır 1: tolerans/)
+  })
+})
+
+describe('sonrakiKod', () => {
+  it('en büyük P numarasının bir fazlası', () => {
+    expect(sonrakiKod([])).toBe('P01')
+    expect(sonrakiKod(['P01', 'P03'])).toBe('P04') // P02 silinmiş: P03 tekrar verilmez
+    expect(sonrakiKod(['P09', 'BEL', 'P1x'])).toBe('P10')
+    expect(sonrakiKod(['P120'])).toBe('P121')
+  })
+})
+
+describe('gercekTarih', () => {
+  it('takvimde olmayan günü reddeder', () => {
+    expect(gercekTarih('2026-11-17')).toBe(true)
+    expect(gercekTarih('2028-02-29')).toBe(true)
+    expect(gercekTarih('2026-02-29')).toBe(false)
+    expect(gercekTarih('2026-13-01')).toBe(false)
+    expect(gercekTarih('17.11.2026')).toBe(false)
   })
 })

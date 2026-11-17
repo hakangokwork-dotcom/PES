@@ -1,6 +1,6 @@
 // app/api/pes/olcu-sartname/[id]/route.ts
 import { NextResponse } from 'next/server'
-import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { withTenantRoute, idOku, gecersizKimlik } from '@/app/api/_lib/with-tenant'
 
 /**
  *   GET    → { sartname, noktalar: [{ id, kod, ad, musteri_adi, yontem, kritik, sira,
@@ -17,7 +17,8 @@ type NoktaGirdi = { kod: string; ad: string; musteri_adi?: string | null; yontem
 const merkezDegil = () => NextResponse.json({ error: 'Ölçü şartnamesini yalnız merkez yönetir' }, { status: 403 })
 
 export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params }) => {
-  const id = Number(params.id)
+  const id = idOku(params.id)
+  if (id === null) return gecersizKimlik()
   const [sartname] = await sql`
     SELECT s.id, s.model_bulten_id, s.kumas_kategorisi, s.asama, s.revizyon, s.durum,
            s.onaylayan, s.onay_tarihi::text, s.notlar, s.giren_taraf, s.giren_eposta, s.girildi_at
@@ -46,6 +47,7 @@ function dogrula(noktalar: unknown): string | null {
       for (const k of ['nominal', 'tol_eksi', 'tol_arti'] as const) {
         if (typeof d?.[k] !== 'number' || !Number.isFinite(d[k])) return `${n.kod} / ${beden}: ${k} sayı olmalı`
       }
+      if (d.nominal <= 0) return `${n.kod} / ${beden}: nominal sıfırdan büyük olmalı`
       if (d.tol_eksi < 0 || d.tol_arti < 0) return `${n.kod} / ${beden}: tolerans negatif olamaz`
     }
   }
@@ -54,7 +56,8 @@ function dogrula(noktalar: unknown): string | null {
 
 export const PUT = withTenantRoute<{ id: string }>(async (req, { sql, tenant, params }) => {
   if (tenant.workshopId !== null) return merkezDegil()
-  const id = Number(params.id)
+  const id = idOku(params.id)
+  if (id === null) return gecersizKimlik()
   const b = await req.json()
   const hata = dogrula(b.noktalar)
   if (hata) return NextResponse.json({ error: hata }, { status: 400 })
@@ -84,7 +87,9 @@ export const PUT = withTenantRoute<{ id: string }>(async (req, { sql, tenant, pa
 
 export const DELETE = withTenantRoute<{ id: string }>(async (_req, { sql, tenant, params }) => {
   if (tenant.workshopId !== null) return merkezDegil()
-  const silinen = await sql`DELETE FROM olcu_sartname WHERE id = ${Number(params.id)} RETURNING id`
+  const id = idOku(params.id)
+  if (id === null) return gecersizKimlik()
+  const silinen = await sql`DELETE FROM olcu_sartname WHERE id = ${id} RETURNING id`
   if (!silinen.length) return NextResponse.json({ error: 'Şartname bulunamadı' }, { status: 404 })
   return NextResponse.json({ ok: true })
 })

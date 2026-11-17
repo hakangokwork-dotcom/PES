@@ -46,6 +46,19 @@ export function sartnameYapistir(metin: string): YapistirSonucu {
   return { satirlar, hatalar }
 }
 
+/** Izgaraya eklenecek yeni ölçü noktasının kodu: mevcut en büyük P numarası + 1 (silinen satır numara çakıştırmasın). */
+export function sonrakiKod(kodlar: string[]): string {
+  const max = kodlar.reduce((m, k) => Math.max(m, Number(/^P(\d+)$/.exec(k.trim())?.[1] ?? 0)), 0)
+  return `P${String(max + 1).padStart(2, '0')}`
+}
+
+/** YYYY-AA-GG ve takvimde gerçekten var olan gün (2026-02-30 değil). */
+export function gercekTarih(s: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false
+  const d = new Date(`${s}T00:00:00Z`)
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s
+}
+
 /* Ekran etiketleri — merkez şartname ekranı ve atölye süreç adımı ortak kullanır. */
 export const DURUM_TONU: Record<string, 'neutral' | 'good' | 'warn' | 'bad'> = {
   'Önerilen': 'warn', 'Müşteri onaylı': 'good', 'Geçersiz': 'neutral',

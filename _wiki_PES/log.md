@@ -30,3 +30,9 @@ Yalnız sona eklenir. Biçim [[CLAUDE]]'da.
 - güncellendi: index.md
 - migration 059 yazıldı (uretim_formu).
 - migration 060 yazıldı (uretim_formu_dosya + Storage kovası); form eklerine fotoğraf/PDF. 059 ve 060 üretim DB'ye uygulandı (2026-11-17).
+
+## [2026-11-17] karar | İş emri süreç akışı → v1.19.0 (sürüm 1: adım 0–2)
+- oluşturuldu: kararlar/2026-11-17-is-emri-surec-akisi.md
+- güncellendi: index.md
+- migration 061 (ölçü şartnamesi) ve 062 (kumaş topu, top bazlı çekme, süreç görseli, v_is_emri_surec) üretim DB'ye uygulandı.
+- veri: Erkek 5 Cep Denim Jean · Esnek · Final · Rev. 1 · 32 beden 10 POM, durum Önerilen (müşteri onayı bekliyor).

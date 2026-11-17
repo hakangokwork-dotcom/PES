@@ -15,6 +15,7 @@ guncelleme: 2026-11-17
 - [[2026-11-09-fason-win]]: canlı adres fason.win, bölge dub1, yayın akışı
 - [[2026-11-10-tasarim-dili]]: sıcak fildişi zemin, kil vurgu, serif başlık; "iyi" durumu ayrı yeşil token
 - [[2026-11-17-uretim-formlari]]: 19 kâğıt form tek tabloda (059), PO seçmeli, tanımlar `lib/pes/formlar.ts`
+- [[2026-11-17-is-emri-surec-akisi]]: iş emrinde Süreç sekmesi; ölçü şartnamesi (061), top bazlı kumaş kabulü ve çekme (062), adım durumu `v_is_emri_surec`
 
 ## Kavramlar
 - [[rls-ve-kiracilik]]: pes_app rolü, oturum değişkenleri, kim neyi görür, `security_invoker` tuzağı

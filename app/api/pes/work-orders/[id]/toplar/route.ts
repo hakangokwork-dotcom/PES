@@ -1,6 +1,6 @@
 // app/api/pes/work-orders/[id]/toplar/route.ts
 import { NextResponse } from 'next/server'
-import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { withTenantRoute, idOku, gecersizKimlik, havuzdaIsEmri } from '@/app/api/_lib/with-tenant'
 
 /**
  * Kumaş topları (062). Atölye ve merkez yazar (ortak kayıt, 409).
@@ -9,7 +9,7 @@ import { withTenantRoute } from '@/app/api/_lib/with-tenant'
  *   POST   { tedarikci?, artikel?, kompozisyon?, tedarikci_lotu, parti_no?, top_no, metre?,
  *            kullanilabilir_en_cm?, irsaliye_no?, gelis_tarihi?, notlar? }   → her zaman 'Karantina'
  *   PATCH  ?top=ID  { durum?, ton_grubu?, cekme_grubu?, ...yukarıdaki alanlar }  (x-kayit-surum)
- *   DELETE ?top=ID
+ *   DELETE ?top=ID   testi olan top silinemez (063, FK RESTRICT) → 422
  */
 const METIN = ['tedarikci', 'artikel', 'kompozisyon', 'tedarikci_lotu', 'parti_no', 'top_no', 'irsaliye_no', 'notlar', 'ton_grubu', 'cekme_grubu'] as const
 const SAYI = ['metre', 'kullanilabilir_en_cm'] as const
@@ -29,6 +29,9 @@ function alanlar(b: Record<string, unknown>): { veri: Record<string, unknown>; h
     if (!TARIH.test(String(b.gelis_tarihi))) return { veri, hata: 'Geliş tarihi YYYY-AA-GG olmalı' }
     veri.gelis_tarihi = b.gelis_tarihi
   }
+  for (const k of ['tedarikci_lotu', 'top_no'] as const) {
+    if (k in veri && !veri[k]) return { veri, hata: 'Tedarikçi lotu ve top no boş olamaz' }
+  }
   if ('durum' in b) {
     if (!DURUMLAR.has(String(b.durum))) return { veri, hata: 'Durum Karantina, Serbest ya da Red olmalı' }
     veri.durum = b.durum
@@ -37,7 +40,8 @@ function alanlar(b: Record<string, unknown>): { veri: Record<string, unknown>; h
 }
 
 export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params }) => {
-  const wo = Number(params.id)
+  const wo = idOku(params.id)
+  if (wo === null) return gecersizKimlik()
   const toplar = await sql`
     SELECT t.*, t.gelis_tarihi::text,
            (SELECT row_to_json(x) FROM (
@@ -54,10 +58,12 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
   return NextResponse.json({ toplar, gruplar })
 })
 
-export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, params }) => {
-  const wo = Number(params.id)
-  const [w] = await sql`SELECT workshop_id FROM work_order WHERE id = ${wo}`
+export const POST = withTenantRoute<{ id: string }>(async (req, { sql, params }) => {
+  const wo = idOku(params.id)
+  if (wo === null) return gecersizKimlik()
+  const [w] = await sql`SELECT tenant_id, workshop_id FROM work_order WHERE id = ${wo}`
   if (!w) return NextResponse.json({ error: 'İş emri bulunamadı' }, { status: 404 })
+  if (w.workshop_id === null) return havuzdaIsEmri()
   const b = await req.json()
   const { veri, hata } = alanlar(b)
   if (hata) return NextResponse.json({ error: hata }, { status: 400 })
@@ -65,7 +71,7 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
   delete veri.durum // kabulde her zaman karantina
   try {
     const [t] = await sql`
-      INSERT INTO kumas_top ${sql({ ...veri, tenant_id: tenant.tenantId, work_order_id: wo, workshop_id: w.workshop_id })}
+      INSERT INTO kumas_top ${sql({ ...veri, tenant_id: w.tenant_id, work_order_id: wo, workshop_id: w.workshop_id })}
       RETURNING id`
     return NextResponse.json({ id: t.id })
   } catch (e) {
@@ -77,19 +83,35 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
 })
 
 export const PATCH = withTenantRoute<{ id: string }>(async (req, { sql, params }) => {
-  const top = Number(req.nextUrl.searchParams.get('top'))
+  const wo = idOku(params.id), top = idOku(req.nextUrl.searchParams.get('top'))
+  if (wo === null || top === null) return gecersizKimlik()
   const { veri, hata } = alanlar(await req.json())
   if (hata) return NextResponse.json({ error: hata }, { status: 400 })
   if (Object.keys(veri).length === 0) return NextResponse.json({ error: 'Değişecek alan yok' }, { status: 400 })
-  const [t] = await sql`
-    UPDATE kumas_top SET ${sql(veri)} WHERE id = ${top} AND work_order_id = ${Number(params.id)} RETURNING id`
-  if (!t) return NextResponse.json({ error: 'Top bulunamadı' }, { status: 404 })
-  return NextResponse.json({ ok: true })
+  try {
+    const [t] = await sql`
+      UPDATE kumas_top SET ${sql(veri)} WHERE id = ${top} AND work_order_id = ${wo} RETURNING id`
+    if (!t) return NextResponse.json({ error: 'Top bulunamadı' }, { status: 404 })
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    if ((e as { code?: string }).code === '23505') {
+      return NextResponse.json({ error: 'Bu lotta aynı numaralı top zaten kayıtlı' }, { status: 409 })
+    }
+    throw e
+  }
 })
 
 export const DELETE = withTenantRoute<{ id: string }>(async (req, { sql, params }) => {
-  const top = Number(req.nextUrl.searchParams.get('top'))
-  const silinen = await sql`DELETE FROM kumas_top WHERE id = ${top} AND work_order_id = ${Number(params.id)} RETURNING id`
-  if (!silinen.length) return NextResponse.json({ error: 'Top bulunamadı' }, { status: 404 })
-  return NextResponse.json({ ok: true })
+  const wo = idOku(params.id), top = idOku(req.nextUrl.searchParams.get('top'))
+  if (wo === null || top === null) return gecersizKimlik()
+  try {
+    const silinen = await sql`DELETE FROM kumas_top WHERE id = ${top} AND work_order_id = ${wo} RETURNING id`
+    if (!silinen.length) return NextResponse.json({ error: 'Top bulunamadı' }, { status: 404 })
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    if ((e as { code?: string }).code === '23503') {
+      return NextResponse.json({ error: 'Testi olan top silinemez; durumunu Red yapın.' }, { status: 422 })
+    }
+    throw e
+  }
 })

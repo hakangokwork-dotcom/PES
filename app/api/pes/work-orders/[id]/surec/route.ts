@@ -1,10 +1,11 @@
 // app/api/pes/work-orders/[id]/surec/route.ts
 import { NextResponse } from 'next/server'
-import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { withTenantRoute, idOku, gecersizKimlik } from '@/app/api/_lib/with-tenant'
 
 /** GET → { durum: v_is_emri_surec satırı, sartnameler: modelin şartnameleri (geçersizler hariç) } */
 export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params }) => {
-  const wo = Number(params.id)
+  const wo = idOku(params.id)
+  if (wo === null) return gecersizKimlik()
   const [durum] = await sql`SELECT * FROM v_is_emri_surec WHERE work_order_id = ${wo}`
   if (!durum) return NextResponse.json({ error: 'İş emri bulunamadı' }, { status: 404 })
   const sartnameler = durum.model_bulten_id ? await sql`

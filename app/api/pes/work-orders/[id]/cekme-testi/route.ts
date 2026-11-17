@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withTenantRoute } from '@/app/api/_lib/with-tenant'
+import { withTenantRoute, idOku, gecersizKimlik, havuzdaIsEmri } from '@/app/api/_lib/with-tenant'
 
 /**
  * Kumaş çekme testi (tasarım K11, migration 036).
@@ -21,8 +21,8 @@ const SONUCLAR = new Set(['UYGUN', 'RİSKLİ', 'RED', 'BEKLIYOR'])
 const TARIH = /^\d{4}-\d{2}-\d{2}$/
 
 export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params }) => {
-  const wo = parseInt(params.id)
-  if (!Number.isInteger(wo)) return NextResponse.json({ error: 'Geçersiz iş emri' }, { status: 400 })
+  const wo = idOku(params.id)
+  if (wo === null) return gecersizKimlik()
   const testler = await sql`
     SELECT id, tarih::text, yikama_sayisi, en_cekme_pct, boy_cekme_pct,
            may_kaymasi_pct, sonuc, yapan, notlar,
@@ -35,8 +35,8 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
 })
 
 export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, params }) => {
-  const wo = parseInt(params.id)
-  if (!Number.isInteger(wo)) return NextResponse.json({ error: 'Geçersiz iş emri' }, { status: 400 })
+  const wo = idOku(params.id)
+  if (wo === null) return gecersizKimlik()
 
   const b = await req.json()
   const tarih = String(b.tarih ?? '')
@@ -50,6 +50,7 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
   /* RLS satırı gizliyorsa 404 — yetkisiz kullanıcıya iş emrinin varlığını sızdırmaz. */
   const [w] = await sql`SELECT workshop_id FROM work_order WHERE id = ${wo}`
   if (!w) return NextResponse.json({ error: 'İş emri bulunamadı' }, { status: 404 })
+  if (w.workshop_id === null) return havuzdaIsEmri()
 
   const sayi = (v: unknown): number | null => {
     if (v === null || v === undefined || String(v).trim() === '') return null
@@ -64,7 +65,8 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
     return NextResponse.json({ error: 'Yıkama sayısı 0–10 arası olmalı' }, { status: 400 })
   }
 
-  const topId = b.topId == null || b.topId === '' ? null : Number(b.topId)
+  const topId = b.topId == null || b.topId === '' ? null : idOku(String(b.topId))
+  if (topId === null && b.topId != null && b.topId !== '') return gecersizKimlik()
   if (topId !== null) {
     const [t] = await sql`SELECT id FROM kumas_top WHERE id = ${topId} AND work_order_id = ${wo}`
     if (!t) return NextResponse.json({ error: 'Top bu iş emrine ait değil' }, { status: 400 })
@@ -94,11 +96,8 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
 })
 
 export const DELETE = withTenantRoute<{ id: string }>(async (req, { sql, params }) => {
-  const wo = parseInt(params.id)
-  const testId = Number(new URL(req.url).searchParams.get('testId'))
-  if (!Number.isInteger(wo) || !Number.isInteger(testId)) {
-    return NextResponse.json({ error: 'testId gerekli' }, { status: 400 })
-  }
+  const wo = idOku(params.id), testId = idOku(new URL(req.url).searchParams.get('testId'))
+  if (wo === null || testId === null) return gecersizKimlik()
   const silinen = await sql`
     DELETE FROM kumas_cekme_testi WHERE id = ${testId} AND work_order_id = ${wo} RETURNING id`
   if (!silinen.length) return NextResponse.json({ error: 'Test bulunamadı' }, { status: 404 })

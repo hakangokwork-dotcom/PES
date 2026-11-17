@@ -80,3 +80,14 @@ function kayitSurumu(req: NextRequest): string | null {
   if (v === 'yok' || v === 'eski') return v
   return Number.isNaN(Date.parse(v)) ? null : v
 }
+
+/** Rota/sorgu kimliği: pozitif tam sayı değilse null — NaN SQL'e gitmesin, çağıran 400 döner. */
+export function idOku(v: string | null | undefined): number | null {
+  return v && /^\d{1,9}$/.test(v) ? Number(v) : null
+}
+
+export const gecersizKimlik = () => NextResponse.json({ error: 'Geçersiz kimlik' }, { status: 400 })
+
+/** 062/063: atölyeye yerleştirilmemiş (havuzdaki) iş emrine süreç kaydı girilmez. */
+export const havuzdaIsEmri = () =>
+  NextResponse.json({ error: 'İş emri henüz bir atölyeye yerleştirilmedi.' }, { status: 422 })

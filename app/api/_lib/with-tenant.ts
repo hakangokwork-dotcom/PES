@@ -61,6 +61,10 @@ export function withTenantRoute<P = Record<string, string>>(
       if ((err as { code?: string })?.code === 'PT409') {
         return NextResponse.json({ error: (err as Error).message, cakisma: true }, { status: 409 })
       }
+      /* 061/062: veritabanı kuralı (onaylı şartname, RED top…). Mesaj Türkçe, kullanıcıya gösterilir. */
+      if ((err as { code?: string })?.code === 'PT422') {
+        return NextResponse.json({ error: (err as Error).message }, { status: 422 })
+      }
       console.error('[withTenantRoute]', err)
       const msg = err instanceof Error ? err.message : 'Sunucu hatası'
       return NextResponse.json({ error: msg }, { status: 500 })

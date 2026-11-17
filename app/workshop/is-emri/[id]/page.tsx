@@ -165,7 +165,10 @@ function WoDetailPage() {
   return (
     <div className="space-y-5">
       {/* Geri */}
-      <Link href={`/workshop/is-emri`} className="text-xs text-faint hover:text-ink">← İş Emri Listesi</Link>
+      <div className="flex items-center justify-between">
+        <Link href={`/workshop/is-emri`} className="text-xs text-faint hover:text-ink">← İş Emri Listesi</Link>
+        <Link href={`/workshop/formlar?wo=${order.id}`} className="text-xs text-accent hover:underline">Bu siparişin üretim formları →</Link>
+      </div>
 
       {/* Header */}
       <WoHeader order={order} onRefresh={reload} />

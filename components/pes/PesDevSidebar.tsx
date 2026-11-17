@@ -8,7 +8,7 @@ import {
   Star, ArrowLeftRight, Gauge, ClipboardList, Search, CircleCheckBig,
   Shapes, Workflow, CalendarRange,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
-  ArrowRight, Coins, Layers, Ruler, Tags, Timer, FunctionSquare, ClipboardPen, LayoutGrid, Zap,
+  ArrowRight, Coins, Layers, Ruler, Tags, Timer, FunctionSquare, ClipboardPen, LayoutGrid, Zap, FileCheck,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -42,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Üretim',      href: '/pes/production',      icon: Boxes },
       { label: 'Kalite',      href: '/pes/quality',         icon: CircleCheck },
+      { label: 'Üretim Formları', href: '/pes/formlar',    icon: FileCheck },
       { label: 'Duruş',       href: '/pes/downtime',        icon: CirclePause },
       { label: 'Changeover',  href: '/pes/changeover',      icon: RefreshCw },
       { label: 'İşgücü',      href: '/pes/workforce',       icon: Users },

@@ -1,6 +1,6 @@
 ---
 tur: index
-guncelleme: 2026-11-10
+guncelleme: 2026-11-17
 ---
 # PES Wiki: İndeks
 
@@ -14,6 +14,7 @@ guncelleme: 2026-11-10
 - [[2026-11-03-ortak-kayit]]: ortak kayıt, onay yok; `giren_*` ve 409 sürüm kontrolü
 - [[2026-11-09-fason-win]]: canlı adres fason.win, bölge dub1, yayın akışı
 - [[2026-11-10-tasarim-dili]]: sıcak fildişi zemin, kil vurgu, serif başlık; "iyi" durumu ayrı yeşil token
+- [[2026-11-17-uretim-formlari]]: 19 kâğıt form tek tabloda (059), PO seçmeli, tanımlar `lib/pes/formlar.ts`
 
 ## Kavramlar
 - [[rls-ve-kiracilik]]: pes_app rolü, oturum değişkenleri, kim neyi görür, `security_invoker` tuzağı

@@ -24,3 +24,9 @@ Yalnız sona eklenir. Biçim [[CLAUDE]]'da.
 - ders: havuz (6543) üzerinden `SET default_transaction_read_only = on` oturumda kalmaz, havuzdaki bağlantıda kalır ve sonraki yazmayı bozar. Salt okunur sorgu için `BEGIN READ ONLY` kullan.
 - migration 058: aynı Excel'in gider dışı alanları (ciro, adet, gün/saat, kadro kırılımı, alan m²) `workshop_economy` 2026-09'a yazıldı; kadrosu 0 olan 5 atölye (TOPRAK, ŞİRİN, DEMA, KARTAL, ENVER) dolduruldu. Gider Panosu alan m²'yi artık önce `workshop_economy.area_m2`'den okur.
 - v1.17.0: Karşılaştırma tablosunda verisi olan atölyeler önde; gider toplamı `v_expense_groups`'tan, marj cirosu ve TL/dk kadrosu ayın `workshop_economy` satırından (yoksa künyeden).
+
+## [2026-11-17] ingest | Tutulması Gereken Formlar Family.xlsx → v1.18.0 üretim formları
+- oluşturuldu: kararlar/2026-11-17-uretim-formlari.md
+- güncellendi: index.md
+- migration 059 yazıldı (uretim_formu).
+- migration 060 yazıldı (uretim_formu_dosya + Storage kovası); form eklerine fotoğraf/PDF. 059 ve 060 üretim DB'ye uygulandı (2026-11-17).

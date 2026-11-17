@@ -8,7 +8,8 @@ import {
   type Alan, type Deger, type FormTanimi, type FormVerisi, type Tablo,
 } from '@/lib/pes/formlar'
 import { girenMetni, surumBasligi, type GirenAlanlari } from '@/lib/pes/giren'
-import { IZINLI_TURLER, dosyaHatasi } from '@/lib/pes/form-dosya'
+import { dosyaHatasi } from '@/lib/pes/form-dosya'
+import { resmiKucult } from '@/lib/pes/resim-kucult'
 
 /* 059: üretim formları ekranı. İki panel aynı bileşeni kullanır:
    atölye panelinde atolyeId oturumdan gelir; merkezde null, atölye seçilir.
@@ -274,24 +275,6 @@ function FormDuzenle({ acik, setAcik, poler, kapat }: {
 }
 
 type Ek = GirenAlanlari & { id: number; ad: string; tur: string; boyut: number; aciklama: string | null; url: string | null }
-
-/* Fotoğraf 4 MB sınırına (Vercel gövde sınırı) sığsın ve kâğıt form okunur
-   kalsın: uzun kenar 2400 px, JPEG %85. Çözülemeyen dosya olduğu gibi gider;
-   sunucu türünü yine denetler. */
-async function resmiKucult(f: File): Promise<File> {
-  if (!f.type.startsWith('image/') || (f.size < 1.5 * 1024 * 1024 && IZINLI_TURLER[f.type])) return f
-  try {
-    const bmp = await createImageBitmap(f)
-    const oran = Math.min(1, 2400 / Math.max(bmp.width, bmp.height))
-    const c = document.createElement('canvas')
-    c.width = Math.round(bmp.width * oran); c.height = Math.round(bmp.height * oran)
-    c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
-    const blob = await new Promise<Blob | null>(r => c.toBlob(r, 'image/jpeg', 0.85))
-    return blob ? new File([blob], f.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }) : f
-  } catch {
-    return f
-  }
-}
 
 function FormEkleri({ formId, kayitIdsi }: { formId: number | null; kayitIdsi: () => Promise<number | null> }) {
   const [ekler, setEkler] = useState<Ek[]>([])

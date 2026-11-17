@@ -20,3 +20,8 @@ export function dosyaHatasi(tur: string, boyut: number): string | null {
 export function dosyaYolu(tenantId: string, workshopId: number, formId: number, uuid: string, tur: string): string {
   return `${tenantId}/${workshopId}/${formId}/${uuid}.${IZINLI_TURLER[tur]}`
 }
+
+/** 062: süreç fotoğrafı yolu: surec/<tenant>/<iş emri>/<adım>/<uuid>.<uzantı>. Form ekleriyle aynı kova. */
+export function surecYolu(tenantId: string, workOrderId: number, adim: string, uuid: string, tur: string): string {
+  return `surec/${tenantId}/${workOrderId}/${adim}/${uuid}.${IZINLI_TURLER[tur]}`
+}

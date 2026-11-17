@@ -71,20 +71,19 @@ export default async function GiderPanosu({
 
     if (!donem) return { donem: null, donemler, satirlar: [] as Satir[] }
 
-    /* alan_m2 kaynağı: form ham JSONB — henüz workshop kolonuna
-       taşınmadı. Migration eklenene kadar staging'ten okuyoruz,
-       böylece dashboard cost/m² gösterebiliyor. NULLIF ile boş/geçersiz
+    /* alan_m2 kaynağı: ayın ekonomi satırı (workshop_economy); yoksa
+       eski kayıtlar için form ham JSONB'si (2026-08 içe aktarımı). NULLIF ile boş/geçersiz
        değer NULL kalır; regexp_replace virgül-ondalık için. */
     const satirlar = await sql`
       SELECT
         me.workshop_id, w.code, w.name, w.city, w.bolge,
         w.total_staff, w.sewing_staff, me.work_days,
-        NULLIF(
+        COALESCE(we.area_m2::float, NULLIF(
           regexp_replace(
             COALESCE(s.raw -> 'sheet1' ->> 'ÜRETİM YAPILAN ALAN KAÇ M2 DİR ?', ''),
             '[^0-9.]', '', 'g'
           ), ''
-        )::float AS alan_m2,
+        )::float) AS alan_m2,
         g.toplam_brut::float AS brut, g.toplam_net::float AS net,
         g.tesvik::float AS tesvik, g.doluluk_orani::float AS doluluk,
         q.total_sc::float AS quality_sc, q.status AS quality_status,
@@ -102,6 +101,8 @@ export default async function GiderPanosu({
       LEFT JOIN declaration_quality q ON q.expense_id = me.id
       LEFT JOIN expense_declaration_staging s
         ON s.id = me.current_staging_id
+      LEFT JOIN workshop_economy we
+        ON we.workshop_id = me.workshop_id AND we.year = me.year AND we.month = me.month
       WHERE me.year = ${donem.yil} AND me.month = ${donem.ay}
       ORDER BY g.toplam_brut DESC
     ` as unknown as Satir[]

@@ -22,3 +22,5 @@ Yalnız sona eklenir. Biçim [[CLAUDE]]'da.
 - veri: 20 atölyenin gider beyanı `monthly_expense` 2026-09'a ayrı kayıt olarak yazıldı; 2026-08 kayıtlarına (11 atölye) dokunulmadı. Ham satırlar `expense_declaration_staging`'de.
 - yeni atölye: KARATUR (B115), AYAZ EFE (B116). KARTAL FASHION = KARTAL TEKSTİL (B056, pasif).
 - ders: havuz (6543) üzerinden `SET default_transaction_read_only = on` oturumda kalmaz, havuzdaki bağlantıda kalır ve sonraki yazmayı bozar. Salt okunur sorgu için `BEGIN READ ONLY` kullan.
+- migration 058: aynı Excel'in gider dışı alanları (ciro, adet, gün/saat, kadro kırılımı, alan m²) `workshop_economy` 2026-09'a yazıldı; kadrosu 0 olan 5 atölye (TOPRAK, ŞİRİN, DEMA, KARTAL, ENVER) dolduruldu. Gider Panosu alan m²'yi artık önce `workshop_economy.area_m2`'den okur.
+- v1.17.0: Karşılaştırma tablosunda verisi olan atölyeler önde; gider toplamı `v_expense_groups`'tan, marj cirosu ve TL/dk kadrosu ayın `workshop_economy` satırından (yoksa künyeden).

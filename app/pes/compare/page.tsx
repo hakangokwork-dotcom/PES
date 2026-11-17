@@ -33,10 +33,13 @@ export default async function ComparePage({
       GROUP BY workshop_id
     `
     const costData = await sql`
-      SELECT workshop_id, work_days,
-        (personnel+sgk+food+electricity+water+gas+transport+vehicle+cargo+machine_maint+thread+other) as total_expense,
-        target_revenue
-      FROM monthly_expense WHERE year = ${pYear} AND month = ${pMonth}
+      SELECT me.workshop_id, me.work_days, g.toplam_brut as total_expense,
+        COALESCE(NULLIF(me.target_revenue, 0), we.revenue_declared) as target_revenue,
+        we.sewing_staff as ay_dikim, we.hours_per_day as ay_saat
+      FROM monthly_expense me JOIN v_expense_groups g ON g.id = me.id
+      LEFT JOIN workshop_economy we
+        ON we.workshop_id = me.workshop_id AND we.year = me.year AND we.month = me.month
+      WHERE me.year = ${pYear} AND me.month = ${pMonth}
     `
     const qualData = await sql`
       SELECT workshop_id,
@@ -77,9 +80,11 @@ export default async function ComparePage({
     const d = dtMap[w.id as number]
     const s = scoreMap[w.id as number]
 
-    const sewStaff = Number(w.sewing_staff)
+    /* O ayın beyan edilen kadrosu/saatleri varsa o geçerli (workshop_economy);
+       künyedeki sayı bugünkü durumdur. */
+    const sewStaff = Number(c?.ay_dikim ?? w.sewing_staff)
     const workDays = Number(c?.work_days ?? 22)
-    const netH = Number(w.net_hours_day ?? 9)
+    const netH = Number(c?.ay_saat ?? w.net_hours_day ?? 9)
     const totalExp = Number(c?.total_expense ?? 0)
     const costPerMin = (sewStaff > 0 && workDays > 0) ? totalExp / (sewStaff * workDays * netH * 60) : 0
     const marginPct = Number(c?.target_revenue ?? 0) > 0 ? ((Number(c.target_revenue) - totalExp) / Number(c.target_revenue) * 100) : 0
@@ -101,6 +106,12 @@ export default async function ComparePage({
       trend: (s?.trend ?? '---') as string,
     }
   })
+
+  /* Tabloda verisi olan atölyeler önde: dolu ölçüt sayısı çok olan üstte,
+     eşitlikte kod sırası korunur (sort kararlı). */
+  const doluluk = (r: (typeof rows)[number]) =>
+    [r.efficiency, r.costPerMin, r.marginPct, r.fpq, r.downtimeMin, r.compositeScore].filter(v => v !== 0).length
+  const tablo = [...rows].sort((a, b) => doluluk(b) - doluluk(a))
 
   const byEff = [...rows].sort((a, b) => b.efficiency - a.efficiency)
   const byCost = [...rows].sort((a, b) => a.costPerMin - b.costPerMin)
@@ -164,7 +175,7 @@ export default async function ComparePage({
               </tr>
             </thead>
             <tbody>
-              {rows.map(r => (
+              {tablo.map(r => (
                 <tr key={r.id as number} className="border-b border-line-soft hover:bg-canvas">
                   <td className="px-3 py-2">
                     <Link href={`/workshop?wid=${r.id}`} className="text-ok-ink hover:underline font-medium">{r.code as string}</Link>

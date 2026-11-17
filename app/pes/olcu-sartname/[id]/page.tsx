@@ -16,6 +16,7 @@ type Sartname = GirenAlanlari & {
 }
 
 const sayiOku = (s: string) => Number(s.replace(',', '.'))
+const cm = (n: number) => n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export default function OlcuSartnameDetay() {
   const id = Number(useParams<{ id: string }>().id)
@@ -159,15 +160,15 @@ export default function OlcuSartnameDetay() {
                         {duzenlenebilir ? (
                           <div className="flex gap-1">
                             {(['nominal', 'tol_eksi', 'tol_arti'] as const).map(a => (
-                              <Input key={`${a}-${d?.[a] ?? ''}`} align="right" className="w-16" inputMode="decimal"
+                              <div key={`${a}-${d?.[a] ?? ''}`} className="w-16"><Input align="right" inputMode="decimal"
                                 defaultValue={d ? String(d[a]).replace('.', ',') : ''}
-                                onBlur={e => degerYaz(i, b, a, e.target.value)} />
+                                onBlur={e => degerYaz(i, b, a, e.target.value)} /></div>
                             ))}
                           </div>
                         ) : d ? (
-                          <span className="num">{d.nominal} <span className="text-faint">−{d.tol_eksi} / +{d.tol_arti}</span></span>
+                          <span className="num">{cm(d.nominal)} <span className="text-faint">−{cm(d.tol_eksi)} / +{cm(d.tol_arti)}</span></span>
                         ) : '—'}
-                        {k && <div className="text-xs text-faint num">{k.alt}–{k.ust}</div>}
+                        {k && <div className="text-xs text-faint num">{cm(k.alt)}–{cm(k.ust)}</div>}
                       </td>
                     )
                   })}

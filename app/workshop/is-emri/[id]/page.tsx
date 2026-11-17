@@ -183,7 +183,6 @@ function WoDetailPage() {
             ['asamalar',`Aşamalar (${stages.length})`,'📊'],
             ['plangercek','Plan / Gerçek','📈'],
             ['malzemeler',`Malzemeler (${materials.length})`,'📦'],
-            ['cekme','Çekme Testi','🧪'],
             ['gunluk',`Günlük (${journal.length})`,'📝'],
             ['gecmis',`Geçmiş (${history.length})`,'🕐'],
           ].map(([k, label, icon]) => (

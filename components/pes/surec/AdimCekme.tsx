@@ -132,8 +132,8 @@ export default function AdimCekme({ woId, onDegisti }: { woId: number; onDegisti
                 <tr key={`${t.id}-${t.girildi_at}`} className="border-t border-line-soft">
                   <td className="py-1">{t.tedarikci_lotu} · {t.top_no}</td>
                   <td className="text-xs">{t.durum}</td>
-                  <td><Input className="w-24" defaultValue={t.ton_grubu ?? ''} onBlur={e => grupYaz(t, 'ton_grubu', e.target.value)} /></td>
-                  <td><Input className="w-24" defaultValue={t.cekme_grubu ?? ''} onBlur={e => grupYaz(t, 'cekme_grubu', e.target.value)} /></td>
+                  <td><div className="w-24"><Input defaultValue={t.ton_grubu ?? ''} onBlur={e => grupYaz(t, 'ton_grubu', e.target.value)} /></div></td>
+                  <td><div className="w-24"><Input defaultValue={t.cekme_grubu ?? ''} onBlur={e => grupYaz(t, 'cekme_grubu', e.target.value)} /></div></td>
                 </tr>
               ))}
             </tbody>

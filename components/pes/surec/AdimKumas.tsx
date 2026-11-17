@@ -88,9 +88,9 @@ export default function AdimKumas({ woId, onDegisti }: { woId: number; onDegisti
                   <td>{t.artikel ?? '—'}</td>
                   <td className="text-xs">{t.son_test ? `${t.son_test.sonuc} · çözgü ${t.son_test.boy_cekme_pct ?? '—'} / atkı ${t.son_test.en_cekme_pct ?? '—'}` : '—'}</td>
                   <td>
-                    <Select value={t.durum} onChange={e => durumYaz(t, e.target.value as Top['durum'])} className="w-32">
+                    <div className="inline-block w-32"><Select value={t.durum} onChange={e => durumYaz(t, e.target.value as Top['durum'])}>
                       <option>Karantina</option><option>Serbest</option><option>Red</option>
-                    </Select>
+                    </Select></div>
                     <Badge tone={TON[t.durum]} className="ml-1">{t.durum}</Badge>
                   </td>
                   <td><button onClick={() => sil(t)} className="text-xs text-danger hover:underline">Sil</button></td>

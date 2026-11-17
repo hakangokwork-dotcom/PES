@@ -43,6 +43,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Üretim',      href: '/pes/production',      icon: Boxes },
       { label: 'Kalite',      href: '/pes/quality',         icon: CircleCheck },
       { label: 'Üretim Formları', href: '/pes/formlar',    icon: FileCheck },
+      { label: 'Ölçü Şartnamesi', href: '/pes/olcu-sartname', icon: Ruler },
       { label: 'Duruş',       href: '/pes/downtime',        icon: CirclePause },
       { label: 'Changeover',  href: '/pes/changeover',      icon: RefreshCw },
       { label: 'İşgücü',      href: '/pes/workforce',       icon: Users },

@@ -6,7 +6,9 @@ import { withTenantRoute } from '@/app/api/_lib/with-tenant'
  *
  *   GET  /api/pes/work-orders/270/cekme-testi
  *   POST /api/pes/work-orders/270/cekme-testi
- *        { tarih, yikamaSayisi?, enCekme?, boyCekme?, mayKaymasi?, sonuc, yapan?, notlar? }
+ *        { tarih, yikamaSayisi?, enCekme?, boyCekme?, mayKaymasi?, sonuc, yapan?, notlar?,
+ *          topId?, yikamaReceti?, hedefRenk?, tonDegerlendirme? }
+ *        boyCekme = çözgü, enCekme = atkı (062)
  *
  * Kumaş geldikten SONRA, kesim planlanmadan ÖNCE yapılır. Çekme yüzdeleri
  * negatiftir (kumaş küçülür), işaret korunur. Altı alan bu tur için yeter;
@@ -23,7 +25,9 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
   if (!Number.isInteger(wo)) return NextResponse.json({ error: 'Geçersiz iş emri' }, { status: 400 })
   const testler = await sql`
     SELECT id, tarih::text, yikama_sayisi, en_cekme_pct, boy_cekme_pct,
-           may_kaymasi_pct, sonuc, yapan, notlar
+           may_kaymasi_pct, sonuc, yapan, notlar,
+           top_id, yikama_receti, hedef_renk, ton_degerlendirme,
+           (SELECT top_no FROM kumas_top kt WHERE kt.id = kumas_cekme_testi.top_id) AS top_no
       FROM kumas_cekme_testi
      WHERE work_order_id = ${wo}
      ORDER BY tarih DESC, id DESC`
@@ -60,6 +64,13 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
     return NextResponse.json({ error: 'Yıkama sayısı 0–10 arası olmalı' }, { status: 400 })
   }
 
+  const topId = b.topId == null || b.topId === '' ? null : Number(b.topId)
+  if (topId !== null) {
+    const [t] = await sql`SELECT id FROM kumas_top WHERE id = ${topId} AND work_order_id = ${wo}`
+    if (!t) return NextResponse.json({ error: 'Top bu iş emrine ait değil' }, { status: 400 })
+  }
+  const metin = (v: unknown) => (v == null || String(v).trim() === '' ? null : String(v).trim())
+
   const [satir] = await sql`
     INSERT INTO kumas_cekme_testi ${sql({
       work_order_id: wo,
@@ -71,6 +82,10 @@ export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, p
       boy_cekme_pct: boy,
       may_kaymasi_pct: may,
       sonuc: b.sonuc,
+      top_id: topId,
+      yikama_receti: metin(b.yikamaReceti),
+      hedef_renk: metin(b.hedefRenk),
+      ton_degerlendirme: metin(b.tonDegerlendirme),
       yapan: b.yapan ? String(b.yapan).trim() : null,
       notlar: b.notlar ? String(b.notlar).trim() : null,
     })}

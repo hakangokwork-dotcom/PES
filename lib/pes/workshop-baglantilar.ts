@@ -57,6 +57,8 @@ export async function bagimliliklariSay(
     JOIN LATERAL unnest(c.conkey) AS k(attnum) ON TRUE
     JOIN pg_attribute att ON att.attrelid = c.conrelid AND att.attnum = k.attnum
     WHERE c.contype = 'f' AND c.confrelid = 'workshop'::regclass
+      -- 064: atölyenin iş ortağı kaydı tetikleyiciyle açılan eşidir, engel değil (CASCADE).
+      AND c.conrelid <> 'is_ortagi'::regclass
     ORDER BY 1`) as unknown as FkKolonu[]
 
   if (fkler.length === 0) return []

@@ -10,7 +10,9 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
 
   const stages    = await sql`SELECT * FROM v_work_order_stages WHERE work_order_id = ${woId} ORDER BY sira_no, id`
   const materials = await sql`SELECT * FROM work_order_material WHERE work_order_id = ${woId} ORDER BY tip, id`
-  const journal   = await sql`SELECT * FROM work_order_journal WHERE work_order_id = ${woId} ORDER BY tarih DESC, id DESC LIMIT 100`
+  const journal   = await sql`SELECT j.*, sn.ad AS neden_ad FROM work_order_journal j
+    LEFT JOIN sorun_neden sn ON sn.kod = j.neden_kodu
+    WHERE j.work_order_id = ${woId} ORDER BY j.tarih DESC, j.id DESC LIMIT 100`
   const history   = await sql`SELECT * FROM work_order_status_history WHERE work_order_id = ${woId} ORDER BY tarih DESC LIMIT 50`
 
   return NextResponse.json({ order, stages, materials, journal, history })

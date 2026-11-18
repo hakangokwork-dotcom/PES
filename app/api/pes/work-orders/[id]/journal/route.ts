@@ -9,7 +9,8 @@ export const GET = withTenantRoute<{ id: string }>(async (_req, { sql, params })
     LEFT JOIN production_stage ps ON j.stage_id = ps.id
     LEFT JOIN sorun_neden sn ON sn.kod = j.neden_kodu
     WHERE work_order_id = ${id} ORDER BY tarih DESC, id DESC`
-  return NextResponse.json({ journal })
+  const nedenler = await sql`SELECT kod, ad FROM sorun_neden ORDER BY sira`
+  return NextResponse.json({ journal, nedenler })
 })
 
 export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, params }) => {

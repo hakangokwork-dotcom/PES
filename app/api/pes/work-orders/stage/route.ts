@@ -23,7 +23,7 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
   const not: string | null = body.gerekce_notu ? String(body.gerekce_notu).trim() || null : null
   // null alan COALESCE ile değişmez; gerekçe kuralına da girmesin.
   const yeni = Object.fromEntries((['plan_baslangic', 'plan_bitis'] as const)
-    .filter(k => body[k] != null).map(k => [k, String(body[k])]))
+    .filter(k => body[k] != null).map(k => [k, String(body[k]).slice(0, 10)]))
   if (gerekceGerekli(eski, yeni) && !kod) {
     return NextResponse.json({ error: 'Plan tarihi değişiyor: gerekçe seçin.' }, { status: 400 })
   }

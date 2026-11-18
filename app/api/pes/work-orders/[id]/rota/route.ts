@@ -7,9 +7,13 @@ import { withTenantRoute, idOku, gecersizKimlik } from '@/app/api/_lib/with-tena
  * var olan adımın planına/gerçeğine dokunulmaz, boş firması doldurulur.
  *
  *   POST /api/pes/work-orders/12/rota  { rota_sablonu_id } → { eklenen }   (merkez)
+ *
+ * Merkez = bağlı atölyesi olmayan kullanıcı. İş emri sayfası atölye panelinde
+ * durur; merkez oraya /workshop/gir ile atölye seçerek girer (atolyeSecimi),
+ * o hâlde de merkez sayılır. Atölyeye bağlı kullanıcı rota uygulamaz.
  */
 export const POST = withTenantRoute<{ id: string }>(async (req, { sql, tenant, params }) => {
-  if (tenant.workshopId !== null) return NextResponse.json({ error: 'Rotayı yalnız merkez uygular' }, { status: 403 })
+  if (tenant.workshopId !== null && !tenant.atolyeSecimi) return NextResponse.json({ error: 'Rotayı yalnız merkez uygular' }, { status: 403 })
   const id = idOku(params.id)
   if (id === null) return gecersizKimlik()
   const b = await req.json()

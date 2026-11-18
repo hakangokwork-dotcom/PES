@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { durumEtiket } from '@/lib/pes/durum-etiket'
 import PlanGercekSekmesi from '@/components/pes/PlanGercekSekmesi'
 import SurecSekmesi from '@/components/pes/surec/SurecSekmesi'
+import AdimPlanGecmisi from '@/components/pes/AdimPlanGecmisi'
+import { gerekceGerekli, PLAN_GEREKCELERI, SORUN_ETKILERI } from '@/lib/pes/is-emri-adim'
 
 interface WO {
   id: number
@@ -84,7 +86,13 @@ interface Journal {
   aciklama: string; oneri: string | null; yazan: string | null
   paylasim_admin: boolean; resolved: boolean; resolved_at: string | null
   resolved_notlar: string | null; stage_name?: string
+  neden_kodu: string | null; neden_ad?: string | null; etki: string | null
 }
+
+/* 064: adımın firması ve plan metni /adimlar'dan gelir (v_work_order_stages 064 öncesi). */
+interface Adim { stage_kayit_id: number; is_ortagi_id: number | null; ortak_tipi: string | null; plan_baslangic: string | null; plan_bitis: string | null }
+interface Ortak { id: number; tip: string; unvan: string }
+type StagePatch = Partial<Stage> & { is_ortagi_id?: number; gerekce_kodu?: string; gerekce_notu?: string }
 
 interface Line { id: number; code: string; name: string }
 
@@ -196,7 +204,7 @@ function WoDetailPage() {
           {tab === 'surec'     && <SurecSekmesi woId={id} />}
           {tab === 'ozet'      && <OzetTab order={order} lines={lines} onRefresh={reload} />}
           {tab === 'asamalar'  && <AsamalarTab stages={stages} lines={lines} onRefresh={reload} woId={id} />}
-          {tab === 'plangercek'&& <PlanGercekSekmesi workOrderId={id} />}
+          {tab === 'plangercek'&& <div className="space-y-5"><AdimPlanGecmisi woId={id} /><PlanGercekSekmesi workOrderId={id} /></div>}
           {tab === 'malzemeler'&& <MalzemelerTab materials={materials} onRefresh={reload} woId={id} />}
           {tab === 'gunluk'    && <GunlukTab journal={journal} stages={stages} onRefresh={reload} woId={id} />}
           {tab === 'gecmis'    && <GecmisTab history={history} />}
@@ -417,9 +425,33 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
   const [showAdd, setShowAdd] = useState(false)
   const [catalog, setCatalog] = useState<{ id: number; code: string; name: string; sira_no: number; zorunlu: boolean; renk: string }[]>([])
 
+  const [adimlar, setAdimlar] = useState<Adim[]>([])
+  const [merkez, setMerkez] = useState(false)
+  const [ortaklar, setOrtaklar] = useState<Ortak[]>([])
+  const [rotalar, setRotalar] = useState<{ id: number; ad: string; aktif: boolean }[]>([])
+  const [rotaId, setRotaId] = useState('')
+  const [rotaMesaj, setRotaMesaj] = useState<string | null>(null)
+
   useEffect(() => {
     fetch(`/api/pes/work-orders/${woId}/stages`).then(r => r.json()).then(d => setCatalog(d.catalog || []))
+    fetch('/api/pes/is-ortaklari?aktif=1').then(r => r.json()).then(d => setOrtaklar(d.ortaklar || []))
+    fetch('/api/pes/rotalar').then(r => r.json()).then(d => setRotalar((d.rotalar || []).filter((r: { aktif: boolean }) => r.aktif)))
   }, [woId])
+  // stages her yenilemede değişir; adımların firma/plan bilgisi de tazelensin.
+  useEffect(() => {
+    fetch(`/api/pes/work-orders/${woId}/adimlar`).then(r => r.json()).then(d => { setAdimlar(d.adimlar || []); setMerkez(!!d.merkez) })
+  }, [woId, stages])
+
+  async function rotaUygula() {
+    setRotaMesaj(null)
+    const r = await fetch(`/api/pes/work-orders/${woId}/rota`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rota_sablonu_id: Number(rotaId) }),
+    })
+    const d = await r.json()
+    if (!r.ok) { setRotaMesaj(d.error ?? 'Uygulanamadı'); return }
+    setRotaMesaj(`${d.eklenen} adım eklendi ya da güncellendi`)
+    await onRefresh()
+  }
 
   // Henüz eklenmemiş katalog aşamaları
   const eklenebilir = useMemo(() => {
@@ -427,12 +459,15 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
     return catalog.filter(c => !mevcut.has(c.id))
   }, [catalog, stages])
 
-  async function patch(stageId: number, body: Partial<Stage>) {
-    await fetch('/api/pes/work-orders/stage', {
+  /** Hata metni döner (400: gerekçe eksik vb.); başarıda null. */
+  async function patch(stageId: number, body: StagePatch): Promise<string | null> {
+    const r = await fetch('/api/pes/work-orders/stage', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: stageId, ...body }),
     })
+    if (!r.ok) return (await r.json().catch(() => null))?.error ?? 'Kaydedilemedi'
     await onRefresh()
+    return null
   }
 
   async function addStage(catalogId: number) {
@@ -467,8 +502,23 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
         </span>
       </div>
 
+      {merkez && rotalar.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-line-soft bg-surface p-3">
+          <span className="text-xs font-medium text-ink">Rota uygula</span>
+          <select className="input-sm" value={rotaId} onChange={e => setRotaId(e.target.value)} aria-label="Rota şablonu">
+            <option value="">Şablon seçin</option>
+            {rotalar.map(r => <option key={r.id} value={r.id}>{r.ad}</option>)}
+          </select>
+          <button onClick={rotaUygula} disabled={!rotaId}
+            className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover disabled:opacity-45">Uygula</button>
+          <span className="text-[11px] text-faint">Eksik adımlar eklenir; var olan adımın planı ve gerçeği değişmez.</span>
+          {rotaMesaj && <span className="text-xs text-muted">{rotaMesaj}</span>}
+        </div>
+      )}
+
       {sorted.map(s => (
-        <StageCard key={s.id} stage={s} lines={lines}
+        <StageCard key={s.id} stage={s} lines={lines} ortaklar={ortaklar}
+          adim={adimlar.find(a => a.stage_kayit_id === s.id)}
           onPatch={(body) => patch(s.id, body)}
           onDelete={() => delStage(s.id)}
         />
@@ -503,12 +553,20 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
   )
 }
 
-function StageCard({ stage, lines, onPatch, onDelete }: {
+function StageCard({ stage, lines, ortaklar, adim, onPatch, onDelete }: {
   stage: Stage
   lines: Line[]
-  onPatch: (body: Partial<Stage>) => Promise<void>
+  ortaklar: Ortak[]
+  adim: Adim | undefined
+  onPatch: (body: StagePatch) => Promise<string | null>
   onDelete: () => void
 }) {
+  // 064: önceden girilmiş plan değişiyorsa kaydetmeden önce gerekçe sorulur.
+  const [gerekceAcik, setGerekceAcik] = useState(false)
+  const [gerekce, setGerekce] = useState({ kod: '', not: '' })
+  const [planHata, setPlanHata] = useState<string | null>(null)
+  // Firmanın tipi biliniyorsa aynı tiptekiler; bilinmiyorsa hepsi.
+  const firmaSecenek = adim?.ortak_tipi ? ortaklar.filter(o => o.tip === adim.ortak_tipi) : ortaklar
   const [editPlan, setEditPlan] = useState(false)
   const [editGercek, setEditGercek] = useState(false)
   const [editAdet, setEditAdet] = useState(false)
@@ -546,20 +604,34 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
 
   // Plan kaydet — başlangıç + (bitiş veya süre) verilince hesapla
   async function savePlan() {
-    let pStart = planStart || null
-    let pEnd = planEnd || null
+    setPlanHata(null)
+    let pStart = planStart ? planStart.slice(0, 10) : null
+    let pEnd = planEnd ? planEnd.slice(0, 10) : null
     if (pStart && !pEnd && planDays && Number(planDays) > 0) {
       pEnd = addDaysISO(pStart, Number(planDays) - 1)
     }
     if (!pStart && pEnd && planDays && Number(planDays) > 0) {
       pStart = addDaysISO(pEnd, -(Number(planDays) - 1))
     }
-    await onPatch({
+    const yeni = { ...(pStart ? { plan_baslangic: pStart } : {}), ...(pEnd ? { plan_bitis: pEnd } : {}) }
+    const eski = { plan_baslangic: adim?.plan_baslangic ?? null, plan_bitis: adim?.plan_bitis ?? null }
+    if (!gerekceAcik && gerekceGerekli(eski, yeni)) { setGerekceAcik(true); return }
+    if (gerekceAcik && !gerekce.kod) { setPlanHata('Gerekçe seçin.'); return }
+    const hata = await onPatch({
       plan_baslangic: pStart as string | null,
       plan_bitis: pEnd as string | null,
       plan_sure_dk: pStart && pEnd ? Math.round((new Date(pEnd).getTime() - new Date(pStart).getTime()) / 60000) + (24 * 60) : null,
+      ...(gerekceAcik ? { gerekce_kodu: gerekce.kod, gerekce_notu: gerekce.not } : {}),
     })
-    setEditPlan(false)
+    if (hata) {
+      setPlanHata(hata)
+      if (hata.includes('gerekçe')) setGerekceAcik(true)
+      return
+    }
+    planKapat()
+  }
+  function planKapat() {
+    setEditPlan(false); setGerekceAcik(false); setGerekce({ kod: '', not: '' }); setPlanHata(null)
   }
 
   async function saveGercek() {
@@ -627,6 +699,14 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
           {lines.map(l => <option key={l.id} value={l.id}>{l.code} {l.name}</option>)}
         </select>
 
+        {/* 064: adımı yapan firma. Boş seçim firmayı silmez (API COALESCE). */}
+        <select className="text-xs px-2 py-1 bg-surface border border-line-soft rounded max-w-[14rem]" aria-label="Firma"
+          value={adim?.is_ortagi_id ?? ''}
+          onChange={e => { if (e.target.value) onPatch({ is_ortagi_id: Number(e.target.value) }) }}>
+          <option value="" disabled={adim?.is_ortagi_id != null}>— Firma seç —</option>
+          {firmaSecenek.map(o => <option key={o.id} value={o.id}>{adim?.ortak_tipi ? o.unvan : `${o.unvan} · ${o.tip}`}</option>)}
+        </select>
+
         <div className="flex-1" />
 
         {/* Hızlı aksiyon butonları */}
@@ -690,9 +770,26 @@ function StageCard({ stage, lines, onPatch, onDelete }: {
                 </div>
               </div>
               <div className="text-[11px] text-faint italic">Sadece başlangıç + süre veya başlangıç + bitiş yeter; eksik olanı sistem hesaplar.</div>
+              {gerekceAcik && (
+                <div className="grid grid-cols-1 gap-2 rounded border border-line bg-warn-soft p-2 md:grid-cols-2">
+                  <div className="md:col-span-2 text-[11px] text-warn">Plan tarihi değişiyor: neden? Önceki plan geçmişte saklanır.</div>
+                  <div>
+                    <label className="text-[11px] text-muted block">Gerekçe</label>
+                    <select className="w-full text-sm px-2 py-1 border border-line rounded bg-surface" value={gerekce.kod} onChange={e => setGerekce({ ...gerekce, kod: e.target.value })}>
+                      <option value="">Seçin</option>
+                      {PLAN_GEREKCELERI.map(g => <option key={g.kod} value={g.kod}>{g.ad}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-muted block">Not{gerekce.kod === 'DIGER' ? ' (zorunlu)' : ''}</label>
+                    <input className="w-full text-sm px-2 py-1 border border-line rounded bg-surface" value={gerekce.not} onChange={e => setGerekce({ ...gerekce, not: e.target.value })} />
+                  </div>
+                </div>
+              )}
+              {planHata && <div className="text-xs text-danger">{planHata}</div>}
               <div className="flex gap-2">
                 <button onClick={savePlan} className="text-xs px-3 py-1 bg-accent text-white rounded hover:bg-accent-hover">Kaydet</button>
-                <button onClick={() => setEditPlan(false)} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
+                <button onClick={planKapat} className="text-xs px-3 py-1 border border-line rounded">İptal</button>
               </div>
             </div>
           )}
@@ -931,16 +1028,28 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
   const [add, setAdd] = useState({
     tarih: new Date().toISOString().slice(0, 10), vardiya: 'Gündüz',
     tip: 'PROBLEM', kategori: '', baslik: '', aciklama: '', oneri: '', stage_id: '', yazan: '', paylasim_admin: false,
+    neden_kodu: '', etki: '',
   })
+  const [nedenler, setNedenler] = useState<{ kod: string; ad: string }[]>([])
+  const [hata, setHata] = useState<string | null>(null)
+  useEffect(() => {
+    fetch(`/api/pes/work-orders/${woId}/journal`).then(r => r.json()).then(d => setNedenler(d.nedenler || []))
+  }, [woId])
+  const sorunMu = add.tip === 'PROBLEM' || add.tip === 'BLOKAJ'
 
   async function save() {
     if (!add.aciklama.trim()) { alert('Açıklama zorunlu'); return }
-    await fetch(`/api/pes/work-orders/${woId}/journal`, {
+    setHata(null)
+    const r = await fetch(`/api/pes/work-orders/${woId}/journal`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...add, stage_id: add.stage_id ? Number(add.stage_id) : null }),
+      body: JSON.stringify({
+        ...add, stage_id: add.stage_id ? Number(add.stage_id) : null,
+        neden_kodu: sorunMu ? add.neden_kodu || null : null, etki: sorunMu ? add.etki || null : null,
+      }),
     })
+    if (!r.ok) { setHata((await r.json().catch(() => null))?.error ?? 'Kaydedilemedi'); return }
     setShowAdd(false)
-    setAdd({ tarih: new Date().toISOString().slice(0, 10), vardiya: 'Gündüz', tip: 'PROBLEM', kategori: '', baslik: '', aciklama: '', oneri: '', stage_id: '', yazan: '', paylasim_admin: false })
+    setAdd({ tarih: new Date().toISOString().slice(0, 10), vardiya: 'Gündüz', tip: 'PROBLEM', kategori: '', baslik: '', aciklama: '', oneri: '', stage_id: '', yazan: '', paylasim_admin: false, neden_kodu: '', etki: '' })
     await onRefresh()
   }
 
@@ -990,10 +1099,27 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
             <Field label="Kategori"><input className="input-sm" placeholder="Makine, Operatör, Malzeme, Kalite, Plan..." value={add.kategori} onChange={e => setAdd({ ...add, kategori: e.target.value })} /></Field>
             <Field label="Yazan"><input className="input-sm" value={add.yazan} onChange={e => setAdd({ ...add, yazan: e.target.value })} placeholder="Ad Soyad" /></Field>
             <Field label="Başlık"><input className="input-sm" value={add.baslik} onChange={e => setAdd({ ...add, baslik: e.target.value })} placeholder="Kısa başlık (ops.)" /></Field>
+            {sorunMu && (
+              <>
+                <Field label="Neden">
+                  <select className="input-sm" value={add.neden_kodu} onChange={e => setAdd({ ...add, neden_kodu: e.target.value })}>
+                    <option value="">—</option>
+                    {nedenler.map(n => <option key={n.kod} value={n.kod}>{n.ad}</option>)}
+                  </select>
+                </Field>
+                <Field label="Etki">
+                  <select className="input-sm" value={add.etki} onChange={e => setAdd({ ...add, etki: e.target.value })}>
+                    <option value="">—</option>
+                    {SORUN_ETKILERI.map(t => <option key={t}>{t}</option>)}
+                  </select>
+                </Field>
+              </>
+            )}
           </div>
           <Field label="Açıklama *"><textarea className="input min-h-[80px]" value={add.aciklama} onChange={e => setAdd({ ...add, aciklama: e.target.value })} placeholder="Ne oldu? Detaylı yaz." /></Field>
           <Field label="Öneri / Çözüm"><textarea className="input min-h-[50px]" value={add.oneri} onChange={e => setAdd({ ...add, oneri: e.target.value })} placeholder="Çözüm önerisi (opsiyonel)" /></Field>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={add.paylasim_admin} onChange={e => setAdd({ ...add, paylasim_admin: e.target.checked })} /> Bu kaydı admin (merkez) ile paylaş</label>
+          {hata && <div className="text-xs text-danger">{hata}</div>}
           <div className="flex gap-2"><button onClick={save} className="px-3 py-1 bg-accent text-white rounded text-xs">Kaydet</button></div>
         </div>
       )}
@@ -1011,6 +1137,8 @@ function GunlukTab({ journal, stages, onRefresh, woId }: { journal: Journal[]; s
                   <Badge cls={`${meta.bg} ${meta.text}`}>{j.tip}</Badge>
                   {j.kategori && <Badge cls="bg-surface text-muted border border-line-soft">{j.kategori}</Badge>}
                   {j.stage_name && <Badge cls="bg-canvas text-muted">📊 {j.stage_name}</Badge>}
+                  {j.neden_ad && <Badge cls="bg-surface text-muted border border-line-soft">Neden: {j.neden_ad}</Badge>}
+                  {j.etki && <Badge cls="bg-warn-soft text-warn">Etki: {j.etki}</Badge>}
                   <span className="text-xs text-faint">{j.tarih} · {j.vardiya}</span>
                   {j.paylasim_admin && <Badge cls="bg-canvas text-muted">🔗 Admin paylaşımda</Badge>}
                   {j.resolved && <Badge cls="bg-ok-soft text-ok-ink">✓ Çözüldü</Badge>}

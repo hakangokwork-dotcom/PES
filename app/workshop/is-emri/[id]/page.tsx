@@ -90,7 +90,7 @@ interface Journal {
 }
 
 /* 064: adımın firması ve plan metni /adimlar'dan gelir (v_work_order_stages 064 öncesi). */
-interface Adim { stage_kayit_id: number; is_ortagi_id: number | null; ortak_tipi: string | null; plan_baslangic: string | null; plan_bitis: string | null }
+interface Adim { stage_kayit_id: number; is_ortagi_id: number | null; ortak_unvan: string | null; ortak_tipi: string | null; plan_baslangic: string | null; plan_bitis: string | null }
 interface Ortak { id: number; tip: string; unvan: string }
 type StagePatch = Partial<Stage> & { is_ortagi_id?: number; gerekce_kodu?: string; gerekce_notu?: string }
 
@@ -431,6 +431,7 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
   const [rotalar, setRotalar] = useState<{ id: number; ad: string; aktif: boolean }[]>([])
   const [rotaId, setRotaId] = useState('')
   const [rotaMesaj, setRotaMesaj] = useState<string | null>(null)
+  const [silHata, setSilHata] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`/api/pes/work-orders/${woId}/stages`).then(r => r.json()).then(d => setCatalog(d.catalog || []))
@@ -483,7 +484,9 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
 
   async function delStage(stageRowId: number) {
     if (!confirm('Bu aşama silinsin mi?')) return
-    await fetch(`/api/pes/work-orders/stage?id=${stageRowId}`, { method: 'DELETE' })
+    setSilHata(null)
+    const r = await fetch(`/api/pes/work-orders/stage?id=${stageRowId}`, { method: 'DELETE' })
+    if (!r.ok) { setSilHata((await r.json().catch(() => null))?.error ?? 'Silinemedi'); return }
     await onRefresh()
   }
 
@@ -516,8 +519,10 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
         </div>
       )}
 
+      {silHata && <div role="alert" className="rounded-lg border border-line-soft bg-danger-soft p-3 text-xs text-danger">{silHata}</div>}
+
       {sorted.map(s => (
-        <StageCard key={s.id} stage={s} lines={lines} ortaklar={ortaklar}
+        <StageCard key={s.id} stage={s} lines={lines} ortaklar={ortaklar} merkez={merkez}
           adim={adimlar.find(a => a.stage_kayit_id === s.id)}
           onPatch={(body) => patch(s.id, body)}
           onDelete={() => delStage(s.id)}
@@ -553,10 +558,11 @@ function AsamalarTab({ stages, lines, onRefresh, woId }: { stages: Stage[]; line
   )
 }
 
-function StageCard({ stage, lines, ortaklar, adim, onPatch, onDelete }: {
+function StageCard({ stage, lines, ortaklar, merkez, adim, onPatch, onDelete }: {
   stage: Stage
   lines: Line[]
   ortaklar: Ortak[]
+  merkez: boolean
   adim: Adim | undefined
   onPatch: (body: StagePatch) => Promise<string | null>
   onDelete: () => void
@@ -565,6 +571,7 @@ function StageCard({ stage, lines, ortaklar, adim, onPatch, onDelete }: {
   const [gerekceAcik, setGerekceAcik] = useState(false)
   const [gerekce, setGerekce] = useState({ kod: '', not: '' })
   const [planHata, setPlanHata] = useState<string | null>(null)
+  const [firmaHata, setFirmaHata] = useState<string | null>(null)
   // Firmanın tipi biliniyorsa aynı tiptekiler; bilinmiyorsa hepsi.
   const firmaSecenek = adim?.ortak_tipi ? ortaklar.filter(o => o.tip === adim.ortak_tipi) : ortaklar
   const [editPlan, setEditPlan] = useState(false)
@@ -699,13 +706,25 @@ function StageCard({ stage, lines, ortaklar, adim, onPatch, onDelete }: {
           {lines.map(l => <option key={l.id} value={l.id}>{l.code} {l.name}</option>)}
         </select>
 
-        {/* 064: adımı yapan firma. Boş seçim firmayı silmez (API COALESCE). */}
-        <select className="text-xs px-2 py-1 bg-surface border border-line-soft rounded max-w-[14rem]" aria-label="Firma"
-          value={adim?.is_ortagi_id ?? ''}
-          onChange={e => { if (e.target.value) onPatch({ is_ortagi_id: Number(e.target.value) }) }}>
-          <option value="" disabled={adim?.is_ortagi_id != null}>— Firma seç —</option>
-          {firmaSecenek.map(o => <option key={o.id} value={o.id}>{adim?.ortak_tipi ? o.unvan : `${o.unvan} · ${o.tip}`}</option>)}
-        </select>
+        {/* 064: adımı yapan firma; yalnız merkez değiştirir. Boş seçim firmayı silmez (API COALESCE). */}
+        {merkez ? (
+          <select className="text-xs px-2 py-1 bg-surface border border-line-soft rounded max-w-[14rem]" aria-label="Firma"
+            value={adim?.is_ortagi_id ?? ''}
+            onChange={async e => {
+              if (!e.target.value) return
+              setFirmaHata(await onPatch({ is_ortagi_id: Number(e.target.value) }))
+            }}>
+            <option value="" disabled={adim?.is_ortagi_id != null}>— Firma seç —</option>
+            {/* Seçili firma pasifse aktif listede yok; yine görünsün. */}
+            {adim?.is_ortagi_id != null && !firmaSecenek.some(o => o.id === adim.is_ortagi_id) && (
+              <option value={adim.is_ortagi_id}>{adim.ortak_unvan ?? `#${adim.is_ortagi_id}`} (pasif)</option>
+            )}
+            {firmaSecenek.map(o => <option key={o.id} value={o.id}>{adim?.ortak_tipi ? o.unvan : `${o.unvan} · ${o.tip}`}</option>)}
+          </select>
+        ) : (
+          <span className="text-xs text-muted max-w-[14rem] truncate">{adim?.ortak_unvan ?? 'Firma yok'}</span>
+        )}
+        {firmaHata && <span role="alert" className="text-xs text-danger">{firmaHata}</span>}
 
         <div className="flex-1" />
 

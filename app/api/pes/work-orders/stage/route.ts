@@ -12,12 +12,21 @@ import { gerekceGerekli, PLAN_GEREKCELERI } from '@/lib/pes/is-emri-adim'
  */
 const GEREKCE_KODLARI = new Set<string>(PLAN_GEREKCELERI.map(g => g.kod))
 
-export const PATCH = withTenantRoute(async (req, { sql }) => {
+const TARIHLER = ['plan_baslangic', 'plan_bitis', 'gercek_baslangic', 'gercek_bitis'] as const
+
+export const PATCH = withTenantRoute(async (req, { sql, tenant }) => {
   const body = await req.json()
   const id = idOku(body.id == null ? null : String(body.id))
   if (id === null) return gecersizKimlik()
+  // Boş tarih = gönderilmedi (COALESCE); '' DATE'e çevrilemez, 500 vermesin.
+  for (const k of TARIHLER) if (typeof body[k] === 'string' && !body[k].trim()) body[k] = null
+  // Firma ataması ana veri kararı: yalnız merkez (atölye adına giren yönetici dahil).
+  if (body.is_ortagi_id != null && !(tenant.workshopId === null || tenant.atolyeSecimi)) {
+    return NextResponse.json({ error: 'Firmayı yalnız merkez değiştirebilir.' }, { status: 403 })
+  }
 
-  const [eski] = await sql`SELECT plan_baslangic::text, plan_bitis::text FROM work_order_stage WHERE id = ${id}`
+  // FOR UPDATE: gerekçe kontrolü ile UPDATE arasında plan başka biri tarafından değişmesin.
+  const [eski] = await sql`SELECT plan_baslangic::text, plan_bitis::text FROM work_order_stage WHERE id = ${id} FOR UPDATE`
   if (!eski) return NextResponse.json({ error: 'Adım bulunamadı' }, { status: 404 })
   const kod: string | null = body.gerekce_kodu || null
   const not: string | null = body.gerekce_notu ? String(body.gerekce_notu).trim() || null : null
@@ -57,8 +66,22 @@ export const PATCH = withTenantRoute(async (req, { sql }) => {
 })
 
 export const DELETE = withTenantRoute(async (req, { sql }) => {
-  const id = req.nextUrl.searchParams.get('id')
-  if (!id) return NextResponse.json({ error: 'id gerekli' }, { status: 400 })
-  await sql`DELETE FROM work_order_stage WHERE id = ${Number(id)}`
+  const id = idOku(req.nextUrl.searchParams.get('id'))
+  if (id === null) return gecersizKimlik()
+  // Hafıza kuralı (064): planlanmış ya da başlamış adım silinmez; silmek plan geçmişini götürürdü.
+  const [s] = await sql`
+    SELECT (gercek_baslangic IS NOT NULL OR gercek_bitis IS NOT NULL) AS gercekli,
+           EXISTS (SELECT 1 FROM adim_plan_gecmisi g WHERE g.stage_kayit_id = work_order_stage.id
+                      AND (g.plan_baslangic IS NOT NULL OR g.plan_bitis IS NOT NULL)) AS planli
+      FROM work_order_stage WHERE id = ${id} FOR UPDATE`
+  if (!s) return NextResponse.json({ error: 'Adım bulunamadı' }, { status: 404 })
+  if (s.planli || s.gercekli) {
+    return NextResponse.json({
+      error: s.gercekli
+        ? 'Bu aşama başlamış (gerçek tarihi var); silinemez.'
+        : 'Bu aşamanın plan geçmişi var; silinemez. Plan geçmişi saklanır.',
+    }, { status: 422 })
+  }
+  await sql`DELETE FROM work_order_stage WHERE id = ${id}`
   return NextResponse.json({ ok: true })
 })

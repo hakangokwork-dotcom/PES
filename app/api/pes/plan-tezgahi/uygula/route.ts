@@ -27,8 +27,9 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
   }
 
   const [teklif] = await sql`
-    SELECT id, durum, workshop_id, taslak_id FROM plan_teklif WHERE id = ${teklifId}
-  ` as unknown as Array<{ id: number; durum: string; workshop_id: number; taslak_id: number }>
+    SELECT id, durum, workshop_id, taslak_id, gerekce_kodu, cevap_notu FROM plan_teklif WHERE id = ${teklifId}
+  ` as unknown as Array<{ id: number; durum: string; workshop_id: number; taslak_id: number;
+                          gerekce_kodu: string | null; cevap_notu: string | null }>
   if (!teklif) return NextResponse.json({ error: 'Teklif bulunamadı' }, { status: 404 })
 
   /* Reddedilen ya da hâlâ cevap bekleyen teklif uygulanmaz. */
@@ -93,19 +94,39 @@ export const POST = withTenantRoute(async (req, { sql, tenant }) => {
     const enErken = paylar.reduce((m, p) => (p.baslangic < m ? p.baslangic : m), paylar[0].baslangic)
     const enGec = paylar.reduce((m, p) => (p.bitis > m ? p.bitis : m), paylar[0].bitis)
 
-    /* Aynı iş emri ikinci kez uygulanırsa eski dikim aşaması ve atamaları
-       TEMİZLENİR. Üst üste yazmak, atölyenin takviminde aynı işi iki kez
-       gösterirdi. */
-    await sql`
-      DELETE FROM work_order_stage
-       WHERE work_order_id = ${woId} AND stage_id = ${dikim.id}`
+    /* Aynı iş emri ikinci kez uygulanırsa eski ATAMALAR temizlenir (üst üste
+       yazmak takvimde aynı işi iki kez gösterirdi). Aşama satırı SİLİNMEZ:
+       silmek plan geçmişini (064, hafıza kuralı), firmayı ve zorunlu formları
+       cascade ile götürürdü. Satır yerinde güncellenir, id aynı kalır. */
+    const [onceki] = await sql`
+      SELECT id, (plan_baslangic IS NOT NULL OR plan_bitis IS NOT NULL) AS planli
+        FROM work_order_stage
+       WHERE work_order_id = ${woId} AND stage_id = ${dikim.id}
+       FOR UPDATE` as unknown as Array<{ id: number; planli: boolean }>
+    if (onceki) await sql`DELETE FROM work_order_stage_atama WHERE stage_row_id = ${onceki.id}`
+
+    /* Plan değişiyorsa gerekçe plan geçmişine geçsin: atölyenin karşı önerisi
+       varsa onun gerekçesi, yoksa "Diğer" + not. İlk planda gerekçe yok. */
+    const kod = onceki?.planli ? (teklif.gerekce_kodu ?? 'DIGER') : ''
+    const not = onceki?.planli
+      ? (teklif.gerekce_kodu ? teklif.cevap_notu : null) ?? `Plan tezgâhı: teklif #${teklif.id} yeniden uygulandı`
+      : ''
+    await sql`SELECT set_config('app.plan_gerekce', ${kod}, true), set_config('app.plan_notu', ${not}, true)`
 
     const [stage] = await sql`
       INSERT INTO work_order_stage
         (work_order_id, tenant_id, stage_id, sira_no, workshop_id,
-         plan_baslangic, plan_bitis, durum)
+         plan_baslangic, plan_bitis, durum, is_ortagi_id)
       VALUES (${woId}, ${tenant.tenantId}, ${dikim.id}, ${dikim.sira_no ?? 2},
-              ${teklif.workshop_id}, ${enErken}, ${enGec}, 'Beklemede')
+              ${teklif.workshop_id}, ${enErken}, ${enGec}, 'Beklemede',
+              (SELECT id FROM is_ortagi WHERE workshop_id = ${teklif.workshop_id}))
+      ON CONFLICT (work_order_id, stage_id) DO UPDATE
+         SET workshop_id    = EXCLUDED.workshop_id,
+             plan_baslangic = EXCLUDED.plan_baslangic,
+             plan_bitis     = EXCLUDED.plan_bitis,
+             durum          = EXCLUDED.durum,
+             is_ortagi_id   = COALESCE(work_order_stage.is_ortagi_id, EXCLUDED.is_ortagi_id),
+             updated_at     = now()
       RETURNING id
     ` as unknown as Array<{ id: number }>
 

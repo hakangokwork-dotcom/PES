@@ -36,9 +36,13 @@ const ETIKETLER: Record<string, string> = {
   workshop_interaction: 'görüşme kaydı',
   workshop_product: 'ürün kaydı',
   yikama_record: 'yıkama kaydı',
+  // 064: atölyenin iş ortağı kaydına bağlı satırlar (anahtar: tablo.kolon)
+  'work_order_stage.is_ortagi_id': 'iş emri adımı (firma)',
+  'adim_plan_gecmisi.is_ortagi_id': 'plan geçmişi kaydı',
+  'rota_operasyonu.varsayilan_ortak_id': 'rota varsayılan firması',
 }
 
-type FkKolonu = { tablo: string; kolon: string }
+type FkKolonu = { tablo: string; kolon: string; ortak: boolean }
 type SayimSatiri = { sira: number; adet: number }
 
 /** Atölyeye bağlı, sıfırdan fazla satırı olan tablolar. */
@@ -52,14 +56,17 @@ export async function bagimliliklariSay(
      hepsi kontrol edilir. */
   const fkler = (await sql`
     SELECT c.conrelid::regclass::text AS tablo,
-           quote_ident(att.attname) AS kolon
+           quote_ident(att.attname) AS kolon,
+           c.confrelid = 'is_ortagi'::regclass AS ortak
     FROM pg_constraint c
     JOIN LATERAL unnest(c.conkey) AS k(attnum) ON TRUE
     JOIN pg_attribute att ON att.attrelid = c.conrelid AND att.attnum = k.attnum
-    WHERE c.contype = 'f' AND c.confrelid = 'workshop'::regclass
-      -- 064: atölyenin iş ortağı kaydı tetikleyiciyle açılan eşidir, engel değil (CASCADE).
-      AND c.conrelid <> 'is_ortagi'::regclass
-    ORDER BY 1`) as unknown as FkKolonu[]
+    WHERE c.contype = 'f' AND (
+      -- 064: atölyenin iş ortağı kaydı tetikleyiciyle açılan eşidir, kendisi engel değil (CASCADE)…
+      (c.confrelid = 'workshop'::regclass AND c.conrelid <> 'is_ortagi'::regclass)
+      -- …ama ona bağlanan satırlar engeldir: silme onları SET NULL ile firmasız bırakırdı.
+      OR c.confrelid = 'is_ortagi'::regclass)
+    ORDER BY 1, 2`) as unknown as FkKolonu[]
 
   if (fkler.length === 0) return []
 
@@ -67,17 +74,19 @@ export async function bagimliliklariSay(
      Tablo adı sonuca sıra numarasıyla döner — katalogdan gelen adı metin
      sabiti olarak sorguya gömmek gerekmesin. */
   const parcalar = fkler.map(
-    (f, i) => `SELECT ${i} AS sira, count(*)::int AS adet FROM ${f.tablo} WHERE ${f.kolon} = $1`
+    (f, i) => `SELECT ${i} AS sira, count(*)::int AS adet FROM ${f.tablo} WHERE ${f.kolon} ` +
+      (f.ortak ? `IN (SELECT id FROM is_ortagi WHERE workshop_id = $1)` : `= $1`)
   )
   const satirlar = (await sql.unsafe(parcalar.join(' UNION ALL '), [workshopId])) as unknown as SayimSatiri[]
 
   return satirlar
     .filter((s) => s.adet > 0)
-    .map((s) => ({
-      tablo: fkler[s.sira].tablo,
-      etiket: ETIKETLER[fkler[s.sira].tablo] ?? fkler[s.sira].tablo,
-      adet: s.adet,
-    }))
+    .map((s) => {
+      const f = fkler[s.sira]
+      // Ortak bağı tablo.kolon anahtarıyla: work_order_stage workshop'a da doğrudan bağlı.
+      const tablo = f.ortak ? `${f.tablo}.${f.kolon}` : f.tablo
+      return { tablo, etiket: ETIKETLER[tablo] ?? tablo, adet: s.adet }
+    })
     .sort((a, b) => a.tablo.localeCompare(b.tablo, 'tr'))
 }
 

@@ -36,3 +36,12 @@ Yalnız sona eklenir. Biçim [[CLAUDE]]'da.
 - güncellendi: index.md
 - migration 061 (ölçü şartnamesi) ve 062 (kumaş topu, top bazlı çekme, süreç görseli, v_is_emri_surec) üretim DB'ye uygulandı.
 - veri: Erkek 5 Cep Denim Jean · Esnek · Final · Rev. 1 · 32 beden 10 POM, durum Önerilen (müşteri onayı bekliyor).
+
+## [2026-11-18] karar | İş emri operasyon yönetimi → v1.20.0 (sürüm 2a)
+- oluşturuldu: kararlar/2026-11-18-is-emri-operasyon.md
+- güncellendi: index.md
+- migration 064 üretim DB'ye uygulandı: 141 atölye ortağı, 9 plan geçmişi satırı ("064 öncesi plan"), 6 aşamaya firma, 12 sorun nedeni.
+- veri: aynı adla iki kez kayıtlı 4 atölye (AYENER, BAYHAN, MİDYAT ÇINAR, SİNCİK TEKSTİL TUT); mükerrer mi, iki tesis mi, kullanıcı karar verecek.
+- ders: `npm test` entegrasyon testleri üretim DB'ye yazıp siliyor.
+- migration 065 yazıldı: atölye adı/aktifliği iş ortağına eşitlenir; revizyon sayısı gerçek plan değişikliklerini sayar (A→B→A = 2).
+- ders: plan tezgâhı aşamayı silip yeniden yazıyordu, plan geçmişi CASCADE ile gidiyordu; artık yerinde günceller. Planlı ya da başlamış aşama silinmez (422).

@@ -16,6 +16,7 @@ guncelleme: 2026-11-17
 - [[2026-11-10-tasarim-dili]]: sıcak fildişi zemin, kil vurgu, serif başlık; "iyi" durumu ayrı yeşil token
 - [[2026-11-17-uretim-formlari]]: 19 kâğıt form tek tabloda (059), PO seçmeli, tanımlar `lib/pes/formlar.ts`
 - [[2026-11-17-is-emri-surec-akisi]]: iş emrinde Süreç sekmesi; ölçü şartnamesi (061), top bazlı kumaş kabulü ve çekme (062), adım durumu `v_is_emri_surec`
+- [[2026-11-18-is-emri-operasyon]]: iş ortağı ana verisi, rota şablonu, gerekçeli plan geçmişi, sorun nedeni ve etkisi (064, v1.20.0)
 
 ## Kavramlar
 - [[rls-ve-kiracilik]]: pes_app rolü, oturum değişkenleri, kim neyi görür, `security_invoker` tuzağı

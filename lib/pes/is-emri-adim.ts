@@ -28,3 +28,13 @@ export function gerekceGerekli(eski: Plan, yeni: Plan): boolean {
   return (['plan_baslangic', 'plan_bitis'] as const).some(k =>
     k in yeni && eski[k] != null && (yeni[k] ?? null) !== eski[k])
 }
+
+/** İş ortağının serbestçe değişen alanları (unvan/tip hariç). */
+export const ORTAK_ILETISIM = ['kisa_ad', 'vergi_no', 'adres', 'il', 'telefon', 'eposta', 'notlar'] as const
+
+/** Gövdede gelen iletişim alanlarını kırpar; boş dize NULL olur. Gelmeyen alan dokunulmaz. */
+export function iletisimAlanlari(b: Record<string, unknown>): Record<string, string | null> {
+  const v: Record<string, string | null> = {}
+  for (const k of ORTAK_ILETISIM) if (k in b) v[k] = b[k] == null ? null : String(b[k]).trim() || null
+  return v
+}

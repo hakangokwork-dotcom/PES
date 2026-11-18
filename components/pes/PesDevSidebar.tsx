@@ -9,6 +9,7 @@ import {
   Shapes, Workflow, CalendarRange,
   BookOpen, Table2, TrendingUp, History, ChartColumn, ListChecks,
   ArrowRight, Coins, Layers, Ruler, Tags, Timer, FunctionSquare, ClipboardPen, LayoutGrid, Zap, FileCheck,
+  Building2, Route, TriangleAlert,
 } from 'lucide-react'
 import { APP_VERSION } from '@/lib/version'
 import {
@@ -44,6 +45,9 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Kalite',      href: '/pes/quality',         icon: CircleCheck },
       { label: 'Üretim Formları', href: '/pes/formlar',    icon: FileCheck },
       { label: 'Ölçü Şartnamesi', href: '/pes/olcu-sartname', icon: Ruler },
+      { label: 'İş Ortakları', href: '/pes/is-ortaklari', icon: Building2 },
+      { label: 'Rota Şablonları', href: '/pes/rotalar', icon: Route },
+      { label: 'Sorun Panosu', href: '/pes/sorunlar', icon: TriangleAlert },
       { label: 'Duruş',       href: '/pes/downtime',        icon: CirclePause },
       { label: 'Changeover',  href: '/pes/changeover',      icon: RefreshCw },
       { label: 'İşgücü',      href: '/pes/workforce',       icon: Users },

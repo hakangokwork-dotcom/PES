@@ -20,6 +20,8 @@ export default function RotaDetay() {
   const [asamalar, setAsamalar] = useState<Asama[]>([])
   const [formlar, setFormlar] = useState<Form[]>([])
   const [ortaklar, setOrtaklar] = useState<Ortak[]>([])
+  // Kayıtlı varsayılan firmaların adı: pasifse aktif listede yok, yine görünsün.
+  const [kayitliUnvan, setKayitliUnvan] = useState<Map<number, string>>(new Map())
   const [mesaj, setMesaj] = useState<{ iyi: boolean; metin: string } | null>(null)
 
   const yukle = useCallback(async () => {
@@ -29,6 +31,8 @@ export default function RotaDetay() {
     setOps(d.operasyonlar.map((o: Op) => ({
       stage_id: o.stage_id, ortak_tipi: o.ortak_tipi, zorunlu_formlar: o.zorunlu_formlar ?? [], varsayilan_ortak_id: o.varsayilan_ortak_id,
     })))
+    setKayitliUnvan(new Map(d.operasyonlar.filter((o: { varsayilan_ortak_id: number | null }) => o.varsayilan_ortak_id != null)
+      .map((o: { varsayilan_ortak_id: number; varsayilan_ortak_unvan: string | null }) => [o.varsayilan_ortak_id, o.varsayilan_ortak_unvan ?? `#${o.varsayilan_ortak_id}`])))
     setAsamalar(d.asamalar); setFormlar(d.formlar)
   }, [id])
   useEffect(() => { yukle() }, [yukle])
@@ -108,6 +112,9 @@ export default function RotaDetay() {
                     <Select aria-label="Varsayılan firma" value={o.varsayilan_ortak_id ?? ''}
                       onChange={e => degistir(i, { varsayilan_ortak_id: e.target.value ? Number(e.target.value) : null })}>
                       <option value="">{o.ortak_tipi === 'Atölye' ? 'İş emrinin atölyesi' : 'Yok'}</option>
+                      {o.varsayilan_ortak_id != null && !ortaklar.some(x => x.id === o.varsayilan_ortak_id) && (
+                        <option value={o.varsayilan_ortak_id}>{kayitliUnvan.get(o.varsayilan_ortak_id) ?? `#${o.varsayilan_ortak_id}`} (pasif)</option>
+                      )}
                       {ortaklar.filter(x => x.tip === o.ortak_tipi).map(x => <option key={x.id} value={x.id}>{x.unvan}</option>)}
                     </Select>
                   </div></td>

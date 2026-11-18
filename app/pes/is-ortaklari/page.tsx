@@ -49,7 +49,12 @@ export default function IsOrtaklari() {
       method: 'PATCH', headers: { 'Content-Type': 'application/json', ...surumBasligi(o) }, body: JSON.stringify(govde),
     })
     const d = await r.json()
-    if (!r.ok) { setHata(d.error ?? 'Kaydedilemedi'); return }
+    if (!r.ok) {
+      setHata(d.error ?? 'Kaydedilemedi')
+      // 409: kayıt araya giren değişiklikle eskidi; listeyi tazele ki yeni sürümle tekrar denensin.
+      if (r.status === 409) yukle()
+      return
+    }
     setDuzenlenen(null); yukle()
   }
 

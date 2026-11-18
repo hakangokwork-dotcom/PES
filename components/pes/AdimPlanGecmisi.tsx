@@ -28,15 +28,21 @@ export default function AdimPlanGecmisi({ woId }: { woId: number }) {
   const [adimlar, setAdimlar] = useState<Adim[] | null>(null)
   const [gecmis, setGecmis] = useState<Gecmis[]>([])
   const [acik, setAcik] = useState<number | null>(null)
+  const [hata, setHata] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`/api/pes/work-orders/${woId}/adimlar`).then(r => r.json()).then(d => {
-      setAdimlar(d.adimlar ?? []); setGecmis(d.gecmis ?? [])
-    })
+    fetch(`/api/pes/work-orders/${woId}/adimlar`)
+      .then(async r => {
+        const d = await r.json().catch(() => ({}))
+        if (!r.ok) throw new Error(d.error ?? 'Adım planı okunamadı')
+        setAdimlar(d.adimlar ?? []); setGecmis(d.gecmis ?? [])
+      })
+      .catch((e: Error) => setHata(e.message || 'Adım planı okunamadı'))
   }, [woId])
 
   const ac = (id: number) => setAcik(acik === id ? null : id)
 
+  if (hata) return <div role="alert" className="text-sm text-danger">{hata}</div>
   if (adimlar === null) return <div className="text-sm text-faint">Yükleniyor…</div>
   if (adimlar.length === 0) return <EmptyState title="Adım yok" description="Aşamalar sekmesinden adım ekleyin ya da rota uygulayın." />
 
@@ -54,6 +60,8 @@ export default function AdimPlanGecmisi({ woId }: { woId: number }) {
           <tbody>
             {adimlar.map(a => {
               const satirlar = gecmis.filter(g => g.stage_kayit_id === a.stage_kayit_id)
+              // İlk plan = tarihi olan ilk satır (firma-only satırlar ilk plan değildir; bkz. v_is_emri_adim).
+              const ilkId = satirlar.find(g => g.plan_baslangic || g.plan_bitis)?.id
               const kayma = a.plan_kayma_gun ?? 0
               const gecikme = a.gecikme_gun ?? 0
               return (
@@ -85,9 +93,9 @@ export default function AdimPlanGecmisi({ woId }: { woId: number }) {
                               <tr><th className="py-1.5">Kayıt</th><th>Plan</th><th>Firma</th><th>Gerekçe</th><th>Not</th><th>Kim</th></tr>
                             </thead>
                             <tbody>
-                              {satirlar.map((g, i) => (
+                              {satirlar.map(g => (
                                 <tr key={g.id} className="border-t border-line-soft">
-                                  <td className="py-1.5 num">{new Date(g.created_at).toLocaleDateString('tr-TR')}{i === 0 && <span className="ml-1 text-faint">(ilk)</span>}</td>
+                                  <td className="py-1.5 num">{new Date(g.created_at).toLocaleDateString('tr-TR')}{g.id === ilkId && <span className="ml-1 text-faint">(ilk)</span>}</td>
                                   <td className="num">{aralik(g.plan_baslangic, g.plan_bitis)}</td>
                                   <td>{g.ortak_unvan ?? '—'}</td>
                                   <td>{g.gerekce_kodu ? GEREKCE_AD[g.gerekce_kodu] ?? g.gerekce_kodu : <span className="text-faint">Belirtilmedi</span>}</td>
